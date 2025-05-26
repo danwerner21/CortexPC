@@ -2,7 +2,7 @@
 
 *** THIS IS UNTESTED DO NOT BUILD ***
 
-This is an ATX format implimentation of Stuart Conner's Mini-Cortex system.  The Mini-Cortex system is a further development of his TMS 9995 breadboard project to produce a system similar to a Powertran Cortex, but using more modern components. The system is based around a TMS 9995 running at 3 MHz, with 32K byte EEPROM, and will use 512K bytes of RAM from a Duodyne ROMRAM card accessed through a memory mapper. An on-board serial port and IDE interface exists on the card.  There is also provisions for a TMS9918 clone, a keyboard and some expansion slots -- these are not supported by the firmware at this time however.
+This is an ATX format implimentation of Stuart Conner's Mini-Cortex system.  The Mini-Cortex system is a further development of his TMS 9995 breadboard project to produce a system similar to a Powertran Cortex, but using more modern components. The system is based around a TMS 9995 running at 3 MHz, with 32K byte EEPROM, and will use 512K bytes of RAM  accessed through a memory mapper. An on-board serial port and IDE interface exists on the card.  There is also provisions for a TMS9918 clone, a keyboard and some expansion slots -- these are not supported by the firmware at this time however.
 
 The main EEPROM image provides a boot menu which enables the user to select between the EVMBUG system monitor from TI's TMS 9995 Evaluation Module, a port of the Powertran Cortex Power BASIC made for a TM 990 computer, the Marinchip Disk Executive (MDEX) operating system, and an implementation of V6 Unix including a C compiler.
 
@@ -85,7 +85,7 @@ If the first test passes, repeat with the second test image (TMS9995_test_2_epro
 
 The third test image has two versions.   The first version configures the serial port to 9600 Baud, 7 bits/character, even parity, 2 stops bits, no flow control, and then loops continually sending the ASCII characters >21 ("!") to >7E .  This version tests most of the system including ROM and RAM.   The second version is a ROM only version. It also configures the serial port to 9600 Baud, 7 bits/character, even parity, 2 stops bits, no flow control, and then loops continually sending the ASCII characters >21 ("!") to >7E , but does not use any external RAM.
 
-Note that the TMS9995 uses the RAM3 chip on the ROMRAM card, therefore it must be populated for the TMS9995 board to function.
+
 
 ## Patches
  
