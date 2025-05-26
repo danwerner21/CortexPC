@@ -90,3 +90,69 @@ The third test image has two versions.   The first version configures the serial
 ## Patches
  
 ## BOM
+Reference|Value|Qty|Description
+---------|-----|---|-----------
+C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14,C15,C16,C17,C19,C21,C23,C25,C27,C29|0.1u|23|
+C18,C20,C22,C24|10u|4|
+C26|22u|1|
+C28|47uF|1|
+C30|1uF|1|Polarized capacitor
+C31|10uF|1|Polarized capacitor
+C32|0.1 uF|1|Unpolarized capacitor
+C33|0.01 uF|1|Unpolarized capacitor
+C34|100µF|1|
+C35|0.1µF|1|
+C40,C41|15pf|2|
+D1|PWR|1|LED
+D2|IDLE|1|LED
+D3|MAP|1|LED
+D5|1N5817|1|20V 1A Schottky Barrier Rectifier Diode, DO-41
+D6|IDE ACT|1|LED
+D8|Tx|1|LED
+D9|Rx|1|LED
+D10,D11|1N4148|2|100V 0.15A standard switching diode, DO-35
+J1|F18A TANG NANO Connector|1|Generic connector, double row, 02x10, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)
+J2,J8,J11,J13,J15,J17|IRQ Selection|6|Generic connector, double row, 02x06, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)
+J3,J10,J12,J14,J16,J18|Bus_I_not_SA_8bit|6|8-bit ISA-PC bus connector
+J4|Enable Serial Int|1|Generic connector, single row, 01x02, script generated
+J5|TTL SERIAL 0|1|
+J6|TTL SER 0 PWR|1|
+J7|USER OUT|1|Generic connector, single row, 01x07, script generated
+J9|AUDIO OUT|1|coaxial connector (BNC, SMA, SMB, SMC, Cinch/RCA, LEMO, ...)
+J19|Parallel Keyboard IN|1|Generic connector, single row, 01x11, script generated
+JP1|JUMPER|1|Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)
+JP4|EXT IDE LED|1|
+JP5|IDE PWR|1|
+P1|14.31818 MHz CLK|1|
+P4|8 BIT IDE (CF)|1|
+P5|CONN_10X2|1|Generic connector, double row, 02x10, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)
+P6|POWER_SW|1|Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)
+R1,R3,R6,R7,R11,R12,R13,R17|470|8|-- mixed values --
+R2,R4,R8,R10,R14|10K|5|
+R5|1000|1|Resistor
+R9|10Ω|1|
+R16,R18|10k|2|Resistor
+SW1|RESET|1|Push button switch, generic, two pins
+SW2|POWER|1|Push button switch, generic, two pins
+U1|74LS14|1|
+U2|74LS07|1|
+U3|TMS9995-DIP_1|1|
+U4|74LS04|1|
+U5,U27|74LS74|2|-- mixed values --
+U6|74LS112|1|
+U7|SN76489|1|
+U8|DS1233|1|
+U9|SRAM_512K|1|512K x 8 Low Power CMOS RAM, DIP-32
+U10|TMS9918 EMU|1|
+U11,U30|GAL22V10|2|
+U12,U13|74LS32|2|Quad 2-input OR
+U14,U28,U29,U31|74LS244|4|Octal Buffer and Line Driver With 3-State Output, active-low enables, non-inverting outputs
+U15|74LS138|1|
+U17|74LS688|1|
+U18|27C256|1|
+U21|TMS9902A|1|
+U22|74LS259|1|
+U23|74LS612-DIP|1|
+U25|74LS245|1|Octal BUS Transceivers, 3-State outputs
+U26|74HCT14|1|Hex inverter schmitt trigger
+Y1|12MHz|1|
