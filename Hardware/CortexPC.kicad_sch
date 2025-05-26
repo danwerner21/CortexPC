@@ -1,0 +1,284 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "18cdbc1e-88fb-4fa4-ad3d-e978304be174")
+	(paper "B")
+	(title_block
+		(title "CortexPC")
+		(date "2025-05-25")
+		(rev "V0.5")
+	)
+	(lib_symbols)
+	(sheet
+		(at 102.87 92.71)
+		(size 69.85 67.31)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "00000000-0000-0000-0000-0000640c66b9")
+		(property "Sheetname" "GALS"
+			(at 102.87 91.8714 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "GALS.kicad_sch"
+			(at 102.87 160.7062 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "CortexPC"
+				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 252.73 92.71)
+		(size 69.85 67.31)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "00000000-0000-0000-0000-000064122c47")
+		(property "Sheetname" "IO"
+			(at 252.73 91.8714 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io.kicad_sch"
+			(at 252.73 160.7062 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "CortexPC"
+				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174"
+					(page "11")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 27.94 19.05)
+		(size 69.85 67.31)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "00000000-0000-0000-0000-00006416c532")
+		(property "Sheetname" "bus"
+			(at 27.94 18.2114 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "bus.kicad_sch"
+			(at 27.94 87.0462 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "CortexPC"
+				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 102.87 19.05)
+		(size 69.85 67.31)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "00000000-0000-0000-0000-0000643138dc")
+		(property "Sheetname" "power"
+			(at 102.87 18.2114 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "power.kicad_sch"
+			(at 102.87 87.0462 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "CortexPC"
+				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 177.8 19.05)
+		(size 69.85 67.31)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "00000000-0000-0000-0000-00006439f52f")
+		(property "Sheetname" "buffers"
+			(at 177.8 18.2114 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "buffers.kicad_sch"
+			(at 177.8 87.0462 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "CortexPC"
+				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174"
+					(page "6")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 27.94 92.71)
+		(size 69.85 67.31)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "ba44e7a1-24af-4410-9b7f-d27d944b565f")
+		(property "Sheetname" "TMS9995CPU"
+			(at 27.94 91.9984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "TMS9995CPU.kicad_sch"
+			(at 27.94 160.6046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "CortexPC"
+				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174"
+					(page "9")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 251.206 19.05)
+		(size 70.866 67.056)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "bf22aaf9-2ccd-42cb-8c74-82ad86acbf23")
+		(property "Sheetname" "video"
+			(at 251.206 18.3384 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "video.kicad_sch"
+			(at 251.206 86.6906 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "CortexPC"
+				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174"
+					(page "9")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)

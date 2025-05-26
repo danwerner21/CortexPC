@@ -1,0 +1,195 @@
+{COMPONENT P:\DUODYNE\20 PROCESSOR.TMS9995\HARDWARE\GALS\TMS9995-IO-OLD.SYM
+
+ {ENVIRONMENT
+  {PDIFvrev 3.00}
+  {Program "CUPL(WM) Version 5.0a"}
+  {DBtype "Schematic"}
+  {DBvrev 1.01}
+  {DBtime "Sun Apr 20 19:21:23 2025 "}
+  {DBunit "MIL"}
+  {DBgrid 10}
+  {Lyrstr "WIRES" 1 "BUS" 1 "GATE" 2 "IEEE" 2 "PINFUN" 3 "PINNUM" 1 
+          "PINNAM" 6 "PINCON" 4 "REFDES" 2 "ATTR" 6 "SDOT" 1 
+          "DEVICE" 5 "OUTLIN" 5 "ATTR2" 6 "NOTES" 6 "NETNAM" 4 
+          "CMPNAM" 5 "BORDER" 5}
+ }
+
+ {USER
+  {VIEW
+   {Mode SYMB}
+   {Nlst OPEN}
+   {Vw 0 0 2}
+   {Lv 12 2 2 2 0 0 2 2 2 2 0 0 2 1 2 0 0 0 0}
+   {Gs 10 10}
+  }
+ }
+
+ {DISPLAY
+  [Ly "PINNUM"]
+  [Ls "SOLID"][Wd 0]
+  [Ts 15][Tj "LC"][Tr 0][Tm "N"]
+ }
+
+ {SYMBOL
+  {PIN_DEF
+   [Ly "PINCON"]
+   {P MEMEN {Pt "INPUT"}{Lq 0}{Ploc 100 240}}
+   {P CPUA5 {Pt "INPUT"}{Lq 0}{Ploc 100 200}}
+   {P CPUA4 {Pt "INPUT"}{Lq 0}{Ploc 100 180}}
+   {P ISFE {Pt "INPUT"}{Lq 0}{Ploc 100 160}}
+   {P RA15 {Pt "INPUT"}{Lq 0}{Ploc 100 140}}
+   {P CPUA7 {Pt "INPUT"}{Lq 0}{Ploc 100 120}}
+   {P CPUA6 {Pt "INPUT"}{Lq 0}{Ploc 100 100}}
+   {P ROMEN {Pt "INPUT"}{Lq 0}{Ploc 100 80}}
+   {P USER {Pt "INPUT"}{Lq 0}{Ploc 100 60}}
+   {P CPUA3 {Pt "INPUT"}{Lq 0}{Ploc 100 40}}
+   {P CPUA2 {Pt "INPUT"}{Lq 0}{Ploc 100 20}}
+   {P CPU_IORQ {Pt "I/O"}{Lq 0}{Ploc 330 20}}
+   {P RESET {Pt "I/O"}{Lq 0}{Ploc 330 40}}
+   {P WAIT {Pt "I/O"}{Lq 0}{Ploc 330 60}}
+   {P 9902SEL {Pt "I/O"}{Lq 0}{Ploc 330 80}}
+   {P MAPSEL {Pt "I/O"}{Lq 0}{Ploc 330 100}}
+   {P CFSEL {Pt "I/O"}{Lq 0}{Ploc 330 120}}
+   {P ONBOARD_ {Pt "I/O"}{Lq 0}{Ploc 330 140}}
+  }
+
+  {PKG
+   [Ly "REFDES"]
+   [Ts 25][Tj "CB"][Tr 0][Tm "N"]
+   {Rdl 215 270}
+
+   [Ly "PINNUM"]
+   [Ts 15][Tj "RC"]
+   {Pnl 120 250}
+   [Ts 15][Tj "RC"]
+   {Pnl 120 210}
+   {Pnl 120 190}
+   {Pnl 120 170}
+   {Pnl 120 150}
+   {Pnl 120 130}
+   {Pnl 120 110}
+   {Pnl 120 90}
+   {Pnl 120 70}
+   {Pnl 120 50}
+   {Pnl 120 30}
+   [Ts 15][Tj "LC"]
+   {Pnl 310 30}
+   {Pnl 310 50}
+   {Pnl 310 70}
+   {Pnl 310 90}
+   {Pnl 310 110}
+   {Pnl 310 130}
+   {Pnl 310 150}
+
+   {Sd A 1 2 3 4 5 6 7 8 10 11 13 15 16 17 18 20 21 23}
+  }
+
+  {PIC
+   [Ly "GATE"]
+   [Ts 15][Tj "LC"][Tr 0][Tm "N"]
+   {R 130 260 300 0}
+   {L 130 240 100 240}
+   {L 130 250 140 240 130 230}
+   {L 130 200 100 200}
+   {L 130 180 100 180}
+   {L 130 160 100 160}
+   {L 130 140 100 140}
+   {L 130 120 100 120}
+   {L 130 100 100 100}
+   {L 130 80 100 80}
+   {L 130 60 100 60}
+   {L 130 40 100 40}
+   {L 130 20 100 20}
+   {L 300 20 330 20}
+   {L 300 40 330 40}
+   {L 300 60 330 60}
+   {L 300 80 330 80}
+   {L 300 100 330 100}
+   {L 300 120 330 120}
+   {L 300 140 330 140}
+   [Ly "PINNAM"]
+   [Tj "LC"]
+   {T "MEMEN" 140 240}
+   {T "CPUA5" 140 200}
+   {T "CPUA4" 140 180}
+   {T "ISFE" 140 160}
+   {T "RA15" 140 140}
+   {T "CPUA7" 140 120}
+   {T "CPUA6" 140 100}
+   {T "ROMEN" 140 80}
+   {T "USER" 140 60}
+   {T "CPUA3" 140 40}
+   {T "CPUA2" 140 20}
+   [Tj "RC"]
+   {T "CPU_IORQ" 290 20}
+   {T "RESET" 290 40}
+   {T "WAIT" 290 60}
+   {T "9902SEL" 290 80}
+   {T "MAPSEL" 290 100}
+   {T "CFSEL" 290 120}
+   {T "ONBOARD_" 290 140}
+   [Ly "DEVICE"]
+   [Tj "CT"]
+   {T "G22V10" 215 -10}
+  }
+
+  {ATR
+   {IN
+    {Org 100 20}
+    {Ty 255}
+   }
+   {EX
+    [Ly "ATTR2"]
+    [Ts 12][Tj "CT"][Tr 0][Tm "N"]
+    {At PLD P:\DUODYNE\20 PROCESSOR.TMS9995\HARDWARE\GALS\TMS9995-IO-OLD 215 260}
+   }
+  }
+ }
+
+ {DETAIL
+  {ANNOTATE
+  }
+
+  {NET_DEF
+   {N MEMEN
+   }
+   {N CPUA5
+   }
+   {N CPUA4
+   }
+   {N ISFE
+   }
+   {N RA15
+   }
+   {N CPUA7
+   }
+   {N CPUA6
+   }
+   {N ROMEN
+   }
+   {N USER
+   }
+   {N CPUA3
+   }
+   {N CPUA2
+   }
+   {N CPU_IORQ
+   }
+   {N RESET
+   }
+   {N WAIT
+   }
+   {N 9902SEL
+   }
+   {N MAPSEL
+   }
+   {N CFSEL
+   }
+   {N ONBOARD_
+   }
+  }
+
+  {SUBCOMP
+  }
+ }
+}

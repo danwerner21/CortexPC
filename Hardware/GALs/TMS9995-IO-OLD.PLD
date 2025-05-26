@@ -1,0 +1,40 @@
+Name     TMS9995-IO-OLD ;
+PartNo   00 ;
+Date     10/29/2023 ;
+Revision 01 ;
+Designer Dan Werner ;
+Company  a ;
+Assembly None ;
+Location  ;
+Device   g22v10 ;
+
+/* inputs */
+PIN 1 = MEMEN;
+PIN 2 = CPUA5;
+PIN 3 = CPUA4;
+PIN 4 = ISFE;
+PIN 5 = RA15;
+PIN 6 = CPUA7;
+PIN 7 = CPUA6;
+PIN 8 = ROMEN;
+PIN 10 = USER;
+PIN 11 = CPUA3;
+PIN 13 = CPUA2;
+
+/* outputs */
+PIN 23 = ONBOARD_ROM;
+PIN 21 = CFSEL;
+PIN 20 = MAPSEL;
+PIN 18 = 9902SEL;
+PIN 17 = WAIT;
+PIN 16 = RESET;
+PIN 15 = CPU_IORQ;
+
+/* combinatorial logic */
+ONBOARD_ROM = MEMEN # ROMEN # RA15;
+CFSEL = MEMEN # ISFE # !RA15 # CPUA7 # CPUA6 # USER # CPUA5 # CPUA4 # CPUA3 ; /* #CPUA2 */
+MAPSEL = MEMEN # ISFE # !RA15 # CPUA7 # !CPUA6 # USER # CPUA5 # CPUA4 ; /* ok */
+9902SEL = !MEMEN # ISFE # RA15 # CPUA7 # CPUA6 # USER;  /* ok */
+RESET = 'b'1 ;   /*MEMEN # ISFE # !RA15 # CPUA7 # CPUA6 # USER # !CPUA5 # CPUA4 # CPUA3*/ /* #CPUA2 */
+WAIT = !ONBOARD_ROM # !CFSEL; /* ok */
+CPU_IORQ = MEMEN # ISFE # !CFSEL # !MAPSEL # !9902SEL # USER # !RA15;  /* OK */

@@ -1,0 +1,33 @@
+Name     TMS9995-MEM ;
+PartNo   00 ;
+Date     10/29/2023 ;
+Revision 01 ;
+Designer Dan Werner ;
+Company  a ;
+Assembly None ;
+Location  ;
+Device   g22v10 ;
+
+/* inputs */
+PIN 1 = MEMEN;
+PIN 2 = WE;
+PIN 4 = ISFE;
+PIN 5 = RA15;
+PIN 6 = CPUA7;
+PIN 7 = CPUA6;
+PIN 8 = ROMEN;
+PIN 9 = CRUCLK;
+PIN 10 = USER;
+PIN 11 = PROTECT;
+
+/* outputs */
+PIN 22 = OFFBOARD_MEM;
+PIN 19 = PWE;
+PIN 16 = FLAGSEL;
+PIN 14 = CPU_MREQ;
+
+/* combinatorial logic */
+OFFBOARD_MEM = MEMEN # (!ROMEN & !RA15 & WE) # (!ISFE & RA15) ;
+PWE = WE # (PROTECT & USER);
+FLAGSEL = CRUCLK # ISFE # RA15 # CPUA7 # !CPUA6;
+CPU_MREQ = (!ISFE & RA15) # OFFBOARD_MEM;

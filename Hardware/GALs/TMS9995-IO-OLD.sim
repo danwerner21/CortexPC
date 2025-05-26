@@ -1,0 +1,97 @@
+%SIGNAL
+PIN  18 =  9902SEL 
+PIN  21 =  CFSEL 
+PIN  13 =  CPUA2 
+PIN  11 =  CPUA3 
+PIN   3 =  CPUA4 
+PIN   2 =  CPUA5 
+PIN   7 =  CPUA6 
+PIN   6 =  CPUA7 
+PIN  15 =  CPU_IORQ 
+PIN   4 =  ISFE 
+PIN  20 =  MAPSEL 
+PIN   1 =  MEMEN 
+PIN  23 =  ONBOARD_ROM 
+PIN   5 =  RA15 
+PIN  16 =  RESET 
+PIN   8 =  ROMEN 
+PIN  10 =  USER 
+PIN  17 =  WAIT 
+%END
+
+%FIELD
+%END
+
+%EQUATION
+9902SEL =>
+    CPUA6
+  # CPUA7
+  # ISFE
+  # !MEMEN
+  # RA15
+  # USER
+
+CFSEL =>
+    CPUA3
+  # CPUA4
+  # CPUA5
+  # CPUA6
+  # CPUA7
+  # ISFE
+  # MEMEN
+  # !RA15
+  # USER
+
+CPU_IORQ =>
+    !9902SEL
+  # !CFSEL
+  # ISFE
+  # !MAPSEL
+  # MEMEN
+  # !RA15
+  # USER
+
+MAPSEL =>
+    CPUA4
+  # CPUA5
+  # !CPUA6
+  # CPUA7
+  # ISFE
+  # MEMEN
+  # !RA15
+  # USER
+
+ONBOARD_ROM =>
+    MEMEN
+  # RA15
+  # ROMEN
+
+RESET =>
+    1 
+
+WAIT =>
+    !CFSEL
+  # !ONBOARD_ROM
+
+9902SEL.oe  =>
+    1 
+
+CFSEL.oe  =>
+    1 
+
+CPU_IORQ.oe  =>
+    1 
+
+MAPSEL.oe  =>
+    1 
+
+ONBOARD_ROM.oe  =>
+    1 
+
+RESET.oe  =>
+    1 
+
+WAIT.oe  =>
+    1 
+
+%END
