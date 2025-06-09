@@ -201,6 +201,44 @@
 		)
 	)
 	(sheet
+		(at 177.8 92.964)
+		(size 70.104 66.294)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "8927aa22-c9dd-426b-828f-e903cbb78684")
+		(property "Sheetname" "sid"
+			(at 177.8 92.2524 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "sid.kicad_sch"
+			(at 177.8 159.8426 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "CortexPC"
+				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174"
+					(page "9")
+				)
+			)
+		)
+	)
+	(sheet
 		(at 27.94 92.71)
 		(size 69.85 67.31)
 		(fields_autoplaced yes)

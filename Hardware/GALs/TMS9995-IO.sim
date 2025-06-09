@@ -15,6 +15,7 @@ PIN   1 =  MEMEN
 PIN  23 =  ONBOARD_ROM 
 PIN   5 =  RA15 
 PIN   8 =  ROMEN 
+PIN  14 =  SIDSEL 
 PIN  22 =  SNDSEL 
 PIN  10 =  USER 
 PIN  19 =  VIDEOSEL 
@@ -79,6 +80,15 @@ ONBOARD_ROM =>
   # RA15
   # ROMEN
 
+SIDSEL =>
+    !CPUA5
+  # !CPUA6
+  # CPUA7
+  # ISFE
+  # MEMEN
+  # !RA15
+  # USER
+
 SNDSEL =>
     !CPUA3
   # CPUA4
@@ -121,6 +131,9 @@ MAPSEL.oe  =>
     1 
 
 ONBOARD_ROM.oe  =>
+    1 
+
+SIDSEL.oe  =>
     1 
 
 SNDSEL.oe  =>

@@ -1717,10 +1717,6 @@
 		(uuid "26ed459d-c477-4f19-a4c5-3f5b60d377e5")
 	)
 	(no_connect
-		(at 171.45 196.85)
-		(uuid "2e91f42a-10bd-4f62-ba8c-608568377278")
-	)
-	(no_connect
 		(at 146.05 194.31)
 		(uuid "473318a4-fede-4cb8-ab0c-42f83de25089")
 	)
@@ -2096,6 +2092,16 @@
 	)
 	(wire
 		(pts
+			(xy 171.45 196.85) (xy 173.99 196.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c7005b1d-1305-4348-92d0-937c934881b2")
+	)
+	(wire
+		(pts
 			(xy 168.91 95.25) (xy 171.45 95.25)
 		)
 		(stroke
@@ -2220,7 +2226,7 @@
 		)
 		(uuid "37caf958-2d1d-4c9c-a17b-927ec11ed8d8")
 	)
-	(text "The memory map is shown in the table below.\n\nMemory Address	Mapped To\n>0000 - >7FFF	ROM when enabled, otherwise RAM\n>8000 - >EFFF	RAM\n>F000 - >F0FB	TMS 9995 internal RAM\n>F0FC - >FDFF	RAM\n>FE00 - >FE03	CF card ATA registers \n>FE10 - >FE13	SOUND\n>FE20 - >FE23	VIDEO\n>FE30 - >FE33	KEYBOARD\n>FE40 - >FE4F	Memory mapper registers 0-15 \n>FE80 - >FEBF	Offboard IO (ports $80-$FF)\n>FFF0 - >FFF9	RAM\n>FFFA - >FFFF	TMS 9995 internal RAM\n\n\nCRU Address	Mapped To\n>0000 - >003F	TMS 9902 registers\n>0040 - >007F	Control signal latch (further details here)\n 	(Plus processor internal CRU bits)\n"
+	(text "The memory map is shown in the table below.\n\nMemory Address	Mapped To\n>0000 - >7FFF	ROM when enabled, otherwise RAM\n>8000 - >EFFF	RAM\n>F000 - >F0FB	TMS 9995 internal RAM\n>F0FC - >FDFF	RAM\n>FE00 - >FE03	CF card ATA registers \n>FE10 - >FE13	SOUND\n>FE20 - >FE23	VIDEO\n>FE30 - >FE33	KEYBOARD\n>FE40 - >FE4F	Memory mapper registers 0-15 \n>FE60 - >FE7F	SID registers 0-31 \n>FE80 - >FEBF	Offboard IO (ports $80-$FF)\n>FFF0 - >FFF9	RAM\n>FFFA - >FFFF	TMS 9995 internal RAM\n\n\nCRU Address	Mapped To\n>0000 - >003F	TMS 9902 registers\n>0040 - >007F	Control signal latch (further details here)\n 	(Plus processor internal CRU bits)\n"
 		(exclude_from_sim no)
 		(at 199.136 146.558 0)
 		(effects
@@ -2242,7 +2248,7 @@
 		)
 		(uuid "bdf1a7a3-e89c-472e-83c5-e924e7f79fd7")
 	)
-	(text "=~{MEMEN}+~{ROMEN}+RA15\n=~{MEMEN}+~{ISFE}+!RA15+CPU-A7+CPU-A6+USER+CPU-A5+CPU-A4+~{CPU-A3}\n=~{MEMEN}+~{ISFE}+!RA15+CPU-A7+CPU-A6+USER+CPU-A5+CPU-A4+CPU-A3\n=~{MEMEN}+~{ISFE}+!RA15+CPU-A7+CPU-A6+USER+CPU-A5+CPU-A4\n=~{MEMEN}+~{ISFE}+!RA15+CPU-A7+CPU-A6+USER+CPU-A5+~{CPU-A4}+CPU-A3\n=!~{MEMEN}+~{ISFE}+RA15+CPU-A7+CPU-A6+USER\n=!~{ONBOARD_ROM}+!~{CFSEL}\n=~{MEMEN}+~{ISFE}+!RA15+CPU-A7+CPU-A6+USER+CPU-A5+~{CPU-A4}+~{CPU-A3}\n=~{MEMEN}+~{ISFE}+!~{CFSEL}+!~{MAPSEL}+!~{9902SEL}+USER+!RA15\n\n"
+	(text "=~{MEMEN}+~{ROMEN}+RA15\n=~{MEMEN}+~{ISFE}+!RA15+CPU-A7+CPU-A6+USER+CPU-A5+CPU-A4+~{CPU-A3}\n=~{MEMEN}+~{ISFE}+!RA15+CPU-A7+CPU-A6+USER+CPU-A5+CPU-A4+CPU-A3\n=~{MEMEN}+~{ISFE}+!RA15+CPU-A7+CPU-A6+USER+CPU-A5+CPU-A4\n=~{MEMEN}+~{ISFE}+!RA15+CPU-A7+CPU-A6+USER+CPU-A5+~{CPU-A4}+CPU-A3\n=!~{MEMEN}+~{ISFE}+RA15+CPU-A7+CPU-A6+USER\n=!~{ONBOARD_ROM}+!~{CFSEL}\n=~{MEMEN}+~{ISFE}+!RA15+CPU-A7+CPU-A6+USER+CPU-A5+~{CPU-A4}+~{CPU-A3}\n=~{MEMEN}+~{ISFE}+!~{CFSEL}+!~{MAPSEL}+!~{9902SEL}+USER+!RA15\n=~{MEMEN}+~{ISFE}+!RA15+CPU-A7+CPU-A6+USER+!CPU-A5\n"
 		(exclude_from_sim no)
 		(at 186.69 197.358 0)
 		(effects
@@ -3080,6 +3086,28 @@
 		(uuid "ddbf7fed-34d3-4ff8-8e1e-62e28ee19e81")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 176.4057 82.4865 0)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "~{SIDSEL}"
+		(shape output)
+		(at 173.99 196.85 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.016 1.016)
+			)
+			(justify left)
+		)
+		(uuid "e12ead89-077c-4593-be57-231afeaaa9bd")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 181.0314 196.85 0)
 			(effects
 				(font
 					(size 1.016 1.016)
