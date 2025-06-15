@@ -1721,6 +1721,10 @@
 		(uuid "473318a4-fede-4cb8-ab0c-42f83de25089")
 	)
 	(no_connect
+		(at 173.99 191.77)
+		(uuid "4f2d5375-2075-4ee1-97cf-4b9c7afac0d8")
+	)
+	(no_connect
 		(at 168.91 77.47)
 		(uuid "6adbd3fd-bd34-4c40-9b18-36c0cd0c5cbd")
 	)
@@ -2226,7 +2230,7 @@
 		)
 		(uuid "37caf958-2d1d-4c9c-a17b-927ec11ed8d8")
 	)
-	(text "The memory map is shown in the table below.\n\nMemory Address	Mapped To\n>0000 - >7FFF	ROM when enabled, otherwise RAM\n>8000 - >EFFF	RAM\n>F000 - >F0FB	TMS 9995 internal RAM\n>F0FC - >FDFF	RAM\n>FE00 - >FE03	CF card ATA registers \n>FE10 - >FE13	SOUND\n>FE20 - >FE23	VIDEO\n>FE30 - >FE33	KEYBOARD\n>FE40 - >FE4F	Memory mapper registers 0-15 \n>FE60 - >FE7F	SID registers 0-31 \n>FE80 - >FEBF	Offboard IO (ports $80-$FF)\n>FFF0 - >FFF9	RAM\n>FFFA - >FFFF	TMS 9995 internal RAM\n\n\nCRU Address	Mapped To\n>0000 - >003F	TMS 9902 registers\n>0040 - >007F	Control signal latch (further details here)\n 	(Plus processor internal CRU bits)\n"
+	(text "The memory map is shown in the table below.\n\nMemory Address	Mapped To\n>0000 - >7FFF	ROM when enabled, otherwise RAM\n>8000 - >EFFF	RAM\n>F000 - >F0FB	TMS 9995 internal RAM\n>F0FC - >FDFF	RAM\n>FE00 - >FE03	CF card ATA registers \n>FE10 - >FE13	SOUND\n>FE20 - >FE23	VIDEO\n>FE40 - >FE4F	Memory mapper registers 0-15 \n>FE60 - >FE7F	SID registers 0-31 \n>FE80 - >FEBF	Offboard IO (ports $80-$FF)\n>FFF0 - >FFF9	RAM\n>FFFA - >FFFF	TMS 9995 internal RAM\n\n\nCRU Address	Mapped To\n>0000 - >003F	TMS 9902 registers\n>0040 - >007F	Control signal latch (further details here)\n 	(Plus processor internal CRU bits)\n"
 		(exclude_from_sim no)
 		(at 199.136 146.558 0)
 		(effects
@@ -2558,28 +2562,6 @@
 		(uuid "7efe8d83-ae05-4e62-bb11-a3bea7d26525")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 182.2894 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "~{KeyboardSel}"
-		(shape output)
-		(at 173.99 191.77 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.016 1.016)
-			)
-			(justify left)
-		)
-		(uuid "800c09c1-faa1-4986-9bbb-42de611a9783")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 185.1922 191.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)

@@ -6688,7 +6688,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Custom:STD_DDW_RESISTOR"
+		(property "Footprint" "Potentiometer_THT:Potentiometer_Bourns_3386F_Vertical"
 			(at 138.43 62.23 0)
 			(effects
 				(font
