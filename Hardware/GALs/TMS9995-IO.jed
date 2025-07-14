@@ -1,7 +1,7 @@
 
 CUPL(WM)        5.0a  Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Mon Jun 09 18:53:35 2025
+Created         Sun Jul 13 16:35:49 2025
 Name            TMS9995-IO 
 Partno          00 
 Revision        01 
@@ -137,4 +137,4 @@ Location
 *L05792 00000000000000001111111111111111
 *L05824 11110011000000110000001000000000
 *CAFC6
-*04BA
+*04C2

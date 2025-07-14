@@ -1,8 +1,8 @@
-# TMS9995 CPU Card
+# CortexPC
 
 *** THIS IS UNTESTED DO NOT BUILD ***
 
-This is an ATX format implimentation of Stuart Conner's Mini-Cortex system.  The Mini-Cortex system is a further development of his TMS 9995 breadboard project to produce a system similar to a Powertran Cortex, but using more modern components. The system is based around a TMS 9995 running at 3 MHz, with 32K byte EEPROM, and will use 512K bytes of RAM  accessed through a memory mapper. An on-board serial port and IDE interface exists on the card.  There is also provisions for a TMS9918 clone, a keyboard and some expansion slots -- these are not supported by the firmware at this time however.
+This is an ATX format implimentation of the Mini-Cortex system by Paul Ruizendaal and Stuart Conner.  The Mini-Cortex system is a further development of a TMS 9995 breadboard project to produce a system similar to a Powertran Cortex, but using more modern components. The system is based around a TMS 9995 running at 3 MHz, with 32K byte EEPROM, and will use 512K bytes of RAM  accessed through a memory mapper. An on-board serial port and IDE interface exists on the card.  There is also provisions for a TMS9918 clone, a keyboard and some expansion slots -- these are not supported by the firmware at this time however.
 
 The main EEPROM image provides a boot menu which enables the user to select between the EVMBUG system monitor from TI's TMS 9995 Evaluation Module, a port of the Powertran Cortex Power BASIC made for a TM 990 computer, the Marinchip Disk Executive (MDEX) operating system, and an implementation of V6 Unix including a C compiler.
 
@@ -75,7 +75,21 @@ The first version of Unix ported was LSX Unix (https://www.mailcom.com/lsx/), wh
 
 ## Bugs/To Do
 
-BUILD ONE AND TEST IT :)
+* The power switch circuit is FUBAR.  The chips involved (u26, U27) need to be powered from 5vsb not 5v.  Best to leave out U26 & U27 when building V0.5 and just supply 5v to the appropriate pin on the ATX connector rather than using an atx power supply.
+
+* The ISA bus is also pretty messed up on V0.5.  The reset line that goes to the slots is active low when it should be active High.  The bus clock is also driven at an inappropriate speed, and it is important to leave U25 out of the system entirely as it drives the data bus improperly.   I think for the next version I am going to use the TI PEB bus rather than ISA . . 
+
+* B_INT cannot be left floating, it must be pulled low.
+
+* Test Video
+
+* Test SID
+
+* Test SN76489
+
+* Test Keyboard
+
+* Replace Bus
 
 ## Troubleshooting
 

@@ -20,20 +20,20 @@ PIN   2 =  WE
 
 %EQUATION
 CPU_MREQ =>
-    !ISFE & RA15
-  # OFFBOARD_MEM
+    OFFBOARD_MEM
+  # !ISFE & RA15
 
 FLAGSEL =>
-    CRUCLK
+    !CPUA6
+  # CPUA7
+  # CRUCLK
   # ISFE
   # RA15
-  # CPUA7
-  # !CPUA6
 
 OFFBOARD_MEM =>
     MEMEN
-  # !RA15 & !ROMEN & WE
   # !ISFE & RA15
+  # !RA15 & !ROMEN & WE
 
 PWE =>
     WE
