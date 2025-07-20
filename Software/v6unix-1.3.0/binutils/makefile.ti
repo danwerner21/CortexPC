@@ -1,0 +1,36 @@
+CFLAGS = -O ${DEBUG}
+
+EXES = ld nm ar strip size 
+
+all: ${EXES}
+
+install: 
+	cp ld /bin/ld
+	cp nm /bin/nm
+	cp ar /bin/ar
+	cp strip /bin/strip
+	cp size /bin/size
+
+clean:
+	rm -f *.o ${EXES} 
+
+ld: ld.o
+	${CC} ${CFLAGS} -o ld ld.o
+
+nm: nm.o
+	${CC} ${CFLAGS} -o nm nm.o
+
+ar: ar.o
+	${CC} ${CFLAGS} -o ar ar.o
+
+strip: strip.o
+	${CC} ${CFLAGS} -o strip strip.o
+
+size: size.o
+	${CC} ${CFLAGS} -o size size.o
+
+ar.o: ar.c
+ld.o: ld.c
+nm.o: nm.c
+size.o: size.c
+strip.o: strip.c

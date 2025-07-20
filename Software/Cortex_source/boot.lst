@@ -1,0 +1,307 @@
+ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0001
+BOOT STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT  'BOOT'
+              3  *
+              4  *
+              5  * ROUTINE LIST:
+              6  *
+              7  *       BOOTY                 ;BOOT STATEMENT
+              8  *
+              9         DEF  BOOTY
+             10         REF  TMPBUF            1K scratch buffer
+             11         REF  WPR1              System workspace
+             12  *
+             13  *      Track 0  Sector 1  Data Format
+             14  *                         -----------
+             15  *
+             16  *             0     2     4     6     8     A     C     E
+             17  *          +-----+-----+-----+-----+-----+-----+-----+-----+
+             18  *   00     | WP  | PC  |-----|-----|-----|-----|-----|-----|
+             19  *          +-----+-----+-----+-----+-----+-----+-----+-----+
+             20  *   10     |-----|-----| LN  | SA  |-----|-----|-----| CS  |
+             21  *          +-----+-----+-----+-----+-----+-----+-----+-----+
+             22  *   20     | CO  | PY  | RI  | GH  | T^  | T.  | I.  | L^  |
+             23  *          +-----+-----+-----+-----+-----+-----+-----+-----+
+             24  *   30     | BO  | OT  | ^L  | OA  | DE  | R^  | V1  | .0  |
+             25  *          +-----+-----+-----+-----+-----+-----+-----+-----+
+             26  *          ~     ~     ~     ~     ~     ~     ~     ~     ~
+             27  *
+             28  *      WP = Entry WP
+             29  *      PC = Entry PC
+             30  *      LN = Two times number of bytes to transfer
+             31  *      SA = Load address for absolute code program
+             32  *      CS = Checksum on words hex00 to hex1C inclusive
+             33  *      ^  = Space Character
+             34  *      All other locations are reserved for vector storage.
+             35  *
+ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0002
+BOOT STATEMENT - CORTEX BASIC REV. 1.1
+
+             37  *
+             38  *      MEMORY MAPPED I/O EQUATES
+             39  *
+     F140    40  FDC    EQU  >F140             FDC memory address
+             41  *
+             42  *      CRU BASE EQUATES
+             43  *
+     01C0    44  DMAC   EQU  >01C0             DMAC cru address
+             45  *
+             46  *      CRU I/O BITS
+             47  *
+     0002    48  SIZEI  EQU  2                 Drive size  1 = 8"   0 = 5.25"
+     0003    49  DNSTY  EQU  3                 Drive density  1 = DD  0 = DD
+     0004    50  FDCINT EQU  4                 FDC interrupt flag
+     0004    51  SIZEO  EQU  4                 Drive size  1 = 8"   0 = 5.25"
+             52  *
+             53  *      SECTOR BUFFER EQUATES
+             54  *
+0000         55         DORG 0
+0000         56         BSS  20                Vectors
+0014         57  LENGTH BSS  2                 Twice number of bytes to xfer
+0016         58  SADDR  BSS  8                 Start address for load
+001E         59  SUM    BSS  2                 Checksum
+ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0003
+BOOT STATEMENT - CORTEX BASIC REV. 1.1
+
+0000         61         RORG 0
+             62  *
+             63  *      BOOT COMMAND ENTRY POINT
+             64  *
+0000 02E0    65  BOOTY  LWPI WPR1              Use internal RAM for wp
+0002 0000 
+0004 0300    66         LIMI 0                 Mask all interrupts
+0006 0000 
+0008 0201    67         LI   R1,TABLE          Load pointer to cmd table
+000A 00EB'
+000C 0206    68         LI   R6,WAIT           Load pointer to wait routine
+000E 00C4'
+0010 0208    69         LI   R8,ENCODE         Load pointer to 5.25" values
+0012 00E4'
+0014 0209    70         LI   R9,FDC            Load pointer to FDC
+0016 F140 
+0018 04CC    71         CLR  R12               Load CRU base of i/o
+001A D671    72         MOVB *R1+,*R9          Send RSTC
+001C 0696    73         BL   *R6               Call wait
+             74  *
+             75  *      CHECK SIZE JUMPER
+             76  *
+001E 1E04    77         SBZ  SIZEO             Set 5.25" drive
+0020 1F02    78         TB   SIZEI             Read jumper
+0022 1602    79         JNE  MINI              Skip if 5.25"
+0024 8E38    80         C    *R8+,*R8+         Bump pointer by 4 to 8" values
+0026 1D04    81         SBO  SIZEO             Set 8" drive
+             82  *
+             83  *      RE-CALIBRATE DRIVE
+             84  *
+0028 C289    85  MINI   MOV  R9,R10            Copy FDC pointer 
+002A 0207    86         LI   R7,7              Load byte count
+002C 0007 
+002E DEB1    87  LOOP1  MOVB *R1+,*R10+        Send byte
+0030 0607    88         DEC  R7                Done ?
+0032 16FD    89         JNE  LOOP1             No , loop
+0034 D6A8    90         MOVB @2(R8),*R10       Send last byte
+0036 0002 
+0038 0696    91         BL   *R6               Call wait
+ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0004
+BOOT STATEMENT - CORTEX BASIC REV. 1.1
+
+             93  *
+             94  *      CHECK DENSITY JUMPER
+             95  *
+003A 1F03    96         TB   DNSTY             Read jumper
+003C 1603    97         JNE  SD                Skip if single density
+003E 0588    98         INC  R8                Bump pointer to double d values
+0040 0201    99         LI   R1,DOUBLE         Change pointer for double d
+0042 0106'
+0044 C289   100  SD     MOV  R9,R10            Copy FDC pointer
+0046 DEB1   101         MOVB *R1+,*R10+        Send AFAS command 
+0048 DEB1   102         MOVB *R1+,*R10+       
+004A DEB1   103         MOVB *R1+,*R10+       
+004C D6B1   104         MOVB *R1+,*R10
+            105  *
+            106  *      SET UP DMAC
+            107  *       
+004E 020C   108         LI   R12,DMAC          Load cru base of DMAC
+0050 01C0 
+0052 1D1F   109         SBO  31                Reset
+0054 1D19   110         SBO  25                Select channel 1
+0056 1E14   111         SBZ  20                Select byte xfers
+0058 1E13   112         SBZ  19                Set memory write
+005A 3020   113         LDCR @ERAM,0           Send stop address
+005C 00E2'
+005E 1D10   114         SBO  16                Enable load of start address
+0060 0202   115         LI   R2,TMPBUF         Load buffer start
+0062 0000 
+0064 3002   116         LDCR R2,0              Send start address
+0066 1D11   117         SBO  17                Enable channel
+            118  *
+            119  *      SET UP FDC FOR READ
+            120  *
+0068 C289   121         MOV  R9,R10            copy FDC pointer
+006A 0207   122         LI   R7,8              Load byte count
+006C 0008 
+006E DEB1   123  LOOP2  MOVB *R1+,*R10+        Send byte
+0070 0607   124         DEC  R7                Done ?
+0072 16FD   125         JNE  LOOP2             No , loop
+0074 C289   126         MOV  R9,R10            Copy FDC pointer
+0076 DEB1   127         MOVB *R1+,*R10+        Send cmd byte
+0078 DE98   128         MOVB *R8,*R10+         Send encode & xfer rate
+007A 0207   129         LI   R7,6              Load byte count
+007C 0006 
+007E DEB1   130  LOOP3  MOVB *R1+,*R10+        Send byte
+0080 0607   131         DEC  R7                Done ?
+0082 16FD   132         JNE  LOOP3             No , loop
+0084 0696   133         BL   *R6               Call wait
+ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0005
+BOOT STATEMENT - CORTEX BASIC REV. 1.1
+
+            135  *
+            136  *      CALCULATE CHECKSUM AND VERIFY VALUE
+            137  *
+0086 04C3   138         CLR  R3                 Clear
+0088 0204   139         LI   R4,SUM-2           Load index
+008A 001C 
+008C A0E4   140  ADD    A    @TMPBUF(R4),R3     Add entry
+008E 0062'
+0090 0644   141         DECT R4                 Decrement index
+0092 18FC   142         JOC  ADD                Done ? No , loop
+0094 8883   143         C    R3,@SUM(R2)        Checksum ok ? 
+0096 001E 
+0098 16B3   144         JNE  BOOTY              No , re-try
+            145  *
+            146  *      COPY TRACK 0 INTO MEMORY
+            147  *
+009A D660   148         MOVB @SORD,*R9         Send read cmd 
+009C 00FF'
+009E DA62   149         MOVB @LENGTH(R2),@3(R9) Send no of sectors to xfer
+00A0 0014 
+00A2 0003 
+00A4 020C   150         LI   R12,DMAC          Load cru base
+00A6 01C0 
+00A8 C0E2   151         MOV  @SADDR(R2),R3     Fetch start address
+00AA 0016 
+00AC 3003   152         LDCR R3,0              Send new start address
+            153  *
+            154  *      LOAD INTERNAL RAM WITH CODE
+            155  *
+00AE 04CC   156         CLR  R12               Load CRU base of i/o
+00B0 0200   157         LI   R0,>1F04          Load "TB   4  " instruction
+00B2 1F04 
+00B4 0201   158         LI   R1,>13FE          Load "JEQ  $-2" instruction
+00B6 13FE 
+00B8 0202   159         LI   R2,>0413          Load "BLWP *R3" instruction
+00BA 0413 
+00BC DA69   160         MOVB @7(R9),@7(R9)     Re-send last byte
+00BE 0007 
+00C0 0007 
+00C2 0440   161         B    R0                Execute from internal RAM
+ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0006
+BOOT STATEMENT - CORTEX BASIC REV. 1.1
+
+            163  *
+            164  *      WAIT FOR INTERRUPT OR TIMEOUT
+            165  *
+00C4 04C0   166  WAIT   CLR  R0                Set timeout count
+00C6 0705   167         SETO R5                Set count out
+00C8 04CC   168  WAIT1  CLR  R12               Load CRU base for i/o
+00CA 0600   169         DEC  R0                Timeout ?
+00CC 1602   170         JNE  CHKINT            No , check interrupt
+00CE 0585   171         INC  R5                Count out ?
+00D0 1697   172         JNE  BOOTY             Yes , re-try
+00D2 1F04   173  CHKINT TB   FDCINT            Interrupt active ?
+00D4 13F9   174         JEQ  WAIT1             No , loop
+00D6 D660   175         MOVB @CINT,*R9         Send CINT
+00D8 00E7'
+00DA 9819   176         CB   *R9,@OK           Status ok ?
+00DC 00E3'
+00DE 1690   177         JNE  BOOTY             No , re-try
+00E0 045B   178         RT
+ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0007
+BOOT STATEMENT - CORTEX BASIC REV. 1.1
+
+            180  *
+            181  *      MISC DATA
+            182  *
+00E2 EFFF   183  ERAM   DATA >EFFF             Last dram location
+     00E3'  184  OK     EQU  $-1               Ok status is hex FF
+            185  *                             5.25" encode & drive rates
+00E4 50     186  ENCODE BYTE >50,>A1           FM 125K BPS , MFM 250K BPS
+00E6 A5     187         BYTE >A5               Drives 0,1=Rate B   2,3=Rate A
+00E7 00     188  CINT   BYTE >00
+            189  *                             8" encode & drive rates
+00E8 60     190         BYTE >60,>B1           FM 250K BPS , MFM 500K BPS
+00EA 5A     191         BYTE >5A               Drives 0,1=Rate B   2,3=Rate A
+            192  *
+            193  *      SINGLE DENSITY TABLE
+            194  *
+00EB 20     195  TABLE  BYTE >20               RSTC
+00EC 41     196         BYTE >41               RDAR
+00ED 15     197         BYTE >15                 A. head step time     10 ms
+00EE 11     198         BYTE >11                 A. head settle time    8 ms
+00EF 47     199         BYTE >47                 A. head load time     35ms
+00F0 64     200         BYTE >64                 B. head step time     50 ms
+00F1 46     201         BYTE >46                 B. head settle time   35ms
+00F2 00     202         BYTE >00                 B. head load time      0 ms
+            203  *                               entry supplied code
+00F3 C0     204         BYTE >C0               AFAS
+00F4 FF     205         BYTE >FF                 fill
+00F5 00     206         BYTE >00                 sync
+00F6 06     207         BYTE >06                 number of sync before AM
+00F7 30     208         BYTE >30               AIDA
+00F8 C7     209         BYTE >C7                 id am clock pattern
+00F9 FE     210         BYTE >FE                 id am data  pattern
+00FA 00     211         BYTE >00                 id byte 0 .. track number
+00FB 00     212         BYTE >00                 id byte 1 .. side
+00FC 01     213         BYTE >01                 id byte 2 .. sector
+00FD 00     214         BYTE >00                 id byte 3 .. record length
+00FE A5     215         BYTE >A5                 crc , 1 am , byte 2, 5 bytes 
+00FF 88     216  SORD   BYTE >88               SORD
+            217  *                               entry supplied by code
+0100 81     218         BYTE >81                 record length
+0101 01     219         BYTE >01                 no lwcur , no pre , 1 sector
+0102 00     220         BYTE >00                 track 0
+0103 C7     221         BYTE >C7                 data am clock pattern
+0104 FB     222         BYTE >FB                 data am data  pattern
+0105 6B     223         BYTE >6B                 1 am , xfer , crc , 11 bytes
+            224  *      
+            225  *      DOUBLE DENSITY TABLE
+            226  *       
+0106 C0     227  DOUBLE BYTE >C0               AFAS
+0107 FF     228         BYTE >FF                 fill
+0108 00     229         BYTE >00                 sync
+0109 0C     230         BYTE >0C                 number of sync before AM
+010A 30     231         BYTE >30               AIDA
+010B 0A     232         BYTE >0A                 id am clock pattern
+010C A1     233         BYTE >A1                 id am data  pattern
+010D 00     234         BYTE >00                 id byte 0 .. track number
+010E 00     235         BYTE >00                 id byte 1 .. side
+010F 01     236         BYTE >01                 id byte 2 .. sector
+0110 01     237         BYTE >01                 id byte 3 .. record length
+0111 E7     238         BYTE >E7                 crc , 3 am , byte 2, 7 bytes 
+0112 88     239         BYTE >88               SORD
+ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0008
+BOOT STATEMENT - CORTEX BASIC REV. 1.1
+
+            240  *                               entry supplied by code
+0113 03     241         BYTE >03                 record length
+0114 01     242         BYTE >01                 no lwcur , no pre , 1 sector
+0115 00     243         BYTE >00                 track 0
+0116 0A     244         BYTE >0A                 data am clock pattern
+0117 A1     245         BYTE >A1                 data am data  pattern
+0118 F6     246         BYTE >F6                 3 am , xfer , crc , 22 bytes
+            247         END
+ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0009
+BOOT STATEMENT - CORTEX BASIC REV. 1.1
+
+ADD      008C'  BOOTY    0000D  CHKINT   00D2'  CINT     00E7'  DMAC     01C0   
+DNSTY    0003   DOUBLE   0106'  ENCODE   00E4'  ERAM     00E2'  FDC      F140   
+FDCINT   0004   LENGTH   0014   LOOP1    002E'  LOOP2    006E'  LOOP3    007E'  
+MINI     0028'  OK       00E3'  R0       0000   R1       0001   R10      000A   
+R11      000B   R12      000C   R13      000D   R14      000E   R15      000F   
+R2       0002   R3       0003   R4       0004   R5       0005   R6       0006   
+R7       0007   R8       0008   R9       0009   SADDR    0016   SD       0044'  
+SIZEI    0002   SIZEO    0004   SORD     00FF'  SUM      001E   TABLE    00EB'  
+TMPBUF   008ER  WAIT     00C4'  WAIT1    00C8'  WPR1     0002R  
+
+0 Errors in assembly

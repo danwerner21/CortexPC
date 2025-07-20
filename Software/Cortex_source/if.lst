@@ -1,0 +1,130 @@
+ASM990 2.4.6     IF                         Sun Jul 20 19:28:49 2025 Page 0001
+IF STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT 'IF'
+              3  *
+              4  *       IFY             ;IF COMMAND
+              5  *
+              6          REF EVERZ       ;EVALUATE EXPRESSION
+              7          REF EVSDZ       ;EVALUATE STRING
+              8          REF LINE,NLIN   ;MULTIPLEXOR ENTRY POINTS
+              9          REF ELSF        ;ELSE FLAG
+             10          DEF IFY
+             11  *
+             12          DXOP EVFIX,11   ;EVALUATE AND FIX
+     2F80    13  ERROR   EQU >2F80       ;XOP XX,14  (ERROR CALL)
+     2FA0    14  ERROR2  EQU ERROR+>20
+             15  *
+             16  *       EXECUTE THE IF COMMAND.  THE FORM IS:
+             17  *
+             18  *       IF <EXP> THEN <STATEMENT>
+             19  *       IF <STRING> THEN <STATEMENT>
+             20  *       IF <STRING> <RELATION> <STRING> THEN <STATEMENT>
+             21  *       IF <STING> <RELATION> <STRING> , <EXP>
+             22  *               THEN <STATEMENT>
+             23  *
+             24  * CALLING SEQUENCE:
+             25  *
+             26  *       B @IFY
+             27  *
+             28  *       EXIT TO LINE OR NLIN
+             29  *
+             30  * EXCEPTIONS AND CONDITIONS:
+             31  *
+             32  *       ILLEGAL DELIMITER, SYNTAX ERROR
+             33  *
+ASM990 2.4.6     IF                         Sun Jul 20 19:28:49 2025 Page 0002
+IF STATEMENT - CORTEX BASIC REV. 1.1
+
+0000 04E0    35  IFY     CLR @ELSF       ;CLEAR ELSE FLAG
+0002 0000 
+0004 0420    36          BLWP @EVSDZ     ;CHECK FOR " OR $
+0006 0000 
+0008 1008    37            JMP IF2
+000A 1007    38            JMP IF2
+000C 0420    39          BLWP @EVERZ     ;#
+000E 0000 
+0010 C072    40          MOV *R2+,R1
+0012 161A    41            JNE IFRT
+0014 C052    42          MOV *R2,R1
+0016 1618    43            JNE IFRT
+0018 102F    44          JMP IF13
+             45  *
+001A 0280    46  IF2     CI R0,>3B00     ;THEN?
+001C 3B00 
+001E 1603    47            JNE IF4       ;N
+             48  *
+0020 D052    49  IF3     MOVB *R2,R1     ;Y, STRING?
+0022 1612    50            JNE IFRT      ;Y, CONTINUE
+0024 1029    51          JMP IF13                ;N, GOTO LINE
+             52  *
+0026 06C0    53  IF4     SWPB R0
+0028 0220    54          AI R0,->55      ;LEGAL?
+002A FFAB 
+002C 1502    55            JGT IF5       ;Y
+002E 2FA0    56  IFE37   DATA ERROR2,37  ;N
+             57  *
+0032 0280    58  IF5     CI R0,>6
+0034 0006 
+0036 15FB    59            JGT IFE37     ;N
+0038 C180    60          MOV R0,R6
+003A C0C2    61          MOV R2,R3       ;STRINGS
+003C 0705    62          SETO R5
+003E 0420    63          BLWP @EVSDZ     ;GET SECOND OPERAND
+0040 0006'
+0042 100B    64            JMP IF7       ;"
+0044 100A    65            JMP IF7       ;$
+0046 2F8E    66          DATA ERROR+14   ;EXPECTING STRING
+             67  *
+0048 0460    68  IFRT    B @NLIN
+004A 0000 
+             69  *
+004C D072    70  IF6     MOVB *R2+,R1    ;LOAD BYTE FROM SECOND STRING
+004E 1601    71            JNE $+4       ;OK
+0050 0701    72            SETO R1       ;NULL
+0052 7044    73          SB R4,R1        ;SAME BYTE?
+0054 160B    74            JNE IF10      ;N
+0056 0605    75          DEC R5          ;Y, DONE?
+0058 130B    76            JEQ IF11      ;Y
+             77  *
+005A 0280    78  IF7     CI R0,>3F00     ;,?
+005C 3F00 
+005E 1601    79            JNE IF8       ;N
+0060 2EC5    80          EVFIX R5        ;Y, GET COUNT
+             81  *
+0062 0200    82  IF8     LI R0,4         ;GET MATCH
+0064 0004 
+0066 D133    83          MOVB *R3+,R4    ;SOURCE NULL?
+0068 16F1    84            JNE IF6       ;N
+ASM990 2.4.6     IF                         Sun Jul 20 19:28:49 2025 Page 0003
+IF STATEMENT - CORTEX BASIC REV. 1.1
+
+             85  *
+006A D072    86  IF9     MOVB *R2+,R1    ;LOAD BYTE FROM SECOND STRING
+006C 1503    87  IF10      JGT IF12      ;POSITIVE
+006E 1601    88            JNE $+4       ;NEGATIVE
+0070 0600    89  IF11    DEC R0          ;ZERO
+0072 0640    90          DECT R0
+             91  *
+0074 2180    92  IF12    COC R0,R6       ;CONDITION MET?
+0076 13E8    93            JEQ IFRT      ;Y
+0078 0720    94  IF13    SETO @ELSF      ;N
+007A 0002'
+007C 0460    95          B @LINE
+007E 0000 
+             96         END
+ASM990 2.4.6     IF                         Sun Jul 20 19:28:49 2025 Page 0004
+IF STATEMENT - CORTEX BASIC REV. 1.1
+
+ELSF      007AR  ERROR     2F80   ERROR2    2FA0   EVERZ     000ER  
+EVSDZ     0040R  IF10      006C'  IF11      0070'  IF12      0074'  
+IF13      0078'  IF2       001A'  IF3       0020'  IF4       0026'  
+IF5       0032'  IF6       004C'  IF7       005A'  IF8       0062'  
+IF9       006A'  IFE37     002E'  IFRT      0048'  IFY       0000D  
+LINE      007ER  NLIN      004AR  R0        0000   R1        0001   
+R10       000A   R11       000B   R12       000C   R13       000D   
+R14       000E   R15       000F   R2        0002   R3        0003   
+R4        0004   R5        0005   R6        0006   R7        0007   
+R8        0008   R9        0009   
+
+0 Errors in assembly

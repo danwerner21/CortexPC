@@ -1,0 +1,31 @@
+This repository contains a port of the "Ritchie C compiler" to the TI990 series processors, in particular the 9995 and 99105 chips. The port is currently fairly complete; only floating point operations remain unported. Other tool chain components (assembler, linker, etc.) are also provided.
+
+The long term goal is to run ancient unix on these chips. As a first stepping stone on that journey, a port of the original 1983 version of the Xinu system has already been completed. The source for that is also in this repository.
+
+"Ancient Unix" is a term refering to the research versions of the late 70's and early 80's, and typically includes all version intended for 16 bit processors. The last version of this lineage is 2.11BSD, which was maintained until the mid-90's. The source code for ancient unix is generally available under the 3-clause BSD license and can be downloaded from TUHS:
+http://www.tuhs.org/
+
+For a contemporary report on porting Unix and its C compiler to new hardware, see the paper [/doc/tip/doc/old-firstport.pdf|"The first Unix port"] by Richard Miller. Apparently it can be done in 6 months using only rudimentary tools! More recently, the BK Unix project has ported LSX Unix (a minimal edition based on Version 6) to a Russian single chip version of the pdp-11/02.
+
+This C compiler is the original compiler for the C language and was written by Dennis Ritchie. It is probably one of the best 16-bit compilers available (along with BLISS-11). In part this compiler can work on such restricted hardware because it separates the compilation process in many steps:
+<verbatim>
+cc --+
+     |
+     +-- cpp   C preprocessor
+     |
+     +-- c0    Syntax and semantic analysis, intermediate code generation
+     |
+     +-- c1    Intermediate code to assembly conversion
+     |
+     +-- c2    Assembly level optimiser (optional)
+     |
+     +-- as    Assembler to object code conversion
+     |
+     +-- ld    Linker/loader, combine object files into single executable
+</verbatim>
+The cc program is nothing more than a simple orchestra conductor that hands out work to a series of specialized programs. The preprocessor and 3 compiler phases used in this repository builds on the version included with 2.11BSD and handles nearly all C89 constructs. The assembler is based on Richard Miller's assembler for the Interdata 7/32 and ld on the code in Unix Version 6.
+
+The key part of porting the compiler is porting the 'c1' compiler phase. This phase is described by Dennis Ritchie himself in a paper called [/doc/tip/doc/old-ctour.pdf|"A tour of the C Compiler"]. Note that this document refers to the version of the compiler that was included with Version 6 Unix and predates the one in this repository, but it still gives a good introduction. There is more documentation about the 'c1' code [/doc/tip/doc/toc.wiki|here]
+
+Enjoy!
+

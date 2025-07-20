@@ -1,0 +1,124 @@
+ASM990 2.4.6     RELOPS                     Sun Jul 20 19:28:50 2025 Page 0001
+RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
+
+              2         IDT  'RELOPS'
+              3  *
+              4  *
+              5  *
+              6         DEF  ANDF              ;AND FUNCTION
+              7         DEF  ORF               ;OR FUNCTION
+              8         DEF  NOTF              ;NOT FUNCTION
+              9  *
+             10         DXOP CLEAR,8           ;CLEAR FPAC
+             11  *
+             12         REF  FPAC,FPAC2        ;FLOATING POINT ACCUMULATOR
+             13  *
+             14  * ABSTRACT:
+             15  *
+             16  *       PERFORM 'AND' FUNCTION ON TWO OPERANDS
+             17  *       AND RETURN A VALUE OF 1 OR 0 ACCORDINGLY.
+             18  *
+             19  *
+             20  * CALLING SEQUENCE:
+             21  *
+             22  *       BL @ANDF
+             23  *
+             24  *       IN (R1) = OPERAND 1
+             25  *          (R2) = OPERAND 2
+             26  *
+             27  *       OUT (R2) = 1 OR 0 IN FPAC
+             28  *
+             29  *      NORMAL EXIT - RETURN
+             30  *
+ASM990 2.4.6     RELOPS                     Sun Jul 20 19:28:50 2025 Page 0002
+RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
+
+             32  *
+             33  *AND OPERATOR
+             34  *
+0000 2E00    35  ANDF   CLEAR 0                ;CLEAR FPAC
+0002 C0F1    36         MOV  *R1+,R3           ;INTEGER?
+0004 1602    37         JNE  ANDF1             ;N
+0006 C0D1    38         MOV  *R1,R3            ;Y, GET INTEGER
+0008 1306    39         JEQ  ANDF3             ;0, RESULT=0
+             40  *
+000A C0F2    41  ANDF1  MOV  *R2+,R3           ;INTEGER?
+000C 1602    42         JNE  ANDF2             ;RESULT=1
+000E C0D2    43         MOV  *R2,R3            ;Y
+0010 1302    44         JEQ  ANDF3             ;0, RESULT=0
+             45  *
+0012 05A0    46  ANDF2  INC  @FPAC2            ;RESULT=1
+0014 0000 
+             47  *
+0016 0202    48  ANDF3  LI   R2,FPAC
+0018 0000 
+001A 045B    49         RT
+ASM990 2.4.6     RELOPS                     Sun Jul 20 19:28:50 2025 Page 0003
+RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
+
+             51  * ABSTRACT:
+             52  *
+             53  *       PERFORM AN 'OR' OPERATION ON THE
+             54  *       2 OPERANDS AND RETURN A VALUE OF
+             55  *       1 FOR TRUE AND 0 FOR FALSE.
+             56  *
+             57  * CALLING SEQUENCE:
+             58  *
+             59  *       BL @ORF
+             60  *
+             61  *       IN (R1) = OPERAND 1
+             62  *          (R2) = OPERAND 2
+             63  *
+             64  *       OUT (R2) = 1 OR 0 IN FPAC
+             65  *
+             66  *      NORMAL EXIT - RETURN
+             67  *
+             68  *
+             69  *OR OPERATOR
+             70  *
+001C 2E00    71  ORF    CLEAR 0                ;CLEAR FPAC
+001E C0F1    72         MOV  *R1+,R3
+0020 16F8    73         JNE  ANDF2             ;RESULT=1
+0022 C0D1    74         MOV  *R1,R3
+0024 16F6    75         JNE  ANDF2
+0026 C0F2    76         MOV  *R2+,R3
+0028 16F4    77         JNE  ANDF2             ;RESULT=1
+002A C0D2    78         MOV  *R2,R3
+002C 16F2    79         JNE  ANDF2
+002E 10F3    80         JMP  ANDF3             ;RESULT=0
+ASM990 2.4.6     RELOPS                     Sun Jul 20 19:28:50 2025 Page 0004
+RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
+
+             82  * ABSTRACT:
+             83  *
+             84  *       PERFORM A 'NOT' FUNCTION ON THE OPERAND
+             85  *
+             86  * CALLING SEQUENCE:
+             87  *
+             88  *       BL @NOTF
+             89  *
+             90  *       IN (R1) = OPERAND
+             91  *
+             92  *       OUT (R2) = 1 OR 0 IN FPAC
+             93  *
+             94  *
+     0031'   95  NOTF   EQU  $+1               ;INDICATE AS UNARY OPERATION
+0030 2E00    96  NOT    CLEAR 0                ;CLEAR FPAC
+0032 C0F1    97         MOV  *R1+,R3
+0034 16F0    98         JNE  ANDF3
+0036 C0D1    99         MOV  *R1,R3
+0038 13EC   100         JEQ  ANDF2
+003A 10ED   101         JMP  ANDF3
+            102         END
+ASM990 2.4.6     RELOPS                     Sun Jul 20 19:28:50 2025 Page 0005
+RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
+
+ANDF      0000D  ANDF1     000A'  ANDF2     0012'  ANDF3     0016'  
+FPAC      0018R  FPAC2     0014R  NOT       0030'  NOTF      0031D  
+ORF       001CD  R0        0000   R1        0001   R10       000A   
+R11       000B   R12       000C   R13       000D   R14       000E   
+R15       000F   R2        0002   R3        0003   R4        0004   
+R5        0005   R6        0006   R7        0007   R8        0008   
+R9        0009   
+
+0 Errors in assembly

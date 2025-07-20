@@ -1,0 +1,15 @@
+CFLAGS	= ${DEBUG}
+
+all: c2
+
+install: 
+	cp c2 /lib
+
+clean:
+	rm -f *.o c2 
+
+c2: c20.o c21.o
+	$(CC) ${CFLAGS} -o c2 c20.o c21.o
+
+c20.o: c20.c c2.h
+c21.o: c21.c c2.h

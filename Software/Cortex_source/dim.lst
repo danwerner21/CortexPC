@@ -1,0 +1,183 @@
+ASM990 2.4.6     DIM                        Sun Jul 20 19:28:48 2025 Page 0001
+DIM STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT  'DIM'
+              3  *
+              4  *       DIMY            ;DIMENSION COMMAND
+              5  *
+              6         REF  EVAL,EVALS2       ;RECURSIVE EVALUATOR
+              7         REF  EVARZ             ;EVALUATE VARIABLE
+              8         REF  FIX               ;FIX ARGUMENT
+              9         REF  NLIN              ;EXIT TO MULTIPLEXOR
+             10         REF  VDT               ;VARIABLE DEFINITION TABLE INDEX
+             11         REF  NVS               ;NEXT VARIABLE STORAGE
+             12         REF  NVD               ;NEXT VARIABLE DEFINITION
+             13         REF  DLIM              ;PROGRAM DELIMITER
+             14         REF  C6                ;CONSTANT 6
+             15         DEF  DIMY
+             16  *
+     2F80    17  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+     2FA0    18  ERROR2 EQU  ERROR+>20
+             19  *
+     0004    20  NRV    EQU  4                 ;NUMBER OF RESERVED WORDS
+ASM990 2.4.6     DIM                        Sun Jul 20 19:28:48 2025 Page 0002
+DIM STATEMENT - CORTEX BASIC REV. 1.1
+
+             22  *
+             23  *       DIMENSION A VARIABLE.  A DIMENSIONED
+             24  *       VARIABLE IS INDICATED IN THE VDT BY A
+             25  *       NEGATIVE VALUE.  THE VARIABLE
+             26  *       DEFINITION POINT TO THE INFORMATION
+             27  *       VECTOR.
+             28  *
+             29  *INFORMATION VECTOR FORMAT:
+             30  *
+             31  *       D1,X1,D2,X2,...DN,-1,...DATA...
+             32  *
+             33  *WHERE  D1,D2,...DN = DIMENSIONS
+             34  *       X1,X2,...   = MULTIPLIERS
+             35  *
+             36  *       X1 = D2+1 X D3+1 X ... DN+1
+             37  *       X2 = D3+1 X D4+1 X ... DN+1
+             38  *       ...
+             39  *       XN = 1
+             40  *
+             41  * CALLING SEQUENCE:
+             42  *
+             43  *       B @DIMY
+             44  *
+             45  * EXCEPTIONS AND CONDITIONS:
+             46  *
+             47  *       EVALUATION ERRORS, STORAGE OVERFLOW
+             48  *       EXPECTING DIMENSIONED VARIABLE
+             49  *       INVALID DELIMITER
+             50  *
+ASM990 2.4.6     DIM                        Sun Jul 20 19:28:48 2025 Page 0003
+DIM STATEMENT - CORTEX BASIC REV. 1.1
+
+0000 04C0    52  DIMY   CLR  R0                ;READY R0
+0002 D038    53         MOVB *R8+,R0           ;GET BYTE
+0004 0280    54         CI   R0,>4300          ;'$' ?
+0006 4300 
+0008 1601    55         JNE  TSTVAR            ;N, CHECK IF ITS A VARIABLE
+000A D038    56         MOVB *R8+,R0           ;Y, GET THE VARIABLE NAME BYTE
+000C 0280    57  TSTVAR CI   R0,NRV*>100+>7000 ;VARIABLE?
+000E 7400 
+0010 1A58    58         JL   ERR16             ;N
+0012 C3A0    59         MOV  @VDT,R14          ;Y, GET SYMBOL ADR
+0014 0000 
+0016 0970    60         SRL  R0,7
+0018 A380    61         A    R0,R14            ;INDEX
+001A 022E    62         AI   R14,->70*2        ;ELIMINATE DISPLACEMENT
+001C FF20 
+001E C05E    63         MOV  *R14,R1           ;DEFINED?
+0020 161E    64         JNE  DIM3              ;Y, SEE IF EXCEEDS PREVIOUS
+             65  *
+0022 0705    66         SETO R5                ;DO FULL EVALUATIONS
+0024 06A0    67         BL   @EVALS2           ;DO INITIAL EVAL
+0026 0000 
+0028 04F6    68         CLR  *R6+              ;ZERO COUNT
+002A 1002    69         JMP  DIM2
+             70  *
+002C 06A0    71  DIM1   BL   @EVAL             ;EVALUATE NEXT SUBSCRIPT
+002E 0000 
+             72  *
+0030 06A0    73  DIM2   BL   @FIX              ;FIX PARAMETER (R2)
+0032 0000 
+0034 0646    74         DECT R6                ;POP COUNT
+0036 C0D6    75         MOV  *R6,R3
+0038 0583    76         INC  R3                ;COUNT DIMENSION
+003A CD81    77         MOV  R1,*R6+           ;PUSH DIMENSION
+003C 0736    78         SETO *R6+              ;LEAVE SPACE FOR DEL MULTIPLIER
+003E CD83    79         MOV  R3,*R6+           ;PUSH COUNT AGAIN
+0040 0280    80         CI   R0,>3F00          ;,?
+0042 3F00 
+0044 13F3    81         JEQ  DIM1              ;Y
+0046 0280    82         CI   R0,>4B00          ;]?
+0048 4B00 
+004A 1607    83         JNE  DIME37            ;N, ERROR
+004C 0646    84         DECT R6                ;RETRIEVE COUNT
+004E C016    85         MOV  *R6,R0
+0050 C280    86         MOV  R0,R10            ;GET INFORMATION VECTOR LENGTH
+0052 0A2A    87         SLA  R10,2             ;COUNT X 4
+0054 0201    88         LI   R1,1              ;SET DEL(N) TO 1
+0056 0001 
+0058 1011    89         JMP  DIM5
+             90  *
+005A 2FA0    91  DIME37 DATA ERROR2,37
+ASM990 2.4.6     DIM                        Sun Jul 20 19:28:48 2025 Page 0004
+DIM STATEMENT - CORTEX BASIC REV. 1.1
+
+005E 0608    93  DIM3   DEC  R8                ;BACKUP TO VARIABLE
+0060 0420    94         BLWP @EVARZ            ;EVALUATE
+0062 0000 
+0064 1026    95         JMP  DIM7
+             96  *
+0066 0226    97  DIM4   AI   R6,-4             ;DO ANOTHER DIMENSION
+0068 FFFC 
+006A C096    98         MOV  *R6,R2            ;GET DIMENSION
+006C 0582    99         INC  R2                ;INCREMENT
+006E 3881   100         MPY  R1,R2             ;GET PRODUCT
+0070 C082   101         MOV  R2,R2             ;OVERFLOW?
+0072 1626   102         JNE  DIME10            ;Y
+0074 C043   103         MOV  R3,R1             ;SET R1
+0076 1124   104         JLT  DIME10
+0078 C981   105         MOV  R1,@-2(6)         ;STORE DEL IN INFORMATION VECTOR
+007A FFFE 
+            106  *
+007C 0600   107  DIM5   DEC  R0                ;DONE?
+007E 16F3   108         JNE  DIM4              ;N
+0080 0226   109         AI   R6,-4             ;FINISHED, CALCULATE VECTOR
+0082 FFFC 
+0084 C016   110         MOV  *R6,R0
+0086 0580   111         INC  R0                ;1ST DIMENSION + 1
+0088 3840   112         MPY  R0,R1             ;GET FINAL DIMENSION SIZE
+008A 38A0   113         MPY  @C6,R2            ;X 6 BYTES
+008C 0000 
+008E C082   114         MOV  R2,R2             CHECK FOR OVERFLOW
+0090 1617   115         JNE  DIME10            REPORT IT
+0092 A0CA   116         A    R10,R3            ;ADD INFORMATION VECTOR LENGTH
+0094 C0A0   117         MOV  @NVS,R2           ;DEFINE
+0096 0000 
+0098 6083   118         S    R3,R2
+009A 8802   119         C    R2,@NVD           ;OK?
+009C 0000 
+009E 1A10   120         JL   DIME10            ;N, STORAGE OVERFLOW
+00A0 C782   121         MOV  R2,*R14           ;Y, SET IN SYMBOL TABLE
+00A2 C802   122         MOV  R2,@NVS           ;UPDATE NVS
+00A4 0096'
+            123  *
+00A6 CCB6   124  DIM6   MOV  *R6+,*R2+         ;MOVE INFORMATION VECTOR
+00A8 05A6   125         INC  @-2(6)            ;DONE?
+00AA FFFE 
+00AC 16FC   126         JNE  DIM6              ;N
+            127  *
+00AE 04C0   128         CLR  R0
+00B0 D038   129         MOVB *R8+,R0           ;GET NEXT BYTE
+            130  *
+00B2 0280   131  DIM7   CI   R0,>3F00          ;",?
+00B4 3F00 
+00B6 13A4   132         JEQ  DIMY              ;Y, DO NEXT VARIABLE
+00B8 C800   133         MOV  R0,@DLIM          ;N, SAVE IN DLIM
+00BA 0000 
+00BC 0460   134  DIM8   B    @NLIN             ;RETURN
+00BE 0000 
+            135  *
+00C0 2F8A   136  DIME10 DATA ERROR+10          ;STORAGE OVERFLOW
+            137  *
+00C2 2F90   138  ERR16  DATA ERROR+16          ;EXPECTING DIMENSIONED VARIABLE
+            139         END
+ASM990 2.4.6     DIM                        Sun Jul 20 19:28:48 2025 Page 0005
+DIM STATEMENT - CORTEX BASIC REV. 1.1
+
+C6       008CR  DIM1     002C'  DIM2     0030'  DIM3     005E'  DIM4     0066'  
+DIM5     007C'  DIM6     00A6'  DIM7     00B2'  DIM8     00BC'  DIME10   00C0'  
+DIME37   005A'  DIMY     0000D  DLIM     00BAR  ERR16    00C2'  ERROR    2F80   
+ERROR2   2FA0   EVAL     002ER  EVALS2   0026R  EVARZ    0062R  FIX      0032R  
+NLIN     00BER  NRV      0004   NVD      009CR  NVS      00A4R  R0       0000   
+R1       0001   R10      000A   R11      000B   R12      000C   R13      000D   
+R14      000E   R15      000F   R2       0002   R3       0003   R4       0004   
+R5       0005   R6       0006   R7       0007   R8       0008   R9       0009   
+TSTVAR   000C'  VDT      0014R  
+
+0 Errors in assembly

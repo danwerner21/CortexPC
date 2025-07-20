@@ -1,0 +1,129 @@
+ASM990 2.4.6     IPCOM                      Sun Jul 20 19:28:49 2025 Page 0001
+I/O UTILITIES - CORTEX BASIC REV. 1.1
+
+              2         IDT  'IPCOM'
+              3  *
+              4  * ROUTINE LIST:
+              5  *
+              6  *       OUTL1           ;LIST LINE
+              7  *       INPEND          ;END INPUT
+              8  *       PRTEND          ;END PRINT
+              9  *       UCCNT           ;UPDATE CCNT
+             10  *
+             11  * EXTERNAL ROUTINES:
+             12  *
+             13         REF  TYPBE$
+             14         REF  TYPC$             ;OUTPUT CRLF
+             15         REF  NLIN              ;EXIT TO MULTIPLEXOR
+             16         REF  IOB               ;I/O BUFFER
+             17  *
+             18  * EXTERNAL DATA:
+             19  *
+             20         REF  CCNT              ;COLUMN COUNTER
+             21         REF  FFLG              ;FORMATTING FLAG
+ASM990 2.4.6     IPCOM                      Sun Jul 20 19:28:49 2025 Page 0002
+I/O UTILITIES - CORTEX BASIC REV. 1.1
+
+             23  * ABSTRACT:
+             24  *
+             25  *       OUTL1 - UPDATES CCNT AND PRINTS BUFFER.
+             26  *
+             27  *       PRTEND - UPDATES CCNT, PRINTS BUFFER, AND
+             28  *               AND ENDS WITH A CRLF IF R15=0
+             29  *               BEFORE EXITING TO NLIN.
+             30  *
+             31  *       INPEND - PRINTS A CRLF IF R15=0 AND
+             32  *               EXITS TO NLIN.
+             33  *
+             34  *       UCCNT - UPDATES CCNT SUCH THAT IF REFLECTS
+             35  *               WHAT HAS BEEN PRINTED PLUS WHAT
+             36  *               IS IN THE BUFFER AND TERMINATES
+             37  *               BUFFER WITH NULL.
+             38  *
+             39  * CALLING SEQUENCE:
+             40  *
+             41  *       BL @OUTL1
+             42  *
+             43  *       IN  R7 = BUFFER PTR
+             44  *       OUT R7 = BUFFER ADR
+             45  *
+             46  *
+             47  *       B @PRTEND
+             48  *
+             49  *       IN  R7 = BUFFER PTR
+             50  *          R15 = CRLF FLAG
+             51  *       EXITS TO NLIN
+             52  *
+             53  *
+             54  *       B @INPEND
+             55  *
+             56  *       IN R15 = CRLF FLAG
+             57  *       EXITS TO NLIN
+             58  *
+             59  *
+             60  *       BL @UCCNT
+             61  *
+             62  *       IN R7 = BUFFER PTR
+             63  *
+             64  * EXCEPTIONS AND CONDITIONS:  (NONE)
+             65  *
+             66         DEF  OUTL1,PRTEND,INPEND,UCCNT
+ASM990 2.4.6     IPCOM                      Sun Jul 20 19:28:49 2025 Page 0003
+I/O UTILITIES - CORTEX BASIC REV. 1.1
+
+             68  *
+0000 C34B    69  OUTL1  MOV  R11,R13           ;SAVE RETURN
+0002 06A0    70         BL   @PBIN             ;UPDATE CCNT & OUT BUFFER
+0004 001E'
+0006 C1E0    71         MOV  @IOB,R7
+0008 0000 
+000A 045D    72         B    *R13              ;RETURN
+             73  *
+             74  *END PRINT LINE
+             75  *
+000C 06A0    76  PRTEND BL   @PBIN             ;UPDATE CCNT & OUT BUFFER
+000E 001E'
+             77  *
+             78  *END INPUT LINE
+             79  *
+0010 04E0    80  INPEND CLR  @FFLG             ;CLEAR FORMATTING FLAG
+0012 0000 
+0014 C3CF    81         MOV  R15,R15           ;NEED CRLF?
+0016 1601    82         JNE  INPE1             ;N
+0018 0000    83         DATA TYPC$             ;Y, OUT CRLF
+001A 0460    84  INPE1  B    @NLIN             ;CONTINUE
+001C 0000 
+             85  *
+             86  *  PRINT BUFFER IF NEEDED
+             87  *
+001E 8807    88  PBIN   C    R7,@IOB           BUFFER EMPTY
+0020 0008'
+0022 1301    89         JEQ  PBIN1             Y, EXIT
+0024 0000    90         DATA TYPBE$            N, PRINT BUFFER
+     0026'   91  PBIN1  EQU  $
+             92  *
+             93  *UPDATE CCNT
+             94  *
+0026 C020    95  UCCNT  MOV  @CCNT,R0          ;GET COUNT
+0028 0000 
+002A A007    96         A    R7,R0             ;ADD CURRENT PTR
+002C 6020    97         S    @IOB,R0           ;SUBTRACT IOB
+002E 0020'
+0030 0240    98         ANDI R0,>7F            ;MOD 128
+0032 007F 
+0034 C800    99         MOV  R0,@CCNT          ;SAVE RESULT
+0036 0028'
+0038 75D7   100         SB   *R7,*R7           ;TERMINATE STRING
+003A 045B   101         RT
+            102         END
+ASM990 2.4.6     IPCOM                      Sun Jul 20 19:28:49 2025 Page 0004
+I/O UTILITIES - CORTEX BASIC REV. 1.1
+
+CCNT     0036R  FFLG     0012R  INPE1    001A'  INPEND   0010D  IOB      002ER  
+NLIN     001CR  OUTL1    0000D  PBIN     001E'  PBIN1    0026'  PRTEND   000CD  
+R0       0000   R1       0001   R10      000A   R11      000B   R12      000C   
+R13      000D   R14      000E   R15      000F   R2       0002   R3       0003   
+R4       0004   R5       0005   R6       0006   R7       0007   R8       0008   
+R9       0009   TYPBE$   0024R  TYPC$    0018R  UCCNT    0026D  
+
+0 Errors in assembly

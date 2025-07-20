@@ -1,0 +1,128 @@
+ASM990 2.4.6     SINF                       Sun Jul 20 19:28:51 2025 Page 0001
+SINE FINCTION - CORTEX BASIC REV. 1.1
+
+              2          IDT  'SINF'
+              3  *
+              4  *       COSF            ;COSINE FUNCTION
+              5  *       SINF            ;SINE FUNCTION
+              6  *
+              7          REF FUNFX       ;FIX ARGUMENTS
+              8          REF FUNBK       ;BREAK ARGUMENTS
+              9          REF PLYX,PLYXX  ;EVALUATE POLYNOMIAL
+             10          REF FPAC        ;FLOATING POINT ACCUMULATOR
+             11          REF TEMP        ;3 WRD TEMPORARY STORAGE
+             12          REF DS,DS1      ;3 WRD TEMPORARY STORAGE
+             13  *
+             14          DXOP LOADF,0    ;LOAD FPAC
+             15          DXOP STORE,1    ;STORE FPAC
+             16          DXOP FADD,2     ;ADD TO FPAC
+             17          DXOP FSUB,3     ;SUBTRACT FROM FPAC
+             18          DXOP FMUL,4     ;MULTIPLY FPAC
+             19          DXOP FDIV,5     ;DIVIDE FPAC
+             20          DXOP NEGATE,9   ;NEGATE FPAC
+ASM990 2.4.6     SINF                       Sun Jul 20 19:28:51 2025 Page 0002
+SINE FINCTION - CORTEX BASIC REV. 1.1
+
+             22  *
+             23  *       CALCULATE SINE/COSINE FUNCTIONS OF (ARG).
+             24  *
+             25  * CALLING SEQUENCE:
+             26  *
+             27  *       BL @SINF
+             28  *       BL @COSF
+             29  *
+             30  *       IN  (R2) = ARG
+             31  *       OUT (R2) = RESULT
+             32  *
+             33  * EXCEPTIONS AND CONDITIONS:
+             34  *
+             35  *       FLOATING POINT ERRORS
+             36  * ENTRY POINT:
+             37  *
+             38         DEF SINF,COSF
+             39  *
+0000 C28B    40  COSF    MOV R11,R10
+0002 06A0    41          BL @FUNFX       FIX SIGN
+0004 0000 
+0006 1003    42            JMP COSF1     0, RETURN 1
+0008 0203    43          LI R3,1         START WITH 1
+000A 0001 
+000C 1008    44          JMP COSF2
+             45  *
+000E 2C20    46  COSF1   LOADF @COSC2    COS 0 = 1
+0010 0068'
+0012 1023    47          JMP COSF5       RETURN
+             48  *
+0014 C28B    49  SINF    MOV R11,R10
+0016 06A0    50          BL @FUNFX       FIX EXPONENT
+0018 0004'
+001A 101F    51            JMP COSF5     ;0, RETURN 0
+001C 0A13    52          SLA R3,1        IF +: 0, ELSE 2
+             53  *
+001E 2D20    54  COSF2   FMUL @COSC0     FPAC=FPAC*C1
+0020 0060'
+0022 06A0    55          BL @FUNBK       BREAK INTO FRAC AND INT
+0024 0000 
+0026 A043    56          A R3,R1
+0028 0911    57          SRL R1,1        QUADRANT 2 OR 4?
+002A 1706    58            JNC COSF3     N
+002C 2C60    59          STORE @TEMP     Y, GET 1-FRACTION
+002E 0000 
+0030 2C20    60          LOADF @COSC2    LOAD FPAC WITH 1
+0032 0068'
+0034 2CE0    61          FSUB @TEMP      SUBTRACT FRACTION
+0036 002E'
+             62  *
+0038 0911    63  COSF3   SRL R1,1        EFFECTIVE QUAD 3 OR 4?
+003A 1701    64            JNC COSF4     N
+003C 2E40    65          NEGATE 0        Y, NEGATE
+             66  *
+003E 2C60    67  COSF4   STORE @DS       STORE IN DS
+0040 0000 
+0042 06A0    68          BL @PLYXX       EVALUATE POLYNOMIAL X*X
+0044 0000 
+0046 0066'   69            DATA COSC1
+0048 2C60    70          STORE @DS1      SAVE IN DS1
+ASM990 2.4.6     SINF                       Sun Jul 20 19:28:51 2025 Page 0003
+SINE FINCTION - CORTEX BASIC REV. 1.1
+
+004A 0000 
+004C 06A0    71          BL @PLYX        EVALUATE POLYNOMIAL X
+004E 0000 
+0050 007A'   72            DATA COSC3
+0052 2D60    73          FDIV @DS1       FPAC=FPAC/DS1
+0054 004A'
+0056 2D20    74          FMUL @DS        FPAC=(FPAC/DS1)*DS
+0058 0040'
+             75  *
+005A 0202    76  COSF5   LI R2,FPAC      RETURN
+005C 0000 
+005E 045A    77          B *R10
+             78  *
+0060 40A2    79  COSC0   DATA >40A2,>F983,>6E4E
+0066 0002    80  COSC1   DATA 2
+0068 4110    81  COSC2   DATA >4110,>0000,>0000
+006E 4273    82          DATA >4273,>4DCA,>815D
+0074 4411    83          DATA >4411,>7825,>55B4
+007A 0005    84  COSC3   DATA 5
+007C BE95    85          DATA >BE95,>3606,>2DEE
+0082 4041    86          DATA >4041,>E3F5,>31B8
+0088 C1C6    87          DATA >C1C6,>5036,>51D0
+008E 4311    88          DATA >4311,>B7C5,>5A8F
+0094 C3A9    89          DATA >C3A9,>3BA0,>C828
+009A 441B    90          DATA >441B,>70D4,>8BB5
+             91         END
+ASM990 2.4.6     SINF                       Sun Jul 20 19:28:51 2025 Page 0004
+SINE FINCTION - CORTEX BASIC REV. 1.1
+
+COSC0      0060'  COSC1      0066'  COSC2      0068'  COSC3      007A'  
+COSF       0000D  COSF1      000E'  COSF2      001E'  COSF3      0038'  
+COSF4      003E'  COSF5      005A'  DS         0058R  DS1        0054R  
+FPAC       005CR  FUNBK      0024R  FUNFX      0018R  PLYX       004ER  
+PLYXX      0044R  R0         0000   R1         0001   R10        000A   
+R11        000B   R12        000C   R13        000D   R14        000E   
+R15        000F   R2         0002   R3         0003   R4         0004   
+R5         0005   R6         0006   R7         0007   R8         0008   
+R9         0009   SINF       0014D  TEMP       0036R  
+
+0 Errors in assembly

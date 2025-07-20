@@ -1,0 +1,68 @@
+3D Graph Program
+================
+Draws a selection of 3D graphs. Demonstrates use of graphics commands and user-defined functions.
+
+
+3D Pyramid Program
+==================
+3D animation with hidden line elimination. Precalculates the frames first then displays them.
+
+
+BASIC Graphic Demo
+==================
+The "top hat" 3D graph program that you've probably all seen.
+
+
+Bouncing Aliens
+===============
+The clue is in the title. Demonstrates sprite definition and control.
+
+
+Canyon
+======
+Simple game. Control keys are S/D and E/X. Not sure I've ever entirely understood what you
+have to do.
+
+
+Eliza
+=====
+The classic therapist program. Always useful for lovers of 30-year old computers.
+
+
+Maze
+====
+Find your way through the maze.
+
+
+Missile Command
+===============
+Game. Not sure how challenging it will be on the TI-99 as it runs a fair bit slower than on the Cortex.
+
+
+Screen Display Test Program
+===========================
+Draws simple colour bars.
+
+
+SID Sounds Example 1
+====================
+Plays a simple scale on the SID sound chip. This works on my TM990 system, but will require
+changes for the TI-99 as the SID chip is mapped to a different address (and I'm not sure
+what it is at the moment and have no way to test it).
+
+
+SID Tone Generator
+==================
+Steps up and down a scale on the SID sound chip. Same note as above.
+
+
+Telnet
+======
+Program to retrieve a web page from a server or send an e-mail. Requires a Lantronic UDS-10 serial
+to Ethernet interface. This works on my TM990 system, but (a) Will need modification to work with
+the serial port on the TI-99, (b) needs a specific UDS-10 configuration, and (c) needs your ISP's
+web server IP address. Might have a play with this later, but anyone else is free to have a go. ;-)
+
+
+Stuart Conner
+09 December 2015

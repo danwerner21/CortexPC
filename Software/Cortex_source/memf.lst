@@ -1,0 +1,129 @@
+ASM990 2.4.6     MEMF                       Sun Jul 20 19:28:49 2025 Page 0001
+MEMORY ROUTINES - CORTEX BASIC REV. 1.1
+
+              2          IDT 'MEMF'
+              3  *
+              4  *       MEMY            ;MEM COMMAND
+              5  *       MEMF            ;MEM FUNCTION
+              6  *       ASCF            ;ASC FUNCTION
+              7  *
+              8          REF EVERZ       ;EVALUATE EXPRESSION
+              9          REF PFIX        ;FIX 16 BIT NUMBER
+             10          REF GPRM2       ;GET PARAMETERS
+             11          REF FPAC,FPAC2  ;FLOATING POINT ACCUMULATOR
+             12          REF B4A         ;>4A
+             13          REF NLIN        ;EXIT ENTRY TO MULTIPLEXOR
+             14          REF EVSFR$      ;EXIT TO EVAL WITH R2 ='FPAC'
+             15          DXOP STORE,1    ;STORE FPAC
+             16          DXOP CLEAR,8    ;CLEAR FPAC
+             17          DXOP EVFIX,11   ;EVALUATE AND FIX
+             18          DXOP OUTFP,12   ;OUT FLOATING POINT #
+     2F80    19  ERROR   EQU >2F80               ;XOP XX,14  (ERROR CALL)
+ASM990 2.4.6     MEMF                       Sun Jul 20 19:28:49 2025 Page 0002
+MEMORY ROUTINES - CORTEX BASIC REV. 1.1
+
+             21  *
+             22  *       THE MEM COMMAND ALLOWS PBASIC TO ALTER
+             23  *       A BYTE OF MEMORY WHILE THE MEM FUNCTION
+             24  *       ALLOWS PBASIC TO READ A BYTE OF
+             25  *       MEMORY.
+             26  *
+             27  * CALLING SEQUENCE:
+             28  *
+             29  *       B @MEMY
+             30  *
+             31  *       EXIT TO NLIN
+             32  *
+             33  *
+             34  *       B @MEMF
+             35  *
+             36  *       IN  (R2) = ADDRESS
+             37  *       OUT (R2) = RESULT
+             38  *       EXIT TO EVSFR$
+             39  *
+             40  * EXCEPTIONS AND CONDITIONS:
+             41  *
+             42  *       EVALUATION ERRORS
+             43  *       SYNTAX ERROR
+             44  *
+ASM990 2.4.6     MEMF                       Sun Jul 20 19:28:49 2025 Page 0003
+MEMORY ROUTINES - CORTEX BASIC REV. 1.1
+
+             46          DEF MEMY
+             47  *
+0000 9838    48  MEMY    CB *R8+,@B4A    ;LEFT BRACKET?
+0002 0000 
+0004 160A    49            JNE ERR1      ;N, ERROR
+0006 0420    50          BLWP @EVERZ     ;GET ADDRESS
+0008 0000 
+000A 06A0    51          BL @PFIX        ;GET INTEGER
+000C 0000 
+000E 06A0    52          BL @GPRM2       ;CHECK PARAMETERS
+0010 0000 
+0012 06C3    53          SWPB R3         ;LEFT JUSTIFY
+0014 D443    54          MOVB R3,*R1     ;STORE BYTE IN MEMORY
+0016 0460    55          B @NLIN
+0018 0000 
+             56  *
+001A 2F81    57  ERR1    DATA ERROR+1
+             58  *
+             59  *READ MEMORY
+             60  *
+             61  * ENTRY POINT:
+             62  *
+             63          DEF MEMF
+             64  *
+001C 06A0    65  MEMF    BL @PFIX         ;GET PARAMETER
+001E 000C'
+0020 D051    66          MOVB *R1,R1      ;GET BYTE
+0022 0981    67  MEMF1   SRL R1,8         ;RIGHT JUSTIFY
+0024 2E00    68          CLEAR 0          ;CLEAR FPAC
+0026 C801    69          MOV R1,@FPAC2    ;SAVE
+0028 0000 
+002A 0460    70         B @EVSFR$
+002C 0000 
+ASM990 2.4.6     MEMF                       Sun Jul 20 19:28:49 2025 Page 0004
+MEMORY ROUTINES - CORTEX BASIC REV. 1.1
+
+             72  * ABSTRACT:
+             73  *
+             74  *       ASC RETURNS THE DECIMAL INTEGER VALUE
+             75  *       OF THE FIRST BYTE OF THE ARGUMENT.
+             76  *
+             77  * CALLING SEQUENCE:
+             78  *
+             79  *       B @ASCF
+             80  *
+             81  *       IN  (R2) = ADDRESS
+             82  *       OUT (R2) = RESULT
+             83  *       EXIT TO EVSFR$
+             84  *
+             85  * EXCEPTIONS AND CONDITIONS:  (NONE)
+             86  *
+             87  * EXTERNAL ROUTINES:
+             88  *
+             89  *       REF MEMF1       ;USE MEMF EXIT
+             90  *
+             91  * LOCAL DATA:  (NONE)
+             92  *
+             93  * ENTRY POINT:
+             94  *
+             95          DEF ASCF
+             96  *
+     002E'   97  ASCF   EQU  $
+002E D052    98         MOVB *R2,R1
+0030 10F8    99         JMP  MEMF1
+            100          END
+ASM990 2.4.6     MEMF                       Sun Jul 20 19:28:49 2025 Page 0005
+MEMORY ROUTINES - CORTEX BASIC REV. 1.1
+
+ASCF      002ED  B4A       0002R  ERR1      001A'  ERROR     2F80   
+EVERZ     0008R  EVSFR$    002CR  FPAC      0000R  FPAC2     0028R  
+GPRM2     0010R  MEMF      001CD  MEMF1     0022'  MEMY      0000D  
+NLIN      0018R  PFIX      001ER  R0        0000   R1        0001   
+R10       000A   R11       000B   R12       000C   R13       000D   
+R14       000E   R15       000F   R2        0002   R3        0003   
+R4        0004   R5        0005   R6        0006   R7        0007   
+R8        0008   R9        0009   
+
+0 Errors in assembly

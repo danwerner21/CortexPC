@@ -1,0 +1,68 @@
+ASM990 2.4.6     SFSN                       Sun Jul 20 19:28:50 2025 Page 0001
+SEARCH FOR STATEMENT ROUTINE - CORTEX BASIC REV. 1.1
+
+              2         IDT  'SFSN'
+              3  *
+              4  *       SFSN            ;SEARCH FOR STATEMENT #
+              5  *
+     2F80     6  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+              7         REF  SLT               ;STATEMENT LOCATION TABLE
+              8  *
+              9  *       SEARCH IN STATEMENT-LOCATION-TABLE FOR THE LINE NUMBER 
+             10  *       THE SLT IS ORGANIZED AS FOLLOWS FOR STATEMENTS 100,200,
+             11  *
+             12  *                       SLT     300
+             13  *                               PLC
+             14  *
+             15  *                               200
+             16  *                               PLC
+             17  *
+             18  *                               100
+             19  *                               PLC
+             20  *
+             21  *                               0
+             22  *
+             23  * CALLING SEQUENCE:
+             24  *
+             25  *       BL @SFSN
+             26  *
+             27  *      IN  - R1 = #
+             28  *      OUT - R8 = PLC
+             29  *
+             30  *      NORMAL EXIT - RETURN
+             31  *      ERROR EXIT TO ERROR ROUTINE
+             32  *
+             33  * EXCEPTIONS AND CONDITIONS:
+             34  *
+             35  *       ERROR 13 RESULTS IF LINE IS NOT FOUND
+ASM990 2.4.6     SFSN                       Sun Jul 20 19:28:50 2025 Page 0002
+SEARCH FOR STATEMENT ROUTINE - CORTEX BASIC REV. 1.1
+
+             37  * ENTRY POINT:
+             38  *
+             39         DEF  SFSN
+             40  *
+0000 C220    41  SFSN   MOV  @SLT,R8           ;START AT TOP
+0002 0000 
+             42  *
+0004 C338    43  SFSN1  MOV  *R8+,R12          ;DONE?
+0006 1305    44         JEQ  SFSN3             ;Y
+0008 804C    45         C    R12,R1            ;FOUND?
+000A 1302    46         JEQ  SFSN2             ;Y
+000C 05C8    47         INCT R8                ;N, CONTINUE
+000E 10FA    48         JMP  SFSN1
+             49  *
+0010 045B    50  SFSN2  B    *R11              ;RETURN
+             51  *
+0012 2F8D    52  SFSN3  DATA ERROR+13          ;NO SUCH LINE #
+             53         END
+ASM990 2.4.6     SFSN                       Sun Jul 20 19:28:50 2025 Page 0003
+SEARCH FOR STATEMENT ROUTINE - CORTEX BASIC REV. 1.1
+
+ERROR    2F80   R0       0000   R1       0001   R10      000A   R11      000B   
+R12      000C   R13      000D   R14      000E   R15      000F   R2       0002   
+R3       0003   R4       0004   R5       0005   R6       0006   R7       0007   
+R8       0008   R9       0009   SFSN     0000D  SFSN1    0004'  SFSN2    0010'  
+SFSN3    0012'  SLT      0002R  
+
+0 Errors in assembly

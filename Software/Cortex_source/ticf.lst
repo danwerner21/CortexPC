@@ -1,0 +1,100 @@
+ASM990 2.4.6     TICF                       Sun Jul 20 19:28:50 2025 Page 0001
+TIC FUNCTION - CORTEX BASIC REV. 1.1
+
+              2         IDT  'TICF'
+              3  *
+              4  *
+              5  *
+              6         REF  FNRM              ;FIXES ARGUMENT
+              7  *
+              8         DXOP LOADF,0           ;LOAD FPAC
+              9         DXOP STORE,1           ;STORE FPAC
+             10         DXOP FADD,2            ;ADD TO FPAC
+             11         DXOP FSUB,3            ;SUBTRACT FROM FPAC
+             12         DXOP FMUL,4            ;MULTIPLY FPAC
+             13         DXOP FDIV,5            ;DIVIDE FPAC
+             14         DXOP SCALE,6           ;SCALE FPAC
+             15         DXOP NORMAL,7          ;NORMALIZE FPAC
+             16         DXOP CLEAR,8           ;CLEAR FPAC
+             17         DXOP NEGATE,9          ;NEGATE FPAC
+             18         DXOP FLOATF,10         ;FLOAT FPAC
+             19         DXOP EVFIX,11          ;EVALUATE AND FIX
+             20         DXOP OUTFP,12          ;OUT FLOATING POINT #
+             21         DXOP OUTINT,13         ;OUT INTEGER
+             22  *
+             23         REF  FPWP              ;FLOATING POINT WORKSPACE POINTER
+             24         REF  TEMP              ;3 WRD TEMPORARY STORAGE
+             25         REF  CLKT01
+             26         REF  CLKT02
+             27         REF  EVSFR$            ;EXIT ADDRESS
+             28         DEF  GTICZ,TICF
+             29  *
+             30  * ABSTRACT:
+             31  *
+             32  *       GET AND FLOAT THE NUMBER OF ELAPSED
+             33  *       TICS OF THE CLOCK IN FPAC.
+             34  *
+             35  * CALLING SEQUENCE:
+             36  *
+             37  *       BLWP @GTICZ
+             38  *
+             39  *       OUT FPAC = CLOCK TICS
+             40  *
+ASM990 2.4.6     TICF                       Sun Jul 20 19:28:50 2025 Page 0002
+TIC FUNCTION - CORTEX BASIC REV. 1.1
+
+             42  *
+0000 0000    43  GTICZ  DATA FPWP,GTIC         ;ACCESS VECTOR
+             44  *
+0004 0300    45  GTIC   LIMI 0                 ;DISABLE INTERRUPTS
+0006 0000 
+0008 C060    46         MOV  @CLKT01,R1
+000A 0000 
+000C C0A0    47         MOV  @CLKT02,R2
+000E 0000 
+0010 0300    48         LIMI 15                ;ENABLE INTERRUPTS
+0012 000F 
+0014 0200    49         LI   R0,>4A00          ;GET EXPONENT
+0016 4A00 
+0018 0460    50         B    @FNRM             ;NORMALIZE
+001A 0000 
+             51  *
+             52  * ABSTRACT:
+             53  *
+             54  *       GET DELTA TICS.  (SUBTRACT FROM THE
+             55  *       FUNCTION ARGUMENT THE NUMBER OF ELAPSED
+             56  *       TICS OF THE CLOCK.)
+             57  *
+             58  * CALLING SEQUENCE:
+             59  *
+             60  *       B @TICF
+             61  *
+             62  *       IN (R2) = ARGUMENT
+             63  *
+             64  *       OUT (R2) = ARG - TICS
+             65  *
+             66  *       NORMAL EXIT TO EVSFR
+             67  *
+001C 2C12    68  TICF   LOADF *R2              ;LOAD FPAC
+001E 2E80    69         FLOATF 0               ;FLOAT IF NECESSARY
+0020 2C60    70         STORE @TEMP            ;STORE IN TEMP
+0022 0000 
+0024 0420    71         BLWP @GTICZ            ;GET TICS IN FPAC
+0026 0000'
+0028 2CE0    72         FSUB @TEMP             ;FPAC=FPAC-TEMP
+002A 0022'
+002C 0460    73         B    @EVSFR$           ;RETURN
+002E 0000 
+             74         END
+ASM990 2.4.6     TICF                       Sun Jul 20 19:28:50 2025 Page 0003
+TIC FUNCTION - CORTEX BASIC REV. 1.1
+
+CLKT01     000AR  CLKT02     000ER  EVSFR$     002ER  FNRM       001AR  
+FPWP       0000R  GTIC       0004'  GTICZ      0000D  R0         0000   
+R1         0001   R10        000A   R11        000B   R12        000C   
+R13        000D   R14        000E   R15        000F   R2         0002   
+R3         0003   R4         0004   R5         0005   R6         0006   
+R7         0007   R8         0008   R9         0009   TEMP       002AR  
+TICF       001CD  
+
+0 Errors in assembly

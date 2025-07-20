@@ -11,7 +11,7 @@
     (via_costs 50)
     (plane_via_costs 5)
     (start_ripup_costs 100)
-    (start_pass_no 21128)
+    (start_pass_no 1831)
     (layer_rule F.Cu
       (active on)
       (preferred_direction vertical)
@@ -82,7 +82,7 @@
     "unconnected-(J1-Pin_20-Pad20)" "CPU-D5" SOUNDCLOCK "unconnected-(J1-Pin_6-Pad6)" "Net-(J2-Pin_8)" "Net-(J2-Pin_4)" "Net-(J2-Pin_6)" "Net-(J2-Pin_2)"
     "B_INT" "Net-(J2-Pin_10)" "isa_iq_1" "unconnected-(J3-DRQ3-Pad16)" "B_D3" "B_SMEMR" "B_A15" "unconnected-(J3-~{DACK2}-Pad26)"
     BUSCLK "B_D7" "B_SMEMW" "unconnected-(J3-ALE-Pad28)" "B_D4" "B_A0" "B_A18" "B_D0"
-    "unconnected-(J3-DRQ1-Pad18)" "~{RES_OUT}" "unconnected-(J3-~{DACK3}-Pad15)" "B_A17" "B_A1" "B_A7" "B_A3" "B_A16"
+    "unconnected-(J3-DRQ1-Pad18)" RESET "unconnected-(J3-~{DACK3}-Pad15)" "B_A17" "B_A1" "B_A7" "B_A3" "B_A16"
     "B_A12" "unconnected-(J3-IO-Pad32)" "B_A10" "B_D5" "unconnected-(J3-DRQ2-Pad6)" "B_IOW" {slash}AEN "B_D2"
     "B_D6" "unconnected-(J3-TC-Pad27)" "B_A6" "B_A11" "unconnected-(J3-UNUSED-Pad8)" "unconnected-(J3-~{DACK1}-Pad17)" "B_A9" "B_A8"
     "B_A19" "B_A5" "B_A4" "B_IOR" "B_D1" "B_A2" "B_A14" "B_A13"
@@ -100,28 +100,33 @@
     "unconnected-(J18-~{DACK1}-Pad17)" "unconnected-(J18-IO_READY-Pad41)" "unconnected-(J18-~{DACK2}-Pad26)" "unconnected-(J18-TC-Pad27)" "unconnected-(J18-ALE-Pad28)" "unconnected-(J18-UNUSED-Pad8)" "unconnected-(J18-DRQ1-Pad18)" "unconnected-(J18-DRQ2-Pad6)"
     "unconnected-(J18-~{DACK3}-Pad15)" "unconnected-(J18-DRQ3-Pad16)" "unconnected-(J18-~{DACK0}-Pad19)" "Net-(JP4-A)" "/IO/VCC_IDE" "unconnected-(P1-Pad3)" "unconnected-(P1-Pad2)" "unconnected-(P1-Pad12)"
     "unconnected-(P1-Pad13)" "unconnected-(P1-Pad1)" "unconnected-(P4-Pin_27-Pad27)" "CPU-A1" "CPU-A2" "unconnected-(P4-Pin_28-Pad28)" "unconnected-(P4-Pin_4-Pad4)" "unconnected-(P4-Pin_6-Pad6)"
-    "unconnected-(P4-Pin_12-Pad12)" "unconnected-(P4-Pin_8-Pad8)" "Net-(P4-Pin_1)" "unconnected-(P4-Pin_14-Pad14)" "unconnected-(P4-Pin_31-Pad31)" ~{PWE} ~{CFSEL} "unconnected-(P4-Pin_18-Pad18)"
+    "unconnected-(P4-Pin_12-Pad12)" "unconnected-(P4-Pin_8-Pad8)" "unconnected-(U12-Pad2)" "unconnected-(P4-Pin_14-Pad14)" "unconnected-(P4-Pin_31-Pad31)" ~{PWE} ~{CFSEL} "unconnected-(P4-Pin_18-Pad18)"
     "unconnected-(P4-Pin_21-Pad21)" "unconnected-(P4-Pin_10-Pad10)" "unconnected-(P4-Pin_34-Pad34)" "unconnected-(P4-Pin_29-Pad29)" "unconnected-(P4-Pin_32-Pad32)" "Net-(P4-Pin_38)" ~{DBIN} "unconnected-(P4-Pin_16-Pad16)"
-    "PWR_ON" PG "Net-(P6-Pin_2)" "Net-(U5A-~{R})" "~{CPU-WAIT}" "Net-(U7-READY)" "Net-(U25-A->B)" "unconnected-(U1-Pad2)"
-    "unconnected-(U1-Pad13)" "unconnected-(U1-Pad3)" "Net-(U1-Pad11)" "unconnected-(U1-Pad4)" "unconnected-(U1-Pad8)" "unconnected-(U1-Pad6)" "unconnected-(U1-Pad9)" "unconnected-(U1-Pad12)"
-    "unconnected-(U1-Pad1)" "unconnected-(U1-Pad5)" "unconnected-(U2-Pad10)" "unconnected-(U2-Pad4)" "unconnected-(U2-Pad3)" "unconnected-(U2-Pad13)" "unconnected-(U2-Pad11)" "unconnected-(U2-Pad1)"
-    "unconnected-(U2-Pad12)" "unconnected-(U2-Pad2)" "Net-(U3-~{NMI})" RA13 RA15 IAQ "Net-(U3-READY)" "~{CPU-INT}"
-    "CPU-A5" CRUIN "CPU-A9" "CPU-A8" "CPU-A3" ~{WE} "CPU-A10" RA12
-    RA14 "CPU-A6" ~{MEMEN} "CPU-A11" "CPU-A4" "CPU-A7" CLK "Net-(U6B-C)"
-    "Net-(U21-CRUCLK)" MAPEN "Net-(U23-R{slash}~{W})" ~{CRUCLK} "unconnected-(U5B-~{Q}-Pad8)" "Net-(U5A-D)" "Net-(U5B-D)" "unconnected-(U5A-~{Q}-Pad6)"
-    "Net-(U15-O7)" "unconnected-(U6A-~{Q}-Pad6)" WAIT "unconnected-(U6B-~{Q}-Pad7)" ~{SNDSEL} "unconnected-(U7-AIN-Pad9)" "CPU-A18" "CPU-A17"
-    "CPU-A12" "CPU-A14" "CPU-A16" "CPU-A13" ~{ONBOARDRAM} "CPU-A15" "unconnected-(U10-RD4-Pad28)" "unconnected-(U10-RD1-Pad31)"
-    "unconnected-(U10-AD3-Pad7)" "unconnected-(U10-GROMCLK-Pad37)" "unconnected-(U10-RD3-Pad29)" "unconnected-(U10-~{INT}-Pad16)" "unconnected-(U10-AD5-Pad5)" "unconnected-(U10-RD6-Pad26)" "unconnected-(U10-RD7-Pad25)" "unconnected-(U10-RD5-Pad27)"
-    "unconnected-(U10-R{slash}~{W}-Pad11)" "unconnected-(U10-EXTVDP-Pad35)" "unconnected-(U10-COMVID-Pad36)" "unconnected-(U10-XTAL1-Pad39)" "unconnected-(U10-RD2-Pad30)" "unconnected-(U10-AD2-Pad8)" "unconnected-(U10-AD4-Pad6)" "unconnected-(U10-~{RAS}-Pad1)"
-    "unconnected-(U10-AD1-Pad9)" "unconnected-(U10-RD0-Pad32)" "unconnected-(U10-AD0-Pad10)" "unconnected-(U10-~{CAS}-Pad2)" "unconnected-(U10-AD7-Pad3)" "unconnected-(U10-AD6-Pad4)" "unconnected-(U10-XTAL2-Pad40)" "~{ONBOARD_ROM}"
-    ~{ISFE} ~{VideoSel} ~{KeyboardSel} ~{MAPSEL} "unconnected-(U11-I8-Pad9)" "~{CPU-IORQ}" "unconnected-(U11-O9-Pad14)" ~{ROMEN}
-    USER ~{9902SEL} IOW SMEMR IOR SMEMW "~{CPU-MREQ}" "unconnected-(U13-Pad12)"
-    "unconnected-(U13-Pad11)" "unconnected-(U13-Pad13)" "Net-(J19-Pin_2)" "Net-(J19-Pin_6)" "Net-(J19-Pin_5)" "Net-(J19-Pin_3)" "Net-(J19-Pin_4)" "Net-(J19-Pin_8)"
-    "Net-(J19-Pin_9)" "Net-(J19-Pin_7)" "unconnected-(U15-O4-Pad11)" "unconnected-(U15-O6-Pad9)" "unconnected-(U15-O3-Pad12)" "unconnected-(U15-O5-Pad10)" "unconnected-(U15-O1-Pad14)" "unconnected-(U18-VPP-Pad1)"
-    "unconnected-(U21-DSR-Pad7)" ~{FLAGSEL} PROTECT "unconnected-(U23-MO5-Pad19)" "unconnected-(U23-MO0-Pad14)" "unconnected-(U23-MO7-Pad23)" "unconnected-(U23-MO6-Pad22)" "unconnected-(U23-NC-Pad28)"
-    "unconnected-(U26-Pad10)" "Net-(U27A-~{S})" "Net-(U26-Pad2)" "unconnected-(U26-Pad8)" "Net-(U27A-C)" "unconnected-(U26-Pad12)" "unconnected-(U27B-~{Q}-Pad8)" "unconnected-(U27B-D-Pad12)"
-    "unconnected-(U27B-C-Pad11)" "Net-(U27A-D)" "unconnected-(U27B-~{R}-Pad13)" "unconnected-(U27B-~{S}-Pad10)" "unconnected-(U27B-Q-Pad9)" "unconnected-(U30-O2-Pad21)" "unconnected-(U30-O5-Pad18)" "unconnected-(U30-O0-Pad23)"
-    "unconnected-(U30-O6-Pad17)" "unconnected-(U30-I11-Pad13)" "unconnected-(U30-O3-Pad20)" "unconnected-(U30-O8-Pad15)" "unconnected-(U30-I2-Pad3)"
+    "PWR_ON" PG "Net-(P6-Pin_2)" "Net-(U5A-~{R})" "~{CPU-WAIT}" "Net-(U7-READY)" "unconnected-(U12-Pad1)" "unconnected-(U12-Pad13)"
+    "unconnected-(U12-Pad3)" "unconnected-(U12-Pad11)" "unconnected-(U12-Pad12)" "unconnected-(U13-Pad10)" "unconnected-(U13-Pad8)" "unconnected-(U13-Pad9)" "unconnected-(U2-Pad10)" "unconnected-(U2-Pad4)"
+    "unconnected-(U2-Pad3)" "unconnected-(U2-Pad13)" "unconnected-(U2-Pad11)" "unconnected-(U2-Pad1)" "unconnected-(U2-Pad12)" "unconnected-(U2-Pad2)" "Net-(U3-~{NMI})" RA13
+    RA15 IAQ "Net-(U3-READY)" "~{CPU-INT}" "CPU-A5" CRUIN "CPU-A9" "CPU-A8"
+    "CPU-A3" ~{WE} "CPU-A10" RA12 RA14 "CPU-A6" ~{MEMEN} "CPU-A11"
+    "CPU-A4" "CPU-A7" CLK "Net-(U6B-C)" "Net-(U21-CRUCLK)" MAPEN "Net-(U23-R{slash}~{W})" ~{CRUCLK}
+    "unconnected-(U5B-~{Q}-Pad8)" "Net-(U5A-D)" "Net-(U5B-D)" "unconnected-(U5A-~{Q}-Pad6)" "Net-(U15-O7)" "unconnected-(U6A-~{Q}-Pad6)" WAIT "unconnected-(U6B-~{Q}-Pad7)"
+    ~{SNDSEL} "unconnected-(U7-AIN-Pad9)" "CPU-A18" "CPU-A17" "CPU-A12" "CPU-A14" "CPU-A16" "CPU-A13"
+    ~{ONBOARDRAM} "CPU-A15" "unconnected-(U10-RD4-Pad28)" "unconnected-(U10-RD1-Pad31)" "unconnected-(U10-AD3-Pad7)" "unconnected-(U10-GROMCLK-Pad37)" "unconnected-(U10-RD3-Pad29)" "unconnected-(U10-~{INT}-Pad16)"
+    "unconnected-(U10-AD5-Pad5)" "unconnected-(U10-RD6-Pad26)" "unconnected-(U10-RD7-Pad25)" "unconnected-(U10-RD5-Pad27)" "unconnected-(U10-R{slash}~{W}-Pad11)" "unconnected-(U10-EXTVDP-Pad35)" "unconnected-(U10-COMVID-Pad36)" "unconnected-(U10-XTAL1-Pad39)"
+    "unconnected-(U10-RD2-Pad30)" "unconnected-(U10-AD2-Pad8)" "unconnected-(U10-AD4-Pad6)" "unconnected-(U10-~{RAS}-Pad1)" "unconnected-(U10-AD1-Pad9)" "unconnected-(U10-RD0-Pad32)" "unconnected-(U10-AD0-Pad10)" "unconnected-(U10-~{CAS}-Pad2)"
+    "unconnected-(U10-AD7-Pad3)" "unconnected-(U10-AD6-Pad4)" "unconnected-(U10-XTAL2-Pad40)" "~{ONBOARD_ROM}" ~{ISFE} ~{VideoSel} ~{MAPSEL} "unconnected-(U11-I8-Pad9)"
+    "~{CPU-IORQ}" "Net-(U16-CAP1A)" ~{ROMEN} USER ~{9902SEL} IOW SMEMR IOR
+    SMEMW "~{CPU-MREQ}" "Net-(U16-CAP1B)" "Net-(U16-CAP2B)" "Net-(U16-CAP2A)" "unconnected-(U15-O4-Pad11)" "unconnected-(U15-O6-Pad9)" "unconnected-(U15-O3-Pad12)"
+    "unconnected-(U15-O5-Pad10)" "unconnected-(U15-O1-Pad14)" "unconnected-(U18-VPP-Pad1)" "unconnected-(U21-DSR-Pad7)" ~{FLAGSEL} PROTECT "unconnected-(U23-MO5-Pad19)" "unconnected-(U23-MO0-Pad14)"
+    "unconnected-(U23-MO7-Pad23)" "unconnected-(U23-MO6-Pad22)" "unconnected-(U23-NC-Pad28)" "unconnected-(U26-Pad10)" "Net-(U27A-~{S})" "Net-(U26-Pad2)" "unconnected-(U26-Pad8)" "Net-(U27A-C)"
+    "unconnected-(U26-Pad12)" "unconnected-(U27B-~{Q}-Pad8)" "unconnected-(U27B-D-Pad12)" "unconnected-(U27B-C-Pad11)" "Net-(U27A-D)" "unconnected-(U27B-~{R}-Pad13)" "unconnected-(U27B-~{S}-Pad10)" "unconnected-(U27B-Q-Pad9)"
+    "unconnected-(U30-O2-Pad21)" "unconnected-(U30-O5-Pad18)" "unconnected-(U30-O0-Pad23)" "unconnected-(U30-O6-Pad17)" "unconnected-(U30-I11-Pad13)" "unconnected-(U30-O3-Pad20)" "unconnected-(U30-O8-Pad15)" "unconnected-(U30-I2-Pad3)"
+    "Net-(C47-Pad1)" "Net-(C47-Pad2)" "Net-(J20-Pin_2)" "Net-(C49-Pad1)" "Net-(J21-Pin_1)" "Net-(C49-Pad2)" "Net-(C58-Pad2)" "Net-(J22-Pin_1)"
+    "Net-(C56-Pad2)" "Net-(C56-Pad1)" "Net-(J23-Pin_2)" "Net-(C58-Pad1)" "Net-(J21-Pin_2)" "Net-(J22-Pin_2)" SIDCLK "unconnected-(P3-Pad3)"
+    "unconnected-(P3-Pad13)" "unconnected-(P3-Pad12)" "unconnected-(P3-Pad2)" "unconnected-(P3-Pad1)" "Net-(U16-AUDIO_OUT)" ~{SIDSEL} "Net-(U19-Cp)" "Net-(U16-A2)"
+    "unconnected-(U16-POT_Y-Pad23)" "unconnected-(U16-EXT_IN-Pad26)" "Net-(U16-D6)" "Net-(U16-A0)" "Net-(U16-D5)" "Net-(U16-A3)" "Net-(U16-A1)" "Net-(U16-D4)"
+    "Net-(U16-D0)" "Net-(U16-D7)" "Net-(U16-D1)" "Net-(U16-D2)" "Net-(U16-A4)" "Net-(U16-D3)" "unconnected-(U16-POT_X-Pad24)" "unconnected-(U19-O6-Pad16)"
+    "unconnected-(U19-O5-Pad15)" "unconnected-(U19-O7-Pad19)" "unconnected-(U24-BYPASS-Pad7)" "unconnected-(U32-BYPASS-Pad7)" /IO/KBDCLK "unconnected-(J19-Pad2)" /IO/KBDDAT "unconnected-(J19-Pad6)"
+    "Net-(JP2-Pin_2)" "unconnected-(U11-O7-Pad16)" "unconnected-(U33-XTAL1{slash}PB3-Pad2)" "unconnected-(U33-XTAL2{slash}PB4-Pad3)" "unconnected-(U33-~{RESET}{slash}PB5-Pad1)"
     (clearance_class "kicad_default")
     (via_rule "kicad_default")
     (rule

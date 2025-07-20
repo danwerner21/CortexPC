@@ -1,0 +1,2775 @@
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0001
+DEBUG MONITOR - CORTEX BASIC REV. 1.1
+
+              2         IDT  'MONITOR'
+              3  *
+              4         DEF  DEBUG$,MONTOP
+              5         DEF  WHXETY,RHENTY,WHENTY
+              6         DEF  ECHOEN,WENTRY,RENTRY
+              7         DEF  MENTRY,XOPENT
+              8         DEF  ERR3$M,D$LDWP,D$LDPC
+              9  *
+             10         REF  HALTO$,BEGN1,MC$LOD,MC$SAV
+             11         REF  WORKS,ZZZZZ$
+             12         REF  INITFG,BPT0V,BPTSET,BPTADD
+             13         REF  BPTDTA,ASMOPC,MREGS,MREG3
+             14         REF  MREG13,PC
+             15         REF  B0D,GETCR$,TYP0$
+             16         REF  UNIT,MCRLF,TYPEN$,TYPC$
+             17         REF  BRAM,BADTER,BADADR
+             18         REF  BELL,SPACE5,SPACE2,BPMSG
+             19         REF  LOGON,SPR,REGSTR,ASKBP,EXMSG,SPBP
+             20         REF  SETVEC,DSRCNT,STPMSG,SYMBLC,MODE
+             21         REF  PROMPT,WS,EQUSGN,GTLN,BLSTOR,ASMPTR,IOB
+             22         REF  ESCFLG,F$WHO,PADIT,TYPS$,WPR1
+             23  *
+             24         COPY 'MACRO.INC'            
+              1C *
+              2C *  DEFINE A MACRO TO GO THE 'READ Gs' ETC. INSTRUCTIONS
+              3C *  WHERE THE RESULTING OPCODE WILL BE OF THE FORM
+              4C *
+              5C *        0 0 0 0   1 1 1 X   X X X X   X X X X
+              6C *                       |  N    | Ts |   Rs    |
+              7C *
+              8C *    WNBL      N=0
+              9C *    RHXW      N=1
+             10C *    WHXW      N=2
+             11C *    EKO       N=3
+             12C *    WRIT      N=4
+             13C *    READ      N=5
+             14C *    MSG       N=6
+             15C *    BKPT      N=7
+             16C *
+             17C *
+             18C *     NOTE : IF THE OPERAND IS INDEXED THEN THE CORRECT
+             19C *            CODE IS GENERATED BUT SDSMAC WILL ALSO ERROR
+             20C *            IT.
+             21C *
+             22C Z$$Z$$ $MACRO P1,O
+             23C *     DEFINE THE REQUIRED DATA PASSED THE BASE OPCODE
+             24C *     AND THE OPERAND.
+             25C        $VAR T
+             26C        $ASG P1 TO T
+             27C *   IS IT INDEXED
+             28C    $IF  P1.A&$PNDX
+             29C        $ASG O.V+>20 TO O.V
+             30C        $ASG :O.V:'+R':P1.V:',':P1.S: TO T.S
+             31C        DATA :T.S:              INDEX
+             32C        $EXIT
+             33C    $ENDIF
+             34C *   NO , IS IT SYMBOLIC ?
+             35C    $IF  P1.A&$PSYM
+             36C        $ASG O.V+>20 TO O.V
+             37C        $ASG :O.V:',':P1.S: TO T.S
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0002
+DEBUG MONITOR - CORTEX BASIC REV. 1.1
+
+             38C        DATA :T.S:              SYMBOLIC
+             39C        $EXIT
+             40C    $ENDIF
+             41C *   NO , IS IT INDIRECT
+             42C    $IF  P1.A&$PIND
+             43C        $ASG O.V+>10 TO O.V
+             44C        $ASG :O.V:'+R':P1.V: TO T.S
+             45C        DATA :T.S:             INDIRECT
+             46C        $EXIT
+             47C    $ENDIF
+             48C *   NO , IS IT INDIRECT AUTOINCREMENT
+             49C    $IF P1.A&$PATO
+             50C        $ASG O.V+>30 TO O.V
+             51C        $ASG :O.V:'+R':P1.V: TO T.S
+             52C        DATA :T.S:             AUTOINC
+             53C        $EXIT
+             54C    $ENDIF   
+             55C *   NO IT MUST BE REGISTER THEN
+             56C        $ASG :O.V:'+R':P1.V: TO T.S
+             57C        DATA :T.S:             REGISTER
+             58C    $END            END OF INTERNAL MACRO 'Z$$Z$$'
+             59C *
+             60C *    DEFINE UTILITY MACRO'S
+             61C *
+             62C WNBL   $MACRO P2
+             63C        Z$$Z$$ :P2.S:,>0E00        WRITE HEX NIBBLE
+             64C        $END
+             65C RHXW   $MACRO P2
+             66C        Z$$Z$$ :P2.S:,>0E40        READ HEX WORD
+             67C        $END
+             68C WHXW   $MACRO P2
+             69C        Z$$Z$$ :P2.S:,>0E80        WRITE HEX WORD
+             70C        $END
+             71C EKO    $MACRO P2
+             72C        Z$$Z$$ :P2.S:,>0EC0        ECHO CHARACTER  
+             73C        $END
+             74C WRIT   $MACRO P2
+             75C        Z$$Z$$ :P2.S:,>0F00        WRITE CHARACTER
+             76C        $END
+             77C READ   $MACRO P2
+             78C        Z$$Z$$ :P2.S:,>0F40        READ CHARACTER
+             79C        $END
+             80C MSG    $MACRO P2
+             81C        Z$$Z$$ :P2.S:,>0F80        OUT MESSAGE
+             82C        $END
+             83C BKPT   $MACRO P2
+             84C        Z$$Z$$ :P2.S:,>0FC0        BREAKPOINT      
+             85C        $END
+             86C *
+             87C *    END OF MACRO DEFINITIONS
+             88C *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0003
+DEBUG MONITOR - CORTEX BASIC REV. 1.1
+
+             26  ************************************************************
+             27  *                                                          *
+             28  * MENU OF CORTEX COMMANDS (ALPHABETICAL)                   *
+             29  *                                                          *
+             30  *      ?    WHERE AM I                                     *
+             31  *      A    LINE BY LINE ASSEMBLER                         *
+             32  *            PC ADDRESS                                    *
+             33  *      B    BREAKPOINT SETTING                             *
+             34  *            BREAKPOINT NUMBER (CR=DISPLAY ALL BK. PTS.)   *
+             35  *            '-' = CLEAR BREAKPOINT LIST                   *
+             36  *      C    CRU INSPECT CHANGE                             *
+             37  *            BASE ADDRESS                                  *
+             38  *            NO. OF BITS                                   *
+             39  *      D    TAG DUMP                                       *
+             40  *            START ADDRESS                                 *
+             41  *            STOP ADDRESS                                  *
+             42  *            ENTRY ADDRESS                                 *
+             43  *            PROMPT FOR IDT                                *
+             44  *      E    EXECUTE - MESSAGES FOLLOW -                    *
+             45  *            PC                                            *
+             46  *      F    FIND ('CR' =WORD, '-' =BYTE)                   *
+             47  *            START ADDRESS                                 *
+             48  *            STOP ADDRESS                                  *
+             49  *            PATTERN                                       *
+             50  *      G    GOTO BASIC  (WARM START)                       *
+             51  *      I    INITIALIZE MEMORY                              *
+             52  *            START ADDRESS                                 *
+             53  *            STOP ADDRESS                                  *
+             54  *            VALUE                                         *
+             55  *      L    LOADER                                         *
+             56  *            PROMPT FOR IDT                                *
+             57  *      M    MEMORY INSPECT CHANGE                          *
+             58  *            START ADDRESS (CR-MODIFY)                     *
+             59  *            STOP ADDRESS                                  *
+             60  *      N    NEGATIVE FIND (FIND ANYTHING BUT PATTERN)      *
+             61  *            AS 'FIND'                                     *
+             62  *      P    OUTPUT PORT TOGGLE                             *
+             63  *      R    INSPECT/CHANGE WP,PC, AND ST REGISTERS         *
+             64  *             (- GIVES PREVIOUS REGISTER)                  *
+             65  *      S    SINGLE/MULTIPLE STEPPING                       *
+             66  *            VALUE LESS THAN >80=                          *
+             67  *             NO. OF STEPS (NULL OR 0 =1 )                 *
+             68  *            VALUE GREATER THAN >80=                       *
+             69  *             SINGLE STEP UNTIL MEM ADDR REACHED           *
+             70  *      T    TRACE-SINGLE STEP WITH PRINTOUT                *
+             71  *            NO. OF STEPS (NULL OR 0 =1 )                  *
+             72  *      U    UN-ASSEMBLER                                   *
+             73  *            START ADDRESS (CR-SINGLE LINE)                *
+             74  *            STOP ADDRESS                                  *
+             75  *      W    WORKSPACE REGISTER INSPECT/CHANGE              *
+             76  *            REGISTER NUMBER (CR-DUMP ALL REGS.)           *
+             77  *      X    TRANSFER (XFER) MEMORY                         *
+             78  *            START BYTE ADDRESS                            *
+             79  *            STOP  BYTE ADDRESS                            *
+             80  *            DESTINATION START BYTE ADDR                   *
+             81  *                                                          *
+             82  ************************************************************
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0004
+DEBUG MONITOR - CORTEX BASIC REV. 1.1
+
+             84  ************************************************************
+             85  *  MODIFICATIONS DONE SINCE FIRST OPERATIONAL              *
+             86  *                                                          *
+             87  * BREAKPOINT HANDLER CHANGED SO AS NOT TO DELETE B.P.'S    *
+             88  *   WHEN THEY ARE 'HIT', ALSO CHANGED SO AS NOT TO CLEAR   *
+             89  *   BREAKPOINTS ON SYSTEM RESET.                           *
+             90  * OUTPUT ROUTINE: ESCAPE DETECT WRITTEN IN, SO AS TO GIVE  *
+             91  *  RETURN TO COMMAND SCANNER WHEN ESCAPE IS PRESSED        *
+             92  * ASSEMBLER AND DISASSEMBLER RE-WRITTEN SO AS TO USE       *
+             93  *  COMBINED TEXT/DATA TABLES.                              *
+             94  * NEGATIVE FIND ROUTINE ADDED                              *
+             95  * SINGLE STEP TO VALUE ADDED                               *
+             96  * MID, AO, & UNDEFINED XOP HANDLERS ADDED.                 *
+             97  * PRINT FORMAT IN 'R' & 'M' COMMANDS ALTERED SO AS TO USE  *
+             98  *  40 CHARACTER VDU'S                                      *
+             99  * BREAKPOINT HANDLING CHANGED SO AS TO REMOVE BPTS FROM    *
+            100  * USER RAM IN THE MONTOP. ALSO CHANGED SO THAT A SINGLE    *
+            101  * STEP IS EXECUTED BEFORE THE BPTS ARE SET.                *
+            102  * SINGLE STEP ROUTINES RE-WRITTEN SO AS TO USE LESS CODE   *
+            103  * USER VECTOR FOR BREAKPOINT ZERO INTRODUCED.              *
+            104  * PRINT FORMAT FOR 'F' & 'N' COMMANDS CHANGED              *
+            105  * SINGLE STEP/TRACE CHANGED SO AS NOT TO OUTPUT IN XOP'S   *
+            106  ************************************************************
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0005
+DEBUG MONITOR - CORTEX BASIC REV. 1.1
+
+            108  *
+            109  * MONITOR RE-ENTRY POINT
+            110  *
+0000 02E0   111  MONTOP LWPI MREGS
+0002 0000 
+     0002'  112  LOADWP EQU  $-2
+     0002'  113  D$LDWP EQU  LOADWP
+0004 0720   114         SETO @F$WHO
+0006 0000 
+0008 06A0   115         BL   @RMVBPT           REMOVE BREAKPOINTS IF NEC.
+000A 040C'
+     000C'  116  BPTSOK EQU  $
+            117  *
+            118  * INITIALIZE LOAD ETC
+            119  *
+000C 04C0   120         CLR  R0
+000E 0201   121         LI   R1,>FFFC          LOAD POINTER
+0010 FFFC 
+0012 CC60   122         MOV  @LOADWP,*R1+      COPY WORKSPACE POINTER
+0014 0002'
+     0018'  123  D$LDPC EQU  $+2
+0016 0202   124         LI   R2,LOAD           LOAD 2ND POINTER
+0018 030A'
+001A CC42   125         MOV  R2,*R1+           COPY LOAD ENTRY POINT
+001C        126         MSG  @PROMPT
+            127  *
+            128  * WAIT FOR A COMMAND ENTRY
+            129  *
+0020        130  CMDIN  READ R5
+0022 04C2   131         CLR  R2                CLEAR KEY
+0024 04C3   132         CLR  R3                CLEAR COUNT
+0026 0208   133         LI   R8,1              WORD BOUNDRY REG (LSB= 1)
+0028 0001 
+002A 0209   134         LI   R9,SPACE2
+002C 0000 
+002E 020A   135         LI   R10,MCRLF
+0030 0000 
+0032 06A0   136         BL   @SRCH
+0034 0090'
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0006
+DEBUG MONITOR - CORTEX BASIC REV. 1.1
+
+            138  *
+            139  * COMMAND SEARCH TABLE
+            140  *
+0036 4D     141         TEXT 'M'               MEMORY INSPECT/CHANGE
+0037 03     142         BYTE 3                  (START,STOP)
+0038 0194'  143         DATA M
+003A 44     144         TEXT 'D'               DUMP MEMORY TO CASSETTE
+003B 07     145         BYTE 7                  (START,STOP,ENTRY)
+003C 0000   146         DATA MC$SAV              (NOW IN BASIC)
+003E 49     147         TEXT 'I'               INITIALIZE MEMORY COMMAND
+003F 07     148         BYTE 7                  (START,STOP,VALUE)
+0040 0140'  149         DATA I
+0042 41     150         TEXT 'A'               ZERO LABEL ASSEMBLER
+0043 01     151         BYTE 1                  (START PC)
+0044 05B4'  152         DATA ZLABGN
+0046 55     153         TEXT 'U'               UNASSEMBLER
+0047 03     154         BYTE 3                  (START,STOP)
+0048 080A'  155         DATA U
+004A 57     156  ADREVN TEXT 'W'               USER WORKSPACE INSPECT/CHANGE
+004B 01     157         BYTE 1                  (REG NO.)
+004C 01E8'  158         DATA W
+004E 45     159         TEXT 'E'               EXECUTE
+004F 00     160         BYTE 0                  (PC ADDR-OPTIONAL)
+0050 034C'  161         DATA E
+0052 42     162         TEXT 'B'               BREAKPOINT
+0053 01     163         BYTE 1                  (BREAKPOINT NO.)
+0054 01DE'  164  BPCMD  DATA B
+0056 53     165         TEXT 'S'               EXECUTE SINGLE STEPS
+0057 03     166         BYTE 3                  (VARIOUS)
+0058 02D2'  167         DATA S
+005A 4C     168         TEXT 'L'               LOAD MEMORY FROM CASSETTE
+005B 00     169         BYTE 0
+005C 0000   170         DATA MC$LOD               (NOW IN BASIC)
+005E 43     171         TEXT 'C'               CRU INSPECT/CHANGE
+005F 03     172         BYTE 3                  (CRU BASE, # OF BITS)
+0060 0250'  173         DATA C
+0062 52     174         TEXT 'R'               WP,PC,ST INSPECT/CHANGE
+0063 00     175         BYTE 0
+0064 0294'  176         DATA R
+0066 46     177         TEXT 'F'               FIND BYTE/WORD
+0067 07     178         BYTE 7                  (START,STOP,VALUE)
+0068 014E'  179         DATA F
+006A 4E     180         TEXT 'N'               NEGATIVE FIND BYTE/WORD
+006B 07     181         BYTE 7                  (START,STOP,VALUE)
+006C 018E'  182         DATA N
+006E 54     183         TEXT 'T'               TRACE STEP AND PRINT WP,PC,ST
+006F 01     184         BYTE 1                  (# OF STEPS)
+0070 033C'  185         DATA T
+0072 58     186         TEXT 'X'               TRANSFER (XFER) MEMORY
+0073 07     187         BYTE 7                  (START,STOP,DEST.)
+0074 011A'  188         DATA X
+0076 50     189         TEXT 'P'               TOGGLE OUTPUT PORT
+0077 01     190         BYTE 1                 (UNIT #)
+0078 0404'  191         DATA P
+007A 47     192         TEXT 'G'               GOTO BASIC (WARM START)
+007B 00     193         BYTE 0
+007C 0112'  194         DATA G
+007E 3F     195         TEXT '?'               WHERE AM I?
+007F 00     196         BYTE 0
+0080 03E2'  197         DATA QUERY
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0007
+DEBUG MONITOR - CORTEX BASIC REV. 1.1
+
+0082 00     198         BYTE 0,0,0,0           SPARE ENTRY
+0086 00     199         BYTE 0,0,0,0           SPARE ENTRY
+008A 0000   200         DATA 0                 END OF TABLE
+            202  *
+            203  * COMMAND SEARCH ROUTINE
+            204  *
+008C 022B   205  SRCHLP AI   R11,3             UPDATE POINTER
+008E 0003 
+0090 C1DB   206  SRCH   MOV  *R11,R7           SEARCH FAIL?
+0092 132C   207         JEQ  ERR4              YES, ERROR
+0094 917B   208         CB   *R11+,R5          DOES INPUT MATCH A TABLE ENTRY
+0096 16FA   209         JNE  SRCHLP            NO, TRY NEXT TABLE ENTRY
+0098        210         WRIT R5
+009A        211         WRIT *R9
+009C D1BB   212         MOVB *R11+,R6          NUMBER OF HEX INPUTS TO ICOUNT
+            213  *
+            214  * ICOUNT SPECIFIES NUMBER OF HEX INPUT FIELDS
+            215  *
+009E 0986   216         SRL  R6,8              ALIGN ICOUNT
+00A0 02A7   217         STWP R7                POINT TO R0
+00A2 0916   218  INLOOP SRL  R6,1              DONE?
+00A4 1707   219         JNC  CEXIT             YES, TO COMMAND PROCESSOR
+00A6        220         RHXW R4                ACCEPT HEX ENTRY
+00A8 00C4'  221         DATA NULL,ERR2
+00AC CDC4   222         MOV  R4,*R7+           SAVE HEX INPUT VIA POINTER
+00AE 0583   223  CNT    INC  R3                COUNT THE NUMBER OF ENTRIES
+00B0 9685   224         CB   R5,*R10           END OF INPUT?
+00B2 16F7   225         JNE  INLOOP            YES, TO COMMAND PROCESSOR
+00B4 028B   226  CEXIT  CI   R11,ADREVN        EVEN BOUNDARY REQUIRED
+00B6 004A'
+00B8 1B02   227         JH   BRCMD             NO - JUMP
+00BA 4008   228         SZC  R8,R0
+00BC 4048   229         SZC  R8,R1
+00BE C2DB   230  BRCMD  MOV  *R11,R11          GET ENTRY ADDRESS
+00C0 069B   231         BL   *R11              YES, TO COMMAND PROCESSOR
+00C2 109E   232         JMP  MONTOP            RETURN FROM COMMANDS
+00C4 05C7   233  NULL   INCT R7                UPDATE POINTER
+00C6 9685   234         CB   R5,*R10           NO INPUT?
+00C8 13F5   235         JEQ  CEXIT             Y, GOT COMMAND
+00CA 028B   236         CI   R11,BPCMD         TEST FOR BREAKPOINT
+00CC 0054'
+00CE 16EF   237         JNE  CNT               NO - DEFAULT PARAMETER
+00D0 0285   238         CI   R5,'-'*256        TEST FOR '-'
+00D2 2D00 
+00D4 16EC   239         JNE  CNT               NO - DEFAULT
+00D6 0208   240         LI   R8,BPTADD
+00D8 0000 
+00DA 1016   241         JMP  CLRBPT            YES, CLEAR BREAKPOINTS
+            242  *
+            243  * ERROR HANDLER
+            244  *
+00DC 0201   245  ERR2   LI   R1,BADTER         TERM. CHARACTER ERROR
+00DE 0000 
+00E0 1002   246         JMP  OUTERR
+     00E2'  247  ERR3$M EQU  $
+00E2 0201   248  ERR3   LI   R1,BADADR         DUMP ADDRESS ERROR
+00E4 0000 
+            249  *
+00E6 0000   250  OUTERR DATA TYPC$             OUT 'CRLF'
+00E8 0000   251         DATA TYPEN$            OUT ERROR TEXT
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0008
+COMMAND SEARCH AND ERROR HANDLER
+
+00EA 108A   252  JMMONT JMP  MONTOP            RETURN TO MONITOR
+00EC        253  ERR4   MSG  @BELL
+00F0 1097   254         JMP  CMDIN
+            255  *
+            256  *      INITIAL ENTRY POINT
+            257  *
+00F2 02E0   258  DEBUG$ LWPI MREGS
+00F4 0002'
+00F6        259  BANNER MSG  @LOGON            OUTPUT BANNER
+00FA 0208   260         LI   R8,INITFG         POINT TO INIT FLAG
+00FC 0000 
+00FE 8818   261         C    *R8,@INITIZ       TEST INIT. FLAG
+0100 0326'
+0102 13F3   262         JEQ  JMMONT            IF SET, TO MONTOP
+0104 CE20   263         MOV  @INITIZ,*R8+      SET FLAG
+0106 0326'
+0108 04F8   264  CLRBPT CLR  *R8+              CLEAR BOTH TABLES
+010A 0288   265         CI   R8,BPTADD+64
+010C 0040 
+010E 1AFC   266         JL   CLRBPT
+0110 10EC   267         JMP  JMMONT            TO TOP OF MONITOR
+            268  ************************************************************
+            269  *
+            270  *                EXIT TO BASIC
+            271  *
+            272  ************************************************************
+0112 0420   273  G      BLWP @BVEC1            WARMSTART VECTORS
+0114 0116'
+0116 0000   274  BVEC1  DATA WPR1,BEGN1
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0009
+COMMAND SEARCH AND ERROR HANDLER
+
+            276  ************************************************************
+            277  *                                                          *
+            278  * TRANSFER (XFER) COMMAND -- 'X'                           *
+            279  *                                                          *
+            280  *  CALLING SEQUENCE:          BL   X                       *
+            281  *                       R0=START BYTE ADDRESS              *
+            282  *                       R1=STOP BYTE ADDRESS               *
+            283  *                       R2=DESTINATION START ADDR          *
+            284  *                                                          *
+            285  *  RETURN                     RT                           *
+            286  *                                                          *
+            287  * IF THE DESTINATION ADDRESS IS BETWEEN THE START AND STOP *
+            288  *  ADDRESS, THE TRANSFER IS BOTTOM UP TO AVOID COPYING     *
+            289  *  OVER THE ORIGINAL BEFORE IT IS TRANSFERED.              *
+            290  *                                                          *
+            291  ************************************************************
+            292  *
+011A 8040   293  X      C    R0,R1             START < STOP
+011C 1BE2   294  XERR   JH   ERR3               N, EXIT
+011E 8002   295         C    R2,R0             DEST. LESS THAN START?
+0120 120B   296         JLE  TOPDN              Y, TOP DOWN
+0122 8042   297         C    R2,R1             DEST. GREATER THEN STOP?
+0124 1B09   298         JH   TOPDN              Y, TOP DOWN
+0126 C0C1   299         MOV  R1,R3              N, BOTTOM UP
+0128 60C0   300         S    R0,R3
+012A A083   301         A    R3,R2             DEST BOT= DEST+(START-STOP)
+012C D491   302  BOTUP  MOVB *R1,*R2
+012E 0601   303         DEC  R1                BUMP POINTERS
+0130 0602   304         DEC  R2
+0132 8001   305         C    R1,R0             PAST START?
+0134 14FB   306         JHE  BOTUP              N, CONTINUE
+0136 045B   307         RT                      Y, EXIT TO MONITOR
+0138 DCB0   308  TOPDN  MOVB *R0+,*R2+
+013A 8040   309         C    R0,R1             PAST STOP?
+013C 12FD   310         JLE  TOPDN              N, CONTINUE
+013E 045B   311         RT                      Y, EXIT TO MONITOR
+            312  *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0010
+*** INITIALIZE COMMAND ***
+
+            315  ************************************************************
+            316  * INITILIZE MEMORY COMMAND -- 'I'                          *
+            317  *                                                          *
+            318  * FILL MEMORY WITH THE KEY FROM 'START' TO 'STOP' BY WORDS *
+            319  *                                                          *
+            320  * CALLING SEQUENCE:           BL    I                      *
+            321  *                        R0=START                          *
+            322  *                        R1=STOP                           *
+            323  *                        R2=KEY                            *
+            324  *                                                          *
+            325  * RETURN                      B     *R11                   *
+            326  *                                                          *
+            327  ************************************************************
+            328  *
+0140 8040   329  I      C    R0,R1             TEST FOR VALID START/STOP
+0142 1BEC   330         JH   XERR
+0144 CC02   331  I11    MOV  R2,*R0+           DATA TO MEMORY
+0146 8040   332         C    R0,R1             DONE?
+0148 16FD   333         JNE  I11               NO, LOOP
+014A CC02   334         MOV  R2,*R0+
+014C 045B   335         RT                     EXIT
+            336  *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0011
+*** FIND COMMAND ***
+
+            339  ************************************************************
+            340  *                                                          *
+            341  * FIND COMMAND -- 'F'                                      *
+            342  *                                                          *
+            343  * LOOK FROM START ADDRESS TO STOP ADDRESS FOR              *
+            344  * THE SPECIFIED DATA PATTERN.                              *
+            345  *      R0-START ADDRESS                                    *
+            346  *      R1-STOP ADDRESS                                     *
+            347  *      R2-PATTERN                                          *
+            348  * THE TERMINATION CHARACTER DETERMINES THE SEARCH          *
+            349  * INCREMENT.                                               *
+            350  *      CARRAIGE RETURN - WORD                              *
+            351  *      MINUS SIGN      - BYTE                              *
+            352  *                                                          *
+            353  ************************************************************
+            354  *
+014E 0206   355  F      LI   R6,SKIP2-SKIP11/2-1+>1600  JUMP NOT EQUAL
+0150 1603 
+0152 0203   356  FIND   LI   R3,>8402          LOAD COMPARE- C  R2,*R0
+0154 8402 
+0156 0204   357         LI   R4,>5C0           LOAD - INCT  R0
+0158 05C0 
+015A 9685   358         CB   R5,*R10           TCHAR='CR'?
+015C 1306   359         JEQ  SKIP0             YES,LEAVE AS C, INCT
+015E 0223   360         AI   R3,>1000          CHANGE TO- CB
+0160 1000 
+0162 0224   361         AI   R4,->40           CHANGE TO- INC
+0164 FFC0 
+0166 0A82   362         SLA  R2,8              ALIGN PATTERN
+0168 1005   363         JMP  SKIP1
+016A 4008   364  SKIP0  SZC  R8,R0
+016C 4048   365         SZC  R8,R1
+016E 1002   366         JMP  SKIP1
+0170 C1C7   367  NXTBLK MOV  R7,R7             DONE 4 ADDRESSES?
+0172 1603   368         JNE  NOCRTN            NO - JUMP
+0174 0207   369  SKIP1  LI   R7,4
+0176 0004 
+0178        370         MSG  *R10
+017A 0483   371  NOCRTN X    R3                EXECUTE THE COMPARE
+017C 0486   372  SKIP11 X    R6                JNE (FIND) JEQ (-VE FIND)
+017E        373         WHXW R0                OUTPUT ADDRESS
+0180        374         MSG  *R9               TWO SPACES
+0182 0607   375         DEC  R7
+0184 0484   376  SKIP2  X    R4                EXECUTE THE INCREMENT
+0186 1802   377         JOC  FEXIT             AVOID >FFFF TRAP!
+0188 8040   378         C    R0,R1             DONE?
+018A 12F2   379         JLE  NXTBLK            NO, LOOP
+018C 045B   380  FEXIT  RT
+            381  ************************************************************
+            382  *                                                          *
+            383  * NEGATIVE FIND COMMAND.                                   *
+            384  *  THE OPERATION OF THIS COMMAND IS THE SAME AS THE 'FIND' *
+            385  *  COMMAND, BUT WILL OUTPUT ADDRESS OF DATA WHICH IS NOT   *
+            386  *  THE SAME AS THE INPUT PATTERN                           *
+            387  *                                                          *
+            388  ************************************************************
+018E 0206   389  N      LI   R6,SKIP2-SKIP11/2-1+>1300         =JUMP EQUAL
+0190 1303 
+0192 10DF   390         JMP  FIND
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0012
+***MEMORY INSPECT/CHANGE***
+
+            393  ************************************************************
+            394  *                                                          *
+            395  * INSPECT/CHANGE MEMORY - 'M' COMMAND                      *
+            396  *                                                          *
+            397  * OPTIONS:                                                 *
+            398  *          1) START ADDRESS, CARRIAGE RETURN --            *
+            399  *             DISPLAY ADDRESS, CONTENTS, AND               *
+            400  *             OPEN THE MEMORY LOCATION FOR A CHANGE.       *
+            401  *                                                          *
+            402  *          2) CARRIAGE RETURN -- SAME AS 1) BUT THE        *
+            403  *             DEFAULT START ADDRESS IS 0000.               *
+            404  *                                                          *
+            405  *          3) START ADDRESS, BLANK (OR COMMA), STOP        *
+            406  *             STOP ADDRESS, CARRIAGE RETURN -- OUTPUT      *
+            407  *             MEMORY CONTENTS FROM START ADDRESS TO        *
+            408  *             STOP ADDRESS. DEFAULT VALUES FOR BOTH        *
+            409  *             ADDRESSES ARE 0000.                          *
+            410  *                                                          *
+            411  ************************************************************
+            412  *
+0194 0603   413  M      DEC  R3                1 INPUT?
+0196 1315   414         JEQ  MIC               YES, TO MEMORY INSPECT/CHANGE
+            415  *
+            416  * MEMORY DUMP ROUTINE
+            417  *
+0198 0203   418  MLOOP1 LI   R3,4
+019A 0004 
+019C        419         MSG  *R10              NEXT LINE
+019E        420         WHXW R0                PRINT FIRST ADDRESS
+01A0        421         MSG  @EQUSGN           DELIMITER
+01A4        422  MLOOP2 WHXW *R0+              PRINT MEMORY CONTENTS
+01A6 C000   423         MOV  R0,R0             AVOID THE >FFFF TRAP!
+01A8 1319   424         JEQ  MEXIT
+01AA 8040   425         C    R0,R1             DONE?
+01AC 1B17   426         JH   MEXIT             YES, BACK TO THE MONITOR
+01AE 0603   427         DEC  R3                DONE WITH LINE?
+01B0 13F3   428         JEQ  MLOOP1            YES, NEW LINE
+01B2        429         WRIT *R9               NO, OUTPUT SPACE
+01B4 10F7   430         JMP  MLOOP2
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0013
+***MEMORY INSPECT/CHANGE***
+
+            432  *
+            433  * MEMORY INSPECT/CHANGE ROUTINE
+            434  *
+01B6 0640   435  MIC1   DECT R0                LAST ADDRESS?
+01B8 0285   436         CI   R5,'-'*256
+01BA 2D00 
+01BC 1302   437         JEQ  MIC               YES
+01BE 0220   438         AI   R0,4              POINT TO NEXT ADDRESS
+01C0 0004 
+01C2 00E6'  439  MIC    DATA TYPC$             NEXT LINE
+01C4        440         WHXW R0                PRINT MEMORY ADDRESS
+01C6        441         MSG  @EQUSGN           PRINT '='
+01CA C110   442         MOV  *R0,R4            GET DATA
+01CC        443         WHXW R4                PRINT MEMORY CONTENTS
+01CE        444         MSG  *R9               DELIMITER
+01D0        445         RHXW R4                ACCEPT NEW INPUT
+01D2 01D8'  446         DATA MNULL,ERR2
+01D6 C404   447         MOV  R4,*R0            UPDATE CONTENTS
+01D8 9685   448  MNULL  CB   R5,*R10           RETURN TO COMMAND SCANNER?
+01DA 16ED   449         JNE  MIC1
+01DC 045B   450  MEXIT  RT                     EXIT TO MONITOR
+            451  *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0014
+***WORKSPACE REGISTER INSPECT/CHANGE***
+
+            454  ************************************************************
+            455  *                                                          *
+            456  * INSPECT/CHANGE USER WORKSPACE REGISTER -- 'W' COMMAND    *
+            457  *                                                          *
+            458  * OPTIONS: 1) 'W' FOLLOWED BY CARRIAGE RETURN --           *
+            459  *              DISPLAY THE CONTENTS OF ALL CURRENT USER    *
+            460  *              WORKSPACE REGISTERS AND RETURN TO THE       *
+            461  *              COMMAND SCANNER.                            *
+            462  *                                                          *
+            463  *          2) 'W', REGISTER NUMBER IN HEX, CARRIAGE        *
+            464  *              RETURN -- DISPLAY THE CONTENTS OF THE       *
+            465  *              DESIGNATED REGISTER. USER MAY ALTER         *
+            466  *              THE CONTENTS FOLLOWED BY A TERMINATION      *
+            467  *              CHARACTER OR MERELY ENTER A TERMINATION     *
+            468  *              CHARACTER. THE TERMINATION CHARACTER        *
+            469  *              SIGNIFIES WHAT IS TO BE DONE NEXT:          *
+            470  *                                                          *
+            471  *     SPACE -- DISPLAY THE CONTENTS OF THE NEXT REG.       *
+            472  *     MINUS -- DISPLAY THE CONTENTS OF THE PREVIOUS REG.   *.
+            473  *     CARRIAGE RETURN -- TO THE COMMAND SCANNER.           *
+            474  *                                                          *
+            475  * NOTE THAT THIS ROUTINE IS ALSO USED BY THE INSPECT/CHANGE*
+            476  * BREAKPOINTS.                                             *
+            477  ************************************************************
+01DE 0207   478  B      LI   R7,BPTADD         SET UP POINTER
+01E0 00D8'
+01E2 0208   479         LI   R8,SPBP           SET UP BREAKPOINT INITIALS
+01E4 0000 
+01E6 1003   480         JMP  BPOINT            USE THE INS/CH WS REGR ROUTINE
+            481  *
+01E8 C1CD   482  W      MOV  R13,R7            GET WORKSPACE POINTER
+01EA 0208   483         LI   R8,SPR            SET TO PRINT ' R'
+01EC 0000 
+01EE C0C3   484  BPOINT MOV  R3,R3             NULL INPUT?
+01F0 1321   485         JEQ  WNULL1            YES, TO FORMATTED DUMP
+            486  *
+            487  * INSPECT/CHANGE A WORKSPACE REGISTER OR BREAKPOINT
+            488  *
+01F2 0240   489         ANDI R0,>F             ISOLATE NUMBER
+01F4 000F 
+01F6 C180   490         MOV  R0,R6             SAVE R/BPT NUMBER
+01F8 0A10   491         SLA  R0,1
+01FA A1C0   492         A    R0,R7             FORM R/BPT ADDRESS
+01FC        493  ICLOOP MSG  *R10              NEXT LINE
+01FE        494         MSG  *R8
+0200        495         WNBL R6                OUTPUT R/BPT NUMBER
+0202        496         MSG  @EQUSGN           PRINT '='
+0206 C117   497         MOV  *R7,R4
+0208        498         WHXW R4                PRINT RR/BPT CONTENTS
+020A        499         WRIT *R9               DELIMITER
+020C        500         RHXW R4                NEW CONTENTS?
+020E 0214'  501         DATA WNULL2,ERR2
+0212 C5C4   502         MOV  R4,*R7            UPDATE R/BPT
+0214 9685   503  WNULL2 CB   R5,*R10           RETURN TO COMMAND SCANNER?
+0216 1601   504         JNE  SKIP              NO, CHECK FOR ' '
+0218 045B   505  WEXIT  RT                     TO SCANNER
+021A 9645   506  SKIP   CB   R5,*R9            NEXT R/BPT?
+021C 1305   507         JEQ  NREG              YES
+            508  *
+            509  * CHECK FOR REGISTER OR BREAKPOINT ZERO
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0015
+***WORKSPACE REGISTER INSPECT/CHANGE***
+
+            510  *
+021E C186   511         MOV  R6,R6             AT REGISTER 0?
+0220 13FB   512         JEQ  WEXIT             YES, TO SCANNER
+0222 0606   513         DEC  R6                UPDATE R/BPT NUMBER
+0224 0647   514         DECT R7                UPDATE ADDRESS
+0226 10EA   515         JMP  ICLOOP
+            516  *
+            517  * CHECK FOR REGISTER OR BREAKPOINT >F
+            518  *
+0228 0286   519  NREG   CI   R6,>F
+022A 000F 
+022C 13F5   520         JEQ  WEXIT             R/BPT >F, TO SCANNER
+022E 0586   521         INC  R6                UPDATE R/BPT NUMBER
+0230 05C7   522         INCT R7                UPDATE ADDRESS
+0232 10E4   523         JMP  ICLOOP
+            524  *
+            525  * FORMATTED REGISTER OR BREAKPOINT DISPLAY
+            526  *
+0234 0206   527  WNULL1 LI   R6,->10
+0236 FFF0 
+0238        528  NLINE  MSG  *R10              NEXT LINE
+023A        529  WLOOP  MSG  *R8
+023C        530         WNBL R6                R/BPT NUMBER
+023E        531         MSG  @EQUSGN           PRINT '='
+0242        532         WHXW *R7+              PRINT CONTENTS
+0244 0586   533         INC  R6                TO NEXT R/BPT
+0246 13E8   534         JEQ  WEXIT             DONE?
+0248 25A0   535         CZC  @C3,R6            4 ENTRIES ON THE LINE?
+024A 0BEA'
+024C 13F5   536         JEQ  NLINE             YES, NEXT LINE
+024E 10F5   537         JMP  WLOOP             NO, CONTINUE ON THIS LINE
+            538  *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0016
+***CRU INSPECT/CHANGE***
+
+            541  ************************************************************
+            542  *                                                          *
+            543  * CRU INSPECT/CHANGE -- 'C' COMMAND                        *
+            544  *                                                          *
+            545  * INPUT THE CRU BASE ADDRESS FOLLOWED BY THE BIT COUNT.    *
+            546  * ALL INPUT AND OUTPUT TO THE CRU IS RIGHT JUSTIFIED IN    *
+            547  * THE 16 BIT INPUT/OUTPUT DATA FIELDS.                     *
+            548  *                                                          *
+            549  * INPUT OF A CARR. RET. AS A TERMINATION CHARACTER RETURNS *
+            550  * CONTROL TO THE COMMAND SCANNER. A ' ' AS TERMINATION     *
+            551  * CHARACTER CAUSES THE CRU INPUT BITS TO BE OUTPUT AGAIN   *
+            552  * WELL AS THE CRU OUTPUT BITS TO BE CHANGED.               *
+            553  *                                                          *
+            554  ************************************************************
+            555  *
+0250 C300   556  C      MOV  R0,R12            UPDATE CRU BASE REGISTER
+0252 04C7   557         CLR  R7                RESET WORD FLAG
+0254 0AC1   558         SLA  R1,12             ISOLATE BIT COUNT
+0256 1303   559         JEQ  SETFG             SET FLAG FOR 16-BIT TRANS.?
+0258 0281   560         CI   R1,>9000          BYTE JUSTIFIED I/O?
+025A 9000 
+025C 1A01   561         JL   CSKIP1            YES, SKIP
+025E 0587   562  SETFG  INC  R7                WORD JUSTIFIED I/O FLAG
+            563  *
+            564  * FORM 'STCR' COMMAND AND READ CRU
+            565  *
+0260 0961   566  CSKIP1 SRL  R1,6              POSITION BIT COUNT
+0262 0208   567  CLOOP  LI   R8,>3404          'STCR R4' OP CODE
+0264 3404 
+0266 E201   568         SOC  R1,R8             COMBINE WITH BIT COUNT
+0268 0488   569         X    R8                EXECUTE 'STCR'
+            570  *
+            571  * OUTPUT STATE OF CRU
+            572  *
+026A        573         MSG  *R10              NEXT LINE
+026C        574         WHXW R12               PRINT BASE ADDRESS
+026E        575         MSG  @EQUSGN           PRINT '='
+0272 C1C7   576         MOV  R7,R7             WORD I/O?
+0274 1601   577         JNE  CSKIP2            YES, SKIP ALIGN
+0276 0984   578         SRL  R4,8              ALIGN BYTE INPUT TO WORD
+0278        579  CSKIP2 WHXW R4                PRINT CRU DATA
+027A        580         MSG  *R9               DOUBLE SPACE
+            581  *
+            582  * ACCEPT INPUT FOR ALTERATION OF CRU
+            583  *
+027C        584         RHXW R4                CRU OUTPUT?
+027E 028E'  585         DATA CNULL,ERR2
+0282 C1C7   586         MOV  R7,R7             WORD I/O?
+0284 1601   587         JNE  CSKIP3            YES, SKIP ALIGN
+0286 0A84   588         SLA  R4,8              ALIGN BYTE FOR OUTPUT
+0288 0248   589  CSKIP3 ANDI R8,>F3FF          CHANGE 'STCR' TO 'LDCR'
+028A F3FF 
+028C 0488   590         X    R8                EXECUTE 'LDCR'
+028E 9685   591  CNULL  CB   R5,*R10           EXIT?
+0290 16E8   592         JNE  CLOOP             NO LOOP
+0292 045B   593         RT                     EXIT TO MONITOR
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0017
+***WP,PC,ST INSPECT/DISPLAY***
+
+            596  ************************************************************
+            597  *                                                          *
+            598  * DISPLAY WP, PC, ST REGISTERS                             *
+            599  *                                                          *
+            600  * TERMINATION CHARACTERS:                                  *
+            601  *     SPACE -- TO NEXT REGISTER                            *
+            602  *     CARRIAGE RETURN -- TO MONITOR SCANNER                *
+            603  *     MINUS -- INSPECT PREVIOUS REGISTER                   *
+            604  *                                                          *
+            605  * ORDER OF DISPLAY: WP, PC, ST.                            *
+            606  *                                                          *
+            607  ************************************************************
+            608  *
+0294 0206   609  R      LI   R6,WS+4           INIT. MESSAGE POINTER
+0296 0004 
+0298 0588   610         INC  R8                SET LOOP COUNT
+029A 0207   611         LI   R7,MREG13+2       POINT TO WP+2
+029C 0002 
+029E 0226   612  BACKWP AI   R6,-4
+02A0 FFFC 
+02A2 0647   613         DECT R7
+02A4 0588   614         INC  R8
+02A6 0288   615         CI   R8,4
+02A8 0004 
+02AA 1412   616         JHE  REXIT
+02AC 01C2'  617  RLOOP  DATA TYPC$
+02AE        618         MSG  *R6               OUTPUT REGISTER SLOGAN
+02B0 C117   619         MOV  *R7,R4
+02B2        620         WHXW R4                PRINT CONTENTS
+02B4        621         MSG  *R9               DELIMITER
+02B6        622         RHXW R4                NEW DATA?
+02B8 02BE'  623         DATA RNULL,ERR2
+02BC C5C4   624         MOV  R4,*R7
+02BE 0285   625  RNULL  CI   R5,'-'*256        PREVIOUS REGISTER?
+02C0 2D00 
+02C2 13ED   626         JEQ  BACKWP            YES, THEN GO BACK
+02C4 9685   627         CB   R5,*R10           TO SCANNER?
+02C6 1304   628         JEQ  REXIT             YES, EXIT
+02C8 8DB6   629         C    *R6+,*R6+         UPDATE MESSAGE POINTER BY 4
+02CA 05C7   630         INCT R7                POINT TO NEXT OUTPUT
+02CC 0608   631         DEC  R8                DONE?
+02CE 16EE   632         JNE  RLOOP             NO
+02D0 045B   633  REXIT  RT                     EXIT TO MONITOR
+            634  *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0018
+SINGLE STEPPING, BKPT ZERO SUBROUTINE
+
+            637  ************************************************************
+            638  *                                                          *
+            639  * SINGLE STEP COMMAND -- 'S'                               *
+            640  *                                                          *
+            641  *    THE SINGLE STEP ENTRY HAS BEEN MODIFIED TO ALLOW FOR  *
+            642  * MULTIPLE STEPPING.  IT REQUIRES AN ENTRY WHILE IN THE    *
+            643  * SCANNER.                                                 *
+            644  *                                                          *
+            645  ************************************************************
+            646  *
+02D2 0207   647  S      LI   R7,>9999          SET CODE
+02D4 9999 
+02D6 0603   648         DEC  R3                STEP TO VALUE?
+02D8 1504   649         JGT  VALADR            YES, JUMP
+            650  *
+02DA 0647   651         DECT R7                NEXT CODE (>9997)
+02DC 0280   652         CI   R0,>80            STEPS OR MEM ADR?
+02DE 0080 
+02E0 1A02   653         JL   SINGLE            STEPS - JUMP
+            654  *
+            655  * STEP UNTIL MEMORY ADDRESS CONTAINS VALUE
+            656  *
+02E2 4008   657  VALADR SZC  R8,R0             WORD ALIGN ADDRESS
+02E4 1003   658         JMP  STEP              GO TO STEPPER
+            659  *
+            660  *  SINGLE/MULTIPLE STEPS
+            661  *
+02E6 0647   662  SINGLE DECT R7                NEXT CODE (>9995)
+02E8        663  LDCNT  MSG  *R10              GO TO NEW LINE
+02EA 0600   664  DECSTP DEC  R0                COUNTING REGISTER
+02EC 03E0   665  STEP   LREX                   INITIATE THE LOAD VECTOR
+02EE 0380   666  GO     RTWP                   GOTO USER PROGRAM
+            667  *
+02F0 C000   668  STPCHK MOV  R0,R0             DONE STEPPING?
+02F2 15FB   669         JGT  DECSTP            NO, DECREMENT AND LREX AGAIN
+02F4 1073   670         JMP  WPS10             YES, OUTPUT ONCE
+            671  **********************************************************
+            672  *        USER SUBROUTINE ON BREAKPOINT ZERO              *
+            673  **********************************************************
+02F6 0690   674  CONTIN BL   *R0               EXECUTE USER ROUTINE
+02F8 C7A0   675         MOV  @BPTDTA,*R14      INSERT USER INSTRUCTION
+02FA 0000 
+02FC C00E   676         MOV  R14,R0            SAVE LOCATION
+02FE 0202   677         LI   R2,BPTLOD         GET LOAD ADDRESS
+0300 0304'
+0302 1045   678         JMP  SETLOD            DO A SINGLE STEP
+0304 C420   679  BPTLOD MOV  @COD15,*R0        BREAKPOINT TO RAM
+0306 03AA'
+0308 0380   680         RTWP
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0019
+LOAD ENTRY POINT, TRACE
+
+            683  *
+            684  * LOAD INTERRUPT ENTRY POINT
+            685  *
+            686  *      POWER UP:      R7=RANDOM VALUE
+            687  *      SINGLE STEP:   R7=>9995
+            688  *      SS TO ADR:     R7=>9997
+            689  *      SS TO VALUE:   R7=>9999
+            690  *      TRACE:         R7=>9900
+            691  *
+030A 0287   692  LOAD   CI   R7,>9997          MEM ADDRESS STEP?
+030C 9997 
+030E 1605   693         JNE  CHKVAL            NO, JUMP
+0310 8380   694         C    R0,R14            REACHED REQUIRED ADDRESS?
+0312 16EC   695  CHKDUN JNE  STEP              DONE?
+0314        696  PRTSTP MSG  @STPMSG           GO PRINT DATA
+0318 1061   697         JMP  WPS10
+031A 0287   698  CHKVAL CI   R7,>9999          TEST FOR VALUE STEP
+031C 9999 
+031E 1602   699         JNE  CHKSGL            IF NOT, JUMP
+0320 8050   700         C    *R0,R1            CHECK IF ADR=VAL
+0322 10F7   701         JMP  CHKDUN            GO FIX IT
+0324 0287   702  CHKSGL CI   R7,>9995          SINGLE STEP?
+0326 9995 
+     0326'  703  INITIZ EQU  $-2
+0328 13E3   704         JEQ  STPCHK
+032A 0287   705         CI   R7,>9900          TRACE STEP?
+032C 9900 
+032E 1356   706         JEQ  WPS10             YES, OUTPUT WP, PC, ST, INSTR
+            707  *
+            708  * IF NOT SINGLE STEP OR TRACE, IT IS A SYSTEM INITIALIZATION
+            709  *
+0330 04E0   710         CLR  @DSRCNT           CLEAR DSR COUNTER
+0332 0000 
+0334 06A0   711         BL   @SETVEC           RESET ALL IMPORTANT THINGS
+0336 0000 
+0338 0460   712         B    @DEBUG$           GOTO MONITOR
+033A 00F2'
+            713  ************************************************************
+            714  *                                                          *
+            715  *  TRACE COMMAND -- 'T'                                    *
+            716  *                                                          *
+            717  * MULTIPLE STEPPING WITH WP, PC, ST, AND INSTRUCTION       *
+            718  *  PRINTED AFTER EACH STEP                                 *
+            719  *                                                          *
+            720  ************************************************************
+            721  *
+033C 0207   722  T      LI   R7,>9900          SET TRACE FLAG
+033E 9900 
+0340 C14B   723         MOV  R11,R5            SAVE RETURN ADDR
+0342 06A0   724         BL   @LDCNT            GO TO THE STEPPER
+0344 02E8'
+            725  *
+            726  * TRACE COMES HERE AFTER PRINTING WP, PC, ST, AND INSTR
+            727  *
+            728  * CHECK TRACE COUNT
+            729  *
+0346 C000   730         MOV  R0,R0             IF COUNT=0 DO ONLY ONE
+0348 15CF   731         JGT  LDCNT             IF >0 DECREMENT AND STEP
+034A 0455   732         B    *R5               RETURN TO MONITOR
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0020
+***EXCEUTE***
+
+            735  ************************************************************
+            736  *                                                          *
+            737  * EXECUTE COMMAND -- 'E'                                   *
+            738  *                                                          *
+            739  *  ASK USER IF BREAKPOINTS ARE TO BE SET.  IF SO SET ALL   *
+            740  *  BREAKPOINTS WHICH DO NOT HAVE A ZERO ADDRESS.           *
+            741  *  OUTPUT THE WP,PC,ST DATA.  WAIT FOR USER INPUT.         *
+            742  *  IF A PARAMETER IS ENTERED IT REPLACES THE PC BEFORE     *
+            743  *  THE RTWP.  OTHERWISE ONLY THE RTWP IS EXECUTED.         *
+            744  *                                                          *
+            745  ************************************************************
+            746  *
+034C        747  E      MSG  @ASKBP            ASK IF BP'S TO BE SET
+0350        748         EKO  R4                ANSWER IN R4
+0352 0284   749         CI   R4,>1B00          ESCAPE?
+0354 1B00 
+     0354'  750  ESC    EQU  $-2
+0356 1358   751         JEQ  TOPRTN            YES, EXIT
+0358 02AC'  752         DATA TYPC$             NO, OUT CRLF
+035A        753         MSG  @EXMSG            'EXECUTE'
+035E 0207   754         LI   R7,MREG13         GET WP POINTER
+0360 0000 
+0362 0206   755         LI   R6,WS             POINT TO MESSAGE
+0364 0000 
+0366        756  WSPLP  MSG  *R9               OUTPUT 2 SPACES
+0368 0287   757         CI   R7,MREG13+6       DONE?
+036A 0006 
+036C 1304   758         JEQ  INPC              YES, JUMP
+036E        759         MSG  *R6+              OUTPUT MESSAGE & INC POINTER
+0370        760         WHXW *R7+              OUTPUT DATA & INC. POINTER
+0372 05C6   761         INCT R6                POINT TO NEXT MESSAGE
+0374 10F8   762         JMP  WSPLP             LOOP BACK
+0376        763  INPC   RHXW R1                GET NEW PC (IF ANY)
+0378 037E'  764         DATA PCOK,ERR2
+037C C381   765         MOV  R1,R14            TRANSFER NEW PC
+037E 0284   766  PCOK   CI   R4,'Y'*256        SET BK PTS?
+0380 5900 
+0382 16B5   767         JNE  GO                IF NOT, BYPASS
+0384 C820   768         MOV  @INITIZ,@BPTSET   SET BREAKPOINT FLAG
+0386 0326'
+0388 0000 
+038A 0202   769         LI   R2,EBPTLP         GET LOAD ADDRESS
+038C 0396'
+038E 0201   770  SETLOD LI   R1,>FFFE          SET POINTER ( & COUNTER)
+0390 FFFE 
+0392 C442   771         MOV  R2,*R1            MOVE TO LOAD VECTORS
+0394 10AB   772         JMP  STEP              GO TO STEPPER
+            773  *
+0396 05C1   774  EBPTLP INCT R1                UPDATE BPT NUMBER
+0398 0281   775         CI   R1,32             DONE?
+039A 0020 
+039C 1BA8   776         JH   GO                YES - EXECUTE
+039E C081   777         MOV  R1,R2             GET NUMBER
+03A0 0912   778         SRL  R2,1              DIVIDE BY TWO
+03A2 C0E1   779         MOV  @BPTADD(R1),R3    GET BP ADDRESS
+03A4 01E0'
+03A6 13F7   780         JEQ  EBPTLP            ZERO - BYPASS
+03A8 0222   781         AI   R2,>0FC0          ADD BKPT MID OPCODE
+03AA 0FC0 
+     03AA'  782  COD15  EQU  $-2
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0021
+***EXCEUTE***
+
+03AC C853   783         MOV  *R3,@BPTDTA(R1)   SAVE DATA
+03AE 02FA'
+03B0 C4C2   784         MOV  R2,*R3            INSTALL BP
+03B2 10F1   785         JMP  EBPTLP            AND LOOP FOR NEXT
+            786  *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0022
+*** BREAKPOINT HANDLER ***
+
+            789  *
+            790  * MID >0F80 ENTRY POINT (BREAKPOINT)
+            791  *
+03B4 0300   792  XOPENT LIMI 0                 GIVE LOBUG COMPLETE CONTROL
+03B6 0000 
+03B8 064E   793         DECT R14               UPDATE USER PC
+03BA C05E   794         MOV  *R14,R1           GET BREAKPOINT OPCODE
+03BC 0241   795         ANDI R1,>F             ISOLATE THE NUMBER
+03BE 000F 
+03C0 1603   796         JNE  OPBPMS            NOT ZERO, JUMP
+03C2 C020   797         MOV  @BPT0V,R0         GET USER VECTORS (IF ANY)
+03C4 0000 
+03C6 1697   798         JNE  CONTIN            ZERO, NO VECTORS
+03C8        799  OPBPMS MSG  @BPMSG            'BP:'
+03CC        800         WNBL R1
+03CE 0A11   801         SLA  R1,1              WORD ALIGN
+03D0 C7A1   802         MOV  @BPTDTA(R1),*R14  REPLACE INSTRUCTION
+03D2 03AE'
+03D4 06A0   803         BL   @RMVBPT           REMOVE BREAKPOINTS FROM RAM
+03D6 040C'
+03D8 020B   804         LI   R11,MONTOP        RESTORE MONITOR RETURN
+03DA 0000'
+            805  *
+            806  * OUTPUT USER WP, PC, AND ST AT BREAKPOINT
+            807  *
+03DC 028E   808  WPS10  CI   R14,ZZZZZ$        INTERNAL ROUTINE?
+03DE 0000 
+03E0 1A85   809         JL   STEP              YES, IGNORE AND STEP AGAIN
+            810  *
+            811  * '?' (WHERE AM I) COMMAND ENTRY POINT
+            812  *
+     03E2'  813  QUERY  EQU  $
+03E2 0208   814  WPS20  LI   R8,MREG13         USER WP, PC, ST
+03E4 0360'
+03E6 0206   815         LI   R6,WS             MSG POINTER
+03E8 0364'
+03EA        816  BLOOP  MSG  *R9               PRINT 2 SPACES
+03EC 0288   817         CI   R8,MREG13+6       DONE?
+03EE 0006 
+03F0 1304   818         JEQ  BINST             YES, PRINT INSTRUCTION NEXT
+03F2        819         MSG  *R6               PRINT 'WP=,PC=,ST=' MSG
+03F4        820         WHXW *R8+              GET WP, PC, ST
+03F6 8DB6   821         C    *R6+,*R6+         ADD 4 TO MSG POINTER
+03F8 10F8   822         JMP  BLOOP
+            823  *
+            824  * OUTPUT DATA AND INSTRUCTION AT PC ADDRESS
+            825  *
+03FA 0000   826  BINST  DATA TYPS$,PADIT       OUT CRLF AND 8 SPACES
+03FE 0420   827         BLWP @INSTR            CALL UNASSEMBLER
+0400 0814'
+0402 045B   828         RT                     EXIT TO MONITOR (OR TRACE)
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0023
+TOGGLE OUTPUT PORT
+
+            831  ************************************************************
+            832  *                                                          *
+            833  *  OUTPUT PORT TOGGLE ----- 'P'                            *
+            834  *                                                          *
+            835  ************************************************************
+0404 C800   836  P      MOV  R0,@UNIT
+0406 0000 
+0408 0460   837  TOPRTN B    @MONTOP
+040A 0000'
+            838  *
+            839  * SUBROUTINE TO REMOVE BREAKPOINTS FROM USER PROGRAM
+            840  *
+040C 0201   841  RMVBPT LI   R1,BPTSET         SET POINTER
+040E 0388'
+0410 8811   842         C    *R1,@INITIZ       INITIALIZED?
+0412 0326'
+0414 1609   843         JNE  RMVRTN            NO - EXIT
+0416 04F1   844         CLR  *R1+              CLEAR FLAG
+0418 C0D1   845  REPLP  MOV  *R1,R3            GET ADDRESS (IF ANY)
+041A 1302   846         JEQ  NEXTBP            IF ZERO, IGNORE
+041C C4E1   847         MOV  @32(R1),*R3       REPLACE INTRUCTION
+041E 0020 
+0420 05C1   848  NEXTBP INCT R1
+0422 0281   849         CI   R1,BPTADD+32      FINISHED?
+0424 0020 
+0426 1AF8   850         JL   REPLP
+0428 045B   851  RMVRTN RT
+            852  *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0024
+***CHARACTER ECHO***
+
+            855  ************************************************************
+            856  *                                                          *
+            857  * ECHO A CHARACTER TO THE TERMINAL (EKO)    **USES EREGS** *
+            858  *                                                          *
+            859  * --WARNING-- SYSTEM FLAGS ARE KEPT IN R0-R7 OF EREGS      *
+            860  *                                                          *
+            861  *      CALLING SEQUENCE:      EKO   Register               *
+            862  *                                                          *
+            863  *      RETURN                 RTWP                         *
+            864  *                                                          *
+            865  * THE CHARCTER IS RETURNED IN THE MOST SIGNIFICANT BYTE    *
+            866  *  OF THE REGISTER WITH THE LOWER BYTE ZEROED.             *
+            867  ************************************************************
+            868  *
+042A        869  ECHOEN READ *R11              READ CHARACTER
+042C        870         WRIT *R11              ECHO THE CHARACTER
+042E 0380   871         RTWP
+            872  *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0025
+***READ CHARACTER***
+
+            875  ************************************************************
+            876  * READ CHARACTER  (READ)      ** USES IREGS **             *
+            877  *                                                          *
+            878  *   CALLING SEQUENCE:         READ   Register              *
+            879  *                                                          *
+            880  *   RETURN                    RTWP                         *
+            881  *                                                          *
+            882  * READ WAITS FOR A CHARACTER TO BE ASSEMBLED IN            *
+            883  * THE UART. THE CHARACTER IS PLACED IN THE LEFT            *
+            884  * BYTE OF USER REGISTER. THE RIGHT BYTE IS ZEROED          *
+            885  *                                                          *
+            886  ************************************************************
+            887  *
+0430 C300   888  RENTRY MOV  R0,R12            SAVE R0
+0432 0000   889         DATA GETCR$            GET A CHARACTER
+0434 C6C0   890         MOV  R0,*R11           RETURN CHARACTER TO CALLER
+0436 C00C   891         MOV  R12,R0            RESTORE R0
+0438 0380   892         RTWP                   EXIT
+            893  *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0026
+WRITE
+
+            896  ************************************************************
+            897  * WRITE CHARACTER  (WRIT)     ** USES IREGS **             *
+            898  *                                                          *
+            899  *   CALLING SEQUENCE:         WRIT   Register              *
+            900  *                                                          *
+            901  *   RETURN:                   RTWP                         *
+            902  *                                                          *
+            903  * TRANSMIT THE CHARACTER IN THE LEFT BYTE OF THE USER      *
+            904  * REGISTER.   IF THE CHARACTER IS A CARRIAGE RETURN, AND   *
+            905  * THE BAUD RATE IS 1200 OR LESS, THE ROUTINE DELAYS 200MS  *
+            906  * TO ALLOW THE CARRIAGE TO RETURN.                         *
+            907  *     IF THE TERMINAL IS A 733 ASR, THEN EACH CHARACTER    *
+            908  * IS PADDED WITH 25 MSEC TO REDUCE THE TRANSFER RATE TO    *
+            909  * 300 BAUD.                                                *
+            910  *    NOTE THAT EACH TIME A CARRIAGE RETURN IS OUTPUT, A    *
+            911  * TEST IS MADE TO SEE IF AN 'ESCAPE' HAS BEEN RECEVIED.    *
+            912  * IF IT HAS, THEN CONTROL IS RETURNED TO THE COMMAND       *
+            913  * SCANNER.  USER PROGRAMMES REQUIRING AN 'ESCAPE' INPUT    *
+            914  * INTO THEM SHOULD THEREFORE AVOID USING THIS XOP IF       *
+            915  * INPUT IS REQUIRED WHILST OUTPUTTING.                     *
+            916  ************************************************************
+            917  *
+043A C300   918  WENTRY MOV  R0,R12            SAVE R0
+043C D01B   919         MOVB *R11,R0           FETCH BYTE TO BE SENT
+043E 0000   920         DATA TYP0$             SEND IT
+            921  *
+0440 981B   922         CB   *R11,@B0D         'CR' ?
+0442 0000 
+0444 1602   923         JNE  W40               N, EXIT
+0446 0420   924         BLWP @HALTO$           Y, CHECK FOR HALT OUTPUT
+0448 0000 
+044A C00C   925  W40    MOV  R12,R0            RESTORE R0
+044C 0380   926         RTWP                   N, EXIT
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0027
+***ASCII MESSAGE OUTPUT***
+
+            929  ************************************************************
+            930  *                                                          *
+            931  * MESSAGE OUTPUT  (MSG)       ** USES XREGS **             *
+            932  *                                                          *
+            933  *    CALLING SEQUENCE:        MSG   @Message Address       *
+            934  *                                                          *
+            935  *    RETURN                   RTWP                         *
+            936  *                                                          *
+            937  * THE ASCII STRING POINTED TO BY MESSAGE ADDRESS IS        *
+            938  * OUTPUT UNTIL A ZERO BYTE IS ENCOUNTERED.                 *
+            939  *                                                          *
+            940  ************************************************************
+            941  *
+044E        942  MLOOP  WRIT R12               O/P THE CHARACTER
+0450 D33B   943  MENTRY MOVB *R11+,R12         GET CHARACTER
+0452 16FD   944         JNE  MLOOP             IF NOT ZERO, LOOP BACK
+0454 0380   945         RTWP                   RETURN
+            946  *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0028
+***HEX INPUT***
+
+            949  ************************************************************
+            950  * HEX INPUT ROUTINE  (RHXW)                                *
+            951  *                                                          *
+            952  *     CALLING SEQUENCE:       RHXW    @Register no.        *
+            953  *                             DATA    NULL                 *
+            954  *                             DATA    ERROR                *
+            955  *     RETURN                  RTWP                         *
+            956  *                                                          *
+            957  * RETURNS A 16-BIT NUMBER INPUT FROM TERMINAL. DIGITS      *
+            958  * ARE ACCEPTED UNTIL A TERMINATION CHARACTER IS FOUND.     *
+            959  *                                                          *
+            960  * TERMINATION CHARACTERS: SPACE, COMMA, CAR. RETURN, MINUS *
+            961  * THE TERMINATION CHARACTER IS RETURNED IN THE LEFT        *
+            962  * BYTE OF THE REGISTER FOLLOWING 'R'.                      *
+            963  *                                                          *
+            964  * RETURN IS TO THE NULL RETURN ADDRESS IF INPUT IS         *
+            965  * A TERMINATION CHARACTER ONLY. (Rn IS UNCHANGED)          *
+            966  *                                                          *
+            967  * IF A FAULTY TERMINATION CHARACTER IS FOUND,              *
+            968  * RETURN IS TO THE ERROR ENTRY. (Rn,Rn+1 ARE UNCHANGED)    *
+            969  ************************************************************
+            970  *
+0456 04C9   971  RHENTY CLR  R9                RESET NUMBER INPUT FLAG
+0458 04CC   972         CLR  R12               CLEAR ACCUMULATOR
+045A        973  LOOP   EKO  R10               GET A CHARACTER INPUT
+            974  *
+            975  * CHECK FOR VALID HEX INPUT
+            976  *
+045C 028A   977         CI   R10,'0'*256       MIN NUMERIC
+045E 3000 
+0460 1A11   978         JL   NOTHEX
+0462 028A   979         CI   R10,'9'*256       MAX NUMERIC
+0464 3900 
+0466 1208   980         JLE  GOTONE
+0468 028A   981         CI   R10,'A'*256       MIN ALPHA
+046A 4100 
+046C 1A0B   982         JL   NOTHEX
+046E 028A   983         CI   R10,'F'*256       MAX ALPHA
+0470 4600 
+0472 1B08   984         JH   NOTHEX
+0474 022A   985         AI   R10,>900          ALPHA ADJUST
+0476 0900 
+0478 0A4A   986  GOTONE SLA  R10,4             ISOLATE DIGIT
+047A 09CA   987         SRL  R10,12            WORD ALIGN DIGIT
+            988  *
+            989  * DIGIT TO ACCUMULATOR
+            990  *
+047C 0A4C   991         SLA  R12,4
+047E A30A   992         A    R10,R12
+0480 0589   993         INC  R9                SET INPUT FLAG
+0482 10EB   994         JMP  LOOP
+            995  *
+            996  * CHECK FOR TERMINATION CHARACTER
+            997  *
+0484 028A   998  NOTHEX CI   R10,' '*256       ' '?
+0486 2000 
+0488 130B   999         JEQ  SPCK
+048A 028A  1000         CI   R10,'-'*256       '-'?
+048C 2D00 
+048E 1308  1001         JEQ  SPCK
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0029
+***HEX INPUT***
+
+0490 028A  1002         CI   R10,>D00          CARRIAGE RETURN?
+0492 0D00 
+0494 1305  1003         JEQ  SPCK
+0496 028A  1004         CI   R10,','*256       COMMA?
+0498 2C00 
+049A 160C  1005         JNE  ERR               NO, TERMINATION CHAR ERROR
+049C 020A  1006         LI   R10,' '*256       CHANGE TO SPACE
+049E 2000 
+04A0 C249  1007  SPCK   MOV  R9,R9             NULL INPUT?
+04A2 1304  1008         JEQ  NEXIT             YES, SKIP
+04A4 CECC  1009         MOV  R12,*R11+         RETURN VALUE
+04A6 C6CA  1010         MOV  R10,*R11          RETURN TERMINATOR
+04A8 8FBE  1011         C    *R14+,*R14+       BUMP PAST NULL POINTER
+04AA 0380  1012         RTWP
+04AC 05CB  1013  NEXIT  INCT R11
+04AE C6CA  1014         MOV  R10,*R11          RETURN TERMINATOR
+04B0 C39E  1015  EXIT1  MOV  *R14,R14          GET POINTER
+04B2 0380  1016         RTWP
+04B4 05CE  1017  ERR    INCT R14               POINT TO ERROR POINTER
+04B6 10FC  1018         JMP  EXIT1
+           1019  *
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0030
+***HEX OUTPUT***
+
+           1022  ************************************************************
+           1023  *                                                          *
+           1024  * HEX OUTPUT ROUTINES  (WNBL AND WHXW)                     *
+           1025  *                                                          *
+           1026  *                                                          *
+           1027  * ROUTINE 1   (WHXW)                                       *
+           1028  *      CALLING SEQUENCE:      WHXW    Register             *
+           1029  *                                                          *
+           1030  *      RETURN                 RTWP                         *
+           1031  *                                                          *
+           1032  * OUTPUT THE BINARY CONTENTS OF 'R' AS                     *
+           1033  * 4 HEXADECIMAL DIGITS.                                    *
+           1034  *                                                          *
+           1035  *                                                          *
+           1036  * ROUTINE 2   (WNBL)                                       *
+           1037  *      CALLING SEQUENCE:      WNBL     Register            *
+           1038  *                                                          *
+           1039  *      RETURN:                RTWP                         *
+           1040  *                                                          *
+           1041  * OUTPUT RIGHT MOST HEX DIGIT IN R.                        *
+           1042  *                                                          *
+           1043  ************************************************************
+           1044  *
+           1045  * WHX1 ENTRY POINT
+           1046  *
+04B8 C31B  1047  WHXETY MOV  *R11,R12          GET VALUE TO PRINT
+04BA 0ACC  1048         SLA  R12,12
+04BC 0209  1049         LI   R9,1              SET COUNT FOR 1 DIGIT
+04BE 0001 
+04C0 1003  1050         JMP  LOOP1
+           1051  *
+           1052  * WHEX ENTRY POINT
+           1053  *
+04C2 C31B  1054  WHENTY MOV  *R11,R12          GET THE VALUE
+04C4 0209  1055         LI   R9,4              SET COUNT FOR 4 DIGITS OUT
+04C6 0004 
+04C8 C28C  1056  LOOP1  MOV  R12,R10
+04CA 09CA  1057         SRL  R10,12            ISOLATE HEX DIGIT
+04CC 0A8A  1058         SLA  R10,8             BYTE ALIGN
+04CE 028A  1059         CI   R10,>900          NUMERIC?
+04D0 0900 
+04D2 1202  1060         JLE  NUM               YES, SKIP
+04D4 022A  1061         AI   R10,>700          ALPHA ADJUST
+04D6 0700 
+04D8 022A  1062  NUM    AI   R10,'0'*256       NUMERIC TO ASCII
+04DA 3000 
+04DC       1063         WRIT R10               WRITE CHARACTER
+04DE 0BCC  1064         SRC  R12,12            ALIGN NEXT DIGIT
+04E0 0609  1065         DEC  R9                DONE?
+04E2 16F2  1066         JNE  LOOP1             NO, LOOP
+04E4 0380  1067         RTWP
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0031
+ASSEMBLER
+
+           1070  ************************************************************
+           1071  * TITLE: ZERO LABEL ASSEMBLER                              *
+           1072  *                                                          *
+           1073  * REVISION: 9/04/79  REPRINT ADDR FOR CRT'S                *
+           1074  *           21/2/78  MODIFIED FOR HIBUG                    *
+           1075  *           22/6/81  MODIFIED FOR LOBUG                    *
+           1076  *           8/7/81   MODIFIED FOR TMS 9995                 *
+           1077  *           10/12/81 MODIFIED TO USE DIS-ASM TABLE         *
+           1078  * ABSTRACT: PROVIDES LIMITED ASSEMBLER                     *
+           1079  *           CAPABILITY.  MOST FEATURES OF                  *
+           1080  *           THE 990/4 ASSEMBLER ARE INCLUDED               *
+           1081  *           EXCEPT LABEL DEFINITION/REFERENCE.             *
+           1082  * CALLING SEQUENCE: ENTER 'A' COMMAND TO                   *
+           1083  *                   LOBUG                                  *
+           1084  *                                                          *
+           1085  * THE ENTRY ADDRESS IS AT ZLABGN                           *
+           1086  ************************************************************
+           1087  *
+           1088  * GET ONE CHARACTER FROM IO BUFFER
+           1089  * CHARACTER RETURNED RIGHT JUSTIFIED IN R4
+           1090  *
+04E6 C80B  1091  INPT   MOV  R11,@BLSTOR       SAVE RETURN ADDRESS
+04E8 0000 
+04EA C2E0  1092         MOV  @ASMPTR,R11       FETCH IO POINTER
+04EC 0000 
+04EE D11B  1093         MOVB *R11,R4           FETCH BYTE
+04F0 1302  1094         JEQ  INPTX             SKIP IF NULL
+04F2 05A0  1095         INC  @ASMPTR           INCREMENT IO POINTER
+04F4 04EC'
+04F6 0984  1096  INPTX  SRL  R4,8              RIGHT JUSTIFY
+04F8 C2E0  1097         MOV  @BLSTOR,R11       FETCH RETURN ADDRESS
+04FA 04E8'
+04FC 045B  1098         RT
+           1099  *
+           1100  * BRANCH TABLE FOR OPERANDS
+           1101  *
+           1102  * 0 - N/A
+           1103  * 1 - S OR D
+           1104  * 2 - W OR C
+           1105  * 3 - IOP
+           1106  * 4 - N (SHIFT COUNT)
+           1107  * 5 - DIS
+           1108  * 6 - BIT
+           1109  *
+04FE 0000  1110  OPER   DATA 0,OPA,OPF,OPE
+0506 079C' 1111         DATA OPD,OPG,OPH
+           1112  *
+           1113  *
+           1114  * FORMAT CODE CONVERSION TABLE
+           1115  *
+050C 00    1116  FMCONV BYTE 0,9,5,>A,>A,>14,8,0,>13,>A,6,3,>10
+           1117  *
+051A       1118         EVEN
+           1119  *
+           1120  * HEX, BINARY, OR DECIMAL INPUT
+           1121  *
+051A C04B  1122  HEX    MOV  R11,R1            SAVE RETURN
+051C 0208  1123         LI   R8,16             PRESET BASE
+051E 0010 
+0520 1007  1124         JMP  DEC5
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0032
+ASSEMBLER
+
+0522 0208  1125  BIN    LI   R8,2              PRESET BASE
+0524 0002 
+0526 069F  1126         BL   *R15
+0528 1003  1127         JMP  DEC5
+052A C04B  1128  DEC    MOV  R11,R1            SAVE RETURN
+052C 0208  1129  DEC1   LI   R8,10             PRESET BASE
+052E 000A 
+0530 04C7  1130  DEC5   CLR  R7                PRESET VALUE
+0532 C184  1131  DEC10  MOV  R4,R6             PUT CHAR IN R6
+0534 0226  1132         AI   R6,->30           REMOVE ASCII BIAS
+0536 FFD0 
+0538 110A  1133         JLT  DEC30             NOT VALID
+053A 0286  1134         CI   R6,10
+053C 000A 
+053E 1105  1135         JLT  DEC20             O.K.
+0540 0226  1136         AI   R6,-7
+0542 FFF9 
+0544 0286  1137         CI   R6,10
+0546 000A 
+0548 1102  1138         JLT  DEC30             NOT VALID
+054A 8206  1139  DEC20  C    R6,R8             IF NOT LT BASE - NOT GOOD
+054C 1103  1140         JLT  DEC40
+054E C2C1  1141  DEC30  MOV  R1,R11            RESTORE EXIT
+0550 C047  1142         MOV  R7,R1             R1=ANS.
+0552 045B  1143         B    *R11              EXIT
+0554 C006  1144  DEC40  MOV  R6,R0
+0556 C187  1145         MOV  R7,R6
+0558 3988  1146         MPY  R8,R6
+055A A1C0  1147         A    R0,R7
+055C 069F  1148         BL   *R15
+055E 10E9  1149         JMP  DEC10
+           1150  *
+           1151  * GET REGISTER NAME
+           1152  *
+0560 C04B  1153  GETR   MOV  R11,R1            SAVE RET
+0562 069F  1154         BL   *R15
+0564 C2C1  1155         MOV  R1,R11            TEMP. RESET OF R11
+0566 C34B  1156  GETRA  MOV  R11,R13           SAVE RET
+0568 0284  1157         CI   R4,'R'
+056A 0052 
+056C 1601  1158         JNE  GETR20
+056E 069F  1159         BL   *R15
+0570 06A0  1160  GETR20 BL   @DEC              GET X
+0572 052A'
+0574 0281  1161         CI   R1,15             TEST RANGE
+0576 000F 
+0578 1B01  1162         JH   GETR30
+057A 045D  1163         B    *R13              EXIT
+057C 0204  1164  GETR30 LI   R4,'*R'           ISSUE RANGE ERROR
+057E 2A52 
+0580 106C  1165         JMP  TYPE1
+           1166  *
+           1167  * GET ADDRESS
+           1168  *
+0582 C04B  1169  GETL   MOV  R11,R1            SAVE RET
+0584 069F  1170         BL   *R15
+0586 1001  1171         JMP  GETL10
+0588 C04B  1172  GETLA  MOV  R11,R1            SAVE RETURN
+058A 0284  1173  GETL10 CI   R4,'%'            CHECK FOR BINARY
+058C 0025 
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0033
+ASSEMBLER
+
+058E 13C9  1174         JEQ  BIN
+0590 0284  1175         CI   R4,>27            CHECK FOR STRING (')
+0592 0027 
+0594 1305  1176         JEQ  GETL20
+0596 0284  1177         CI   R4,'>'            CHECK FOR HEX
+0598 003E 
+059A 16C8  1178         JNE  DEC1              MUST BE DEFAULT
+059C 069F  1179         BL   *R15              MUST BE HEX
+059E 10BE  1180         JMP  HEX+2
+05A0 04C7  1181  GETL20 CLR  R7                PRESET STRING
+05A2 069F  1182  GETL30 BL   *R15              GET A CHAR
+05A4 0284  1183         CI   R4,>27            IF ', DONE
+05A6 0027 
+05A8 1303  1184         JEQ  GETL40
+05AA 0A87  1185         SLA  R7,8
+05AC E1C4  1186         SOC  R4,R7
+05AE 10F9  1187         JMP  GETL30
+05B0 069F  1188  GETL40 BL   *R15              GET TERM.
+05B2 10CD  1189         JMP  DEC30             EXIT
+           1190  *
+           1191  * CONTROL LOOP - REQUEST ADDRESS,
+           1192  * PRINT TRANSLATED OPCODES
+           1193  *
+     05B4' 1194  ZLABGN EQU  $                 *** ENTRY ***
+05B4 02E0  1195         LWPI WORKS             SET WORKSPACE
+05B6 0000 
+05B8 0201  1196         LI   R1,BRAM           DEFAULT START PC
+05BA 0000 
+05BC C0A0  1197         MOV  @MREG3,R2         WAS A PC ENTERED?
+05BE 0000 
+05C0 1302  1198         JEQ  PT100              NO, USE DEFAULT
+05C2 C060  1199         MOV  @MREGS,R1          YES, USE ENTRY
+05C4 00F4'
+05C6 020F  1200  PT100  LI   R15,INPT          SET R15 FOR INPT CALL
+05C8 04E6'
+05CA 0209  1201         LI   R9,GETL
+05CC 0582'
+05CE C801  1202  PT110  MOV  R1,@PC            SAVE PC
+05D0 0000 
+05D2 C0A0  1203  PT120  MOV  @PC,R2            R2=PC
+05D4 05D0'
+05D6 04C3  1204         CLR  R3                R3=WORD COUNT
+05D8 0358' 1205  PT130  DATA TYPC$             PRINT LINE FEED
+05DA       1206  PT135  WHXW R2                PRINT (R2) IN HEX
+05DC 0205  1207         LI   R5,'  '           SPACE OVER ONE
+05DE 2020 
+05E0       1208         WRIT R5
+05E2 C0C3  1209         MOV  R3,R3             IF WORD COUNT NONZERO
+05E4 1305  1210         JEQ  PT150             DISPLAY INST. WORDS
+05E6       1211         WHXW *R2+
+05E8 C802  1212         MOV  R2,@PC            UPDATE PC
+05EA 05D4'
+05EC 0643  1213         DECT R3                REDUCE WORD COUNT
+05EE 10F4  1214         JMP  PT130             CONT. TILL ALL DONE
+05F0       1215  PT150  MSG  @SPACE5           TAB OVER 6 PLACES
+           1216  *
+           1217  * ACCEPT THE OP-CODE MNEMONIC
+           1218  *
+05F4 0720  1219         SETO @MODE             STOP USER USING ^E ( EDIT )
+05F6 0000 
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0034
+ASSEMBLER
+
+05F8 04E0  1220         CLR  @ESCFLG           MAKE SURE USER CAN ESCAPE
+05FA 0000 
+05FC 02E0  1221         LWPI WPR1              USE BASIC'S WP
+05FE 0116'
+0600 06A0  1222         BL   @GTLN             CALL GET LINE
+0602 0000 
+0604 02E0  1223         LWPI WORKS             RESTORE WP
+0606 05B6'
+0608 C820  1224         MOV  @IOB,@ASMPTR      SET UP IO POINTER
+060A 0000 
+060C 04F4'
+060E 020A  1225         LI   R10,ASMOPC        POINT TO BUFFER
+0610 0000 
+0612 C685  1226         MOV  R5,*R10           SET 2 SPACES
+0614 C805  1227         MOV  R5,@ASMOPC+2      SET 2 MORE SPACES
+0616 0002 
+0618 069F  1228  GETASC BL   *R15              GET A CHARACTER
+061A 0284  1229         CI   R4,'A'            TEST IF VALID ALPHA
+061C 0041 
+061E 1109  1230         JLT  NOTOPC            NOT OPCODE
+0620 0284  1231         CI   R4,'Z'            TEST UPPER ALPHA
+0622 005A 
+0624 1506  1232         JGT  NOTOPC            NOT OPCODE
+0626 06C4  1233  GOTASC SWPB R4
+0628 DE84  1234         MOVB R4,*R10+          STORE THE CHARACTER
+062A 028A  1235         CI   R10,ASMOPC+4      CHECK NOT TOO MANY CHARS.
+062C 0004 
+062E 1B13  1236         JH   PAT90             TOO MANY - JUMP
+0630 10F3  1237         JMP  GETASC            GET ANOTHER CHAR
+           1238  *
+0632 0284  1239  NOTOPC CI   R4,' '            IF SPACE, FINISHED OPCODE
+0634 0020 
+0636 1333  1240         JEQ  GOTOPC
+0638 C104  1241         MOV  R4,R4             IF NULL, FINISHED OPCODE
+063A 1331  1242         JEQ  GOTOPC   
+063C 028A  1243         CI   R10,ASMOPC        TEST IF FIRST CHARACTER
+063E 0610'
+0640 160A  1244         JNE  PAT90             IF NOT, ERROR IT
+0642 0284  1245         CI   R4,'$'            CHECK FOR $(STRING)
+0644 0024 
+0646 130D  1246         JEQ  PT220
+0648 0284  1247         CI   R4,'/'            CHECK FOR ADDR RESET
+064A 002F 
+064C 1604  1248         JNE  PAT90
+064E 069F  1249         BL   *R15              GET ANOTHER CHARACTER
+0650 06A0  1250         BL   @HEX              GET NEW ADDRESS
+0652 051A'
+0654 10BC  1251         JMP  PT110
+0656 0204  1252  PAT90  LI   R4,'*S'           ERROR - SNATCH CONTROL
+0658 2A53 
+065A 0205  1253  TYPE1  LI   R5,>0700          SET UP BELL AND ZERO BYTE
+065C 0700 
+065E       1254         MSG  R4                OUTPUT R4
+0660 10B8  1255         JMP  PT120             DON'T CHANGE PC
+           1256  *
+           1257  * HANDLE STRING ENTRIES.  COLLECT CHARACTERS
+           1258  * UNTIL A CR.  THEN FORCE ADDRESS EVEN AND
+           1259  * EXIT
+           1260  *
+0662 069F  1261  PT220  BL   *R15              GET A CHAR.
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0035
+ASSEMBLER
+
+0664 C104  1262         MOV  R4,R4             IF NULL - EXIT
+0666 1304  1263         JEQ  PT230
+0668 0A84  1264         SLA  R4,8              SAVE THE CHAR.
+066A DC84  1265         MOVB R4,*R2+
+066C 0583  1266         INC  R3
+066E 10F9  1267         JMP  PT220
+0670 C003  1268  PT230  MOV  R3,R0             IF ODD-INST. SPACE
+0672 0810  1269         SRA  R0,1
+0674 1702  1270         JNC  PT240
+0676 D485  1271         MOVB R5,*R2            PAD WITH SPACE
+0678 0583  1272         INC  R3
+067A C0A0  1273  PT240  MOV  @PC,R2            RESET PC
+067C 05EA'
+067E 1039  1274         JMP  PT300             GO PRINT RESULTS
+           1275  *
+           1276  * GET SPECIAL OPCODES FROM TABLE
+           1277  *
+0680 0205  1278  SPECOC LI   R5,SOPSTT-6       GET TABLE START
+0682 0BCA'
+0684 05CA  1279         INCT R10
+0686 0225  1280  SPEC1  AI   R5,6
+0688 0006 
+068A 064A  1281         DECT R10
+068C C035  1282         MOV  *R5+,R0
+068E 13E3  1283         JEQ  PAT90             NOT FOUND, ERROR
+0690 8E80  1284         C    R0,*R10+
+0692 16F9  1285         JNE  SPEC1
+0694 8695  1286         C    *R5,*R10
+0696 16F7  1287         JNE  SPEC1
+0698 C065  1288         MOV  @4(R5),R1
+069A 0004 
+069C 107B  1289         JMP  PT270
+           1290  *
+           1291  * THE INPUT OPCODE IS NOW IN ASMOPC. SEARCH THE TABLE
+           1292  *  UNTIL IT IS LOCATED.
+           1293  *
+069E 0205  1294  GOTOPC LI   R5,CODSTT-4       GET TABLE ADDRESS
+06A0 09CC'
+06A2 020A  1295         LI   R10,ASMOPC+2      INPUT OPCODE PTR
+06A4 0002 
+06A6 0225  1296  OCSH1  AI   R5,4              POINT TO NEXT OPCODE
+06A8 0004 
+06AA 064A  1297         DECT R10               BACK TO OPCODE START
+06AC C035  1298         MOV  *R5+,R0           GET DATA
+06AE 13E8  1299         JEQ  SPECOC            ZERO, END OF TABLE
+06B0 8E80  1300         C    R0,*R10+          CHECK FOR EQUALITY
+06B2 16F9  1301         JNE  OCSH1             NO, -LOOP BACK
+06B4 8695  1302         C    *R5,*R10          CHECK LAST TWO LETTERS
+06B6 16F7  1303         JNE  OCSH1
+           1304  *
+           1305  * THE OPCODE HAS BEEN LOCATED . NOW
+           1306  * COLLECT THE OPERANDS.
+           1307  *
+06B8 C2A5  1308  PT280  MOV  @2(R5),R10        R10=INST&PARSING INST.
+06BA 0002 
+06BC C00A  1309         MOV  R10,R0            PRESET THE INST.
+06BE 0240  1310         ANDI R0,>FFF0
+06C0 FFF0 
+06C2 C480  1311         MOV  R0,*R2
+06C4 05C3  1312         INCT R3                COUNT=2
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0036
+ASSEMBLER
+
+06C6 C04A  1313         MOV  R10,R1            SAVE
+06C8 0241  1314         ANDI R1,>F             REMOVE OPCODE, LEAVE FORMAT
+06CA 000F 
+06CC 1353  1315         JEQ  GETDTA
+06CE D061  1316         MOVB @FMCONV(R1),R1    GET TRANSLATION
+06D0 050C'
+06D2 0981  1317         SRL  R1,8              TO LSB
+06D4 C301  1318         MOV  R1,R12            STORE FOR FUTURE USE
+06D6 0921  1319         SRL  R1,2
+06D8 0241  1320         ANDI R1,>6
+06DA 0006 
+06DC C061  1321         MOV  @OPER(R1),R1      R1=OPERAND INDEX
+06DE 04FE'
+06E0 1301  1322         JEQ  PT290             SKIP IF NO FIRST ONE
+06E2 0691  1323         BL   *R1               COLLECT FIRST ONE
+06E4 0ADC  1324  PT290  SLA  R12,13            COLLECT SECOND OPERAND.
+06E6 09CC  1325         SRL  R12,12
+06E8 C1AC  1326         MOV  @OPER(R12),R6
+06EA 04FE'
+06EC 1302  1327         JEQ  PT300             JUMP IF NONE
+06EE 04CA  1328         CLR  R10               SET FLAG
+06F0 0696  1329         BL   *R6
+           1330  *
+           1331  * THE ENTIRE STATEMENT HAS BEEN
+           1332  * ACCEPTED - PRINT TRANSLATION
+           1333  * AND UPDATE P.C.
+           1334  *
+06F2 C104  1335  PT300  MOV  R4,R4             EOL ?
+06F4 1302  1336         JEQ  PT310             YES,JUMP
+06F6 069F  1337         BL   *R15              NO,FETCH NEXT CHAR
+06F8 10FC  1338         JMP  PT300             LOOP
+06FA       1339  PT310  WRIT @MCRLF            PRINT CR
+06FE 0460  1340         B    @PT135            GO DISPLAY ADDR AND OBJECT
+0700 05DA'
+           1341  *
+           1342  * RANGE ERROR
+           1343  *
+0702 0204  1344  RNGERR LI   R4,'*D'
+0704 2A44 
+0706 10A9  1345         JMP  TYPE1
+           1346  *
+           1347  * HANDLE S OR D
+           1348  *     N
+           1349  *     *N
+           1350  *     *N+
+           1351  *     @X(N)
+           1352  *     @X
+           1353  *
+0708 C38B  1354  OPA    MOV  R11,R14           SAVE RETURN ADDRESS
+070A 069F  1355         BL   *R15              GET CHAR
+070C 0284  1356         CI   R4,'*'            CHECK FOR *N OR *N+
+070E 002A 
+0710 1322  1357         JEQ  OPB               JUMP IF YES
+0712 0284  1358         CI   R4,'@'            CHECK FOR @X OR @X(N)
+0714 0040 
+0716 162B  1359         JNE  OPC               JUMP IF NOT
+0718 0699  1360         BL   *R9
+071A C183  1361         MOV  R3,R6             ADD TO MEMORY
+071C A182  1362         A    R2,R6
+071E C581  1363         MOV  R1,*R6            SAVE X
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0037
+ASSEMBLER
+
+0720 05C3  1364         INCT R3                UPDATE COUNT
+0722 0201  1365         LI   R1,>20            ADDRESS MODE 2
+0724 0020 
+0726 C104  1366         MOV  R4,R4             IF NULL OR ',' DONE
+0728 1311  1367         JEQ  OPA10
+072A 0284  1368         CI   R4,','
+072C 002C 
+072E 130E  1369         JEQ  OPA10
+0730 0284  1370         CI   R4,' '            IF SPACE - DONE
+0732 0020 
+0734 130B  1371         JEQ  OPA10
+0736 0284  1372         CI   R4,'('            IF NOT ( - ERROR
+0738 0028 
+073A 168D  1373         JNE  PAT90
+073C 06A0  1374         BL   @GETR             GET REG. N
+073E 0560'
+0740 0261  1375         ORI  R1,>20            SET MODE 2
+0742 0020 
+0744 0284  1376         CI   R4,')'            IF NOT ) - ERROR
+0746 0029 
+0748 1686  1377         JNE  PAT90
+074A 069F  1378         BL   *R15
+074C C00A  1379  OPA10  MOV  R10,R0            REPOS. IT
+074E 1601  1380         JNE  OPA15
+0750 0A61  1381         SLA  R1,6
+0752 E481  1382  OPA15  SOC  R1,*R2            INSERT IT
+0754 045E  1383  OPA20  B    *R14              EXIT
+0756 06A0  1384  OPB    BL   @GETR             GET N(FOR *N)
+0758 0560'
+075A 0200  1385         LI   R0,>10            SET MODE = 1
+075C 0010 
+075E 0284  1386         CI   R4,'+'            IF TERM. BY +
+0760 002B 
+0762 1603  1387         JNE  OPB10             CHANGE MODE
+0764 069F  1388         BL   *R15
+0766 0200  1389         LI   R0,>30            SET MODE = 3
+0768 0030 
+076A E040  1390  OPB10  SOC  R0,R1             R1=REG&MODE
+076C 10EF  1391         JMP  OPA10
+076E 06A0  1392  OPC    BL   @GETRA            GET N(FOR N)
+0770 0566'
+0772 10EC  1393         JMP  OPA10             MODE=0 - GO INSERT
+           1394  *
+           1395  * HANDLE DATA ENTRIES.
+           1396  *
+0774 069F  1397  GETDTA BL   *R15              GET NEXT CHARACTER
+0776 04CA  1398         CLR  R10               DEFAULT TO +
+0778 0284  1399         CI   R4,'+'
+077A 002B 
+077C 1304  1400         JEQ  DTASUB
+077E 0284  1401         CI   R4,'-'
+0780 002D 
+0782 1603  1402         JNE  NOSIGN
+0784 070A  1403         SETO R10               SET FLAG
+0786 0699  1404  DTASUB BL   *R9
+0788 1002  1405         JMP  TSTSGN
+078A 06A0  1406  NOSIGN BL   @GETLA
+078C 0588'
+078E C28A  1407  TSTSGN MOV  R10,R10
+0790 1301  1408         JEQ  PT270
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0038
+ASSEMBLER
+
+0792 0501  1409         NEG  R1
+0794 C481  1410  PT270  MOV  R1,*R2            SAVE IT
+0796 0203  1411         LI   R3,2              SET R3
+0798 0002 
+079A 10AB  1412         JMP  PT300             GO PRINT
+           1413  *
+           1414  * HANDLE SHIFT COUNT
+           1415  *
+079C C38B  1416  OPD    MOV  R11,R14           SAVE RETURN
+079E 06A0  1417         BL   @GETR             GET COUNT
+07A0 0560'
+07A2 0A41  1418         SLA  R1,4              REPOSITION
+07A4 10D6  1419         JMP  OPA15             INSERT
+           1420  *
+           1421  * HANDLE IMMEDIATE OPERANDS
+           1422  *
+07A6 C38B  1423  OPE    MOV  R11,R14           SAVE RETURN
+07A8 0699  1424         BL   *R9               GET IOP
+07AA C183  1425         MOV  R3,R6             ADD TO MEMORY
+07AC A182  1426         A    R2,R6
+07AE C581  1427         MOV  R1,*R6
+07B0 05C3  1428         INCT R3                ADJUST COUNT
+07B2 045E  1429         B    *R14              CONTINUE
+           1430  *
+           1431  * HANDLE W
+           1432  *
+07B4 C38B  1433  OPF    MOV  R11,R14
+07B6 06A0  1434         BL   @GETR
+07B8 0560'
+07BA 10C8  1435         JMP  OPA10
+           1436  *
+           1437  * HANDLE DISPLACEMENTS
+           1438  * + DIS
+           1439  * - DIS
+           1440  * ADDRESS  (CALCULATE DISPLACEMENT)
+           1441  *
+07BC C38B  1442  OPG    MOV  R11,R14           SAVE RETURN
+07BE 069F  1443         BL   *R15              GET LEADER ($)
+07C0 0284  1444         CI   R4,'$'
+07C2 0024 
+07C4 1607  1445         JNE  OPG5
+07C6 069F  1446         BL   *R15              GET FIRST CHAR
+07C8 0284  1447         CI   R4,'+'            CHECK FOR +DIS
+07CA 002B 
+07CC 1315  1448         JEQ  OPG30
+07CE 0284  1449         CI   R4,'-'            CHECK FOR -DIS
+07D0 002D 
+07D2 1315  1450         JEQ  OPG40
+07D4 06A0  1451  OPG5   BL   @GETLA
+07D6 0588'
+07D8 C002  1452         MOV  R2,R0             MUST BE ADDRESS
+07DA 05C0  1453         INCT R0                DIS*2=ADDRESS-(PC+2)
+07DC 6040  1454         S    R0,R1
+07DE 0811  1455  OPG10  SRA  R1,1              DISP=BYTE STUFF/2
+07E0 0281  1456         CI   R1,>7F            CHECK RANGE
+07E2 007F 
+07E4 158E  1457         JGT  RNGERR
+07E6 0281  1458         CI   R1,>FF80
+07E8 FF80 
+07EA 118B  1459         JLT  RNGERR
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0039
+ASSEMBLER
+
+07EC 0241  1460  OPG15  ANDI R1,>FF            RANGE O.K. SO
+07EE 00FF 
+07F0 E481  1461         SOC  R1,*R2            INSERT IT
+07F2 0201  1462         LI   R1,2              RESET R3
+07F4 0002 
+07F6 045E  1463         B    *R14              EXIT
+07F8 0699  1464  OPG30  BL   *R9               +DIS
+07FA 0641  1465  OPG35  DECT R1                ADJUST DIS FOR CUR. INST
+07FC 10F0  1466         JMP  OPG10
+07FE 0699  1467  OPG40  BL   *R9
+0800 0501  1468         NEG  R1                -DIS
+0802 10FB  1469         JMP  OPG35
+           1470  *
+           1471  * HANDLE BIT
+           1472  *
+0804 C38B  1473  OPH    MOV  R11,R14           SAVE RETURN
+0806 0699  1474         BL   *R9
+0808 10F1  1475         JMP  OPG15             GO PROCESS IT
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0040
+UNASSEMBLER FOR LOBUG. MJS & CRH
+
+           1478  ************************************************************
+           1479  **                                                        **
+           1480  **          TMS 9900  DISASSEMBLER                        **
+           1481  **                                                        **
+           1482  **          PROGRAMMED BY:  M. J. STEWART                 **
+           1483  **          MODIFIED BY:    C.R. HINSON  19TH JUNE 1981   **
+           1484  **          COPYRIGHT 1978                                **
+           1485  **                                                        **
+           1486  ************************************************************
+           1487  *
+           1488  * INTERNAL REGISTER USAGE:
+           1489  *      R0   DISASSEMBLY ADDRESS
+           1490  *      R1   OP CODE DATA / MNEMONIC ADDRESS
+           1491  *      R2   PRGM CALCULATIONS
+           1492  *      R3   PRGM CALCULATIONS
+           1493  *      R4   PRGM CALCULATIONS
+           1494  *      R5   DUMP MODE END ADDRESS / FLAG
+           1495  *      R6   ASCII DATA
+           1496  *      R7   PGM CALCULATIONS
+           1497  *      R8   ADDR. OPERAND ADDR. MODES SUBR.
+           1498  *      R9   ADDR. PRINT REG. NO. SUBR.
+           1499  *      R10  PGM CALCULATIONS
+           1500  *      R11  LINK ADDRESS
+           1501  *      R12  SAVED LINK / UART CRU BASE ADDR.
+           1502  *      R13  CALLERS WP
+           1503  *      R14  CALLERS PC
+           1504  *      R15  CALLERS ST
+           1505  *
+           1506  * MONITOR LINKAGE
+           1507  *
+     080A' 1508  U      EQU  $
+080A 0420  1509         BLWP @UNVEC            CALL UNASSEMBLER
+080C 0810'
+080E 045B  1510         RT                     RETURN TO MONITOR
+           1511  *
+0810 0606' 1512  UNVEC  DATA WORKS             VECTORS FOR UNASSEMBLER
+0812 0822' 1513         DATA UENTRY
+           1514  *
+0814 0810' 1515  INSTR  DATA WORKS,TRCENT
+           1516  *
+0818 C02D  1517  TRCENT MOV  @28(R13),R0       GET START ADDRESS
+081A 001C 
+081C C140  1518         MOV  R0,R5             COPY FOR STOP ADDRESS
+081E 04CC  1519         CLR  R12
+0820 100E  1520         JMP  U2                DO DISASSEMBLY
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0041
+UNASSEMBLER FOR LOBUG. MJS & CRH
+
+           1522  *
+           1523  * TRANSFER START AND STOP ADDRESSES FROM CALLER
+           1524  *
+     0822' 1525  UENTRY EQU  $                 *** ENTRY ***
+0822 C16D  1526         MOV  @2(R13),R5        LOAD STOP ADDR
+0824 0002 
+0826 C01D  1527         MOV  *R13,R0           LOAD START ADDR
+0828 1605  1528         JNE  BEGIN             IF NON-ZERO, GO ON
+082A C1AD  1529         MOV  @6(R13),R6        ANY PARMS ?
+082C 0006 
+082E 1602  1530         JNE  BEGIN             YES , SKIP DEFAULT
+0830 0200  1531         LI   R0,BRAM           OTHERWISE LOAD DEFAULT
+0832 05BA'
+           1532  *
+           1533  * BEGIN DISASSEMBLY
+           1534  *
+0834       1535  BEGIN  MSG  @MCRLF            SEND CR AND LF
+0838 0240  1536         ANDI R0,>FFFE          WORD ALIGN ADDRESS
+083A FFFE 
+083C       1537         WHXW R0                PRINT MEM ADDRESS
+     083E' 1538  U2     EQU  $                 *** ALTERNATE ENTRY FOR TRACE
+083E 0206  1539         LI   R6,' ,'           ASCII SPACE AND COMMA
+0840 202C 
+0842       1540         WRIT R6                PRINT SPACE
+0844 C050  1541         MOV  *R0,R1            GET INSTRUCTION OP CODE
+0846       1542         WHXW R1                PRINT OP CODE DATA
+0848       1543         WRIT R6                PRINT SPACE
+084A 028C  1544         CI   R12,>0400
+084C 0400 
+084E 1343  1545         JEQ  DATAOP
+0850 0208  1546  LDREG  LI   R8,AMODE          ADDR FOR ADDRESSING MODES SUBR
+0852 0988'
+0854 0209  1547         LI   R9,REGNO          ADDR FOR PRINT REG NUMBER SUBR
+0856 096A'
+0858 020A  1548         LI   R10,SOPSTT-2
+085A 0BCE'
+085C 022A  1549  SOPLP  AI   R10,8
+085E 0008 
+0860 028A  1550         CI   R10,SOPEND
+0862 0BE8'
+0864 1B08  1551         JH   NOTSOP
+0866 8681  1552         C    R1,*R10
+0868 16F9  1553         JNE  SOPLP
+086A C04A  1554         MOV  R10,R1
+086C 0221  1555         AI   R1,-6
+086E FFFA 
+0870 06A0  1556         BL   @PRTOP
+0872 0906'
+0874 106D  1557         JMP  CMDSCN
+0876 020A  1558  NOTSOP LI   R10,CODEND        GET TABLE POINTER
+0878 0BCC'
+087A C09A  1559  GETOPC MOV  *R10,R2           GET OPCODE VALUE
+087C 132C  1560         JEQ  DATAOP
+087E 0242  1561         ANDI R2,>FFF0          REMOVE FORMAT
+0880 FFF0 
+0882 1302  1562         JEQ  NODIR
+0884 8081  1563         C    R1,R2             CORRECT OPCODE?
+0886 1403  1564         JHE  OPCFND            YES - EXIT
+0888 022A  1565  NODIR  AI   R10,-6            NEXT OPCODE
+088A FFFA 
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0042
+UNASSEMBLER FOR LOBUG. MJS & CRH
+
+088C 10F6  1566         JMP  GETOPC            LOOP BACK
+088E C1DA  1567  OPCFND MOV  *R10,R7           STORE VALUE
+0890 C04A  1568         MOV  R10,R1            STORE VALUE
+0892 0221  1569         AI   R1,-4             GET TEXT PNTR
+0894 FFFC 
+0896 06A0  1570         BL   @PRTOP
+0898 0906'
+           1571  *
+089A 0247  1572         ANDI R7,>F             GET THE FORMAT
+089C 000F 
+089E D1E7  1573         MOVB @BTABL(R7),R7     GET THE ADDRESS
+08A0 08A8'
+08A2 0877  1574         SRA  R7,7
+08A4 0467  1575         B    @BTABL(R7)        GO EXECUTE AS REQUIRED
+08A6 08A8'
+           1576  *
+           1577  *  FORMAT JUMP TABLE
+           1578  *
+08A8 1B    1579  BTABL  BYTE PRTDAT-BTABL/2
+08A9 07    1580         BYTE FRMAT1-BTABL/2
+08AA 13    1581         BYTE FRMAT2-BTABL/2
+08AB 0D    1582         BYTE FRMAT3-BTABL/2
+08AC 0A    1583         BYTE FRMAT4-BTABL/2
+08AD 1F    1584         BYTE FRMAT5-BTABL/2
+08AE 11    1585         BYTE FRMAT6-BTABL/2
+08AF 54    1586         BYTE CMDSCN-BTABL/2
+08B0 26    1587         BYTE FRMAT8-BTABL/2
+08B1 0D    1588         BYTE FRMAT3-BTABL/2
+08B2 39    1589         BYTE BITFMT-BTABL/2
+08B3 2A    1590         BYTE FRMATB-BTABL/2
+08B4 2C    1591         BYTE FRMATC-BTABL/2
+08B6       1592         EVEN
+           1593  *
+08B6 0698  1594  FRMAT1 BL   *R8               PRINT SOURCE OPERAND
+08B8 0961  1595         SRL  R1,6
+08BA 1006  1596         JMP  TST42
+08BC 0698  1597  FRMAT4 BL   *R8               PRINT OPERAND
+08BE 0961  1598         SRL  R1,6
+08C0 1016  1599         JMP  TST81
+08C2 0698  1600  FRMAT3 BL   *R8               PRINT SOURCE OPERAND
+08C4 0A61  1601         SLA  R1,6
+08C6 09C1  1602         SRL  R1,12
+08C8       1603  TST42  WRIT R6                PRINT COMMA
+08CA 0698  1604  FRMAT6 BL   *R8               PRINT DESTN OPERAND
+08CC 1041  1605         JMP  CMDSCN
+08CE 06C1  1606  FRMAT2 SWPB R1
+08D0 0871  1607         SRA  R1,7              SIGNED DISPLACEMENT
+08D2 A040  1608         A    R0,R1             NEW PC ADDRESS
+08D4 1004  1609         JMP  PRTDAT
+08D6 0201  1610  DATAOP LI   R1,DTATXT
+08D8 09DC'
+08DA 06A0  1611         BL   @PRTOP            PRINT MNEMONIC
+08DC 0906'
+08DE       1612  PRTDAT WRIT @SYMBLC+1         PRINT ">"
+08E2       1613         WHXW R1                PRINT DATA WORD
+08E4 1035  1614         JMP  CMDSCN
+08E6       1615  FRMAT5 MSG  @REGSTR
+08EA 0699  1616         BL   *R9               PRINT REG NUMBER
+08EC 0941  1617         SRL  R1,4
+08EE       1618  TST81  WRIT R6                PRINT COMMA
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0043
+UNASSEMBLER FOR LOBUG. MJS & CRH
+
+08F0 0699  1619  TST82  BL   *R9               PRINT NUMBER
+08F2 102E  1620  JCMD   JMP  CMDSCN
+08F4 0241  1621  FRMAT8 ANDI R1,>F
+08F6 000F 
+08F8 0698  1622         BL   *R8               PRINT DESTINATION REGISTER
+08FA       1623         WRIT R6                PRINT COMMA
+08FC C070  1624  FRMATB MOV  *R0+,R1           GET IMMEDIATE OPERAND
+08FE 10EF  1625         JMP  PRTDAT
+0900 0241  1626  FRMATC ANDI R1,>F
+0902 000F 
+0904 10E2  1627         JMP  FRMAT6
+           1628  *
+           1629  * SUBROUTINE WHICH PRINTS THE MNEMONIC BASED ON
+           1630  *      THE TABLE OFFSET COMPUTED IN REG 1
+           1631  *
+0906 0203  1632  PRTOP  LI   R3,4              LOAD CHAR COUNT
+0908 0004 
+090A D0B1  1633  PRT1   MOVB *R1+,R2           GET CHARACTER FROM TABLE
+090C       1634         WRIT R2                PRINT CHARACTER
+090E 0603  1635         DEC  R3                DECREMENT COUNT
+0910 16FC  1636         JNE  PRT1              REPEAT FOR FOUR CHAR
+0912       1637         WRIT R6                PRINT SPACE
+0914 06C6  1638         SWPB R6                ASCII ',' IN UPPER BYTE
+0916 C070  1639         MOV  *R0+,R1           RELOAD OPCODE DATA, INC ADDR
+0918 045B  1640         RT
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0044
+UNASSEMBLER FOR LOBUG. MJS & CRH
+
+           1642  *
+           1643  * ROUTINE FOR PRINTING THE CRU BIT DISPLACEMENT AS
+           1644  *      A SIGNED DECIMAL NUMBER (127 TO -128)
+           1645  *
+091A 0203  1646  BITFMT LI   R3,'-1'           ASCII DATA FOR MINUS AND ONE
+091C 2D31 
+091E 06C1  1647         SWPB R1                ISOLATE BIT DISPLACEMENT
+0920 0881  1648         SRA  R1,8               AND SIGN EXTEND
+0922 1315  1649         JEQ  BIT5              JUMP IF ZERO
+0924 1502  1650         JGT  BIT1              JUMP IF POSITIVE
+0926       1651         WRIT R3                OTHERWISE PRINT MINUS SIGN
+0928 0501  1652         NEG  R1                AND MAKE POSITIVE
+092A 0281  1653  BIT1   CI   R1,100            ONE HUNDRED OR GREATER?
+092C 0064 
+092E 1104  1654         JLT  BIT2              NO, JUMP
+0930 0A83  1655         SLA  R3,8              MOVE OVER ASCII ONE
+0932       1656         WRIT R3                PRINT A ONE
+0934 0221  1657         AI   R1,-100           SUBTRACT 100 FROM DISPLACEMENT
+0936 FF9C 
+0938 0204  1658  BIT2   LI   R4,10             LOAD DIVISOR
+093A 000A 
+093C C081  1659         MOV  R1,R2             RIGHT JUSTIFY DISPLACEMENT
+093E 04C1  1660         CLR  R1                 IN REG PAIR 1 AND 2
+0940 3C44  1661         DIV  R4,R1             DIVIDE BY TEN
+0942 0A83  1662         SLA  R3,8              WAS ONE HUNDRED PRINTED?
+0944 1302  1663         JEQ  BIT3              YES, PRINT BOTH TENS AND ONES
+0946 C041  1664         MOV  R1,R1             NO, THEN TEST TENS VALUE
+0948 1301  1665         JEQ  BIT4              IF ZERO PRINT ONLY ONES
+094A 0699  1666  BIT3   BL   *R9               PRINT TENS DIGIT
+094C C042  1667  BIT4   MOV  R2,R1             LOAD ONES DIGIT
+094E 0699  1668  BIT5   BL   *R9               PRINT ONES DIGIT
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0045
+UNASSEMBLER FOR LOBUG. MJS & CRH
+
+           1670  *
+           1671  * COMMAND SCANNER: TWO MODES
+           1672  *   1) DUMP MODE:  DISASSEMBLES FROM START TO END
+           1673  *        ADDRESS.
+           1674  *   2) SINGLE STEP MODE:  AT THE END OF EACH LINE,
+           1675  *     A) ESCAPE CAUSES A RETURN TO LOBUG CMD SCANNER
+           1676  *     B) ANY OTHER CHARACTER CONTINUES DIS-ASSEMBLY AT THE
+           1677  *        NEXT INSTRUCTION
+           1678  *
+0950 C145  1679  CMDSCN MOV  R5,R5             TEST FOR DUMP MODE
+0952 1608  1680         JNE  CMD5               Y,GO TO DUMP HANDLER
+           1681  *
+0954       1682         MSG  @SPACE2           OUTPUT TWO SPACES
+0958       1683  CMD2   READ R12
+095A 028C  1684         CI   R12,>1B00         ESCAPE?
+095C 1B00 
+095E 1304  1685         JEQ  CMD6               Y, EXIT DISASSEMBLER
+0960 0460  1686  CMD4   B    @BEGIN            CONTINUE DISASSEMBLY
+0962 0834'
+           1687  *
+0964 8140  1688  CMD5   C    R0,R5             TEST DUMP END ADDRESS
+0966 12FC  1689         JLE  CMD4               N, CONTINUE DISASSEMBLY
+0968 0380  1690  CMD6   RTWP                    Y, EXIT DISASSEMBLER
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0046
+UNASSEMBLER FOR LOBUG. MJS & CRH
+
+           1692  *
+           1693  * SUBROUTINE WHICH PRINTS THE DECIMAL VALUE OF
+           1694  *      THE LOWER FOUR BITS OF REGISTER 1
+           1695  *
+096A C0C1  1696  REGNO  MOV  R1,R3             MOVE DATA FROM R1 TO R3 AND
+096C 0AC3  1697         SLA  R3,12              ISOLATE LOWER 4 BITS RIGHT
+096E 0943  1698         SRL  R3,4               JUSTIFIED IN UPPER BYTE
+0970 0283  1699         CI   R3,>900           COMPARE TO NINE
+0972 0900 
+0974 1203  1700         JLE  REG1              EQUAL OR LESS, SINGLE DIGIT
+0976 06C3  1701         SWPB R3                OTHERWISE TWO DIGITS
+0978 0223  1702         AI   R3,>0126          BCD CORRECT ONES, MAKE ASCII
+097A 0126 
+097C 0223  1703  REG1   AI   R3,>3000          MAKE UPPER BYTE ASCII
+097E 3000 
+0980       1704  REG2   WRIT R3                PRINT ASCII NUMBER
+0982 0A83  1705         SLA  R3,8              CHECK FOR SECOND DIGIT
+0984 16FD  1706         JNE  REG2              IF THERE, PRINT IT
+0986 045B  1707  REGRTN RT                     RETURN
+           1708  *
+           1709  * SUBROUTINE TO HANDLE THE MULTIPLE ADDRESSING MODES:
+           1710  *      WORKSPACE REGISTER
+           1711  *      WORKSPACE REGISTER INDIRECT
+           1712  *      SYMBOLIC AND INDEXED
+           1713  *      WORKSPACE REG. INDIRECT AUTO INCREMENT
+           1714  *
+0988 0204  1715  AMODE  LI   R4,'*R'           ACSII DATA FOR REG FORMATS
+098A 2A52 
+098C C081  1716         MOV  R1,R2             GET OP CODE AND
+098E 0AA2  1717         SLA  R2,10              ISOLATE ADDR MODE (T) FIELD
+0990 09E2  1718         SRL  R2,14              RIGHT JUSTIFIED IN R2
+           1719  *
+           1720  *      WORKSPACE REGISTER
+           1721  *
+0992 1603  1722         JNE  AMD2              JUMP IF T FIELD NOT ZERO
+0994 06C4  1723  AMD1   SWPB R4                PUT ASCII "R" IN UPPER BYTE
+0996       1724         WRIT R4                PRINT "R"
+0998 10E8  1725         JMP  REGNO             PRINT REG. NO. AND RETURN
+           1726  *
+           1727  *      WORKSPACE REGISTER INDIRECT
+           1728  *
+099A 0602  1729  AMD2   DEC  R2                WAS T FIELD = 1?
+099C 1602  1730         JNE  AMD3              NO, JUMP
+099E       1731         WRIT R4                PRINT "*"
+09A0 10F9  1732         JMP  AMD1              GO HANDLE REG FORMAT
+           1733  *
+           1734  *      SYMBOLIC AND INDEXED
+           1735  *
+09A2 0602  1736  AMD3   DEC  R2                WAS T FIELD = 2?
+09A4 1610  1737         JNE  AMD6              NO, JUMP
+09A6       1738         MSG  @SYMBLC           ASCII DATA FOR SYMBOLIC
+09AA       1739         WHXW *R0+              PRINT SYMBOLIC WORD
+09AC C081  1740         MOV  R1,R2             GET OP CODE AGAIN AND
+09AE 0AC2  1741         SLA  R2,12              CHECK IF REG. NO. IS ZERO
+09B0 13EA  1742         JEQ  REGRTN            YES, RETURN
+09B2 0202  1743         LI   R2,'()'           NO, INDEXED MODE
+09B4 2829 
+09B6       1744         WRIT R2                PRINT "("
+09B8 06C4  1745  AMD4   SWPB R4                PUT ASCII R IN UPPER BYTE
+09BA       1746         WRIT R4                PRINT "R"
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0047
+UNASSEMBLER FOR LOBUG. MJS & CRH
+
+09BC C30B  1747         MOV  R11,R12           SAVE LINK ADDR
+09BE 0699  1748         BL   *R9               PRINT REG NO.
+09C0 06C2  1749         SWPB R2                NEXT ASCII BYTE
+09C2       1750         WRIT R2                PRINT ")" OR PRINT "+"
+09C4 045C  1751  AMD5   B    *R12              RETURN
+           1752  *
+           1753  *      WORKSPACE REG. INDIRECT AUTO INCREMENT
+           1754  *
+09C6       1755  AMD6   WRIT R4                PRINT "*"
+09C8 0202  1756         LI   R2,'+'            LOAD ASCII "+"
+09CA 002B 
+09CC 10F5  1757         JMP  AMD4              GO HANDLE REST OF FORMAT
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0048
+OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
+
+           1760  *
+           1761  ****************************************
+           1762  *       BASIC OP-CODE TABLE            *
+           1763  *                                      *
+           1764  * EACH ENTRY HAS THE OP CODE, OPERAND  *
+           1765  * ONE AND OPERAND TWO DESCRIPTION.     *
+           1766  *                                      *
+           1767  *       BRANCH TABLE FOR OPERANDS      *
+           1768  *                                      *
+           1769  *        0 - N/A                       *
+           1770  *        1 - S OR D                    *
+           1771  *        2 - IOP                       *
+           1772  *        3 - W                         *
+           1773  *        4 - C                         *
+           1774  *        5 - DIS                       *
+           1775  *        6 - BIT                       *
+           1776  *        7 - N (SHIFT CNT)             *
+           1777  ****************************************
+     0001  1778  FM1    EQU  >1           FORMAT 1 - S,D
+     0002  1779  FM2    EQU  >2           FORMAT 2 - DIS
+     0003  1780  FM3    EQU  >3           FORMAT 3 - S,W
+     0004  1781  FM4    EQU  >4           FORMAT 4 - S,C
+     0005  1782  FM5    EQU  >5           FORMAT 5 - W,N
+     0006  1783  FM6    EQU  >6           FORMAT 6 - S
+     0007  1784  FM7    EQU  >7           FORMAT 7 - N/A
+     0008  1785  FM8    EQU  >8           FORMAT 8 - W,IOP
+     0003  1786  FM9    EQU  >3           FORMAT 9 - S,W
+     000A  1787  FMA    EQU  >A           FORMAT A - BIT
+     000B  1788  FMB    EQU  >B           FORMAT B - IOP
+     000C  1789  FMC    EQU  >C           FORMAT C - W
+     000D  1790  FMD    EQU  >D           FORMAT D - LMF
+           1791  *
+           1792  *      COMBINED TEXT AND OPCODE TABLE
+           1793  *
+           1794  *      TEXT 'AB  '       ;TEXT FOR MNEMONICS
+           1795  *      DATA >B000+FM1    ;OPCODE AND FORMAT INFORMATION
+           1796  *
+09CE 0000  1797  CMBTAB DATA 0            *** TABLE TERMINATOR ***
+           1798  *
+09D0 4C    1799  CODSTT TEXT 'LST '
+09D1 53   
+09D2 54   
+09D3 20   
+09D4 008C  1800         DATA >0080+FMC    LST
+09D6 4C    1801         TEXT 'LWP '
+09D7 57   
+09D8 50   
+09D9 20   
+09DA 009C  1802         DATA >0090+FMC    LWP
+09DC 44    1803  DTATXT TEXT 'DATA'
+09DD 41   
+09DE 54   
+09DF 41   
+09E0 00A0  1804         DATA >00A0
+09E2 44    1805         TEXT 'DIVS'
+09E3 49   
+09E4 56   
+09E5 53   
+09E6 0186  1806         DATA >0180+FM6    DIVS
+09E8 4D    1807         TEXT 'MPYS'
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0049
+OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
+
+09E9 50   
+09EA 59   
+09EB 53   
+09EC 01C6  1808         DATA >01C0+FM6    MPYS
+09EE 4C    1809         TEXT 'LI  '
+09EF 49   
+09F0 20   
+09F1 20   
+09F2 0208  1810         DATA >0200+FM8    LI
+09F4 41    1811         TEXT 'AI  '
+09F5 49   
+09F6 20   
+09F7 20   
+09F8 0228  1812         DATA >0220+FM8    AI
+09FA 41    1813         TEXT 'ANDI'
+09FB 4E   
+09FC 44   
+09FD 49   
+09FE 0248  1814         DATA >0240+FM8    ANDI
+0A00 4F    1815         TEXT 'ORI '
+0A01 52   
+0A02 49   
+0A03 20   
+0A04 0268  1816         DATA >0260+FM8    ORI
+0A06 43    1817         TEXT 'CI  '
+0A07 49   
+0A08 20   
+0A09 20   
+0A0A 0288  1818         DATA >0280+FM8    CI
+0A0C 53    1819         TEXT 'STWP'
+0A0D 54   
+0A0E 57   
+0A0F 50   
+0A10 02AC  1820         DATA >02A0+FMC    STWP
+0A12 53    1821         TEXT 'STST'
+0A13 54   
+0A14 53   
+0A15 54   
+0A16 02CC  1822         DATA >02C0+FMC    STST
+0A18 4C    1823         TEXT 'LWPI'
+0A19 57   
+0A1A 50   
+0A1B 49   
+0A1C 02EB  1824         DATA >02E0+FMB    LWPI
+0A1E 4C    1825         TEXT 'LIMI'
+0A1F 49   
+0A20 4D   
+0A21 49   
+0A22 030B  1826         DATA >0300+FMB    LIMI
+0A24 44    1827         TEXT 'DATA'
+0A25 41   
+0A26 54   
+0A27 41   
+0A28 0320  1828         DATA >0320
+0A2A 49    1829         TEXT 'IDLE'
+0A2B 44   
+0A2C 4C   
+0A2D 45   
+0A2E 0347  1830         DATA >0340+FM7    IDLE
+0A30 52    1831         TEXT 'RSET'
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0050
+OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
+
+0A31 53   
+0A32 45   
+0A33 54   
+0A34 0367  1832         DATA >0360+FM7    RSET
+0A36 52    1833         TEXT 'RTWP'
+0A37 54   
+0A38 57   
+0A39 50   
+0A3A 0387  1834         DATA >0380+FM7    RTWP
+0A3C 43    1835         TEXT 'CKON'
+0A3D 4B   
+0A3E 4F   
+0A3F 4E   
+0A40 03A7  1836         DATA >03A0+FM7    CKON
+0A42 43    1837         TEXT 'CKOF'
+0A43 4B   
+0A44 4F   
+0A45 46   
+0A46 03C7  1838         DATA >03C0+FM7    CKOF
+0A48 4C    1839         TEXT 'LREX'
+0A49 52   
+0A4A 45   
+0A4B 58   
+0A4C 03E7  1840         DATA >03E0+FM7    LREX
+0A4E 42    1841         TEXT 'BLWP'
+0A4F 4C   
+0A50 57   
+0A51 50   
+0A52 0406  1842         DATA >0400+FM6    BLWP
+0A54 42    1843         TEXT 'B   '
+0A55 20   
+0A56 20   
+0A57 20   
+0A58 0446  1844         DATA >0440+FM6    B
+0A5A 58    1845         TEXT 'X   '
+0A5B 20   
+0A5C 20   
+0A5D 20   
+0A5E 0486  1846         DATA >0480+FM6    X
+0A60 43    1847         TEXT 'CLR '
+0A61 4C   
+0A62 52   
+0A63 20   
+0A64 04C6  1848         DATA >04C0+FM6    CLR
+0A66 4E    1849         TEXT 'NEG '
+0A67 45   
+0A68 47   
+0A69 20   
+0A6A 0506  1850         DATA >0500+FM6    NEG
+0A6C 49    1851         TEXT 'INV '
+0A6D 4E   
+0A6E 56   
+0A6F 20   
+0A70 0546  1852         DATA >0540+FM6    INV
+0A72 49    1853         TEXT 'INC '
+0A73 4E   
+0A74 43   
+0A75 20   
+0A76 0586  1854         DATA >0580+FM6    INC
+0A78 49    1855         TEXT 'INCT'
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0051
+OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
+
+0A79 4E   
+0A7A 43   
+0A7B 54   
+0A7C 05C6  1856         DATA >05C0+FM6    INCT
+0A7E 44    1857         TEXT 'DEC '
+0A7F 45   
+0A80 43   
+0A81 20   
+0A82 0606  1858         DATA >0600+FM6    DEC
+0A84 44    1859         TEXT 'DECT'
+0A85 45   
+0A86 43   
+0A87 54   
+0A88 0646  1860         DATA >0640+FM6    DECT
+0A8A 42    1861         TEXT 'BL  '
+0A8B 4C   
+0A8C 20   
+0A8D 20   
+0A8E 0686  1862         DATA >0680+FM6    BL
+0A90 53    1863         TEXT 'SWPB'
+0A91 57   
+0A92 50   
+0A93 42   
+0A94 06C6  1864         DATA >06C0+FM6    SWPB
+0A96 53    1865         TEXT 'SETO'
+0A97 45   
+0A98 54   
+0A99 4F   
+0A9A 0706  1866         DATA >0700+FM6    SETO
+0A9C 44    1867         TEXT 'DATA'
+0A9D 41   
+0A9E 54   
+0A9F 41   
+0AA0 0780  1868         DATA >0780
+0AA2 41    1869         TEXT 'ABS '
+0AA3 42   
+0AA4 53   
+0AA5 20   
+0AA6 0746  1870         DATA >0740+FM6    ABS
+0AA8 53    1871         TEXT 'SRA '
+0AA9 52   
+0AAA 41   
+0AAB 20   
+0AAC 0805  1872         DATA >0800+FM5    SRA
+0AAE 53    1873         TEXT 'SRL '
+0AAF 52   
+0AB0 4C   
+0AB1 20   
+0AB2 0905  1874         DATA >0900+FM5    SRL
+0AB4 53    1875  OP8    TEXT 'SLA '
+0AB5 4C   
+0AB6 41   
+0AB7 20   
+0AB8 0A05  1876         DATA >0A00+FM5    SLA
+0ABA 53    1877         TEXT 'SRC '
+0ABB 52   
+0ABC 43   
+0ABD 20   
+0ABE 0B05  1878         DATA >0B00+FM5    SRC
+0AC0 44    1879         TEXT 'DATA'
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0052
+OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
+
+0AC1 41   
+0AC2 54   
+0AC3 41   
+0AC4 0C00  1880         DATA >0C00        MID OPCODES >0C00 - >0DFF
+0AC6 57    1881         TEXT 'WNBL'
+0AC7 4E   
+0AC8 42   
+0AC9 4C   
+0ACA 0E06  1882         DATA >0E00+FM6    WRITE HEX NIBBLE
+0ACC 52    1883         TEXT 'RHXW'
+0ACD 48   
+0ACE 58   
+0ACF 57   
+0AD0 0E46  1884         DATA >0E40+FM6    READ HEX WORD
+0AD2 57    1885         TEXT 'WHXW'
+0AD3 48   
+0AD4 58   
+0AD5 57   
+0AD6 0E86  1886         DATA >0E80+FM6    WRITE HEX WORD
+0AD8 45    1887         TEXT 'EKO '
+0AD9 4B   
+0ADA 4F   
+0ADB 20   
+0ADC 0EC6  1888         DATA >0EC0+FM6    ECHO CHARACTER
+0ADE 57    1889         TEXT 'WRIT'
+0ADF 52   
+0AE0 49   
+0AE1 54   
+0AE2 0F06  1890         DATA >0F00+FM6    WRITE BYTE XOP
+0AE4 52    1891         TEXT 'READ'
+0AE5 45   
+0AE6 41   
+0AE7 44   
+0AE8 0F46  1892         DATA >0F40+FM6    READ XOP
+0AEA 4D    1893         TEXT 'MSG '
+0AEB 53   
+0AEC 47   
+0AED 20   
+0AEE 0F86  1894         DATA >0F80+FM6    MESSAGE
+0AF0 42    1895         TEXT 'BKPT'
+0AF1 4B   
+0AF2 50   
+0AF3 54   
+0AF4 0FC6  1896         DATA >0FC0+FM6    BKPT
+           1897  *
+0AF6 4A    1898         TEXT 'JMP '
+0AF7 4D   
+0AF8 50   
+0AF9 20   
+0AFA 1002  1899         DATA >1000+FM2    JMP
+0AFC 4A    1900         TEXT 'JLT '
+0AFD 4C   
+0AFE 54   
+0AFF 20   
+0B00 1102  1901         DATA >1100+FM2    JLT
+0B02 4A    1902         TEXT 'JLE '
+0B03 4C   
+0B04 45   
+0B05 20   
+0B06 1202  1903         DATA >1200+FM2    JLE
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0053
+OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
+
+0B08 4A    1904         TEXT 'JEQ '
+0B09 45   
+0B0A 51   
+0B0B 20   
+0B0C 1302  1905         DATA >1300+FM2    JEQ
+0B0E 4A    1906         TEXT 'JHE '
+0B0F 48   
+0B10 45   
+0B11 20   
+0B12 1402  1907         DATA >1400+FM2    JHE
+0B14 4A    1908         TEXT 'JGT '
+0B15 47   
+0B16 54   
+0B17 20   
+0B18 1502  1909         DATA >1500+FM2    JGT
+0B1A 4A    1910         TEXT 'JNE '
+0B1B 4E   
+0B1C 45   
+0B1D 20   
+0B1E 1602  1911         DATA >1600+FM2    JNE
+0B20 4A    1912         TEXT 'JNC '
+0B21 4E   
+0B22 43   
+0B23 20   
+0B24 1702  1913         DATA >1700+FM2    JNC
+0B26 4A    1914         TEXT 'JOC '
+0B27 4F   
+0B28 43   
+0B29 20   
+0B2A 1802  1915         DATA >1800+FM2    JOC
+0B2C 4A    1916         TEXT 'JNO '
+0B2D 4E   
+0B2E 4F   
+0B2F 20   
+0B30 1902  1917         DATA >1900+FM2    JNO
+0B32 4A    1918         TEXT 'JL  '
+0B33 4C   
+0B34 20   
+0B35 20   
+0B36 1A02  1919         DATA >1A00+FM2    JL
+0B38 4A    1920         TEXT 'JH  '
+0B39 48   
+0B3A 20   
+0B3B 20   
+0B3C 1B02  1921         DATA >1B00+FM2    JH
+0B3E 4A    1922         TEXT 'JOP '
+0B3F 4F   
+0B40 50   
+0B41 20   
+0B42 1C02  1923         DATA >1C00+FM2    JOP
+0B44 53    1924         TEXT 'SBO '
+0B45 42   
+0B46 4F   
+0B47 20   
+0B48 1D0A  1925         DATA >1D00+FMA    SBO
+0B4A 53    1926         TEXT 'SBZ '
+0B4B 42   
+0B4C 5A   
+0B4D 20   
+0B4E 1E0A  1927         DATA >1E00+FMA    SBZ
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0054
+OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
+
+0B50 54    1928         TEXT 'TB  '
+0B51 42   
+0B52 20   
+0B53 20   
+0B54 1F0A  1929         DATA >1F00+FMA    TB
+0B56 43    1930         TEXT 'COC '
+0B57 4F   
+0B58 43   
+0B59 20   
+0B5A 2003  1931         DATA >2000+FM3    COC
+0B5C 43    1932         TEXT 'CZC '
+0B5D 5A   
+0B5E 43   
+0B5F 20   
+0B60 2403  1933         DATA >2400+FM3    CZC
+0B62 58    1934         TEXT 'XOR '
+0B63 4F   
+0B64 52   
+0B65 20   
+0B66 2803  1935         DATA >2800+FM3    XOR
+0B68 58    1936         TEXT 'XOP '
+0B69 4F   
+0B6A 50   
+0B6B 20   
+0B6C 2C04  1937         DATA >2C00+FM4    XOP
+0B6E 4C    1938         TEXT 'LDCR'
+0B6F 44   
+0B70 43   
+0B71 52   
+0B72 3004  1939         DATA >3000+FM4    LDCR
+0B74 53    1940         TEXT 'STCR'
+0B75 54   
+0B76 43   
+0B77 52   
+0B78 3404  1941         DATA >3400+FM4    STCR
+0B7A 4D    1942         TEXT 'MPY '
+0B7B 50   
+0B7C 59   
+0B7D 20   
+0B7E 3803  1943         DATA >3800+FM9    MPY
+0B80 44    1944         TEXT 'DIV '
+0B81 49   
+0B82 56   
+0B83 20   
+0B84 3C03  1945         DATA >3C00+FM9    DIV
+0B86 53    1946         TEXT 'SZC '
+0B87 5A   
+0B88 43   
+0B89 20   
+0B8A 4001  1947         DATA >4000+FM1    SZC
+0B8C 53    1948         TEXT 'SZCB'
+0B8D 5A   
+0B8E 43   
+0B8F 42   
+0B90 5001  1949         DATA >5000+FM1    SZCB
+0B92 53    1950         TEXT 'S   '
+0B93 20   
+0B94 20   
+0B95 20   
+0B96 6001  1951         DATA >6000+FM1    S
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0055
+OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
+
+0B98 53    1952         TEXT 'SB  '
+0B99 42   
+0B9A 20   
+0B9B 20   
+0B9C 7001  1953         DATA >7000+FM1    SB
+0B9E 43    1954         TEXT 'C   '
+0B9F 20   
+0BA0 20   
+0BA1 20   
+0BA2 8001  1955         DATA >8000+FM1    C
+0BA4 43    1956         TEXT 'CB  '
+0BA5 42   
+0BA6 20   
+0BA7 20   
+0BA8 9001  1957         DATA >9000+FM1    CB
+0BAA 41    1958         TEXT 'A   '
+0BAB 20   
+0BAC 20   
+0BAD 20   
+0BAE A001  1959         DATA >A000+FM1    A
+0BB0 41    1960         TEXT 'AB  '
+0BB1 42   
+0BB2 20   
+0BB3 20   
+0BB4 B001  1961         DATA >B000+FM1    AB
+0BB6 4D    1962         TEXT 'MOV '
+0BB7 4F   
+0BB8 56   
+0BB9 20   
+0BBA C001  1963         DATA >C000+FM1    MOV
+0BBC 4D    1964         TEXT 'MOVB'
+0BBD 4F   
+0BBE 56   
+0BBF 42   
+0BC0 D001  1965         DATA >D000+FM1    MOVB
+0BC2 53    1966         TEXT 'SOC '
+0BC3 4F   
+0BC4 43   
+0BC5 20   
+0BC6 E001  1967         DATA >E000+FM1    SOC
+0BC8 53    1968         TEXT 'SOCB'
+0BC9 4F   
+0BCA 43   
+0BCB 42   
+0BCC F001  1969  CODEND DATA >F000+FM1    SOCB
+0BCE 0000  1970         DATA 0
+           1971  *
+           1972  * SPECIAL OPCODE TABLE
+           1973  *
+           1974  *      TEXT 'xxxx'        MNEMONIC
+           1975  *      DATA OP$x          SPECIAL FORMAT TYPE
+           1976  *      DATA >xxxx         UNIQUE OP-CODE
+           1977  *
+0BD0 53    1978  SOPSTT TEXT 'SPIN'
+0BD1 50   
+0BD2 49   
+0BD3 4E   
+0BD4 0000  1979         DATA 0,>10FF
+0BD8 4E    1980  CONOP  TEXT 'NOP '
+0BD9 4F   
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0056
+OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
+
+0BDA 50   
+0BDB 20   
+0BDC 0000  1981         DATA 0,>1000
+0BE0 52    1982  CORT   TEXT 'RT  '
+0BE1 54   
+0BE2 20   
+0BE3 20   
+0BE4 0000  1983         DATA 0,>045B
+0BE8 0000  1984  SOPEND DATA 0
+           1985  *
+           1986  *
+           1987  *
+0BEA 0003  1988  C3     DATA >0003
+           1989         END
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0057
+OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
+
+ADREVN   004A'  AMD1     0994'  AMD2     099A'  AMD3     09A2'  AMD4     09B8'  
+AMD5     09C4'  AMD6     09C6'  AMODE    0988'  ASKBP    034ER  ASMOPC   063ER  
+ASMPTR   060CR  B        01DE'  B0D      0442R  BACKWP   029E'  BADADR   00E4R  
+BADTER   00DER  BANNER   00F6'  BEGIN    0834'  BEGN1    0118R  BELL     00EER  
+BIN      0522'  BINST    03FA'  BIT1     092A'  BIT2     0938'  BIT3     094A'  
+BIT4     094C'  BIT5     094E'  BITFMT   091A'  BLOOP    03EA'  BLSTOR   04FAR  
+BOTUP    012C'  BPCMD    0054'  BPMSG    03CAR  BPOINT   01EE'  BPT0V    03C4R  
+BPTADD   03A4R  BPTDTA   03D2R  BPTLOD   0304'  BPTSET   040ER  BPTSOK   000C'  
+BRAM     0832R  BRCMD    00BE'  BTABL    08A8'  BVEC1    0116'  C        0250'  
+C3       0BEA'  CEXIT    00B4'  CHKDUN   0312'  CHKSGL   0324'  CHKVAL   031A'  
+CLOOP    0262'  CLRBPT   0108'  CMBTAB   09CE'  CMD2     0958'  CMD4     0960'  
+CMD5     0964'  CMD6     0968'  CMDIN    0020'  CMDSCN   0950'  CNT      00AE'  
+CNULL    028E'  COD15    03AA'  CODEND   0BCC'  CODSTT   09D0'  CONOP    0BD8'  
+CONTIN   02F6'  CORT     0BE0'  CSKIP1   0260'  CSKIP2   0278'  CSKIP3   0288'  
+D$LDPC   0018D  D$LDWP   0002D  DATAOP   08D6'  DEBUG$   00F2D  DEC      052A'  
+DEC1     052C'  DEC10    0532'  DEC20    054A'  DEC30    054E'  DEC40    0554'  
+DEC5     0530'  DECSTP   02EA'  DSRCNT   0332R  DTASUB   0786'  DTATXT   09DC'  
+E        034C'  EBPTLP   0396'  ECHOEN   042AD  EQUSGN   0270R  ERR      04B4'  
+ERR2     00DC'  ERR3     00E2'  ERR3$M   00E2D  ERR4     00EC'  ESC      0354'  
+ESCFLG   05FAR  EXIT1    04B0'  EXMSG    035CR  F        014E'  F$WHO    0006R  
+FEXIT    018C'  FIND     0152'  FM1      0001   FM2      0002   FM3      0003   
+FM4      0004   FM5      0005   FM6      0006   FM7      0007   FM8      0008   
+FM9      0003   FMA      000A   FMB      000B   FMC      000C   FMCONV   050C'  
+FMD      000D   FRMAT1   08B6'  FRMAT2   08CE'  FRMAT3   08C2'  FRMAT4   08BC'  
+FRMAT5   08E6'  FRMAT6   08CA'  FRMAT8   08F4'  FRMATB   08FC'  FRMATC   0900'  
+G        0112'  GETASC   0618'  GETCR$   0432R  GETDTA   0774'  GETL     0582'  
+GETL10   058A'  GETL20   05A0'  GETL30   05A2'  GETL40   05B0'  GETLA    0588'  
+GETOPC   087A'  GETR     0560'  GETR20   0570'  GETR30   057C'  GETRA    0566'  
+GO       02EE'  GOTASC   0626'  GOTONE   0478'  GOTOPC   069E'  GTLN     0602R  
+HALTO$   0448R  HEX      051A'  I        0140'  I11      0144'  ICLOOP   01FC'  
+INITFG   00FCR  INITIZ   0326'  INLOOP   00A2'  INPC     0376'  INPT     04E6'  
+INPTX    04F6'  INSTR    0814'  IOB      060AR  JCMD     08F2'  JMMONT   00EA'  
+LDCNT    02E8'  LDREG    0850'  LOAD     030A'  LOADWP   0002'  LOGON    00F8R  
+LOOP     045A'  LOOP1    04C8'  M        0194'  MC$LOD   005CR  MC$SAV   003CR  
+MCRLF    0836R  MENTRY   0450D  MEXIT    01DC'  MIC      01C2'  MIC1     01B6'  
+MLOOP    044E'  MLOOP1   0198'  MLOOP2   01A4'  MNULL    01D8'  MODE     05F6R  
+MONTOP   0000D  MREG13   03E4R  MREG3    05BER  MREGS    05C4R  N        018E'  
+NEXIT    04AC'  NEXTBP   0420'  NLINE    0238'  NOCRTN   017A'  NODIR    0888'  
+NOSIGN   078A'  NOTHEX   0484'  NOTOPC   0632'  NOTSOP   0876'  NREG     0228'  
+NULL     00C4'  NUM      04D8'  NXTBLK   0170'  OCSH1    06A6'  OP8      0AB4'  
+OPA      0708'  OPA10    074C'  OPA15    0752'  OPA20    0754'  OPB      0756'  
+OPB10    076A'  OPBPMS   03C8'  OPC      076E'  OPCFND   088E'  OPD      079C'  
+OPE      07A6'  OPER     04FE'  OPF      07B4'  OPG      07BC'  OPG10    07DE'  
+OPG15    07EC'  OPG30    07F8'  OPG35    07FA'  OPG40    07FE'  OPG5     07D4'  
+OPH      0804'  OUTERR   00E6'  P        0404'  PADIT    03FCR  PAT90    0656'  
+PC       067CR  PCOK     037E'  PROMPT   001ER  PRT1     090A'  PRTDAT   08DE'  
+PRTOP    0906'  PRTSTP   0314'  PT100    05C6'  PT110    05CE'  PT120    05D2'  
+PT130    05D8'  PT135    05DA'  PT150    05F0'  PT220    0662'  PT230    0670'  
+PT240    067A'  PT270    0794'  PT280    06B8'  PT290    06E4'  PT300    06F2'  
+PT310    06FA'  QUERY    03E2'  R        0294'  R0       0000   R1       0001   
+R10      000A   R11      000B   R12      000C   R13      000D   R14      000E   
+R15      000F   R2       0002   R3       0003   R4       0004   R5       0005   
+R6       0006   R7       0007   R8       0008   R9       0009   REG1     097C'  
+REG2     0980'  REGNO    096A'  REGRTN   0986'  REGSTR   08E8R  RENTRY   0430D  
+REPLP    0418'  REXIT    02D0'  RHENTY   0456D  RLOOP    02AC'  RMVBPT   040C'  
+RMVRTN   0428'  RNGERR   0702'  RNULL    02BE'  S        02D2'  SETFG    025E'  
+SETLOD   038E'  SETVEC   0336R  SINGLE   02E6'  SKIP     021A'  SKIP0    016A'  
+SKIP1    0174'  SKIP11   017C'  SKIP2    0184'  SOPEND   0BE8'  SOPLP    085C'  
+SOPSTT   0BD0'  SPACE2   0956R  SPACE5   05F2R  SPBP     01E4R  SPCK     04A0'  
+SPEC1    0686'  SPECOC   0680'  SPR      01ECR  SRCH     0090'  SRCHLP   008C'  
+ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0058
+OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
+
+STEP     02EC'  STPCHK   02F0'  STPMSG   0316R  SYMBLC   09A8R  T        033C'  
+TOPDN    0138'  TOPRTN   0408'  TRCENT   0818'  TST42    08C8'  TST81    08EE'  
+TST82    08F0'  TSTSGN   078E'  TYP0$    043ER  TYPC$    05D8R  TYPE1    065A'  
+TYPEN$   00E8R  TYPS$    03FAR  U        080A'  U2       083E'  UENTRY   0822'  
+UNIT     0406R  UNVEC    0810'  VALADR   02E2'  W        01E8'  W40      044A'  
+WENTRY   043AD  WEXIT    0218'  WHENTY   04C2D  WHXETY   04B8D  WLOOP    023A'  
+WNULL1   0234'  WNULL2   0214'  WORKS    0814R  WPR1     05FER  WPS10    03DC'  
+WPS20    03E2'  WS       03E8R  WSPLP    0366'  X        011A'  XERR     011C'  
+XOPENT   03B4D  ZLABGN   05B4'  ZZZZZ$   03DER  
+
+0 Errors in assembly

@@ -1,0 +1,68 @@
+ASM990 2.4.6     GETPARM                    Sun Jul 20 19:28:51 2025 Page 0001
+GET PARAMETER ROUTINE - CORTEX BASIC REV. 1.1
+
+              2         IDT  'GETPARM'
+              3  *
+              4  *       GPRM,GPRM1,GPRM2        ;GET PARAMETER
+              5  *
+              6         DXOP EVFIX,11          ;EVALUATE AND FIX
+     2F80     7  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+     2FA0     8  ERROR2 EQU  ERROR+>20
+              9  *
+             10         REF  B4A,B56
+             11         DEF  GPRM,GPRM1,GPRM2
+             12  *
+             13  *       FIX PARAMETERS SUCH THAT:
+             14  *
+             15  *         XXX[ (R2) , R1 ] = R3
+             16  *
+             17  *       DIFFERENT ENTRY POINTS WILL PICK UP
+             18  *       THE EVALUATION AND CHECKING AT
+             19  *       DIFFERENT POINTS.
+             20  *
+             21  * CALLING SEQUENCE:
+             22  *
+             23  *       BL @GPRM
+             24  *       BL @GPRM1
+             25  *       BL @GPRM2
+             26  *
+             27  *       IN (R2) = VARIABLE
+             28  *       OUT R1  = INDEX
+             29  *           R3  = ASSIGNMENT FIXED
+             30  *
+             31  * EXCEPTIONS AND CONDITIONS:
+             32  *
+             33  *       EVALUATION ERRORS, FIX ERRORS, AND
+             34  *       EXPECTING OPERATOR.
+             35  *
+             36  *
+0000 9838    37  GPRM   CB   *R8+,@B4A         ;RIGHT BRACKET?
+0002 0000 
+0004 1609    38         JNE  ERR1              ;N, ERROR
+             39  *
+0006 2EC1    40  GPRM1  EVFIX R1               ;GET INDEX
+             41  *
+0008 0280    42  GPRM2  CI   R0,>4B00          ;]?
+000A 4B00 
+000C 1605    43         JNE  ERR1              ;N
+000E 9E20    44         CB   @B56,*R8+         ;=?
+0010 0000 
+0012 1603    45         JNE  ERR36             ;N
+0014 2EC3    46         EVFIX R3               ;GET RESULT
+0016 045B    47         RT
+             48  *
+0018 2F81    49  ERR1   DATA ERROR+1
+001A 2FA0    50  ERR36  DATA ERROR2,36
+             51         END
+ASM990 2.4.6     GETPARM                    Sun Jul 20 19:28:51 2025 Page 0002
+GET PARAMETER ROUTINE - CORTEX BASIC REV. 1.1
+
+B4A       0002R  B56       0010R  ERR1      0018'  ERR36     001A'  
+ERROR     2F80   ERROR2    2FA0   GPRM      0000D  GPRM1     0006D  
+GPRM2     0008D  R0        0000   R1        0001   R10       000A   
+R11       000B   R12       000C   R13       000D   R14       000E   
+R15       000F   R2        0002   R3        0003   R4        0004   
+R5        0005   R6        0006   R7        0007   R8        0008   
+R9        0009   
+
+0 Errors in assembly

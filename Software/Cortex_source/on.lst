@@ -1,0 +1,88 @@
+ASM990 2.4.6     ON                         Sun Jul 20 19:28:49 2025 Page 0001
+ON STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT   'ON'
+              3  *
+              4  * ROUTINE LIST:
+              5  *
+              6  *       ONY             ;ON COMMAND
+              7  *
+              8  * EXTERNAL ROUTINES:
+              9  *
+             10          REF GOSON       ;GOSUB ENTRY
+             11          REF LINE        ;EXIT ENTRY TO MULTIPLEXOR
+             12          DXOP EVFIX,11   ;EVALUATE AND FIX
+     2F80    13  ERROR   EQU >2F80               ;XOP XX,14  (ERROR CALL)
+             14  *
+             15  * EXTERNAL DATA:
+             16  *
+             17          REF B3F         ;>3F
+             18  *
+             19  * ABSTRACT:
+             20  *
+             21  *       ON COMMAND
+             22  *
+             23  * CALLING SEQUENCE:
+             24  *
+             25  *       B @ONY
+             26  *
+             27  *       EXIT TO LINE OR GOSON
+             28  *
+             29  * EXCEPTIONS AND CONDITIONS:
+             30  *
+             31  *       SYNTAX ERROR
+             32  *       EVALUATION ERRORS
+             33  *
+ASM990 2.4.6     ON                         Sun Jul 20 19:28:49 2025 Page 0002
+ON STATEMENT - CORTEX BASIC REV. 1.1
+
+             35  *
+             36  * ENTRY POINT:
+             37  *
+             38         DEF ONY
+0000 2EC1    39  ONY     EVFIX R1        ;EVALUATE & FIX
+0002 0280    40          CI R0,>3B00     ;THEN?
+0004 3B00 
+0006 1614    41            JNE ERR1      ;N, SYNTAX ERROR
+0008 04C2    42  ON1     CLR R2          ;CLEAR DESTINATION
+000A D0B8    43          MOVB *R8+,R2    ;GET TYPE CODE
+000C 0972    44          SRL R2,7        TYPE CODE TO LOW BYTE & *2
+             45  *
+             46  * TYPE CODE SHOULD BE EITHER 'GOTO' OR 'GOSUB' - IN THE
+             47  * MODULE GOSUB, 'GOTO' IS IDENTIFIED BY R3=0 AND 'GOSUB'
+             48  * IS IDENTIFIED BY R3=>FFFF
+             49  *
+000E C0C2    50          MOV  R2,R3                               JG 12/1/82
+0010 0643    51          DECT R3         GOTO?                    JG 12/1/82
+0012 1303    52          JEQ  ON2                                 JG 12/1/82
+0014 0223    53          AI   R3,-3      N - GOSUB?               JG 12/1/82
+0016 FFFD 
+0018 150B    54          JGT  ERR1       N - THEN ERROR           JG 12/1/82
+             55  *
+001A 0601    56  ON2     DEC R1          ;COUNT
+001C 1105    57            JLT ON3       ;DONE
+001E 1306    58            JEQ ON4       ;DO GOTO
+0020 05C8    59          INCT R8         ;MOVE TO NEXT
+0022 9838    60          CB *R8+,@B3F    ;,?
+0024 0000 
+0026 13F9    61            JEQ ON2       ;Y, CONTINUE
+0028 0460    62  ON3     B @LINE         ;DROP THRU
+002A 0000 
+             63  *
+002C 0460    64  ON4     B @GOSON
+002E 0000 
+             65  *
+0030 2F81    66  ERR1    DATA ERROR+1    ;SYNTAX ERROR
+             67         END
+ASM990 2.4.6     ON                         Sun Jul 20 19:28:49 2025 Page 0003
+ON STATEMENT - CORTEX BASIC REV. 1.1
+
+B3F       0024R  ERR1      0030'  ERROR     2F80   GOSON     002ER  
+LINE      002AR  ON1       0008'  ON2       001A'  ON3       0028'  
+ON4       002C'  ONY       0000D  R0        0000   R1        0001   
+R10       000A   R11       000B   R12       000C   R13       000D   
+R14       000E   R15       000F   R2        0002   R3        0003   
+R4        0004   R5        0005   R6        0006   R7        0007   
+R8        0008   R9        0009   
+
+0 Errors in assembly

@@ -1,0 +1,180 @@
+ASM990 2.4.6     READ                       Sun Jul 20 19:28:50 2025 Page 0001
+READ STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT  'READ'
+              3  *
+              4  *
+              5  *
+              6         REF  BMVE              ;MOVE BYTE
+              7         REF  CKEX              ;CHECK FOR EXPRESSION
+              8         REF  EVARZ             ;GET VARIABLE
+              9         REF  EVERZ             ;EVALUATE EXPRESSION
+             10         REF  EVSDZ             ;EVALUATE STRING
+             11         REF  NLIN              ;EXIT TO MULTIPLEXOR
+             12         REF  NLIN0             ;EXIT TO MULTIPLEXOR
+             13         REF  REST              ;RESTORE DATA PTR
+             14         REF  SFSN              ;SEARCH FOR STATEMENT NUMBER
+             15         DXOP EVFIX,11          ;EVALUATE AND FIX
+     2F80    16  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+             17  *
+             18         REF  BUS               ;BEGINNING OF USER STORAGE
+             19         REF  DATXB             ;DATA INTERNAL BYTE CODE
+             20         REF  DDM               ;DATA DELIMITER
+             21         REF  DLC               ;DATA LINE COUNTER
+             22         REF  DLIM              ;LINE DELIMITER
+             23         REF  SLT               ;STATEMENT LOCATION TABLE
+             24         REF  LNSZ
+             25         DEF  RDDY,RNWY
+             26  *
+             27  * ABSTRACT:
+             28  *
+             29  *       READ COMMAND USES FDATA TO PICK
+             30  *       UP NEXT ITEM FROM DATA STATEMENTS.
+             31  *       SINCE THE EVALUATOR IS USED, ANY
+             32  *       EXPRESSION CAN APPEAR IN THE DATA
+             33  *       STATEMENT.
+             34  *
+             35  * CALLING SEQUENCE:
+             36  *
+             37  *       B @RDDY
+             38  *       B @RNWY
+             39  *
+             40  *       EXIT TO NLIN
+             41  *
+             42  * EXCEPTIONS AND CONDITIONS:
+             43  *
+             44  *       ERROR 24 FOR READING INTO STRING CONSTANT
+             45  *       ERROR 23 FOR READ WITHOUT DATA
+ASM990 2.4.6     READ                       Sun Jul 20 19:28:50 2025 Page 0002
+READ STATEMENT - CORTEX BASIC REV. 1.1
+
+             47  *FIND DATA
+             48  *       BL @FDATA
+             49  *         STRING
+             50  *       #
+             51  *
+0000 C188    52  FDATA  MOV  R8,R6             ;SAVE PBC
+0002 C160    53         MOV  @DLIM,R5          ;SAVE DLIM
+0004 0000 
+0006 C220    54         MOV  @DDM,R8           ;GET DELIMITER
+0008 0000 
+000A 1307    55         JEQ  FDATA1            ;MOVE TO NEXT LINE
+000C 04C0    56         CLR  R0
+000E D038    57         MOVB *R8+,R0           ;LOOK AT DELIMITER
+0010 1304    58         JEQ  FDATA1            ;EOF, MOVE TO NEXT
+0012 0280    59         CI   R0,>3F00          ;,?
+0014 3F00 
+0016 1310    60         JEQ  FDATA2            ;Y, EVALUATE
+             61  *
+0018 2F97    62  ERR23  DATA ERROR+23          ;READ W/O DATA
+             63  *
+001A C220    64  FDATA1 MOV  @DLC,R8           ;GET DLC
+001C 0000 
+001E 0228    65         AI   R8,-4             ;MOVE TO NEXT LINE
+0020 FFFC 
+0022 8808    66         C    R8,@SLT           ;ANY MORE LINES?
+0024 0000 
+0026 1AF8    67         JL   ERR23             ;N, ERROR
+0028 C808    68         MOV  R8,@DLC           ;Y, SAVE DLC
+002A 001C'
+002C C218    69         MOV  *R8,R8            ;GET PBC
+002E A220    70         A    @BUS,R8           ;MAKE DISPLACEMENT INTO POINTER
+0030 0000 
+0032 9838    71         CB   *R8+,@DATXB       ;DATA STATEMENT?
+0034 0000 
+0036 16F1    72         JNE  FDATA1            ;N, CONTINUE LOOKING
+             73  *
+0038 0420    74  FDATA2 BLWP @EVSDZ            ;EVALUATE
+003A 0000 
+003C 1004    75         JMP  FDATA3            ;"
+003E 1003    76         JMP  FDATA3            ;$
+0040 0420    77         BLWP @EVERZ            ;#
+0042 0000 
+0044 05CB    78         INCT R11               ;RETURN 2(11)
+             79  *
+0046 0608    80  FDATA3 DEC  R8                ;BACKUP TO DELIMITER
+0048 C808    81         MOV  R8,@DDM           ;SAVE IN DELIMITER PTR
+004A 0008'
+004C C206    82         MOV  R6,R8             ;RESTORE R8
+004E C805    83         MOV  R5,@DLIM          ;RESTORE DLIM
+0050 0004'
+0052 045B    84         RT
+ASM990 2.4.6     READ                       Sun Jul 20 19:28:50 2025 Page 0003
+READ STATEMENT - CORTEX BASIC REV. 1.1
+
+             86  *READ COMMAND
+             87  *
+0054 0420    88  RDDY   BLWP @EVSDZ            ;SEE IF STRING
+0056 003A'
+0058 2F98    89  ERR24  DATA ERROR+24          ;", ERROR
+005A 1010    90         JMP  RDD2              ;$
+005C 0420    91         BLWP @EVARZ            ;WANTS #
+005E 0000 
+0060 C1C2    92         MOV  R2,R7             ;SAVE
+0062 06A0    93         BL   @FDATA            ;FIND DATA
+0064 0000'
+0066 10F8    94         JMP  ERR24             ;STRING, ERROR
+0068 CDF2    95         MOV  *R2+,*R7+         ;STORE NUMBER
+006A CDF2    96         MOV  *R2+,*R7+
+006C C5D2    97         MOV  *R2,*R7
+             98  *
+006E C020    99  RDD1   MOV  @DLIM,R0          ;LOOK AT DELIMITER
+0070 0050'
+0072 0280   100         CI   R0,>3F00          ;,?
+0074 3F00 
+0076 13EE   101         JEQ  RDDY              ;Y, DO AGAIN
+0078 0460   102         B    @NLIN             ;N
+007A 0000 
+            103  *
+007C C1C2   104  RDD2   MOV  R2,R7             ;SAVE ADR
+007E 06A0   105         BL   @FDATA            ;LOOKING FOR STRING DATA
+0080 0000'
+0082 1001   106         JMP  RDD3              ;FOUND
+0084 10E9   107         JMP  ERR24
+            108  *
+0086 0205   109  RDD3   LI   R5,LNSZ           ;MAX # OF CHARACTERS
+0088 0000 
+008A 06A0   110         BL   @BMVE             ;MOVE FROM *R2 TO *R7
+008C 0000 
+008E 10EF   111         JMP  RDD1
+ASM990 2.4.6     READ                       Sun Jul 20 19:28:50 2025 Page 0004
+READ STATEMENT - CORTEX BASIC REV. 1.1
+
+            113  *
+            114  *RESTOR COMMAND
+            115  *
+0090 06A0   116  RNWY   BL   @REST             ;RESTORE TO PROGRAM BEGINNING
+0092 0000 
+0094 06A0   117         BL   @CKEX             ;CHECK FOR EXPRESSION
+0096 0000 
+0098 100A   118         JMP  RNWY1             ;NONE
+009A 2EC1   119         EVFIX R1               ;FIX PARAMETER
+009C C088   120         MOV  R8,R2             SAVE PBC
+009E 06A0   121         BL   @SFSN             ;LOOK FOR STATEMENT #
+00A0 0000 
+00A2 8E38   122         C    *R8+,*R8+         ;MOVE BACK 1 LINE
+00A4 C808   123         MOV  R8,@DLC           ;SAVE PLC
+00A6 002A'
+00A8 C202   124         MOV  R2,R8             RESTORE PBC
+00AA 0460   125         B    @NLIN
+00AC 007A'
+00AE 0460   126  RNWY1  B    @NLIN0
+00B0 0000 
+            127         END
+ASM990 2.4.6     READ                       Sun Jul 20 19:28:50 2025 Page 0005
+READ STATEMENT - CORTEX BASIC REV. 1.1
+
+BMVE      008CR  BUS       0030R  CKEX      0096R  DATXB     0034R  
+DDM       004AR  DLC       00A6R  DLIM      0070R  ERR23     0018'  
+ERR24     0058'  ERROR     2F80   EVARZ     005ER  EVERZ     0042R  
+EVSDZ     0056R  FDATA     0000'  FDATA1    001A'  FDATA2    0038'  
+FDATA3    0046'  LNSZ      0088R  NLIN      00ACR  NLIN0     00B0R  
+R0        0000   R1        0001   R10       000A   R11       000B   
+R12       000C   R13       000D   R14       000E   R15       000F   
+R2        0002   R3        0003   R4        0004   R5        0005   
+R6        0006   R7        0007   R8        0008   R9        0009   
+RDD1      006E'  RDD2      007C'  RDD3      0086'  RDDY      0054D  
+REST      0092R  RNWY      0090D  RNWY1     00AE'  SFSN      00A0R  
+SLT       0024R  
+
+0 Errors in assembly

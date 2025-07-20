@@ -1,0 +1,933 @@
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0001
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+              2         IDT  'MID'
+              3  ************************************************************
+              4  * THIS MODULE HANDLES THE LEVEL 2 INTERRUPT
+              5  * DECIDING WETHER IT IS AN ARITHMETIC OVERFLOW
+              6  * OR A MID. FOR A MID THE OPCODE IS CHECKED
+              7  * TO SEE IF IT IS A SYSTEM MID, IF SO THE
+              8  * REQUIRED HANDLER IS EXECUTED.
+              9  *
+             10  *  MID0      ADDRESS FOR A MID OPCODE >0000 HANDLER
+             11  *  OVINT     ADDRESS FOR AN ARITHMETIC OVERFLOW HANDLER
+             12  *  ILLMID    ADDRESS FOR AN ILLEGAL MID HANDLER
+             13  *
+             14  * IF NO HANDLER IS AVAILIABLE FOR AN ARITHMETIC OVERFLOW
+             15  * OR NON SYSTEM MID AN 'INTERRUPT WITHOUT TRAP' ERROR OCCURS
+             16  *
+             17  * HANDLERS ARE ENTERED WITH ALL INTERRUPTS DISABLED AND EXIT
+             18  * IS VIA AN 'RTWP'
+             19  *
+             20  *  REGISTER USAGE ( ~ = RESERVED REGISTER )
+             21  *    R0-3   NOT USED
+             22  *    R4     GENERAL FLAG, CLEARED ON ENTRY
+             23  *    R5-11  NOT USED
+             24  *    R12    TEMP. REGISTER
+             25  *  ~ R13-15 RETURN VECTORS
+             26  *
+             27         DEF  MIDPC,TYP0$,TYPC$,TYPB$,TYPE$,LOOK$
+             28         DEF  TYP11$,TYPBE$,GETC$,GETCR$,TYPS$
+             29         DEF  GCLEAR,TYPSN$,TYPEN$,DELAY$,WAIT$
+             30         DEF  SETTXT,SETGRA,LOADER,SENDAD,STXT,SGRA
+             31         DEF  CMON$,CMOF$,FLUSH$,FTM$,FGM$
+             32  *
+             33         REF  FBCOL,LDCS,XLOC,VMODE,CCSAVE
+             34         REF  OVINT,ERROR2,MID0,ILLMID
+             35         REF  S$SM,B00,B20,OUTDSR,C1
+             36         REF  MCRLF,TY0,UNIT,OUTBUF,BUFEND
+             37         REF  DSRCNT,LOADPT
+             38         REF  RECPTR,INPTR,RBUF
+             39         REF  CNTDWN,B1B,IOB,IOSTOR,DEVTBL
+             40         REF  B62,XREGS,WHXETY,RHENTY,WHENTY
+             41         REF  EREGS,ECHOEN,IREGS,WENTRY,RENTRY
+             42         REF  MREGS,MENTRY,XOPENT
+             43         COPY 'IODEFS.INC'
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0002
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0003
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+     0000    44  MBIAS  EQU  >0000             NORMAL MID
+             45  *
+0000 0300    46  MIDPC  LIMI 3                 NO I/O INTERRUPTS
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0004
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+0002 0003 
+0004 04C4    47         CLR  R4                RESET FLAG
+0006 026F    48         ORI  R15,>000F         MAKE SURE IMASK=15 ON EXIT
+0008 000F 
+000A 020C    49         LI   R12,>1FDA         POINT TO MID FLAG
+000C 1FDA 
+000E 1F00    50         TB   0                 MID?
+0010 1305    51         JEQ  TSTMID            Y, CHECK FOR SYSTEM MID
+0012 024F    52         ANDI R15,>F7FF         N, KILL OVERFLOW BIT
+0014 F7FF 
+0016 C320    53         MOV  @OVINT,R12        GET A.O. HANDLER
+0018 0000 
+001A 1006    54         JMP  VERIFY            VALIDATE
+             55  *
+001C 1E00    56  TSTMID SBZ  0                 KILL MID FLAG
+001E C32E    57         MOV  @-2(14),R12       GET INSTRUCTION
+0020 FFFE 
+0022 160C    58         JNE  SYSMID            NOT 0, CHECK IF SYSTEM MID
+0024 C320    59         MOV  @MID0,R12         0, GET HANDLER ADDRESS
+0026 0000 
+             60  *
+0028 1608    61  VERIFY JNE  SERV              HANDLER, EXECUTE
+002A 0000    62         DATA ERROR2,44         NO HANDLER -ILLEGAL OPCODE
+             63  *
+002E C320    64  BADMID MOV  @ILLMID,R12       GET ILLEGAL MID HANDLER
+0030 0000 
+0032 10FA    65         JMP  VERIFY            CHECK IT
+0034 A30C    66  DECODE A    R12,R12           GET WORD INDEX INTO TABLE
+0036 C32C    67         MOV  @MIDTAB(12),R12   GET HANDLER
+0038 00C8'
+003A 045C    68  SERV   B    *R12              EXECUTE HANDLER
+             69  *
+003C 028C    70  SYSMID CI   R12,MAXMID        SYSTEM MID ?
+003E 0015 
+0040 12F9    71         JLE  DECODE            Y, SERVICE IT
+0042 0300    72         LIMI 15                N, RE-ENABLE INTERRUPTS
+0044 000F 
+0046 022C    73         AI   R12,->0E00        SUBTRACT MONITOR MID BASE
+0048 F200 
+004A 11F1    74         JLT  BADMID            ILLEGAL, TRY ERROR TRAP
+004C 028C    75         CI   R12,>01FF         TOO BIG ?
+004E 01FF 
+0050 1BEE    76         JH   BADMID            Y, TRY ERROR TRAP
+             77  *
+             78  *   EVALUATE OPERAND
+             79  *
+0052 C2CC    80         MOV  R12,R11           COPY OPCODE
+0054 024B    81         ANDI R11,>000F         ISOLATE REGISTER FIELD
+0056 000F 
+0058 630B    82         S    R11,R12           REMOVE REG. FIELD FROM OPCODE
+005A 093C    83         SRL  R12,3             ALIGN Ts IN BITS 13&14
+005C C20C    84         MOV  R12,R8            SAVE IT
+005E 0248    85         ANDI R8,>0006          ISOLATE (2 * Ts)
+0060 0006 
+0062 6308    86         S    R8,R12            SUBTRACT IT FROM OPCODE
+0064 091C    87         SRL  R12,1             R12 =(4 * FUNCTION #)
+0066 A2CB    88         A    R11,R11           R11 = 2 * REGISTER #
+0068 A2CD    89         A    R13,R11           R11 = ADDRESS OF REGISTER
+006A C228    90         MOV  @FMTTYP(8),R8     GET ADDRESS OF Ts HANDLER
+006C 0070'
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0005
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+006E 0458    91         B    *R8               GOTO ROUTINE
+             92  *
+0070 008E'   93  FMTTYP DATA Z$REG,Z$IND,Z$SYMB,Z$AINC
+             94  *
+0078 C2DB    95  Z$IND  MOV  *R11,R11          FETCH REGISTER CONTENTS
+007A 1009    96         JMP  Z$REG             EXIT
+             97  *
+007C C21B    98  Z$SYMB MOV  *R11,R8           GET REGISTER CONTENTS
+007E 834B    99         C    R11,R13           USING R0 ?
+0080 1601   100         JNE  NOTR0             N, OK TO INDEX WITH IT
+0082 04C8   101         CLR  R8                Y, DON'T INDEX
+0084 A23E   102  NOTR0  A    *R14+,R8          ADD IN IMEDIATE OPERAND
+0086 1002   103         JMP  Z$REG8            GO PUT IT IN R11
+            104  *
+0088 C21B   105  Z$AINC MOV  *R11,R8           GET REGISTER CONTENTS
+008A 05DB   106         INCT *R11              INC REGISTER
+008C C2C8   107  Z$REG8 MOV  R8,R11            PUT RESULT IN R11
+            108  *
+     008E'  109  Z$REG  EQU  $
+            110  *
+            111  *  EFFECTIVE ADDRESS OF OPERAND IS IN R11
+            112  *
+            113  *
+008E C22C   114         MOV  @MONTBL(12),R8    PICK UP TARGET WP
+0090 00AA'
+0092 CA0B   115         MOV  R11,@22(8)        PASS OVER EFFECTIVE ADDRESS
+0094 0016 
+0096 CA0D   116         MOV  R13,@26(8)        SAVE CALLERS WP
+0098 001A 
+009A CA0E   117         MOV  R14,@28(8)        SAVE CALLERS PC
+009C 001C 
+009E CA0F   118         MOV  R15,@30(8)        SAVE CALLERS ST
+00A0 001E 
+            119  *
+00A2 C348   120         MOV  R8,R13            SET UP WP FOR TRANSFER
+00A4 C3AC   121         MOV  @MONTBL+2(12),R14 SET UP PC FOR TRANSFER
+00A6 00AC'
+00A8 0380   122         RTWP                   EXECUTE UTILITY
+            123  *
+            124  *     VECTORS FOR MONITOR UTILITIES
+            125  *
+00AA 0000   126  MONTBL DATA XREGS,WHXETY      1 NIBBLE HEX OUTPUT
+00AE 00AA'  127         DATA XREGS,RHENTY      READ HEX INPUT
+00B2 00AE'  128         DATA XREGS,WHENTY      4 NIBBLE HEX OUTPUT
+00B6 0000   129         DATA EREGS,ECHOEN      CHARACTER ECHO
+00BA 0000   130         DATA IREGS,WENTRY      CHARACTER WRITE
+00BE 00BA'  131         DATA IREGS,RENTRY      CHARACTER READ
+00C2 00B2'  132         DATA XREGS,MENTRY      MESSAGE OUTPUT
+00C6 0000   133         DATA MREGS,XOPENT      BREAKPOINT ENTRY
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0006
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+     00C8'  135  MIDTAB EQU  $-2                       0 - RESERVED MID
+            136  *
+     0001   137  TYP0$  EQU  ($-MIDTAB/2)+MBIAS        1 - OUT R0
+00CA 00F8'  138         DATA ETYP0
+     0002   139  TYPC$  EQU  ($-MIDTAB/2)+MBIAS        2 - OUT 'CRLF'
+00CC 0106'  140         DATA ETYPC
+     0003   141  TYPB$  EQU  ($-MIDTAB/2)+MBIAS        3 - OUT IOB(0)
+00CE 0112'  142         DATA ETYPB
+     0004   143  TYPE$  EQU  ($-MIDTAB/2)+MBIAS        4 - OUT *R1 STRING(0)
+00D0 011A'  144         DATA ETYPE
+     0005   145  TYPEN$ EQU  ($-MIDTAB/2)+MBIAS        5 - OUT *R1 STRING(-)
+00D2 0118'  146         DATA ETYPEN
+     0006   147  TYPS$  EQU  ($-MIDTAB/2)+MBIAS        6 - OUT <INLINE ADR> S
+00D4 0122'  148         DATA ETYPS
+     0007   149  TYPSN$ EQU  ($-MIDTAB/2)+MBIAS        7 - OUT <INLINE ADR> S
+00D6 0120'  150         DATA ETYPSN
+     0008   151  DELAY$ EQU  ($-MIDTAB/2)+MBIAS        8 - DELAY LOOP
+00D8 0178'  152         DATA EDELAY
+     0009   153  TYP11$ EQU  ($-MIDTAB/2)+MBIAS        9 - OUT INLINE CHARACT
+00DA 00F4'  154         DATA ETYP11
+     000A   155  TYPBE$ EQU  ($-MIDTAB/2)+MBIAS        A - TERM & OUT IOB
+00DC 010C'  156         DATA ETYPBE
+     000B   157  GETC$  EQU  ($-MIDTAB/2)+MBIAS        B - TEST FOR CHARACTER
+00DE 01F6'  158         DATA EGETC
+     000C   159  GETCR$ EQU  ($-MIDTAB/2)+MBIAS        C - GET CHARACTER
+00E0 01F4'  160         DATA EGETCR
+     000D   161  LOOK$  EQU  ($-MIDTAB/2)+MBIAS        D - TEST INPUT BUFFER
+00E2 0248'  162         DATA E$LOOK
+     000E   163  WAIT$  EQU  ($-MIDTAB/2)+MBIAS        E - WAIT FOR OUTPUT TO
+00E4 0172'  164         DATA EWAIT
+     000F   165  SETTXT EQU  ($-MIDTAB/2)+MBIAS        F - SET TEXT MODE
+00E6 0262'  166         DATA STXT
+     0010   167  SETGRA EQU  ($-MIDTAB/2)+MBIAS       10 - SET GRAPHICS MODE
+00E8 02B4'  168         DATA SGRA
+     0011   169  FTM$   EQU  ($-MIDTAB/2)+MBIAS       11 - FORCE TEXT MODE
+00EA 025C'  170         DATA EFTM$
+     0012   171  FGM$   EQU  ($-MIDTAB/2)+MBIAS       12 - FORCE GRAPHIC MODE
+00EC 02AE'  172         DATA EFGM$
+     0013   173  FLUSH$ EQU  ($-MIDTAB/2)+MBIAS       13 - FLUSH INPUT BUFFER
+00EE 0204'  174         DATA EFLUSH
+     0014   175  CMON$  EQU  ($-MIDTAB/2)+MBIAS       14 - CASSETTE ON
+00F0 022E'  176         DATA ECMON
+     0015   177  CMOF$  EQU  ($-MIDTAB/2)+MBIAS       15 - CASSETTE OFF
+00F2 0238'  178         DATA ECMOF
+     0015   179  MAXMID EQU  $-MIDTAB-2/2      HIGHEST SYSTEM MID
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0007
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+            181  *
+            182  * THIS SECTION PROVIDES THE OUTPUT ROUTINES
+            183  * FOR BASIC I/O.
+            184  *
+            185  * TYP11$  - OUT INLINE CHARACTER
+            186  * TYP0$   - OUT R0
+            187  * TYPC$   - OUT 'CRLF'
+            188  * TYPBE$  - TERMINATE & OUTPUT I/O BUFFER
+            189  * TYPB$   - OUT I/O BUFFER(0)
+            190  * TYPE$   - OUT *R1 STRING(0)
+            191  * TYPEN$  - OUT *R1 STRING(-)
+            192  * TYPS$   - OUT <INLINE ADR> STRING(0)
+            193  * TYPSN$  - OUT <INLINE ADR> STRING(-)
+            194  * WAIT$   - WAIT FOR OUTPUT TO COMPLETE
+            195  * DELAY$  - DELAY FOR CNTDWN * 40mS
+            196  *
+            197  *     REGISTER USAGE
+            198  *   R0      UNUSED
+            199  *   R1      UNUSED
+            200  *   R2      SCRATCH
+            201  *   R3      SCRATCH
+            202  *   R4      TERMINATOR TYPE FLAG
+            203  *   R5      UNIT FLAGS
+            204  *   R6      SAVED RETURN ADDRESS
+            205  *   R7      BUFFER START POINTER
+            206  *   R8      BUFFER LOAD POINTER
+            207  *   R9      SYSTEM POINTER
+            208  *   R10     TEXT POINTER
+            209  *   R11     RETURN ADDRESS
+            210  *   R12     TEMP. REGISTER
+            211  *   R13     )
+            212  *   R14     ) RTWP VECTORS
+            213  *   R15     )
+            214  *
+00F4 C33E   215  ETYP11 MOV  *R14+,R12         GET INLINE CHARACTER
+00F6 1001   216         JMP  FORTY0            SKIP R0 FETCH
+00F8 C31D   217  ETYP0  MOV  *R13,R12          GET R0
+00FA 020A   218  FORTY0 LI   R10,TY0           GET CHARACTER BUFFER
+00FC 0000 
+00FE 024C   219         ANDI R12,>FF00         ZERO LSB
+0100 FF00 
+0102 C68C   220         MOV  R12,*R10          SAVE CHARACTER IN BUFFER
+0104 100F   221         JMP  TYPE0             & OUTPUT
+0106 020A   222  ETYPC  LI   R10,MCRLF         POINT TO 'CRLF'
+0108 0000 
+010A 100C   223         JMP  TYPE0             & OUTPUT
+010C C32D   224  ETYPBE MOV  @14(13),R12       GET IOB POINTER
+010E 000E 
+0110 771C   225         SB   *R12,*R12         TERMINATE IOB
+0112 C2A0   226  ETYPB  MOV  @IOB,R10          GET IOB START
+0114 0000 
+0116 1006   227         JMP  TYPE0             & OUTPUT
+0118 0704   228  ETYPEN SETO R4                SET -VE TERMINATOR FLAG
+011A C2AD   229  ETYPE  MOV  @2(13),R10        GET CALLERS R1
+011C 0002 
+011E 1002   230         JMP  TYPE0             & OUTPUT
+0120 0704   231  ETYPSN SETO R4                SET -VE TERMINATOR FLAG
+0122 C2BE   232  ETYPS  MOV  *R14+,R10         GET INLINE ADDRESS & BUMP PC
+            233  *   FALL THROUGH TO ETYP0
+            234  *
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0008
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+            235  * NOW OUTPUT STRING *R10 (TERMINATED BY A NULL)
+            236  *
+0124 06A0   237  TYPE0  BL   @WAIT             GET BUFFER
+0126 0160'
+0128 0208   238  SETPTR LI   R8,OUTBUF         GET BUFFER START
+012A 0000 
+012C C1C8   239         MOV  R8,R7             SAVE FOR DSRGO
+012E DE3A   240  FILBUF MOVB *R10+,*R8+        COPY OVER BYTE
+0130 1309   241         JEQ  ENDX1             NULL, EXIT
+0132 150F   242         JGT  FILB1             +VE, CONTINUE COPY
+0134 C104   243         MOV  R4,R4             -VE, LOOKING FOR -VE TERM. ?
+0136 130D   244         JEQ  FILB1             N, CONTINUE COPY
+0138 04CB   245         CLR  R11               Y, READY HOLDING REGISTER
+013A 0608   246         DEC  R8                BACKUP TO -VE CHARACTER
+013C D2D8   247         MOVB *R8,R11           GET BYTE BACK
+013E 050B   248         NEG  R11               CORRECT IT
+0140 D60B   249         MOVB R11,*R8           PUT IT BACK
+0142 1001   250         JMP  ENDXFR            AND EXIT
+0144 0648   251  ENDX1  DECT R8                BACKUP TO LAST CHARACTER
+0146 81C8   252  ENDXFR C    R8,R7             WAS IT A SINGLE NULL?
+0148 1401   253         JHE  ENDX2             N, OUT AS NORMAL
+014A 0588   254         INC  R8                Y, BUMP END POINTER
+014C 06A0   255  ENDX2  BL   @DSRGO            START DSR'S
+014E 0182'
+0150 0380   256         RTWP
+            257  *
+0152 0288   258  FILB1  CI   R8,BUFEND         BUFFER FULL?
+0154 0000 
+0156 1AEB   259         JL   FILBUF            N, CONTINUE
+0158 0608   260         DEC  R8
+015A 06A0   261         BL   @DSRGO            Y, OUT BUFFER SO FAR
+015C 0182'
+015E 10E2   262         JMP  TYPE0             & CONTINUE
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0009
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+            264  *
+            265  *    SYSTEM WAIT ROUTINES
+            266  *
+            267  *
+            268  * WAIT FOR BUFFER
+            269  *
+0160 0208   270  WAIT   LI   R8,DSRCNT
+0162 0000 
+0164 1001   271         JMP  WAIT1
+            272  *
+0166 0340   273  WAIT0  IDLE
+0168 0300   274  WAIT1  LIMI 15                ENABLE INTERRUPTS
+016A 000F 
+016C C618   275         MOV  *R8,*R8           GET ACTIVE DSR COUNT
+016E 15FB   276         JGT  WAIT0             ACTIVE, IDLE
+0170 045B   277         B    *R11              AVAILIABLE, RETURN
+            278  *
+            279  * WAIT FOR OUTPUT TO COMPLETE
+            280  *
+0172 06A0   281  EWAIT  BL   @WAIT             GET BUFFER
+0174 0160'
+0176 0380   282         RTWP                   EXIT WHEN AVAILIABLE
+            283  *
+            284  *  WAIT TILL CNTDWN HAS GONE TO 0 (OR -VE)
+            285  *
+0178 0208   286  EDELAY LI   R8,CNTDWN         POINT TO CNTDWN
+017A 0000 
+017C 06A0   287         BL   @WAIT1            DELAY
+017E 0168'
+0180 0380   288         RTWP                   & EXIT
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0010
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+            290  *
+            291  * THIS ROUTINE HANDS THE OUTPUT BUFFER TO A PRE-PROCESSOR
+            292  * IF REQUIRED AND THEN STARTS THE OUTPUT TRANSFER
+            293  * ON 9902'S SELECTED BY 'UNIT' AND ANY NON-STANDARD DEVICE
+            294  * HANDLERS ARE BID VIA THE BLWP VECTOR IN THE DEVICE TABLE
+            295  * R7 POINTS TO THE 1ST BYTE OF THE MESSAGE
+            296  * R8 POINTS TO THE LAST BYTE OF THE MESSAGE
+            297  *
+0182 C18B   298  DSRGO  MOV  R11,R6            SAVE RETURN
+0184 0300   299         LIMI 15                RE-ENABLE INTERRUPTS
+0186 000F 
+0188 C808   300         MOV  R8,@LOADPT        SAVE MSG END FOR DSR'S
+018A 0000 
+018C C160   301         MOV  @UNIT,R5          GET UNIT FLAGS
+018E 0000 
+0190 C2E0   302         MOV  @OUTDSR,R11       PRE-PROCESSOR ?
+0192 0000 
+0194 1301   303         JEQ  OUTIT             N, SKIP
+0196 041B   304         BLWP *R11              Y, EXECUTE IT
+0198 04E0   305  OUTIT  CLR  @DSRCNT           RESET DSR COUNT
+019A 0162'
+019C 020B   306         LI   R11,DEVTBL        POINT TO DEVICE TABLE
+019E 0000 
+01A0 0202   307         LI   R2,IOSTOR         REF I/O STOREAGE AREA
+01A2 0000 
+01A4 0203   308         LI   R3,16             DO 16 DEVICES
+01A6 0010 
+            309  *
+01A8 C33B   310  DSRGO0 MOV  *R11+,R12         GET DEVICE ENTRY
+01AA 130E   311         JEQ  DSRGO1            0, NO DEVICE INSTALLED
+01AC 2320   312         COC  @C1,R12           IS IT A 9902?
+01AE 0000 
+01B0 1611   313         JNE  DSRGO2            N, CALL IT'S HANDLER
+01B2 024C   314         ANDI R12,>7FFE         Y, ISOLATE CRUBASE
+01B4 7FFE 
+01B6 C487   315         MOV  R7,*R2            SET UNLOAD POINTER
+01B8 0722   316         SETO @2(2)             RESET CR DELAY
+01BA 0002 
+01BC 2160   317         COC  @C1,R5            DEVICE SELECTED?
+01BE 01AE'
+01C0 1603   318         JNE  DSRGO1            N, SKIP IT
+01C2 05A0   319         INC  @DSRCNT           Y, COUNT IT
+01C4 019A'
+01C6 1D13   320         SBO  19                ENABLE XMIT INTERRUPTS
+01C8 0B15   321  DSRGO1 SRC  R5,1              SHIFT UNIT BIT
+01CA 1303   322         JEQ  DGOXIT            0, NO MORE UNITS
+01CC 8CB2   323         C    *R2+,*R2+         STEP TO NEXT STORAGE AREA
+01CE 0603   324         DEC  R3                DONE ALL DEVICES?
+01D0 16EB   325         JNE  DSRGO0            N, LOOP
+01D2 0456   326  DGOXIT B    *R6               Y, RETURN
+            327  *
+01D4 2160   328  DSRGO2 COC  @C1,R5            IS THE DEVICE SELECTED?
+01D6 01BE'
+01D8 16F7   329         JNE  DSRGO1            N, NEXT ENTRY
+            330  *
+            331  *      DEVICE HANDLER INSTALLED, PASS OVER POINTERS
+            332  *     HANDLER WP:
+            333  *         R9   = OUTPUT BUFFER START
+            334  *         R10  = OUTPUT BUFFER END 
+            335  *         R11  = POINTER TO LOCAL STORAGE 
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0011
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+            336  *         R13-15 RETURN CONTEXT
+            337  *
+01DA C00C   338         MOV  R12,R0            SAVE HANDLER ADDRESS
+01DC C31C   339         MOV  *R12,R12          GET ITS WP
+01DE CB07   340         MOV  R7,@2*R9(12)      SET BUFFER START 
+01E0 0012 
+01E2 CB08   341         MOV  R8,@2*R10(12)     SET BUFFER END 
+01E4 0014 
+01E6 CB02   342         MOV  R2,@2*R11(12)     SET LOCAL STORAGE PTR
+01E8 0016 
+01EA 0410   343         BLWP *R0               CALL HANDLER
+01EC 10ED   344         JMP  DSRGO1            NEXT ENTRY
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0012
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+            346  *
+            347  *   THIS MODULE HANDLES THE CHARACTER INPUT FOR BASIC.
+            348  * THE INPUT BUFFER IS FILLED BY THE 9902 DSR WHEN A
+            349  * RECEIVE INTERRUPT IS ENCOUNTERED. THESE ROUTINES UNLOAD
+            350  * THIS BUFFER AND RETURN THE CHARACTERS TO BASIC.
+            351  *
+            352  *
+            353  *   WAIT FOR CHARACTER ROUTINE
+            354  *
+            355  * CALLING SEQUENCE :
+            356  *      DATA GETCR$            CALL GET CHARACTER MID
+            357  *
+            358  * CHARACTER RETURNED IN R0 EXCEPT WHEN AN ESCAPE IS
+            359  * ENCOUNTERED WHILE ESCAPE IS ENABLED. IN THIS CASE
+            360  * PROGRAM EXECUTION IS RETURNED TO PRDY IN KEYBOARD MODE
+            361  * OR STPY IN RUN MODE.
+            362  * IF AN ESCAPE IS ENCOUNTERED AN HAS BEEN DISABLED VIA
+            363  * A 'NOESC' STATEMENT THE ESCAPE CHARACTER IS RETURNED
+            364  * IN THE MSB OF R0 AS WITH ANY OTHER CHARACTER.
+            365  *
+            366  *****************
+            367  *
+            368  *        TEST FOR CHARACTER INPUT
+            369  *
+            370  * CALLING SEQUENCE :
+            371  *      DATA GETC$             CALL TEST INPUT MID
+            372  *      <NO CHARACTER>         )
+            373  *      < CHARACTER  >         )RETURN POINTS
+            374  *      <   ESCAPE   >         )
+            375  *
+            376  *   THIS ROUTINE TESTS THE INPUT BUFFER FOR A CHARACTER AND
+            377  * RETURNS TO ONE OF THE FOLLOWING THREE WORDS DEPENDING ON
+            378  * THE RESULTS OF THE TEST.
+            379  *
+            380  * NO CHARACTER    EXECUTION RESUMES AT THE WORD FOLLOWING
+            381  *                 THE CALL.
+            382  * CHARACTER       EXECUTION RETURNS TWO WORDS AFTER THE
+            383  *                 CALL WITH THE CHARACTER IN THE MSB OF R7.
+            384  * ESCAPE          IF THE ESCAPE HAS BEEN DISABLED VIA THE
+            385  *                 'NOESC' COMMAND THE RETURN IS AS FOR A
+            386  *                 NORMAL CHARACTER. OTHERWISE EXECUTION
+            387  *                 RESUMES THREE WORDS AFTER THE CALL.
+            388  *
+01EE 0300   389  GETC1  LIMI 15                ALLOW INTERRUPTS
+01F0 000F 
+01F2 0340   390         IDLE                   WAIT FOR ONE
+            391  *
+01F4 0704   392  EGETCR SETO R4                SET WAIT FLAG
+            393  *
+01F6 0300   394  EGETC  LIMI 0                 DISABLE INTERRUPTS
+01F8 0000 
+01FA C220   395         MOV  @RECPTR,R8        GET UNLOAD PTR
+01FC 0000 
+01FE 8808   396         C    R8,@INPTR         BUFFER EMPTY?
+0200 0000 
+0202 1A09   397         JL   GETC2             N, UNLOAD
+            398  *
+            399  *      FLUSH THE INPUT BUFFER ( R4 IS CLEARED )
+            400  *
+0204 0208   401  EFLUSH LI   R8,RBUF           Y, GET START OF BUFFER
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0013
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+0206 0000 
+0208 C808   402         MOV  R8,@INPTR         RESET LOAD PTR
+020A 0200'
+020C C808   403         MOV  R8,@RECPTR        RESET UNLOAD PTR
+020E 01FC'
+0210 C104   404         MOV  R4,R4             WAIT ?
+0212 16ED   405         JNE  GETC1             Y, LOOP
+0214 0380   406         RTWP                   N, EXIT
+            407  *
+0216 04DD   408  GETC2  CLR  *R13              READY CALLERS R0
+0218 D778   409         MOVB *R8+,*R13         COPY OVER BYTE
+021A C808   410         MOV  R8,@RECPTR        UPDATE UNLOAD POINTER
+021C 020E'
+021E C104   411         MOV  R4,R4             WAS IT A WAIT CALL?
+0220 1605   412         JNE  GETC5             Y, EXIT WITH CHARACTER
+0222 981D   413         CB   *R13,@B1B         N, WAS IT AN ESCAPE CHARACTER?
+0224 0000 
+0226 1601   414         JNE  GETC4             N, EXIT 2(14) - NORMAL CHAR.
+0228 05CE   415         INCT R14               4(14) - ESCAPE
+022A 05CE   416  GETC4  INCT R14               2(14) - CHARACTER IN R0
+022C 0380   417  GETC5  RTWP                   0(14) - NO CHARACTER
+            418  *
+            419  *      CASSETTE SUPPORT ROUTINES
+            420  *
+022E 020C   421  ECMON  LI   R12,2*CASS02      SET CRUBASE
+0230 0180 
+0232 1D10   422         SBO  16                TURN MOTOR ON
+0234 1D12   423         SBO  18                ENABLE IT'S RECEIVE INTERRUPTS
+0236 10E6   424         JMP  EFLUSH            FLUSH BUFFER & EXIT
+            425  *
+0238 020C   426  ECMOF  LI   R12,2*CASS02      SET CRUBASE
+023A 0180 
+023C 1E12   427         SBZ  18                KILL IT'S RECEIVE INTERRUPTS
+023E 1E10   428         SBZ  16                TURN MOTOR OFF
+0240 1D0E   429         SBO  14                SET TO LOAD CONTROL REG.
+0242 3220   430         LDCR @B62,8            2 STOP,EV PAR,7 BITS,/3 CLOCK
+0244 0000 
+0246 10DE   431         JMP  EFLUSH            FLUSH BUFFER & EXIT
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0014
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+            433  ************************************************************
+            434  *                                                          *
+            435  *           TEST THE INPUT BUFFER ROUTINE                  *
+            436  *                                                          *
+            437  *      THIS ROUTINE TESTS TO SEE IF THERE IS ANYTHING      *
+            438  *      IN THE INPUT BUFFER, IF NOT AN IMMEDIATE RETURN     *
+            439  *      IS MADE. IF THERE IS A CHARACTER IN THE BUFFER      *
+            440  *      THEN IT IS RETURNED IN THE CALLERS R0(MSB) WITH     *
+            441  *      THE LSB CLEARED.                                    *
+            442  *      NB.  THE CHARACTER IS NOT REMOVED FROM THE BUFFER.  *
+            443  *                                                          *
+            444  *      CALLING SEQUENCE :                                  *
+            445  *           DATA LOOK$                                     *
+            446  *           <EMPTY RETURN>                                 *
+            447  *           <CHARACTER RETURN>                             *
+            448  *                                                          *
+            449  ************************************************************
+0248 0300   450  E$LOOK LIMI 0                 MASK INTERRUPTS
+024A 0000 
+024C C220   451         MOV  @RECPTR,R8        FETCH RECEIVE POINTER
+024E 021C'
+0250 8808   452         C    R8,@INPTR         UPTO THE LOADING POINTER ?
+0252 020A'
+0254 14D7   453         JHE  EFLUSH            Y, NOTHING THERE - EXIT
+0256 04DD   454         CLR  *R13              N, CLEAR CALLERS R0
+0258 D758   455         MOVB *R8,*R13          COPY THE CHARACTER OVER
+025A 10E7   456         JMP  GETC4             AND EXIT @2(R14)
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0015
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+            458  ************************************************************
+            459  *                                                          *
+            460  *             VDP UTILITY ROUTINES                         *
+            461  *                                                          *
+            462  ************************************************************
+025C C020   463  EFTM$  MOV  @VMODE,R0         TEXT MODE ALREADY?
+025E 0000 
+0260 1325   464         JEQ  STMXIT            Y, EXIT
+            465  *
+            466  *              SET VDP FOR TEXT MODE
+            467  *
+     0262'  468  STXT   EQU  $
+0262 0300   469         LIMI 15                ALLOW INTERRUPTS
+0264 000F 
+0266 D820   470         MOVB @FBCOL,@SFBC      SET FGND/BGND COLOUR
+0268 0000 
+026A 0278'
+026C 06A0   471         BL   @LOADER           LOAD VDP REGISTERS
+026E 0368'
+0270 00     472         BYTE >00,>80+R0   TEXT MODE, EXT. VIDEO OFF
+0272 90     473         BYTE >90,>80+R1   16K,NO DISPLAY,NO INT,TXT,SIZ&MAG=0
+0274 01     474         BYTE >01,>80+R2   PNTBA=>400
+0276 01     475         BYTE >01,>80+R4   PGTBA=>800
+0278 00     476  SFBC   BYTE >00,>80+R7   FGND/BGND COLOURS
+027A 0000   477         DATA 0
+027C 0420   478         BLWP @LDCS             LOAD DEFAULT CHARACTER SET
+027E 0000 
+0280 0208   479         LI   R8,NTBA+>4000     REF PNT
+0282 4400 
+0284 06A0   480         BL   @SENDAD           SEND ADDRESS TO VDP
+0286 037A'
+0288 020B   481         LI   R11,40*24         SET SCREEN SIZE
+028A 03C0 
+            482  *
+028C 04E0   483  CLS    CLR  @XLOC             XLOC=0, YLOC=0
+028E 0000 
+0290 D820   484         MOVB @B20,@VRAM        WRITE SPACE CHARACTER
+0292 0000 
+0294 F120 
+0296 060B   485         DEC  R11               COUNT IT
+0298 16F9   486         JNE  CLS               LOOP TILL ALL DONE
+029A D820   487         MOVB @B20,@CCSAVE      SET SAVED CHARACTER TO A ' '
+029C 0292'
+029E 0000 
+02A0 04E0   488         CLR  @VMODE            FLAG VDP IN TEXT MODE
+02A2 025E'
+            489  *
+02A4 06A0   490         BL   @LOADER           RE-ENABLE DISPLAY
+02A6 0368'
+02A8 D0     491         BYTE >D0,>80+R1   16K,DISPLAY ON,NO INT,TXT,SIZ&MAG=0
+02AA 0000   492         DATA 0
+            493  *
+02AC 0380   494  STMXIT RTWP                   EXIT
+            495  *
+02AE C020   496  EFGM$  MOV  @VMODE,R0         IN TEXT MODE?
+02B0 02A2'
+02B2 16FC   497         JNE  STMXIT            N, EXIT
+            498  *
+            499  *              SET VDP FOR GRAPHIC 2 MODE
+            500  *
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0016
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+            501  *
+     02B4'  502  SGRA   EQU  $
+02B4 0300   503         LIMI 15                ALLOW INTERRUPTS
+02B6 000F 
+02B8 D820   504         MOVB @FBCOL,@BDCOL
+02BA 0268'
+02BC 02D0'
+02BE 06A0   505         BL   @LOADER           LOAD VDP REGISTERS
+02C0 0368'
+02C2 02     506         BYTE >02,>80+R0        GRAPHICS 2,NO EXT. VIDEO
+02C4 80     507         BYTE >80,>80+R1        DISABLE DISPLAY
+02C6 06     508         BYTE >06,>80+R2        PNT=>1800
+02C8 FF     509         BYTE >FF,>80+R3        CTBA=>2000
+02CA 03     510         BYTE >03,>80+R4        PGT=>0000
+02CC 36     511         BYTE >36,>80+R5        SAT=>1B00
+02CE 07     512         BYTE >07,>80+R6        SPG=>3800
+02D0 00     513  BDCOL  BYTE >00,>80+R7        BACKDROP=BGND COLOUR
+02D2 0000   514         DATA 0
+            515  *
+            516  *  CLEAR DOWN THE SNT & SPG TABLES
+            517  *
+02D4 04C6   518         CLR  R6                WRITE NULLS
+02D6 0207   519         LI   R7,VRAM           TO VRAM
+02D8 F120 
+02DA 0208   520         LI   R8,SPGBA1+>4000   REF SPG
+02DC 7800 
+02DE 06A0   521         BL   @SENDAD           POINT VDP AT IT
+02E0 037A'
+02E2 0208   522         LI   R8,256*8          DO 256 8 BIT PATTERNS
+02E4 0800 
+            523  *
+02E6 D5C6   524  KILSPG MOVB R6,*R7            NULL OUT THE PATTERN
+02E8 C208   525         MOV  R8,R8             WASTE SOME TIME
+02EA 0608   526         DEC  R8                DONE ?
+02EC 16FC   527         JNE  KILSPG
+            528  *
+02EE 0208   529         LI   R8,SNTBA1+>4000   REF SNT
+02F0 5B00 
+02F2 06A0   530         BL   @SENDAD           POINT VDP AT IT
+02F4 037A'
+02F6 0208   531         LI   R8,32*8           KILL OFF ALL 32 PLANES
+02F8 0100 
+02FA 0206   532         LI   R6,>D000          FILL IT FULL OF SPRITE TERM.
+02FC D000 
+            533  *
+02FE D5C6   534  KILSNT MOVB R6,*R7            CLEAR DOWN SNT
+0300 C208   535         MOV  R8,R8             WASTE SOME TIME
+0302 0608   536         DEC  R8                DONE?
+0304 16FC   537         JNE  KILSNT            N, LOOP
+            538  *
+            539  *     SET UP PATTERN NAME TABLE
+0306 0208   540  GCLEAR LI   R8,NTBA1+>4000    REF PNT
+0308 5800 
+030A 06A0   541         BL   @SENDAD           SEN ADDRESS TO VDP
+030C 037A'
+030E 070B   542         SETO R11               RESET COUNT
+            543  *
+0310 058B   544  SGRA1  INC  R11               NEXT PATTERN
+0312 06CB   545         SWPB R11               POSITION LS BYTE
+0314 D80B   546         MOVB R11,@VRAM         WRITE IT
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0017
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+0316 F120 
+0318 06CB   547         SWPB R11               RESTORE R11
+031A 028B   548         CI   R11,3*256         DONE ALL ENTRIES ?
+031C 0300 
+031E 1AF8   549         JL   SGRA1             N, LOOP
+            550  *     SET UP PATTERN GENERATOR TABLE
+0320 0208   551         LI   R8,PGTBA1+>4000   REF PGT
+0322 4000 
+0324 06A0   552         BL   @SENDAD           SEN ADDRESS TO VDP
+0326 037A'
+0328 020B   553         LI   R11,3*256*8       RESET COUNT
+032A 1800 
+            554  *
+032C 04E0   555  SGRA2  CLR  @XLOC             RESET XLOC & YLOC
+032E 028E'
+0330 D820   556         MOVB @B00,@VRAM        RESET ENTRY
+0332 0000 
+0334 F120 
+0336 060B   557         DEC  R11               DONE ALL ENTRIES ?
+0338 16F9   558         JNE  SGRA2             N, LOOP
+            559  *     SET UP PATTERN COLOUR TABLE
+033A 0208   560         LI   R8,CTBA1+>4000    REF PCT
+033C 6000 
+033E 06A0   561         BL   @SENDAD           SEN ADDRESS TO VDP
+0340 037A'
+0342 020B   562         LI   R11,3*256*8       RESET COUNT
+0344 1800 
+            563  *
+0346 D820   564  SGRA3  MOVB @FBCOL,@VRAM      SET ENTRY
+0348 02BA'
+034A F120 
+034C C208   565         MOV  R8,R8             WASTE SOME TIME
+034E 060B   566         DEC  R11               DONE ALL ENTRIES ?
+0350 16FA   567         JNE  SGRA3             N, LOOP
+0352 0720   568         SETO @VMODE            FLAG IN GRAPHICS MODE
+0354 02B0'
+            569  *
+0356 D820   570         MOVB @S$SM,@S$$SM      RELOAD SPRITE SIZE & MAG
+0358 0000 
+035A 0360'
+035C 06A0   571         BL   @LOADER           RE-ENABLE DISPLAY
+035E 0368'
+0360 C0     572  S$$SM  BYTE >C0,>80+R1
+0362 0000   573         DATA 0
+0364 0380   574         RTWP
+            575  *
+0366 D0     576  BD0    BYTE >D0
+0368        577         EVEN
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0018
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+            579  *
+            580  *    THIS ROUTINE LOADS THE VDP REGISTERS
+            581  *    FROM AN INLINE DATA TABLE.
+            582  *
+0368 D83B   583  LOADER MOVB *R11+,@VDPREG     WRITE REGISTER DATA
+036A F121 
+036C 86DB   584         C    *R11,*R11         DUMY DELAY FOR VDP
+036E D83B   585         MOVB *R11+,@VDPREG     WRITE REGISTER NUMBER
+0370 F121 
+0372 C6DB   586         MOV  *R11,*R11         END OF TABEL?
+0374 16F9   587         JNE  LOADER            N, LOOP
+0376 05CB   588         INCT R11               Y, SKIP TERMINATOR
+0378 045B   589         RT
+            590  *
+            591  *    THIS ROUTINE SENDS THE ADDRESS IN R8
+            592  *    TO THE VDP, EXIT IS VIA A NORMAL 'RT'
+            593  *
+037A 06C8   594  SENDAD SWPB R8                POSITION LSB
+037C D808   595         MOVB R8,@VDPREG        SEND LSB
+037E F121 
+0380 06C8   596         SWPB R8                POSITION MSB
+0382 D808   597         MOVB R8,@VDPREG        SEND MSB
+0384 F121 
+0386 86DB   598         C    *R11,*R11         DUMY DELAY FOR VDP
+0388 045B   599         RT                     RETURN TO CALLER
+            600         END
+ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0019
+MID HANDLER - CORTEX BASIC REV. 1.1
+
+B00      0332R  B1B      0224R  B20      029CR  B62      0244R  BADMID   002E'  
+BD0      0366'  BDCOL    02D0'  BELLON   0006   BTENBL   0003   BUFEND   0154R  
+BUSACK   0002   BUSINT   0007   C1       01D6R  CASS02   00C0   CCSAVE   029ER  
+CLKLED   0000   CLS      028C'  CMOF$    0015D  CMON$    0014D  CNTDWN   017AR  
+CTBA     0700   CTBA1    2000   D1$DEN   0003   D1$SIZ   0002   DECODE   0034'  
+DELAY$   0008D  DEVTBL   019ER  DGOXIT   01D2'  DMAC     00E0   DRVSIZ   0004   
+DSRCNT   01C4R  DSRGO    0182'  DSRGO0   01A8'  DSRGO1   01C8'  DSRGO2   01D4'  
+E$LOOK   0248'  ECHOEN   00B8R  ECMOF    0238'  ECMON    022E'  EDATA    0208   
+EDELAY   0178'  EFGM$    02AE'  EFLUSH   0204'  EFTM$    025C'  EGETC    01F6'  
+EGETCR   01F4'  EIA02    0040   ENDX1    0144'  ENDX2    014C'  ENDXFR   0146'  
+EPADR    0210   EPTYPE   0201   EREGS    00B6R  ERROR2   002AR  ETYP0    00F8'  
+ETYP11   00F4'  ETYPB    0112'  ETYPBE   010C'  ETYPC    0106'  ETYPE    011A'  
+ETYPEN   0118'  ETYPS    0122'  ETYPSN   0120'  EWAIT    0172'  FBCOL    0348R  
+FDC      F140   FDCINT   0004   FGM$     0012D  FILB1    0152'  FILBUF   012E'  
+FLUSH$   0013D  FMTTYP   0070'  FORTY0   00FA'  FTM$     0011D  GCLEAR   0306D  
+GETC$    000BD  GETC1    01EE'  GETC2    0216'  GETC4    022A'  GETC5    022C'  
+GETCR$   000CD  ILLMID   0030R  INPTR    0252R  IOB      0114R  IOSTOR   01A2R  
+IREGS    00BER  KBDACK   0001   KBDINT   0005   KDS      0000   KEYBRD   0008   
+KILSNT   02FE'  KILSPG   02E6'  LDCS     027ER  LOADER   0368D  LOADPT   018AR  
+LOOK$    000DD  M$REG0   F100   M$REG1   F102   M$REG2   F104   M$REG3   F106   
+M$REG4   F108   M$REG5   F10A   M$REG6   F10C   M$REG7   F10E   M$REG8   F110   
+M$REG9   F112   M$REGA   F114   M$REGB   F116   M$REGC   F118   M$REGD   F11A   
+M$REGE   F11C   M$REGF   F11E   MAPPER   F100   MAXMID   0015   MBIAS    0000   
+MCRLF    0108R  MENTRY   00C4R  MID0     0026R  MIDPC    0000D  MIDTAB   00C8'  
+MONTBL   00AA'  MREGS    00C6R  NOTR0    0084'  NTBA     0400   NTBA1    1800   
+OUTBUF   012AR  OUTDSR   0192R  OUTIT    0198'  OVINT    0018R  PGBA     0800   
+PGM      0205   PGMPUL   0206   PGTBA1   0000   PIO      0000   PPBUSY   0409   
+PPDS     0408   PPRINT   0400   PRMPOP   0200   PROERR   0206   PRORDY   0204   
+PRORST   0200   R0       0000   R1       0001   R10      000A   R11      000B   
+R12      000C   R13      000D   R14      000E   R15      000F   R2       0002   
+R3       0003   R4       0004   R5       0005   R6       0006   R7       0007   
+R8       0008   R9       0009   RBUF     0206R  RECPTR   024ER  RENTRY   00C0R  
+RHENTY   00B0R  ROMON    0005   S$$SM    0360'  S$SM     0358R  SENDAD   037AD  
+SERV     003A'  SETGRA   0010D  SETPTR   0128'  SETTXT   000FD  SFBC     0278'  
+SGRA     02B4D  SGRA1    0310'  SGRA2    032C'  SGRA3    0346'  SNTBA    0780   
+SNTBA1   1B00   SPGBA    0000   SPGBA1   3800   STMXIT   02AC'  STXT     0262D  
+SYSMID   003C'  TSTMID   001C'  TY0      00FCR  TYP0$    0001D  TYP11$   0009D  
+TYPB$    0003D  TYPBE$   000AD  TYPC$    0002D  TYPE$    0004D  TYPE0    0124'  
+TYPEN$   0005D  TYPS$    0006D  TYPSN$   0007D  UNIT     018ER  V30      0207   
+VCCON    0204   VDP      F120   VDPINT   0006   VDPREG   F121   VERIFY   0028'  
+VMODE    0354R  VRAM     F120   WAIT     0160'  WAIT$    000ED  WAIT0    0166'  
+WAIT1    0168'  WENTRY   00BCR  WHENTY   00B4R  WHXETY   00ACR  XLOC     032ER  
+XOPENT   00C8R  XREGS    00C2R  Z$AINC   0088'  Z$IND    0078'  Z$REG    008E'  
+Z$REG8   008C'  Z$SYMB   007C'  
+
+0 Errors in assembly

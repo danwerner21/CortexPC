@@ -1,0 +1,30 @@
+# Do not remove the following line, or various programs
+# that require network functionality will fail.
+127.0.0.1	localhost	
+
+# Subnet 0 Ethernet
+
+192.168.0.1	yard.cozx.com yard
+
+192.168.0.102	pullman.cozx.com pullman
+192.168.0.103	color.cozx.com color
+192.168.0.104	solarium.cozx.com solarium sol
+192.168.0.105	lounge.cozx.com lounge claire
+192.168.0.106	loco.cozx.com loco
+192.168.0.108	diner.cozx.com diner
+192.168.0.109	switch.cozx.com switch
+
+# CTC hosts
+
+10.90.1.1	loco-ctc0.cozx.com	
+10.90.1.2	centos390.cozx.com centos390
+10.90.1.3	loco-ctc1.cozx.com	
+10.90.1.4	zos.cozx.com zos
+10.90.1.5	loco-ctc2.cozx.com	
+10.90.1.6	s390x.cozx.com s390x centos390x
+
+# Slip hosts
+
+10.0.0.1	switch-slip
+10.0.0.2	ti990.cozx.com ti990 dx10
+

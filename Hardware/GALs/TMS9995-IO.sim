@@ -46,13 +46,16 @@ CFSEL =>
   # USER
 
 CPU_IORQ =>
-    !9902SEL
-  # !CFSEL
+    !CFSEL
   # ISFE
+  # !KEYBOARDSEL
   # !MAPSEL
   # MEMEN
   # !RA15
+  # !SIDSEL
+  # !SNDSEL
   # USER
+  # !VIDEOSEL
 
 KEYBOARDSEL =>
     !CPUA3

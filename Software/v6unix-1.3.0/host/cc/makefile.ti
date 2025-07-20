@@ -1,0 +1,15 @@
+CFLAGS	= -O -DUNIX
+CC = cc
+
+all: cc
+
+install:
+	cp cc /bin/cc
+
+clean:
+	rm -f *~ *.o cc
+
+cc: cc.o
+	${CC} ${CFLAGS} -o cc cc.o
+
+cc.o: cc.c

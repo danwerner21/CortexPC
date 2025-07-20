@@ -1,0 +1,19 @@
+CFLAGS=-O
+CC=cc
+
+all: yacc
+
+install:
+	cp yacc /bin/yacc
+	cp yaccpar /usr/lib/yaccpar
+
+yacc: y1.o y2.o y3.o y4.o
+	${CC} ${CFLAGS} -o yacc y?.o
+
+clean:
+	rm -f *.o yacc 
+
+y1.o: y1.c dextern files
+y2.o: y2.c dextern files
+y3.o: y3.c dextern files
+y4.o: y4.c dextern files

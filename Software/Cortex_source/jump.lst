@@ -1,0 +1,85 @@
+ASM990 2.4.6     JMP                        Sun Jul 20 19:28:48 2025 Page 0001
+SELECT OPCODE AND JUMP - CORTEX BASIC REV. 1.1
+
+              2          IDT  'JMP'
+              3  *
+              4  * ROUTINE LIST:
+              5  *       JMPR0A      PICK UP NEXT BYTE FROM PROGRAM, STORE
+              6  *                   IT IN THE DLC AND JUMP ON ITS CONTENTS
+              7  *       JMPR0       JUMP ON CONTENTS OF R0
+              8  *
+              9  * MODULE DEFINITIONS:
+             10  *
+             11          DEF  JMPR0A,JMPR0
+             12  *
+             13  * EXTERNAL ROUTINES:
+             14  *
+             15  *
+             16  * EXTERNAL DATA:
+             17  *
+             18          REF DLIM
+             19  *
+             20  * ABSTRACT:
+             21  *
+             22  * JMPR0A IS SIMPLY A ROUTINE TO SAVE MEMORY WHEN
+             23  * DECIDING UPON AN ACTION FROM A TABLE OF ALTERNATIVES
+             24  * SELECTED BY A BYTE CODE.
+             25  *
+             26  * CALLING SEQUENCE:
+             27  *
+             28  *          BL   @JMPR0   OR BL   @JMPR0A
+             29  * TABLE    BYTE DISP,BYTE
+             30  *          BYTE DISP,BYTE
+             31  *          ...
+             32  *          DATA 0
+             33  *
+             34  *       IN R8 = PBC
+             35  *       OUT DLIM UPDATED (IF JMPR0A)
+             36  *
+             37  * EXIT TO TABLE+DISP ON BYTE FOUND
+             38  *       OTHERWISE INSTRUCTION IMMEDIATELY AFTER TABLE
+             39  *
+ASM990 2.4.6     JMP                        Sun Jul 20 19:28:48 2025 Page 0002
+SELECT OPCODE AND JUMP - CORTEX BASIC REV. 1.1
+
+             41  *
+             42  * ENTRY POINT FOR JMPR0A
+             43  *
+0000 04C0    44  JMPR0A  CLR  R0
+0002 D038    45          MOVB *R8+,R0      GET NEXT BYTE FROM PROGRAM
+0004 C800    46          MOV  R0,@DLIM     SAVE AND DROP THRU INTO JMPR0
+0006 0000 
+             47  *
+             48  * ENTRY POINT FOR JMPR0
+             49  *
+0008 C08B    50  JMPR0   MOV  R11,R2       GET TABLE ADR
+             51  *
+             52  * NEXT INSTRUCTION INSERTED TO OVERCOME PROBLEM WITH
+             53  * ODD ADDRESS GENERATION (WITH TMS9980 AND 81 PROCESSORS)
+             54  *
+000A 04C1    55          CLR  R1
+             56  *
+000C D07B    57  JMPR01  MOVB *R11+,R1     GET DISPLACEMENT, DONE?
+000E 1305    58          JEQ  JMPR02       Y - INSTRUCTION FOLLOWING TABLE
+0010 9EC0    59          CB   R0,*R11+     N - CODE FOUND?
+0012 16FC    60          JNE  JMPR01       N - KEEP LOOKING
+0014 0871    61          SRA  R1,7         Y - POSITION
+0016 A081    62          A    R1,R2        ADD DISPLACEMENT
+0018 0452    63          B    *R2          GOTO ROUTINE
+             64  *
+             65  * BYTE OPCODE NOT FOUND - RETURN TO INSTRUCTION
+             66  * IMMEDIATELY FOLLWOING THE TABLE
+             67  *
+001A 058B    68  JMPR02  INC  R11          MOVE TO NEXT LINE
+001C 045B    69          RT
+             70          END
+ASM990 2.4.6     JMP                        Sun Jul 20 19:28:48 2025 Page 0003
+SELECT OPCODE AND JUMP - CORTEX BASIC REV. 1.1
+
+DLIM     0006R  JMPR0    0008D  JMPR01   000C'  JMPR02   001A'  JMPR0A   0000D  
+R0       0000   R1       0001   R10      000A   R11      000B   R12      000C   
+R13      000D   R14      000E   R15      000F   R2       0002   R3       0003   
+R4       0004   R5       0005   R6       0006   R7       0007   R8       0008   
+R9       0009   
+
+0 Errors in assembly

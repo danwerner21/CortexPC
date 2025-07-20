@@ -1,0 +1,25 @@
+CC = cc
+CFLAGS = ${DEBUG}
+
+OBJS = assem.o lexer.o machine.o output.o tables.o expr.o list.o main.o symbol.o
+
+all: as
+
+install: as
+	cp as /bin/as
+
+clean:
+	rm -f *~ *.o as
+
+as: ${OBJS}
+	${CC} ${CFLAGS} -o as ${OBJS}
+
+assem.o: assem.c as.h
+lexer.o: lexer.c as.h
+machine.o: machine.c as.h
+output.o: output.c as.h
+tables.o: tables.c as.h
+expr.o: expr.c as.h
+list.o: list.c as.h
+main.o: main.c as.h
+symbol.o: symbol.c as.h

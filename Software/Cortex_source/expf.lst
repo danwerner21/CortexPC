@@ -1,0 +1,149 @@
+ASM990 2.4.6     EXPF                       Sun Jul 20 19:28:51 2025 Page 0001
+EXP FUNCTION - CORTEX BASIC REV. 1.1
+
+              2         IDT  'EXPF'
+              3  *
+              4  *       EXPF            ;EXPONENTIAL FUNCTION
+              5  *
+              6         REF  FUNFX             ;FIXES ARGUMENT
+              7         REF  PLYX,PLYXX        ;EVALUATE POLYNOMIALS
+              8         REF  FUNBK             ;BREAK FP #
+              9         REF  GETP2             ;GET POWER OF 2
+             10         REF  FPAC              ;FLOATING POINT ACCUMULATOR
+             11         REF  TEMP              ;3 WRD TEMPORARY STORAGE
+             12         REF  DS1               ;3 WRD TEMPORARY STORAGE
+             13         REF  DS                ;3 WRD TEMPORARY STORAGE
+             14         DEF  EXPF
+             15  *
+             16         DXOP LOADF,0           ;LOAD FPAC
+             17         DXOP STORE,1           ;STORE FPAC
+             18         DXOP FADD,2            ;ADD TO FPAC
+             19         DXOP FSUB,3            ;SUBTRACT FROM FPAC
+             20         DXOP FMUL,4            ;MULTIPLY FPAC
+             21         DXOP FDIV,5            ;DIVIDE FPAC
+     2F80    22  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+     2FA0    23  ERROR2 EQU  ERROR+>20
+ASM990 2.4.6     EXPF                       Sun Jul 20 19:28:51 2025 Page 0002
+EXP FUNCTION - CORTEX BASIC REV. 1.1
+
+             25  *
+             26  *       CALCULATE THE EXPONENTIAL VALUE OF
+             27  *       E RAISED TO (ARG)
+             28  *
+             29  * CALLING SEQUENCE:
+             30  *
+             31  *       B @EXPF
+             32  *
+             33  *       IN  (R2) = ARG
+             34  *       OUT (R2) = E ^ ARG
+             35  *
+             36  * EXCEPTIONS AND CONDITIONS:
+             37  *
+             38  *       ERROR 33 = EXP ARGUMENT TOO LARGE
+             39  *       FLOATING POINT ERRORS
+ASM990 2.4.6     EXPF                       Sun Jul 20 19:28:51 2025 Page 0003
+EXP FUNCTION - CORTEX BASIC REV. 1.1
+
+0000 2FA0    41  ERR33  DATA ERROR2,33         ;EXP ARG TOO LARGE
+             42  *
+0004 C28B    43  EXPF   MOV  R11,R10
+0006 06A0    44         BL   @FUNFX            ;FIX SIGN & FPAC
+0008 0000 
+000A 1339    45         JEQ  EXPF2             ;EXP(0)=1
+000C 2D20    46         FMUL @EXPC0            ;F=F*LN 2
+000E 0088'
+0010 06A0    47         BL   @FUNBK            ;BREAK TO INTEGER AND FRACTION
+0012 0000 
+0014 0281    48         CI   R1,>7D            ;ARGUMENT TOO LARGE?
+0016 007D 
+0018 15F3    49         JGT  ERR33             ;Y, ERROR
+001A C081    50         MOV  R1,R2             ;N, SAVE
+001C 2CE0    51         FSUB @EXPC1            ;F=(F*LN 2)-C1
+001E 008E'
+0020 2C60    52         STORE @DS              ;STORE IN DS
+0022 0000 
+0024 06A0    53         BL   @PLYXX            ;EVALUATE
+0026 0000 
+0028 0094'   54         DATA EXPC2
+002A 2D20    55         FMUL @DS               ;* DS
+002C 0022'
+002E 2C60    56         STORE @DS              ;STORE IN DS AGAIN
+0030 002C'
+0032 06A0    57         BL   @PLYX             ;EVALUATE
+0034 0000 
+0036 00A8'   58         DATA EXPC3
+0038 2C60    59         STORE @TEMP            ;MOVE TO TEMP
+003A 0000 
+003C 2CE0    60         FSUB @DS               ;-DS
+003E 0030'
+0040 2C60    61         STORE @DS1             ;SAVE IN DS1
+0042 0000 
+0044 2C20    62         LOADF @TEMP            ;MOVE TEMP TO FPAC
+0046 003A'
+0048 2CA0    63         FADD @DS               ;ADD DS
+004A 003E'
+004C 2D60    64         FDIV @DS1              ;/ DS1
+004E 0042'
+0050 2D20    65         FMUL @EXPC4            ;* C4
+0052 00C2'
+0054 C042    66         MOV  R2,R1             ;FIX EXPONENT
+0056 0921    67         SRL  R1,2
+0058 06C1    68         SWPB R1
+005A A801    69         A    R1,@FPAC          ;ADD TO EXPONENT
+005C 0000 
+005E C043    70         MOV  R3,R1
+0060 0242    71         ANDI R2,>3             ;NEED POWER OF 2?
+0062 0003 
+0064 1303    72         JEQ  EXPF1             ;N
+0066 C0C2    73         MOV  R2,R3
+0068 06A0    74         BL   @GETP2            ;MULTIPY BY POWER OF 2
+006A 0000 
+             75  *
+006C C041    76  EXPF1  MOV  R1,R1             ;NEGATIVE?
+006E 1309    77         JEQ  EXPF3             ;N, RETURN
+0070 2C60    78         STORE @TEMP            ;Y, MOVE TO TEMP
+0072 0046'
+0074 2C20    79         LOADF @FP1             ;GET INVERSE, LOAD FPAC
+ASM990 2.4.6     EXPF                       Sun Jul 20 19:28:51 2025 Page 0004
+EXP FUNCTION - CORTEX BASIC REV. 1.1
+
+0076 00AA'
+0078 2D60    80         FDIV @TEMP
+007A 0072'
+007C 1002    81         JMP  EXPF3             ;DONE
+             82  *
+007E 2C20    83  EXPF2  LOADF @FP1             ;EXP(0)=1
+0080 00AA'
+             84  *
+0082 0202    85  EXPF3  LI   R2,FPAC
+0084 005C'
+0086 045A    86         B    *R10
+             87  *
+0088 4117    88  EXPC0  DATA >4117,>1547,>652C 1.442695  LOG 2 (E)
+008E 4080    89  EXPC1  DATA >4080,>0000,>0000 1/2
+0094 0002    90  EXPC2  DATA 2
+0096 423C    91         DATA >423C,>9D67,>06A2 60.614853
+009C 4476    92         DATA >4476,>4EF8,>C12A
+00A2 461F    93         DATA >461F,>BE80,>58C1
+00A8 0003    94  EXPC3  DATA 3
+00AA 4110    95  FP1    DATA >4110,>0000,>0000
+00B0 436D    96         DATA >436D,>549A,>5FE1
+00B6 4550    97         DATA >4550,>02D2,>6DCF
+00BC 465B    98         DATA >465B,>9820,>5C39
+00C2 4116    99  EXPC4  DATA >4116,>A09E,>667F 1.4142135
+            100         END
+ASM990 2.4.6     EXPF                       Sun Jul 20 19:28:51 2025 Page 0005
+EXP FUNCTION - CORTEX BASIC REV. 1.1
+
+DS        004AR  DS1       004ER  ERR33     0000'  ERROR     2F80   
+ERROR2    2FA0   EXPC0     0088'  EXPC1     008E'  EXPC2     0094'  
+EXPC3     00A8'  EXPC4     00C2'  EXPF      0004D  EXPF1     006C'  
+EXPF2     007E'  EXPF3     0082'  FP1       00AA'  FPAC      0084R  
+FUNBK     0012R  FUNFX     0008R  GETP2     006AR  PLYX      0034R  
+PLYXX     0026R  R0        0000   R1        0001   R10       000A   
+R11       000B   R12       000C   R13       000D   R14       000E   
+R15       000F   R2        0002   R3        0003   R4        0004   
+R5        0005   R6        0006   R7        0007   R8        0008   
+R9        0009   TEMP      007AR  
+
+0 Errors in assembly

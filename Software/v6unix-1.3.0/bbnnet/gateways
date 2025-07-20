@@ -1,0 +1,5 @@
+#
+# Gateways file
+#
+# Local net	Foreign net	Gateway		flags
+10.0.0.0	0.0.0.0		10.0.0.2	1

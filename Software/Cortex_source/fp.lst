@@ -1,0 +1,815 @@
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0001
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+              2         IDT  'FP'
+              3  *
+              4  *       FAD             ;ADD TO FPAC
+              5  *       FSD             ;SUBTRACT FROM FPAC
+              6  *       FMD             ;MULTIPLY FPAC
+              7  *       FDD             ;DIVIDE FPAC
+              8  *       FLDD            ;LOAD FPAC
+              9  *       FSRD            ;STORE FPAC
+             10  *       FNEG            ;NEGATE FPAC
+             11  *       FCLR            ;CLEAR FPAC
+             12  *       FNRM            ;NORMALIZE FPAC
+             13  *       FSCL            ;SCALE FPAC
+             14  *       FLOAT           ;FLOAT FPAC
+             15  *       FADDI           ;3 WRD ADDITION
+             16  *       FSUBI           ;3 WRD SUBTRACTION
+             17  *
+             18  *       THE FLOATING POINT ACCUMULATOR IS THE FIRST 3
+             19  *       WORDS OF THE FLOATING POINT REGISTERS  (R0,R1,R2).
+             20  *
+             21  *       ALL FLOATING POINT OPERATIONS ASSUME NORMALIZED
+             22  *       NUMBERS AS INPUTS AND ALL RESULTS ARE NORMALIZED.
+             23  *
+             24  *       THE FORM OF A FLOATING POINT NUMBER IS AS FOLLOWS:
+             25  *
+             26  *       1ST WORD        SCCC CCCC MMMM MMMM
+             27  *       2ND WORD        MMMM MMMM MMMM MMMM
+             28  *       3RD WORD        MMMM MMMM MMMM MMMM
+             29  *
+             30  *       WHERE  S = SIGN BIT
+             31  *              C = 7 BIT, EXCESS >40 CHARACTERISTIC
+             32  *              M = 40 BIT UNSIGNED MAGNITUDE MANTISSA
+             33  *                  0 <= M < 1
+             34  *
+             35  *       A NUMBER IS NORMALIZED WHEN THE 1ST HEX DIGIT
+             36  *       OF THE MANTISSA IS NON-ZERO.
+             37  *
+             38  *       A TRUE ZERO (ALL ZERO'S) IS USED FOR ZERO.
+             39  *
+     2F80    40  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+     2FA0    41  ERROR2 EQU  ERROR+>20
+             42  *
+             43         DEF  FSRD
+             44         DEF  FLDD
+             45         DEF  FSD               ;SUBTRACT FROM FPAC
+             46         DEF  FAD
+             47         DEF  FNEG
+             48         DEF  FLOAT
+             49         DEF  FNRM
+             50  *
+             51         REF  C7F,CF0,CFF80
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0002
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+             53  *
+             54  *       LOAD INTO FPAC A 3 WRD FLOATING POINT #.
+             55  *
+             56  * CALLING SEQUENCE:
+             57  *
+             58  *       XOP XX,1
+             59  *
+0000 CEC0    60  FSRD   MOV  R0,*R11+
+0002 CEC1    61         MOV  R1,*R11+
+0004 C6C2    62         MOV  R2,*R11
+0006 0380    63         RTWP
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0003
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+             65  *
+             66  *       LOAD FLOATING POINT ACCUMULATOR WITH 3RD FLOATING
+             67  *       POINT NUMBER.
+             68  *
+             69  * CALL SEQUENCE:
+             70  *
+             71  *       XOP XX,0
+             72  *
+0008 C03B    73  FLDD   MOV  *R11+,R0          ;LOAD FPAC
+000A C07B    74  FLDD1  MOV  *R11+,R1
+000C C09B    75         MOV  *R11,R2
+000E 0380    76  FLDD2  RTWP
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0004
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+             78  *
+             79  *       ADD OR SUBTRACT FROM FPAC A 3 WORD FLOATING
+             80  *       POINT NUMBER.
+             81  *
+             82  * CALL SEQUENCE:
+             83  *
+             84  *       XOP XX,2        ;ADD TO FPAC
+             85  *
+             86  *       XOP XX,3        ;SUBTRACT FROM FPAC
+             87  *
+             88  * EXCEPTIONS AND CONDITIONS:
+             89  *
+             90  *       ERROR 29 CAN RESULT FROM OVERFLOW
+             91  *
+             92  * EXTERNAL ROUTINE LIST:
+             93  *
+             94  *       FLDD            ;LOAD FPAC
+             95  *       FARS            ;SHIFT FPAC RIGHT 1 HEX DIGIT
+             96  *       FADDI           ;ADD R4,R5,R6 TO R0,R1,R2
+             97  *
+             98  *
+             99  *       SUBTRACTION IS MADE SIMPLY BY TOGGLING SIGN BIT
+            100  *
+0010 C13B   101  FSD    MOV  *R11+,R4          ;GET FIRST WORD, ZERO?
+0012 13FD   102         JEQ  FLDD2             ;Y, ZERO, RETURN
+0014 0224   103         AI   R4,>8000          ;N, TOGGLE SIGN BIT
+0016 8000 
+0018 1002   104         JMP  FAD0
+            105  *
+            106  *
+001A C13B   107  FAD    MOV  *R11+,R4          ;GET FIRST WORD, ZERO?
+001C 13F8   108         JEQ  FLDD2             ;Y, RETURN
+001E C000   109  FAD0   MOV  R0,R0             ;N, FPAC ZERO?
+0020 1602   110         JNE  FAD0A             ;N
+0022 C004   111         MOV  R4,R0             ;Y, MOVE TEMP TO FPAC
+0024 10F2   112         JMP  FLDD1
+            113  *
+0026 C17B   114  FAD0A  MOV  *R11+,R5          ;LOAD R4,R5,R6
+0028 C19B   115         MOV  *R11,R6
+002A D0C0   116         MOVB R0,R3             GET EXPONENTS
+002C D1C4   117         MOVB R4,R7
+002E 7000   118         SB   R0,R0             ISOLATE
+0030 7104   119         SB   R4,R4
+0032 0A13   120         SLA  R3,1              REMOVE SIGN
+0034 1702   121         JNC  FAD1              NEGATIVE?
+0036 06A0   122         BL   @FADN             Y, NEGATE
+0038 00B8'
+            123  *
+003A 0993   124  FAD1   SRL  R3,9
+003C 0A17   125         SLA  R7,1              REMOVE SIGN
+003E 1708   126         JNC  FAD2              NEGATIVE?
+0040 0506   127         NEG  R6                Y, NEGATE
+0042 1604   128         JNE  FAD1A
+0044 0505   129         NEG  R5
+0046 1603   130         JNE  FAD1B
+0048 0504   131         NEG  R4
+004A 1002   132         JMP  FAD2
+004C 0545   133  FAD1A  INV  R5
+004E 0544   134  FAD1B  INV  R4
+            135  *
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0005
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+0050 020A   136  FAD2   LI   R10,10            10 SHIFTS GIVE ZERO RESULT
+0052 000A 
+0054 0997   137         SRL  R7,9              POSITION EXPONENT
+            138  *
+0056 81C3   139  FAD2A  C    R3,R7             COMPARE EXPONENTS
+0058 131D   140         JEQ  FAD4              SAME, DO ADD
+005A 1509   141         JGT  FAD3              SHIFT TEMP (IS R3>R7?)
+005C 06A0   142         BL   @FARS             N, R3<R7, SHIFT FPAC
+005E 02D2'
+0060 060A   143         DEC  R10               COUNT SHIFTS
+0062 16F9   144         JNE  FAD2A             OK
+0064 C004   145         MOV  R4,R0             FPAC=0, MOVE TEMP TO FPAC
+0066 C045   146         MOV  R5,R1
+0068 C086   147         MOV  R6,R2
+006A C0C7   148         MOV  R7,R3             MOVE EXPONENT
+006C 100C   149         JMP  FAD3A
+            150  *
+006E 0946   151  FAD3   SRL  R6,4              SHIFT TEMP 1 HEX DIGIT RIGHT
+0070 C245   152         MOV  R5,R9
+0072 0AC9   153         SLA  R9,12
+0074 A189   154         A    R9,R6             MOVE HEX DIGIT ACROSS
+0076 0945   155         SRL  R5,4
+0078 C244   156         MOV  R4,R9
+007A 0AC9   157         SLA  R9,12
+007C A149   158         A    R9,R5             MOVE HEX DIGIT ACROSS
+007E 0844   159         SRA  R4,4
+0080 0587   160         INC  R7                DONE, INCREMENT EXPONENT
+0082 060A   161         DEC  R10               COUNT SHIFTS
+0084 16E8   162         JNE  FAD2A             OK
+            163  *
+0086 C000   164  FAD3A  MOV  R0,R0             TEMP=0, NEED NEGATION?
+0088 1553   165         JGT  FNRM3             N, FPAC OK
+008A 06A0   166         BL   @FADN             Y, NEGATE FPAC
+008C 00B8'
+008E 0223   167         AI   R3,>80            ADD SIGN TO EXPONENT
+0090 0080 
+0092 104E   168         JMP  FNRM3
+            169  *
+0094 06A0   170  FAD4   BL   @FADDI            ADD
+0096 02F2'
+0098 1106   171         JLT  FAD5              NEGATIVE
+009A 1509   172         JGT  FAD6              POSITIVE
+009C C041   173         MOV  R1,R1
+009E 1607   174         JNE  FAD6              NON-ZERO
+00A0 C082   175         MOV  R2,R2
+00A2 1605   176         JNE  FAD6              NON-ZERO
+00A4 1047   177         JMP  FNRM4             ZERO, RTWP
+            178  *
+00A6 06A0   179  FAD5   BL   @FADN             NEGATE FPAC
+00A8 00B8'
+00AA 0263   180         ORI  R3,>80            ADD SIGN BIT
+00AC 0080 
+            181  *
+00AE D000   182  FAD6   MOVB R0,R0             CHECK ADDITION OVERFLOW
+00B0 132E   183         JEQ  FNRM2             NUMBER OK
+00B2 06A0   184         BL   @FARS             SHIFT NUMBER
+00B4 02D2'
+00B6 102B   185         JMP  FNRM2             NORMALIZE
+            186  *
+00B8 0502   187  FADN   NEG  R2                NEGATE FPAC
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0006
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+00BA 1604   188         JNE  FADN1
+00BC 0501   189         NEG  R1
+00BE 1603   190         JNE  FADN2
+00C0 0500   191         NEG  R0
+00C2 045B   192         RT
+            193  *
+00C4 0541   194  FADN1  INV  R1
+00C6 0540   195  FADN2  INV  R0
+00C8 045B   196         B    *R11              RETURN
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0007
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+            198  *
+            199  *       GET ABSOLUTE VALUE OF FPAC.
+            200  *       NEGATE FPAC.
+            201  *
+            202  * CALL SEQUENCE:
+            203  *
+            204  *       XOP XX,9        ;NEGATE FPAC
+            205  *
+            206  *       DEF FABS
+            207  *
+            208  *FABS   ANDI R0,>7FFF   CLEAR SIGN BIT
+            209  *       RTWP            RETURN
+00CA C000   210  FNEG   MOV  R0,R0             ZERO?
+00CC 1302   211         JEQ  FNEG1             Y, LEAVE TRUE ZERO
+00CE 0220   212         AI   R0,>8000          N, COMPLEMENT SIGN BIT
+00D0 8000 
+00D2 0380   213  FNEG1  RTWP RETURN
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0008
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+            215  *
+            216  *       IF FPAC IS NOT NORMALIZED, AN ATTEMPT WILL BE
+            217  *       MADE TO NORMALIZE.  IN GENERAL, FLOAT WORKS ON
+            218  *       R0,R1,R2 AND HENCE IT CAN BE USED TO FLOAT
+            219  *       OTHER SETS OF NUMBERS THAN FPAC.
+            220  *
+            221  * CALLING SEQUENCE:
+            222  *
+            223  *       XOP XX,10       WHERE XX IS NOT USED
+            224  *
+            225  * EXCEPTIONS AND CONDITIONS:
+            226  *
+            227  *       IF R0 IS NON-ZERO, THE ROUTINE WILL ABORT.
+            228  *
+            229  * EXTERNAL ROUTING LIST:
+            230  *
+            231  *       FNRM            ;NORMALIZE
+            232  *       FCLR            ;CLEAR FPAC
+            233  *
+00D4 C000   234  FLOAT  MOV  R0,R0             ALREADY FLOATING?
+00D6 162E   235         JNE  FNRM4             Y, RTWP
+00D8 0203   236         LI   R3,>44            N, GET EXPONENT
+00DA 0044 
+00DC 04C2   237         CLR  R2                CLEAR LOW
+00DE C041   238         MOV  R1,R1             CHECK SIGN
+00E0 1504   239         JGT  FLOAT1            POSITIVE
+00E2 132C   240         JEQ  FCLRP             ZERO
+00E4 0501   241         NEG  R1                NEGATIVE
+00E6 0203   242         LI   R3,>C4            NEGATE EXPONENT
+00E8 00C4 
+            243  *
+00EA D001   244  FLOAT1 MOVB R1,R0             SHIFT 1 BYTE LEFT
+00EC 1303   245         JEQ  FLOAT2            SHIFT 2 BYTES
+00EE 06C0   246         SWPB R0
+00F0 0A81   247         SLA  R1,8
+00F2 100D   248         JMP  FNRM2
+            249  *
+00F4 C001   250  FLOAT2 MOV  R1,R0             SHIFT 2 BYTES
+00F6 04C1   251         CLR  R1
+00F8 0643   252         DECT R3                ADJUST EXPONENT
+00FA 1009   253         JMP  FNRM2
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0009
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+            255  *
+            256  *       FPAC IS NORMALIZED SUCH THAT THERE EXISTS
+            257  *       A NON-ZERO HEX DIGIT IN BITS 8-11 OF THE 1ST
+            258  *       WORD OF FPAC.
+            259  *
+            260  * CALL SEQUENCE:
+            261  *
+            262  *       XOP XX,7        WHERE XX IS NOT USED
+            263  *
+            264  * EXTERNAL ROUTINE LIST:
+            265  *
+            266  *       FCLR            ;CLEAR FPAC
+00FC 04C3   267  FNRM   CLR  R3                CLEAR R3
+00FE D0C0   268         MOVB R0,R3             GET EXPONENT & SIGN
+0100 6003   269         S    R3,R0             REMOVE FROM NUMBER
+0102 1604   270         JNE  FNRM1             LOOK FOR ZERO
+0104 C041   271         MOV  R1,R1
+0106 1602   272         JNE  FNRM1
+0108 C082   273         MOV  R2,R2
+010A 1314   274         JEQ  FNRM4             ZERO, RETURN
+            275  *
+010C 06C3   276  FNRM1  SWPB R3                READY FOR DECREMENTING
+            277  *
+010E 2420   278  FNRM2  CZC  @CF0,R0           NORMALIZED?
+0110 0000 
+0112 160E   279         JNE  FNRM3             Y
+0114 24E0   280         CZC  @C7F,R3           N, EXPONENT=ZERO?
+0116 0000 
+0118 1311   281         JEQ  FCLRP             Y, CANNOT NORMALIZE
+011A 0603   282         DEC  R3                N, OK TO DECREMENT
+011C 0A40   283         SLA  R0,4              SHIFT R0,R1,R2 4 BITS LEFT
+011E C241   284         MOV  R1,R9
+0120 09C9   285         SRL  R9,12
+0122 A009   286         A    R9,R0             MOVE 1ST HEX DIGIT ACROSS
+0124 0A41   287         SLA  R1,4
+0126 C242   288         MOV  R2,R9
+0128 09C9   289         SRL  R9,12
+012A A049   290         A    R9,R1             MOVE 2ND HEX DIGIT ACROSS
+012C 0A42   291         SLA  R2,4
+012E 10EF   292         JMP  FNRM2
+            293  *
+0130 06C3   294  FNRM3  SWPB R3                READY EXPONENT
+0132 D003   295         MOVB R3,R0             MOVE INTO FPAC
+0134 0380   296  FNRM4  RTWP                   RETURN
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0010
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+            298  *
+            299  *       MULTIPLY FPAC BY FLOATING POINT NUMBER
+            300  *       POINTED TO BY R11.
+            301  *
+            302  * CALL SEQUENCE:
+            303  *
+            304  *       XOP XX,4
+            305  *
+            306  * EXCEPTIONS AND CONDITIONS:
+            307  *
+            308  *       ERROR 29 CAN RESULT FROM OVERFLOW
+            309  *
+            310  * EXTERNAL ROUTINE LIST:
+            311  *
+            312  *       FCLR            ;CLEAR FPAC
+            313  *       FPFX            ;FIX EXPONENTS
+            314  *       FAD6            ;ADD AND NORMALIZE
+            315  *
+            316  * ENTRY POINT:
+            317  *
+            318         DEF  FMD
+            319  *
+0136 C000   320  FMD    MOV  R0,R0             ;FPAC=0?
+0138 1374   321         JEQ  FCLR              ;Y
+013A C13B   322         MOV  *R11+,R4          ;FPAC X 0?
+013C 1372   323  FCLRP  JEQ  FCLR              ;Y
+013E C17B   324         MOV  *R11+,R5          ;N, LOAD R4,R5,R6
+0140 C19B   325         MOV  *R11,R6
+0142 06A0   326         BL   @FPFX             FIX EXPONENTS
+0144 022A'
+0146 A0C7   327         A    R7,R3
+0148 FFC0   328         DATA >FFC0
+            329  *
+            330  *DO MULTIPLICATION
+            331  *
+            332  *                       R4,R5,R6
+            333  *                       R0,R1,R2
+            334  *                       ========
+            335  *                          XX XX        A       R2 X R6
+            336  *                       XX XX           B       R2 X R5
+            337  *                    XX XX              C       R2 X R4
+            338  *                       XX XX           D       R1 X R6
+            339  *                    XX XX              E       R1 X R5
+            340  *                 XX XX                 F       R1 X R4
+            341  *                    XX XX              G       R0 X R6
+            342  *                 XX XX                 H       R0 X R5
+            343  *              XX XX                    I       R0 X R4
+            344  *              -----------------
+            345  *              R7,R8,R9,R10
+            346  *
+014A C286   347         MOV  R6,R10
+014C 3A82   348         MPY  R2,R10            R10,R11 (A)
+014E C206   349         MOV  R6,R8
+0150 3A01   350         MPY  R1,R8             R8,R9 (D)
+0152 3980   351         MPY  R0,R6             R6,R7 (G)
+            352  *
+0154 A289   353         A    R9,R10            SUM PARTIAL PRODUCTS (A,D,G)
+0156 1701   354         JNC  $+4
+0158 0588   355         INC  R8
+015A A207   356         A    R7,R8
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0011
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+015C 1701   357         JNC  $+4
+015E 0586   358         INC  R6
+0160 C248   359         MOV  R8,R9
+0162 C206   360         MOV  R6,R8             R8,R9,R10 = A+D+G
+            361  *
+0164 C185   362         MOV  R5,R6
+0166 3982   363         MPY  R2,R6             R6,R7 (B)
+0168 A287   364         A    R7,R10            SUM
+016A 1701   365         JNC  $+4
+016C 0586   366         INC  R6
+016E A246   367         A    R6,R9
+0170 1701   368         JNC  $+4
+0172 0588   369         INC  R8                (NO CARRY OUT)
+0174 C289   370         MOV  R9,R10
+0176 C248   371         MOV  R8,R9
+0178 C1C5   372         MOV  R5,R7
+017A 39C1   373         MPY  R1,R7             R7,R8 (E)
+017C 3940   374         MPY  R0,R5             R5,R6 (H)
+            375  *
+017E A288   376         A    R8,R10            FINISH PARTIAL SUMS B,E,H
+0180 04C8   377         CLR  R8
+0182 1701   378         JNC  $+4
+0184 0587   379         INC  R7
+0186 A247   380         A    R7,R9
+0188 1701   381         JNC  $+4
+018A 0588   382         INC  R8
+018C A246   383         A    R6,R9
+018E 1701   384         JNC  $+4
+0190 0588   385         INC  R8
+0192 04C7   386         CLR  R7
+0194 A205   387         A    R5,R8
+0196 1701   388         JNC  $+4
+0198 0587   389         INC  R7                R7,R8,R9,R10 = A+B+D+E+G+H
+019A C144   390         MOV  R4,R5
+019C 3942   391         MPY  R2,R5             R5,R6 (C)
+019E A286   392         A    R6,R10            SUM
+01A0 1705   393         JNC  FMD4
+01A2 0589   394         INC  R9
+01A4 1703   395         JNC  FMD4
+01A6 0588   396         INC  R8
+01A8 1701   397         JNC  FMD4
+01AA 0587   398         INC  R7
+01AC A245   399  FMD4   A    R5,R9
+01AE 1703   400         JNC  FMD5
+01B0 0588   401         INC  R8
+01B2 1701   402         JNC  FMD5
+01B4 0587   403         INC  R7
+            404  *
+01B6 C144   405  FMD5   MOV  R4,R5
+01B8 3941   406         MPY  R1,R5             R5,R6 (F)
+01BA A246   407         A    R6,R9             SUM
+01BC 1703   408         JNC  FMD6
+01BE 0588   409         INC  R8
+01C0 1701   410         JNC  FMD6
+01C2 0587   411         INC  R7
+01C4 A205   412  FMD6   A    R5,R8
+01C6 1701   413         JNC  $+4
+01C8 0587   414         INC  R7
+01CA 3900   415         MPY  R0,R4             R4,R5 (I)
+01CC A205   416         A    R5,R8
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0012
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+01CE 1701   417         JNC  $+4
+01D0 0587   418         INC  R7
+01D2 A1C4   419         A    R4,R7             PRODUCT COMPLETE
+01D4 D1C8   420         MOVB R8,R7             SHIFT 1 BYTE LEFT
+01D6 06C7   421         SWPB R7
+01D8 D209   422         MOVB R9,R8
+01DA 06C8   423         SWPB R8
+01DC D24A   424         MOVB R10,R9
+01DE 06C9   425         SWPB R9
+01E0 06CA   426         SWPB R10
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0013
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+            428  *MULTIPLY AND DIVIDE ENTRY
+            429  *
+            430  *     R10 HAS GUARD BITS FOR NORMALIZING & ROUNDING
+            431  *
+01E2 C007   432  FMD7   MOV  R7,R0             MOVE INTO FPAC
+01E4 C048   433         MOV  R8,R1
+01E6 C089   434         MOV  R9,R2
+            435  *
+01E8 2420   436         CZC  @CF0,R0           NORMALIZED?
+01EA 0110'
+01EC 1611   437         JNE  FMD9              Y, ROUND
+01EE 24E0   438         CZC  @C7F,R3           N, EXP=0?
+01F0 0116'
+01F2 1317   439         JEQ  FCLR              Y, CANNOT NORMALIZE
+01F4 0603   440         DEC  R3                N, OK TO DECREMENT
+01F6 0A40   441         SLA  R0,4              SHIFT R0,R1,R2,R10 LEFT 4 BITS
+01F8 C241   442         MOV  R1,R9
+01FA 09C9   443         SRL  R9,12
+01FC A009   444         A    R9,R0             MOVE 1ST HEX DIGIT ACROSS
+01FE 0A41   445         SLA  R1,4
+0200 C242   446         MOV  R2,R9
+0202 09C9   447         SRL  R9,12
+0204 A049   448         A    R9,R1             MOVE 2ND HEX DIGIT ACROSS
+0206 0A42   449         SLA  R2,4
+0208 C24A   450         MOV  R10,R9
+020A 09C9   451         SRL  R9,12
+020C A089   452         A    R9,R2             MOVE 3RD HEX DIGIT ACROSS
+020E 0A4A   453         SLA  R10,4
+            454  *
+            455  *DONE, ROUND USING R10
+            456  *
+0210 0A1A   457  FMD9   SLA  R10,1             GET GUARD BIT
+0212 178E   458         JNC  FNRM3             IF ZERO, DONE
+0214 0582   459         INC  R2                ELSE ROUND
+0216 178C   460         JNC  FNRM3
+0218 0581   461         INC  R1
+021A 178A   462         JNC  FNRM3
+021C 0580   463         INC  R0                IF THIS FAR, POSSIBILITY
+021E 0460   464         B    @FAD6             OF NORMALIZATION
+0220 00AE'
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0014
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+            466  *
+            467  *       SET FPAC TO TRUE ZERO.
+            468  *
+            469  * CALLING SEQUENCE:
+            470  *
+            471  *       XOP XX,8        WHERE XX IS NOT USED
+            472  *
+            473  * ENTRY POINT:
+            474  *
+            475         DEF  FCLR
+            476  *
+0222 04C0   477  FCLR   CLR  R0                CLEAR FPAC
+0224 04C1   478         CLR  R1
+0226 04C2   479         CLR  R2
+0228 0380   480         RTWP
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0015
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+            482  *
+            483  *       DIVIDE FPAC BY THE FLOATING POINT NUMBER POINTED
+            484  *       TO BY R11.
+            485  *
+            486  *       FPFX REMOVES EXPONENTS FROM R0,R1,R2 AND
+            487  *       R4,R5,R6, UNBIASES THEM, PERFORMS MULTIPLICATION
+            488  *       OR DIVISION (ADD OR SUBTRACT) AND THEN
+            489  *       RE-BIASES THEM.
+            490  *
+            491  * CALL SEQUENCE:
+            492  *
+            493  *       XOP XX,5
+            494  *       BL @FPFX
+            495  *
+            496  * EXCEPTIONS AND CONDITIONS:
+            497  *
+            498  *       ERROR 28 WILL RESULT FROM DIVISION BY ZERO
+            499  *       ERROR 29 WILL RESULT FROM OVERFLOW
+            500  *
+            501  * EXTERNAL ROUTINE LIST:
+            502  *
+            503  *       FCLR            ;CLEAR
+            504  *       FMD7            ;FINISH BY NORMALIZING
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0016
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+            506  *FIX EXPONENTS
+            507  *
+            508  *       BL @FPFX
+            509  *         BIAS INSTRUCTION
+            510  *         REBIAS #
+            511  *
+022A D0C0   512  FPFX   MOVB R0,R3             GET EXPONENTS
+022C D1C4   513         MOVB R4,R7
+022E 7000   514         SB   R0,R0             ;REMOVE FROM NUMBERS
+0230 7104   515         SB   R4,R4
+0232 C207   516         MOV  R7,R8             GET SIGN
+0234 2A03   517         XOR  R3,R8             +-,-+ = NEG  ++,-- = POS
+0236 06C3   518         SWPB R3                REMOV SIGN BITS
+0238 0243   519         ANDI R3,>7F
+023A 007F 
+023C 06C7   520         SWPB R7
+023E 0247   521         ANDI R7,>7F
+0240 007F 
+0242 04BB   522         X    *R11+             DO ADD FOR MUL, SUB FOR DIV
+0244 A0FB   523         A    *R11+,R3          BIAS
+0246 24E0   524         CZC  @CFF80,R3         CHECK FOR OVERFLOW
+0248 0000 
+024A 1642   525         JNE  ERR29             PROBLEM
+024C 0A18   526         SLA  R8,1              ADD SIGN
+024E 1702   527         JNC  $+6
+0250 0223   528         AI   R3,>80            NEGATIVE
+0252 0080 
+0254 045B   529         RT                     RETURN
+            530  *
+            531  *FLOATING POINT DIVIDE
+            532  *
+            533  * ENTRY POINT:
+            534  *
+            535         DEF  FDD
+            536  *
+0256 C000   537  FDD    MOV  R0,R0             ;FPAC=ZERO?
+0258 13E4   538         JEQ  FCLR              ;Y
+025A C13B   539         MOV  *R11+,R4          ;FPAC / 0?
+025C 1338   540         JEQ  FDDER             ;Y, DIVISION BY ZERO
+025E C17B   541         MOV  *R11+,R5          ;N, LOAD R4,R5,R6
+0260 C19B   542         MOV  *R11,R6
+0262 06A0   543         BL   @FPFX             FIX EXPONENTS
+0264 022A'
+0266 60C7   544         S    R7,R3             SUBTRACT EXPONENTS
+0268 0040   545         DATA >40               ADD >40 TO BIAS
+026A 8100   546         C    R0,R4             CHECK FOR PROPER FRACTION
+026C 110A   547         JLT  FDD2              OK
+026E 0583   548         INC  R3                IMPROPER, INCREMENT EXPONENT
+0270 0A44   549         SLA  R4,4              SHIFT R4,R5,R6 LEFT 4 BITS
+0272 C245   550         MOV  R5,R9
+0274 09C9   551         SRL  R9,12
+0276 A109   552         A    R9,R4             MOVE 1ST HEX DIGIT ACROSS
+0278 0A45   553         SLA  R5,4
+027A C246   554         MOV  R6,R9
+027C 09C9   555         SRL  R9,12
+027E A149   556         A    R9,R5             MOVE 2ND HEX DIGIT ACROSS
+0280 0A46   557         SLA  R6,4
+            558  *
+0282 04C7   559  FDD2   CLR  R7                Y, CLEAR QUOTIENT
+0284 04C8   560         CLR  R8
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0017
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+0286 04C9   561         CLR  R9
+0288 020A   562         LI   R10,40            DO 40 TIMES
+028A 0028 
+            563  *
+028C 0A10   564  FDD3   SLA  R0,1              SHIFT LEFT R0,R1,R2,R7,R8,R9
+028E 0A11   565         SLA  R1,1
+0290 1701   566         JNC  $+4
+0292 0580   567         INC  R0
+0294 0A12   568         SLA  R2,1
+0296 1701   569         JNC  $+4
+0298 0581   570         INC  R1
+029A 0A17   571         SLA  R7,1
+029C 0A18   572         SLA  R8,1
+029E 1701   573         JNC  $+4
+02A0 0587   574         INC  R7
+02A2 0A19   575         SLA  R9,1
+02A4 1701   576         JNC  $+4
+02A6 0588   577         INC  R8
+02A8 8100   578         C    R0,R4             IS R0,R1,R2<=R4,R5,R6?
+02AA 1A09   579         JL   FDD5              Y
+02AC 1B05   580         JH   FDD4              N
+02AE 8141   581         C    R1,R5             MAYBE
+02B0 1A06   582         JL   FDD5              Y
+02B2 1B02   583         JH   FDD4              N
+02B4 8182   584         C    R2,R6             MAYBE
+02B6 1A03   585         JL   FDD5              Y
+02B8 06A0   586  FDD4   BL   @FSUBI            N, R0,R1,R2=R0,R1,R2-R4,R5,R6
+02BA 0306'
+02BC 0589   587         INC  R9                ENTER BIT
+            588  *
+02BE 060A   589  FDD5   DEC  R10               DONE?
+02C0 16E5   590         JNE  FDD3              N, LOOP AGAIN
+02C2 0A10   591         SLA  R0,1              Y, CHECK FOR ROUNDING
+02C4 8100   592         C    R0,R4             2*REMAINDER < DIVISOR?
+02C6 1A8D   593         JL   FMD7              Y, NO NEED TO ROUND
+02C8 020A   594         LI   R10,>8000         ROUND
+02CA 8000 
+02CC 108A   595         JMP  FMD7              DONE
+            596  *
+02CE 2F9C   597  FDDER  DATA ERROR+28          ;DIVISION BY ZERO
+            598  *
+02D0 2F9D   599  ERR29  DATA ERROR+29          ;FP ERROR
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0018
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+            601  *
+            602  *       SHIFT R0,R1,R2 RIGHT 1 HEX DIGIT WHILE
+            603  *       UPDATEING EXPONENT IN R3
+            604  *
+            605  * CALLING SEQUENCE:
+            606  *
+            607  *       BL @FARS
+            608  *
+            609  * EXCEPTIONS AND CONDITIONS:
+            610  *
+            611  *       ERROR 29 WILL RESULT ON OVERFLOW
+            612  *
+            613  * EXTERNAL ROUTINE LIST:
+            614  *
+            615  *       ERR29           ;ERROR 29
+            616  *
+02D2 0942   617  FARS   SRL  R2,4              SHIFT R0,R1,R2 4 BITS RIGHT
+02D4 C241   618         MOV  R1,R9
+02D6 0AC9   619         SLA  R9,12
+02D8 A089   620         A    R9,R2             MOVE 1ST HEX DIGIT ACROSS
+02DA 0941   621         SRL  R1,4
+02DC C240   622         MOV  R0,R9
+02DE 0AC9   623         SLA  R9,12
+02E0 A049   624         A    R9,R1             MOVE 2ND HEX DIGIT ACROSS
+02E2 0840   625         SRA  R0,4
+02E4 C243   626         MOV  R3,R9
+02E6 0583   627         INC  R3                INCREMENT EXPONENT
+02E8 2A43   628         XOR  R3,R9             WATCH FOR SIGN CHANGE
+02EA 0249   629         ANDI R9,>80            SIGN CHANGE?
+02EC 0080 
+02EE 16F0   630         JNE  ERR29             Y, OVERFLOW
+02F0 045B   631         RT
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0019
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+            633  *
+            634  *       ADD OR SUBTRACT R4,R5,R6 FROM R0,R1,R2.
+            635  *
+            636  * CALL SEQUENCE:
+            637  *
+            638  *       BL @FADDI
+            639  *       BL @FSUBI
+            640  *
+            641  *   ENTRY POINT :
+            642  *
+            643         DEF  FADDI
+            644  *
+02F2 A086   645  FADDI  A    R6,R2             R0,R1,R2=R0,R1,R2+R4,R5,R6
+02F4 1703   646         JNC  $+8
+02F6 0581   647         INC  R1
+02F8 1701   648         JNC  $+4
+02FA 0580   649         INC  R0
+02FC A045   650         A    R5,R1
+02FE 1701   651         JNC  $+4
+0300 0580   652         INC  R0
+0302 A004   653         A    R4,R0             ADDITION COMPLETE
+0304 045B   654         RT
+            655  *
+            656  * ENTRY POINT:
+            657  *
+            658         DEF  FSUBI
+            659  *
+0306 6086   660  FSUBI  S    R6,R2             R0,R1,R2=R0,R1,R2-R4,R5,R6
+0308 1803   661         JOC  $+8
+030A 0601   662         DEC  R1
+030C 1801   663         JOC  $+4
+030E 0600   664         DEC  R0
+0310 6045   665         S    R5,R1
+0312 1801   666         JOC  $+4
+0314 0600   667         DEC  R0
+0316 6004   668         S    R4,R0             SUBTRACTION COMPLETE
+0318 045B   669         RT
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0020
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+            671  *
+            672  *       FPAC WILL BE SHIFTED LEFT OR RIGHT IN
+            673  *       ORDER TO MAKE THE EXPONENT AGREE WITH THE
+            674  *       SCALE FACTOR POINTED TO BY R11.  THIS
+            675  *       OPERATION IS ESSENTIALLY THE OPPOSITE
+            676  *       OF NORMALIZATION.
+            677  *       SCALING TO >4600 PLACES THE DECIMAL POINT
+            678  *       BETWEEN THE SECOND AND THIRD WORD OF THE FLOATING
+            679  *       POINT NUMBER.  SCALING TO >4A00 PLACES THE DECIMAL
+            680  *       POINT AFTER THE THIRD WORD.
+            681  *       HENCE, TO INTEGERIZE A FLOATING POINT NUMBER IN FPAC,
+            682  *       ONE SCALES TO >4A00 AND THEN NORMALIZES.
+            683  *
+            684  * CALLING SEQUENCE:
+            685  *
+            686  *       XOP XX,6
+            687  *
+            688  * EXCEPTIONS AND CONDITIONS:
+            689  *
+            690  *       ERROR 29 WILL RESULT FROM A LEFT SHIFT
+            691  *
+            692  * EXTERNAL ROUTINE LIST:
+            693  *
+            694  *       ERR29           ;ERROR 29
+            695  *
+            696  * ENTRY POINT:
+            697  *
+            698         DEF  FSCL
+            699  *
+031A C11B   700  FSCL   MOV  *R11,R4           GET SCALE FACTOR
+031C 04C3   701         CLR  R3
+031E C200   702         MOV  R0,R8             SAVE SIGN
+0320 D1C8   703         MOVB R8,R7             GET EXPONENT
+0322 0247   704         ANDI R7,>7F00          GET EXPONENT
+0324 7F00 
+0326 61C4   705         S    R4,R7             GET DIFFERENCE
+0328 130B   706         JEQ  FSCL2             ALREADY SCALED
+032A D003   707         MOVB R3,R0             ZERO EXPONENT
+032C 0887   708         SRA  R7,8              RIGHT JUSTIFY
+032E 15D0   709         JGT  ERR29             SHIFT LEFT, FP ERROR?
+            710  *
+0330 06A0   711  FSCL1  BL   @FARS             SHIFT RIGHT
+0332 02D2'
+0334 0587   712         INC  R7                DONE?
+0336 16FC   713         JNE  FSCL1             N
+0338 D008   714         MOVB R8,R0             RESTORE SIGN BIT
+033A 0240   715         ANDI R0,>80FF          ;MASK EXPONENT
+033C 80FF 
+033E B004   716         AB   R4,R0
+0340 0380   717  FSCL2  RTWP
+            718  *
+            719         END
+ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0021
+FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
+
+C7F      01F0R  CF0      01EAR  CFF80    0248R  ERR29    02D0'  ERROR    2F80   
+ERROR2   2FA0   FAD      001AD  FAD0     001E'  FAD0A    0026'  FAD1     003A'  
+FAD1A    004C'  FAD1B    004E'  FAD2     0050'  FAD2A    0056'  FAD3     006E'  
+FAD3A    0086'  FAD4     0094'  FAD5     00A6'  FAD6     00AE'  FADDI    02F2D  
+FADN     00B8'  FADN1    00C4'  FADN2    00C6'  FARS     02D2'  FCLR     0222D  
+FCLRP    013C'  FDD      0256D  FDD2     0282'  FDD3     028C'  FDD4     02B8'  
+FDD5     02BE'  FDDER    02CE'  FLDD     0008D  FLDD1    000A'  FLDD2    000E'  
+FLOAT    00D4D  FLOAT1   00EA'  FLOAT2   00F4'  FMD      0136D  FMD4     01AC'  
+FMD5     01B6'  FMD6     01C4'  FMD7     01E2'  FMD9     0210'  FNEG     00CAD  
+FNEG1    00D2'  FNRM     00FCD  FNRM1    010C'  FNRM2    010E'  FNRM3    0130'  
+FNRM4    0134'  FPFX     022A'  FSCL     031AD  FSCL1    0330'  FSCL2    0340'  
+FSD      0010D  FSRD     0000D  FSUBI    0306D  R0       0000   R1       0001   
+R10      000A   R11      000B   R12      000C   R13      000D   R14      000E   
+R15      000F   R2       0002   R3       0003   R4       0004   R5       0005   
+R6       0006   R7       0007   R8       0008   R9       0009   
+
+0 Errors in assembly

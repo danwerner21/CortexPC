@@ -1,12 +1,12 @@
 Dear Andrew and Dan,
 
-> What an interesting project! I am currently traveling in Africa with little connectivity, but I will revert more fully when I’m back next week.
-> 
->> #1.  What cross development tools are you using to build the rom images and the operating systems that you have listed on your site?
->> 
->> #2.  Is the source code to the mini-cortex ported version of MDEX and Unix V6 posted anywhere?   We would like to add device drivers for the many other peripherals that we have available in our system to those operating systems and I was hoping to not have to start over with generic versions of these operating systems requiring first a port to the mini-cortex, then additions of our devices.
->> 
->> #3.  Is the source code for the boot rom available somewhere? If possible, we would also like to add support for our available boot devices to the ROM.
+What an interesting project! I am currently traveling in Africa with little connectivity, but I will revert more fully when I’m back next week.
+
+ #1.  What cross development tools are you using to build the rom images and the operating systems that you have listed on your site?
+
+ #2.  Is the source code to the mini-cortex ported version of MDEX and Unix V6 posted anywhere?   We would like to add device drivers for the many other peripherals that we have available in our system to those operating systems and I was hoping to not have to start over with generic versions of these operating systems requiring first a port to the mini-cortex, then additions of our devices.
+
+ #3.  Is the source code for the boot rom available somewhere? If possible, we would also like to add support for our available boot devices to the ROM.
 
 I’m back home. Not sure where to best start, maybe with the mini-Cortex rom image. Also not sure how comfortable you are with ancient software, but from your hardware achievements I would assume that you are skilled in ancient software as well. Let me know if more detail is needed.
 
@@ -35,5 +35,3 @@ Let me know when you are ready for MDEX, as would need to dig a bit to retrieve 
 Wbr,
 
 Paul
-
-

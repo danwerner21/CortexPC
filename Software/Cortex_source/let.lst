@@ -1,0 +1,330 @@
+ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0001
+LET STATEMENT - CORTEX BASIC REV. 1.1
+
+              2          IDT 'LET'
+              3  *
+              4  * ROUTINE LIST:
+              5  *
+              6  *       LETY            ;LET COMMAND
+              7  *
+              8          REF EVARZ       ;EVALUATE VARIABLE
+              9          REF EVERZ       ;EVALUATE EXPRESSION
+             10          REF EVSDZ       ;EVALUATE STRING
+             11          REF CKEX        ;CHECK FOR EXPRESSION
+             12          REF CVDIFZ      ;CONVERT DECIMAL TO INTEGER/FP
+             13          REF NLIN        ;EXIT ENTRY TO MULTIPLEXOR
+             14          REF FFLG        ;FORMATTING FLAG
+             15          REF IOB         ;I/O BUFFER PTR
+             16          DXOP LOADF,0    ;LOAD FPAC
+             17          DXOP STORE,1    ;STORE FPAC
+             18          DXOP SCALE,6    ;SCALE FPAC
+             19          DXOP NORMAL,7   ;NORMALIZE FPAC
+             20          DXOP EVFIX,11   ;EVALUATE AND FIX
+             21          DXOP OUTFP,12   ;OUT FLOATING POINT #
+             22          DXOP OUTINT,13  ;OUT INTEGER
+     2F80    23  ERROR   EQU >2F80       ;XOP XX,14  (ERROR CALL)
+ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0002
+LET STATEMENT - CORTEX BASIC REV. 1.1
+
+             25  * ABSTRACT:
+             26  *
+             27  *       THE LET COMMAND IS THE ASSIGNMENT STATEMENT
+             28  *       AND CAN HAVE ANY OF THE FOLLOWING FORMS:
+             29  *
+             30  *       A[-]=B[-]               NUMERIC ASSIGNMENT
+             31  *       $A[-]=$B[-]             ASSIGNMENT
+             32  *       $A[-]=$B[-],N           PICK
+             33  *       $A[-]=$B[-];N           REPLACE
+             34  *       $A[-]=$B[-]+$C[0]       CONCATENATE
+             35  *       $A[-]=/N                DELETE
+             36  *       $A[-]=/$B[-]            INSERT
+             37  *       $A[-]=N                 CONVERT # TO ASCII
+             38  *       $A[-]=#$B[-],N          CONVERT # TO ASCII FORMATTED
+             39  *       $A[-]=%N                CONVERT BYTE
+             40  *       N=$A[-],E               CONVERT ASCII TO #
+             41  *
+             42  * CALLING SEQUENCE:
+             43  *
+             44  *       B @LETY
+             45  *
+             46  *       EXIT TO NLIN
+             47  *
+             48  * EXCEPTIONS AND CONDITIONS:
+             49  *
+             50  *       MISSING ASSIGNMENT OPERATOR
+             51  *       EVALUATION ERRORS
+             52  *
+ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0003
+LET STATEMENT - CORTEX BASIC REV. 1.1
+
+             54  * ENTRY POINT:
+             55  *
+             56         DEF LETY
+             57  *
+0000 0420    58  LETY    BLWP @EVSDZ
+0002 0000 
+0004 2F81    59            DATA ERROR+1  ;"
+0006 101A    60            JMP LET3      ;$
+0008 0420    61          BLWP @EVARZ     ;EVALUATE VARIABLE
+000A 0000 
+000C 0280    62          CI R0,>5600     ;=?
+000E 5600 
+0010 1618    63            JNE ERR36     ;N, ERROR
+0012 C0C2    64          MOV R2,R3
+0014 06A0    65          BL @CKEX        ;CHECK FOR EXPRESSION
+0016 0000 
+0018 1007    66            JMP LET1      ;PROBLEM
+001A 0420    67          BLWP @EVERZ     ;EVALUATE
+001C 0000 
+             68  *
+             69  *  [VAR]=[EXP]
+             70  *
+001E CCF2    71          MOV *R2+,*R3+   ;STORE RESULTS
+0020 CCF2    72          MOV *R2+,*R3+
+0022 C4D2    73          MOV *R2,*R3
+0024 0460    74  LETR    B @NLIN         ;GOTO NEXT LINE
+0026 0000 
+             75  *
+             76  *  [VAR]=_
+             77  *
+0028 0420    78  LET1    BLWP @EVSDZ     ;LOOK FOR STRING
+002A 0002'
+002C 1002    79            JMP LET2      ;"
+002E 1001    80            JMP LET2      ;$
+0030 2F81    81          DATA ERROR+1    ;SYNTAX ERROR
+             82  *
+             83  *  [VAR]=[$VAR]_
+             84  *
+0032 C102    85  LET2    MOV R2,R4       ;SAVE ADR
+0034 0280    86          CI R0,>3F00     ;,?
+0036 3F00 
+0038 1353    87            JEQ LET6      ;Y, CONVERT ASCII TO BINARY
+             88  *
+003A 2F87    89  ERR7    DATA ERROR+7    ;N, EXPECTING OPERATER
+             90  *
+             91  *  $_           STRING ENTRY
+             92  *
+003C 0280    93  LET3    CI R0,>5600     ;=?
+003E 5600 
+0040 1309    94            JEQ LET3A     ;Y
+0042 2FA0    95  ERR36   DATA ERROR+>20  ;MISSING ASSIGNMENT OPERATER
+0044 0024    96            DATA 36
+ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0004
+LET STATEMENT - CORTEX BASIC REV. 1.1
+
+             98  *BYTE ASSIGNMENT
+             99  *
+            100  *       $A[-]=%N...
+            101  *
+0046 2EC1   102  LET11   EVFIX R1        ;GET BYTE
+0048 06C1   103          SWPB R1
+            104  *
+004A DDC1   105  LET11A  MOVB R1,*R7+    ;SAVE #
+004C 0280   106          CI R0,>4200     ;%?
+004E 4200 
+0050 13FA   107            JEQ LET11     ;Y
+0052 10E8   108          JMP LETR        ;RETURN
+            109  *
+            110  *MULTIPLEXOR FOR STRING ASSIGNMENTS
+            111  *  $[VAR]=_
+            112  *
+0054 C1C2   113  LET3A   MOV R2,R7
+0056 0420   114  LET3E   BLWP @EVSDZ     ;GET STRING OR $VAR
+0058 002A'
+005A 101E   115            JMP LET4      ;"
+005C 101D   116            JMP LET4      ;$
+005E D038   117          MOVB *R8+,R0    ;GET BYTE
+0060 0280   118          CI R0,>4200     ;%?
+0062 4200 
+0064 13F0   119            JEQ LET11     ;Y
+0066 0280   120          CI R0,>5E00     ;/?
+0068 5E00 
+006A 134B   121            JEQ LET12     ;Y, INSERT
+006C 0280   122          CI R0,>3E00     ;#?
+006E 3E00 
+0070 160B   123            JNE LET3C     ;N
+            124  *
+            125  *CONVERT NUMBER TO ASCII
+            126  *
+            127  *       $A[-]=N
+            128  *       $A[-]=#$B[-],N
+            129  *
+0072 0420   130          BLWP @EVSDZ     ;Y, GET FORMAT
+0074 0058'
+0076 1002   131            JMP LET3B
+0078 1001   132            JMP LET3B
+007A 2F8E   133  ERR14   DATA ERROR+14   ;ERROR, EXPECTING STRING
+            134  *
+007C 0280   135  LET3B   CI R0,>3F00     ;,?
+007E 3F00 
+0080 16DC   136            JNE ERR7      ;N, ERROR
+0082 C802   137          MOV R2,@FFLG    ;Y, SET TO FORMAT
+0084 0000 
+0086 1001   138          JMP LET3D
+            139  *
+0088 0608   140  LET3C   DEC R8          ;N, BACKUP
+            141  *
+008A 0420   142  LET3D   BLWP @EVERZ     ;EVALUATE EXPRESSION
+008C 001C'
+008E 2F12   143          OUTFP *R2       ;CONVERT #
+0090 04E0   144          CLR @FFLG       ;CLEAR FORMATTING
+0092 0084'
+0094 75D7   145          SB *R7,*R7      ;END STRING
+0096 10C6   146          JMP LETR
+ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0005
+LET STATEMENT - CORTEX BASIC REV. 1.1
+
+            148  *ASSIGN,PICK,REPLACE,CONCATENATE
+            149  *
+            150  *       $A[-]=$B[-]
+            151  *       $A[-]=$B[-],N
+            152  *       $A[-]=$B[-];N
+            153  *       $A[-]=$B[-]+$C[-]
+            154  *
+0098 0705   155  LET4    SETO R5         ;NO NULL
+009A 0280   156          CI R0,>4000     ;;?
+009C 4000 
+009E 1305   157            JEQ LET4A     ;Y, REPLACEMENT
+00A0 04C5   158          CLR R5          ;SET TO NULL
+00A2 0280   159          CI R0,>3F00     ;,?
+00A4 3F00 
+00A6 1605   160            JNE LET4B     ;N, DIRECT ASSIGNMENT
+00A8 0585   161          INC R5
+            162  *
+00AA 2EC1   163  LET4A   EVFIX R1        ;EVALUATE COUNT
+00AC C041   164          MOV   R1,R1     ;CHECK CONDITION
+00AE 1505   165          JGT   LET4C     ; >0 THEN DO PICK
+00B0 10B9   166          JMP   LETR      ;ELSE IGNORE
+            167  *
+00B2 C060   168  LET4B   MOV @IOB,R1      ;GET MAX MOVE
+00B4 0000 
+00B6 6047   169          S R7,R1
+00B8 0601   170          DEC  R1
+            171  *
+00BA C0C7   172  LET4C   MOV R7,R3       ;MARK
+            173  *
+00BC D132   174  LET4D   MOVB *R2+,R4    ;MOVE
+00BE 1602   175            JNE LET4I     ;CHARACTER
+00C0 C145   176          MOV R5,R5       ;NULL, ASSIGNMENT?
+00C2 1307   177            JEQ LET4F     ;Y
+00C4 DDC4   178  LET4I   MOVB R4,*R7+
+00C6 81C2   179          C R2,R7         ;IS S<D?
+00C8 1402   180            JHE LET4E     ;N
+00CA 80C2   181          C R2,R3         ;Y, IS S>=D0?
+00CC 1402   182            JHE LET4F     ;Y, ABORT
+00CE 0601   183  LET4E   DEC R1          ;DONE?
+00D0 16F5   184            JNE LET4D     ;N
+            185  *
+00D2 0915   186  LET4F   SRL R5,1        ;DONE, NEED NULL?
+00D4 1601   187            JNE LET4G     ;N
+00D6 75D7   188          SB *R7,*R7      ;Y
+            189  *
+00D8 0280   190  LET4G   CI R0,>5D00     ;+?
+00DA 5D00 
+00DC 1632   191            JNE LETRR     ;N, RETURN
+00DE 10BB   192          JMP LET3E       ;Y, GET STRING
+ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0006
+LET STATEMENT - CORTEX BASIC REV. 1.1
+
+            194  *ASCII TO DECIMAL
+            195  *
+            196  *       N=$A[-],E
+            197  *
+00E0 0420   198  LET6    BLWP @EVARZ     ;GET VARIABLE ADR
+00E2 000A'
+00E4 04D2   199          CLR *R2
+00E6 C1C4   200          MOV R4,R7
+00E8 0420   201          BLWP @CVDIFZ    ;CONVERT TO #
+00EA 0000 
+00EC 1007   202            JMP LET6A
+00EE 04C1   203            CLR R1        ;NOTHING
+00F0 1000   204            NOP
+00F2 D480   205          MOVB R0,*R2     ;SAVE DELIMITER
+00F4 04F3   206          CLR *R3+        ;MOVE IN RESULTS
+00F6 CCC1   207          MOV R1,*R3+
+00F8 04D3   208          CLR *R3
+00FA 1023   209          JMP LETRR
+            210  *
+00FC D480   211  LET6A   MOVB R0,*R2     ;SAVE DELIMITER
+00FE 2C53   212          STORE *R3       ;STORE RESULTS
+0100 1020   213          JMP LETRR       ;RETURN
+ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0007
+LET STATEMENT - CORTEX BASIC REV. 1.1
+
+            215  *INSERT STRING
+            216  *
+            217  *       $A[-]=/$B[-]
+            218  *       (R7)=DESTINATION
+            219  *
+0102 0420   220  LET12   BLWP @EVSDZ     ;LOOK AT NEXT STRING
+0104 0074'
+0106 100A   221            JMP LET13A
+0108 1009   222            JMP LET13A
+010A 2EC1   223          EVFIX R1        ;GET #
+            224  *
+            225  *DELETE CHARACTERS
+            226  *
+            227  *       $A[-]=/N
+            228  *       (R2)=(R7)=STRING
+            229  *       R1=COUNT
+            230  *
+010C 0601   231  LET12A  DEC R1          ;MOVE BY HOLE
+010E 1103   232            JLT LET12B    ;DONE
+0110 D032   233          MOVB *R2+,R0    ;SKIP 1 CHARACTER
+0112 16FC   234            JNE LET12A    ;CONTINUE
+0114 0602   235          DEC R2          ;EOL
+            236  *
+0116 DDF2   237  LET12B  MOVB *R2+,*R7+  ;MOVE REST OF STRING
+0118 16FE   238            JNE LET12B
+011A 1013   239          JMP LETRR
+            240  *
+            241  *INSERT STRING
+            242  *
+011C C0C2   243  LET13A  MOV R2,R3       ;COUNT INSERT STRING
+011E 0701   244          SETO R1
+            245  *
+0120 0581   246  LET13B  INC R1          ;COUNT
+0122 D033   247          MOVB *R3+,R0
+0124 16FD   248            JNE LET13B
+0126 04C3   249          CLR R3          ;MOVE AND COUNT TO END OF DES STRING
+            250  *
+0128 0583   251  LET13C  INC R3          ;COUNT
+012A D037   252          MOVB *R7+,R0
+012C 16FD   253            JNE LET13C
+            254  *
+012E C107   255          MOV R7,R4       ;MOVE DES STRING
+0130 A101   256          A R1,R4
+            257  *
+0132 0607   258  LET13D  DEC R7
+0134 0604   259          DEC R4
+0136 D517   260          MOVB *R7,*R4    ;MOVE CHARACTERS
+0138 0603   261          DEC R3          ;TO HOLE?
+013A 15FB   262            JGT LET13D    ;N
+            263  *
+013C DDF2   264  LET13E  MOVB *R2+,*R7+  ;Y, INSERT STRING
+013E 0601   265          DEC R1          ;DONE?
+0140 15FD   266            JGT LET13E    ;N
+0142 0460   267  LETRR   B @NLIN         ;Y
+0144 0026'
+            268         END
+ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0008
+LET STATEMENT - CORTEX BASIC REV. 1.1
+
+CKEX       0016R  CVDIFZ     00EAR  ERR14      007A'  ERR36      0042'  
+ERR7       003A'  ERROR      2F80   EVARZ      00E2R  EVERZ      008CR  
+EVSDZ      0104R  FFLG       0092R  IOB        00B4R  LET1       0028'  
+LET11      0046'  LET11A     004A'  LET12      0102'  LET12A     010C'  
+LET12B     0116'  LET13A     011C'  LET13B     0120'  LET13C     0128'  
+LET13D     0132'  LET13E     013C'  LET2       0032'  LET3       003C'  
+LET3A      0054'  LET3B      007C'  LET3C      0088'  LET3D      008A'  
+LET3E      0056'  LET4       0098'  LET4A      00AA'  LET4B      00B2'  
+LET4C      00BA'  LET4D      00BC'  LET4E      00CE'  LET4F      00D2'  
+LET4G      00D8'  LET4I      00C4'  LET6       00E0'  LET6A      00FC'  
+LETR       0024'  LETRR      0142'  LETY       0000D  NLIN       0144R  
+R0         0000   R1         0001   R10        000A   R11        000B   
+R12        000C   R13        000D   R14        000E   R15        000F   
+R2         0002   R3         0003   R4         0004   R5         0005   
+R6         0006   R7         0007   R8         0008   R9         0009   
+
+
+0 Errors in assembly

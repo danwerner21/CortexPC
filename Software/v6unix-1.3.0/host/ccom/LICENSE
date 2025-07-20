@@ -1,0 +1,39 @@
+These files come from the 2.11BSD sources as posted by the
+The Unix Heritage Society, TUHS (http://www.tuhs.org). They are
+close derivatives of the same files in the Unix V7 sources as
+posted by the same organization. The copyright status of these files
+is complex:
+
+- Some would argue that these files did not carry a (c) claim,
+and that prior to the USA ratifying the Berne convention this implied
+that they became the public domain in the 1970's.
+
+- The SCO Group, which owned the copyrights (if any) in the 1990's
+granted a license for non-commerical research use.
+
+- In 2002, Caldera (which purported to own the copyrights at that
+point in time) released the files under a 4-clause BSD-style license.
+In 2007 the courts ruled that not Caldera but Novell owned the
+copyrights (if any). However, Caldera was entitled to give out
+licenses. Novell has since acted as if it endorsed the Caldera
+license and made public pledges not to sue.
+
+- In summary, the files are either public domain or BSD-licensed
+with Novell (now part of Attachmate) being the licensor.
+
+- These files were updated to work with modern C and modern
+compilers by the BKUNIX project (Serge Vakulenko, vak@cronyx.ru).
+The updates are of a mechanical nature, see:
+http://sourceforge.net/p/bkunix/code/40/
+It is debatable whether such updates are coprightable, but to
+the extent they are, Serge later re-licensed his modifications under
+the GPL license.
+
+- In summary, if you want to redistribute these files you must either:
+  (i) obey by the rules of the GPL
+  (ii) recreate the mechanical updates independently
+
+In any case, private use of these files is permited by all parties
+and licenses. Considering we are talking about 40 year old software
+for obsolete systems, private hobby projects are probaly the only actual
+use these files have.

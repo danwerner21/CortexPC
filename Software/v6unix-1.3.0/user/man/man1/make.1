@@ -1,0 +1,215 @@
+.th MAKE 1 
+.sh NAME
+make \- maintain program groups
+.sh SYNOPSIS
+.bd make
+[
+.bd \-f
+makefile ] [ option ] ...
+file ...
+.sh DESCRIPTION
+.it Make
+executes commands in
+.it makefile
+to update
+one or more target
+.it Name
+is typically a program.
+If no
+.bd \-f
+option is present, `makefile' and `Makefile' are
+tried in order.
+If
+.it makefile
+is `\-', the standard input is taken.
+More than one
+.bd \-f
+option may appear
+.pp
+.it Make
+updates a target if it depends on prerequisite files
+that have been modified since the target was last modified,
+or if the target does not exist.
+.pp
+.it Makefile
+contains a sequence of entries that specify dependencies.
+The first line of an entry is a
+blank-separated list of targets, then a colon,
+then a list of prerequisite files.
+Text following a semicolon, and all following lines
+that begin with a tab, are shell commands
+to be executed to update the target.
+.pp
+Sharp and newline surround comments.
+.pp
+The following makefile says that `pgm' depends on two
+files `a.o' and `b.o', and that they in turn depend on
+`.c' files and a common file `incl'.
+.s3
+.lp +6 5
+pgm: a.o b.o
+.s3
+.lp +6 5
+cc a.o b.o \-lm \-o pgm
+.s3
+.lp +6 5
+a.o: incl a.c
+.s3
+.lp +6 5
+cc \-c a.c
+b.o: incl b.c
+.s3
+.lp +6 5
+cc \-c b.c
+.pp
+.it Makefile
+entries of the form
+.pp
+.s3
+.lp +6 5
+string1 = string2
+.pp
+are macro definitions.
+Subsequent appearances of 
+.it $(string1)
+are replaced by
+.it string2 .
+If
+.it string1
+is a single character, the parentheses are optional.
+.pp
+.it Make 
+infers prerequisites for files for which
+.it makefile
+gives no construction commands.
+For example, a
+`.c' file may be inferred as prerequisite for a `.o' file
+and be compiled to produce the `.o' file.
+Thus the preceding example can be done more briefly:
+.s3
+.lp +6 5
+pgm: a.o b.o
+.s3
+.lp +6 5
+cc a.o b.o \-lm \-o pgm
+.s3
+.lp +6 5
+a.o b.o: incl
+.pp
+Prerequisites are inferred according to selected suffixes
+listed as the `prerequisites' for the special name `.SUFFIXES';
+multiple lists accumulate;
+an empty list clears what came before.
+Order is significant; the first possible name for which both
+a file and a rule as described in the next paragraph exist
+is inferred.
+The default list is
+.s3
+.lp +6 5
+\&.SUFFIXES: .out .o .c .e .r .f .y .l .s
+.pp
+The rule to create a file with suffix
+.it s2
+that depends on a similarly named file with suffix
+.it s1
+is specified as an entry
+for the `target'
+.it s1s2 .
+In such an entry, the special macro $* stands for
+the target name with suffix deleted, $@ for the full target name,
+$< for the complete list of prerequisites,
+and
+$? for the list of prerequisites that are out of date.
+For example, a rule for making
+optimized `.o' files from `.c' files is
+.s3
+.lp +6 5
+\&.c.o: ; cc \-c \-O \-o $@ $*.c
+.pp
+Certain macros are used by the default inference rules
+to communicate optional arguments to
+any resulting compilations.
+In particular, `CFLAGS' is used for
+.it cc
+and 
+.it f77 (1)
+options, `LFLAGS' and `YFLAGS' for 
+.it lex
+and
+.it yacc (1)
+options.
+.pp
+Command lines are executed one at a time, each by its
+own shell.
+A line is printed when it is executed unless
+the special target `.SILENT'
+is in 
+.it makefile,
+or the first character of the command is `@'.
+.pp
+Commands returning nonzero status (see
+.it intro (1))
+cause
+.it make
+to terminate unless
+the special target `.IGNORE' is in
+.it makefile
+or the command begins with
+<tab><hyphen>.
+.pp
+Interrupt and quit cause the target to be deleted
+unless the target depends on the special name `.PRECIOUS'.
+.pp
+Other options:
+.s3
+.lp +6 5
+.bd \-i
+Equivalent to the special entry `.IGNORE:'.
+.s3
+.lp +6 5
+.bd \-k
+When a command returns nonzero status,
+abandon work on the current entry, but
+continue on branches that do not depend on the current entry.
+.s3
+.lp +6 5
+.bd \-n
+Trace and print, but do not execute the commands
+needed to update the targets.
+.s3
+.lp +6 5
+.bd \-t
+Touch, i.e. update the modified date of targets, without
+executing any commands.
+.s3
+.lp +6 5
+.bd \-r
+Equivalent to an initial special entry `.SUFFIXES:'
+with no list.
+.s3
+.lp +6 5
+.bd \-s
+Equivalent to the special entry
+`.SILENT:'.
+.i0
+.dt
+.sh FILES
+makefile, Makefile
+.br
+.sh "SEE ALSO"
+sh(1), touch(1)
+.br
+S. I. Feldman
+.it
+Make \- A Program for Maintaining Computer Programs
+.sh BUGS
+Some commands return nonzero status inappropriately.
+Use
+.bd \-i
+to overcome the difficulty.
+.br
+Commands that are directly executed by the shell,
+notably
+.it  cd (1),
+are ineffectual across newlines in
+.it make.

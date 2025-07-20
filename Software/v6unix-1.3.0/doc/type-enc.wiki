@@ -1,0 +1,33 @@
+<b>TYPE ENCODING</b>
+
+The compiler encodes C types in a single 16-bit word. This word contains a base type in the bottom 4 bits and up to six modifiers in the upper bits:
+<verbatim>
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+   | 0| 1| 2| 3| 4| 5| 6| 7| 8| 9|10|11|12|13|14|15|
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+   | mod | mod | mod | mod | mod | mod | base type |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+</verbatim>
+Note that the above figure uses TI bit numbering, i.e. the least significant bit is number 15.
+
+The base type is one of (in sequential order, 0 to 10):
+  *  <b>INT</b>		- signed int, signed short
+  *  <b>CHAR</b>		- signed char
+  *  <b>FLOAT</b>		- float
+  *  <b>DOUBLE</b>	- double
+  *  <b>STRUCT</b>	- structure or union
+  *  <b>RSTRUCT</b>	- obsolete, no longer used
+  *  <b>LONG</b>		- signed long
+  *  <b>UNSIGN</b>	- unsigned int, unsigned short
+  *  <b>UNCHAR</b>	- unsigned char
+  *  <b>UNLONG</b>	- unsigned long
+  *  <b>VOID</b>		- void
+
+The modifier pattern is one of:
+  *  <b>0</b>		- not further modified
+  *  <b>1</b>		- pointer to ...
+  *  <b>2</b>		- function returning ...
+  *  <b>3</b>		- array of ...
+
+The modifiers operate right-to-left, i.e. the type word <i>PTR-ARRAY-CHAR</i> means that the type is an array of pointers to char, not a pointer to an array of char. The c1 phase concerns itself with types it can handle: base types and pointers.
+

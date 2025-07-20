@@ -1,0 +1,45 @@
+ASM990 2.4.6     GETP2                      Sun Jul 20 19:28:51 2025 Page 0001
+GET POWER ROUTINE - CORTEX BASIC REV. 1.1
+
+              2         IDT  'GETP2'
+              3  *
+              4  *       GETP2                 ;GET POWER OF 2
+              5  *
+              6         DXOP FMUL,4            ;MULTIPLY FPAC
+              7  *
+              8         REF  CVCH              ;VARIABLE HOLDER
+              9         DEF  GETP2             ;ENTRY POINT
+             10  *
+             11  *       GETP2 WILL RETURN A 3 WORD FLOATING
+             12  *       POINT POWER OF 2 AS SPECIFIED BY R2.
+             13  *
+             14  * CALLING SEQUENCE:
+             15  *
+             16  *       BL @GETP2
+             17  *
+             18  *       IN R2    = 1,2 OR 3
+             19  *       OUT CVCH = #
+             20  *
+             21  *
+0000 0202    22  GETP2  LI   R2,GETPC-2
+0002 0012'
+0004 0812    23         SRA  R2,1              ;/2
+0006 A083    24         A    R3,R2             ;INDEX
+0008 0A12    25         SLA  R2,1              ;MAKE WORD INDEX
+000A C812    26         MOV  *R2,@CVCH         ;MOVE INTO CONSTANT
+000C 0000 
+000E 2D20    27         FMUL @CVCH             ;MULTIPLY FPAC
+0010 000C'
+0012 045B    28         RT
+             29  *
+0014 4120    30  GETPC  DATA >4120,>4140,>4180 POWERS OF 2
+             31         END
+ASM990 2.4.6     GETP2                      Sun Jul 20 19:28:51 2025 Page 0002
+GET POWER ROUTINE - CORTEX BASIC REV. 1.1
+
+CVCH     0010R  GETP2    0000D  GETPC    0014'  R0       0000   R1       0001   
+R10      000A   R11      000B   R12      000C   R13      000D   R14      000E   
+R15      000F   R2       0002   R3       0003   R4       0004   R5       0005   
+R6       0006   R7       0007   R8       0008   R9       0009   
+
+0 Errors in assembly

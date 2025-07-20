@@ -1,0 +1,247 @@
+MODEL	= TI990
+
+CC	= cc
+CFLAGS	= -O -D${MODEL} ${DEBUG} -I../../v6
+YACC	= yacc
+
+EXES = ac basename bc cal cat chgrp chk chmod chown clri cmp col comm cp date \
+	dcheck dd df diff du echo ed egrep fgrep file find grep icheck idate \
+	kill ln login ls mail man mkdir mv ncheck newgrp nice nm od passwd \
+	pr prof ps pwd reloc rev rm rmdir sh size sleep sort split strip \
+	stty sum sync tail tar tee time touch tr tty uname uniq wc who
+
+all: ${EXES}
+
+clean:
+	/bin/rm -f *.o ${EXES}
+
+ac: ac.o
+	${CC} ${DEBUG} -o ac ac.o
+basename: basename.o
+	${CC} ${DEBUG} -o basename basename.o
+bc: bc.o
+	${CC} ${DEBUG} -o bc bc.o
+cal: cal.o
+	${CC} ${DEBUG} -o cal cal.o
+cat: cat.o
+	${CC} ${DEBUG} -o cat cat.o
+chgrp: chgrp.o
+	${CC} ${DEBUG} -o chgrp chgrp.o
+chk: chk.o
+	${CC} ${DEBUG} -o chk chk.o
+chmod: chmod.o
+	${CC} ${DEBUG} -o chmod chmod.o
+chown: chown.o
+	${CC} ${DEBUG} -o chown chown.o
+clri: clri.o
+	${CC} ${DEBUG} -o clri clri.o
+cmp: cmp.o
+	${CC} ${DEBUG} -o cmp cmp.o
+col: col.o
+	${CC} ${DEBUG} -o col col.o
+comm: comm.o
+	${CC} ${DEBUG} -o comm comm.o
+cp: cp.o
+	${CC} ${DEBUG} -o cp cp.o
+dcheck: dcheck.o
+	${CC} ${DEBUG} -o dcheck dcheck.o
+date: date.o
+	${CC} ${DEBUG} -o date date.o
+dc: dc.o
+	${CC} ${DEBUG} -o dc dc.o
+dd: dd.o
+	${CC} ${DEBUG} -o dd dd.o
+df: df.o
+	${CC} ${DEBUG} -o df df.o
+diff: diff.o
+	${CC} ${DEBUG} -o diff diff.o
+du: du.o
+	${CC} ${DEBUG} -o du du.o
+echo: echo.o
+	${CC} ${DEBUG} -o echo echo.o
+ed: ed.o
+	${CC} ${DEBUG} -o ed ed.o
+egrep: egrep.o
+	${CC} ${DEBUG} -o egrep egrep.o
+fgrep: fgrep.o
+	${CC} ${DEBUG} -o fgrep fgrep.o
+file: file.o
+	${CC} ${DEBUG} -o file file.o
+find: find.o
+	${CC} ${DEBUG} -o find find.o
+grep: grep.o
+	${CC} ${DEBUG} -o grep grep.o
+icheck: icheck.o
+	${CC} ${DEBUG} -o icheck icheck.o
+idate: idate.o
+	${CC} ${DEBUG} -o idate idate.o
+kill: kill.o
+	${CC} ${DEBUG} -o kill kill.o
+ln: ln.o
+	${CC} ${DEBUG} -o ln ln.o
+login: login.o
+	${CC} ${DEBUG} -o login login.o
+ls: ls.o
+	${CC} ${DEBUG} -o ls ls.o
+mail: mail.o
+	${CC} ${DEBUG} -o mail mail.o
+man: man.o
+	${CC} ${DEBUG} -o man man.o
+mkdir: mkdir.o
+	${CC} ${DEBUG} -o mkdir mkdir.o
+mv: mv.o
+	${CC} ${DEBUG} -o mv mv.o
+ncheck: ncheck.o
+	${CC} ${DEBUG} -o ncheck ncheck.o
+newgrp: newgrp.o
+	${CC} ${DEBUG} -o newgrp newgrp.o
+nice: nice.o
+	${CC} ${DEBUG} -o nice nice.o
+nm: nm.o
+	${CC} ${DEBUG} -o nm nm.o
+od: od.o
+	${CC} ${DEBUG} -o od od.o
+passwd: passwd.o
+	${CC} ${DEBUG} -o passwd passwd.o
+pr: pr.o
+	${CC} ${DEBUG} -o pr pr.o
+prof: prof.o
+	${CC} ${DEBUG} -o prof prof.o
+ps: ps.o
+	${CC} ${DEBUG} -o ps ps.o
+pwd: pwd.o
+	${CC} ${DEBUG} -o pwd pwd.o
+reloc: reloc.o
+	${CC} ${DEBUG} -o reloc reloc.o
+rev: rev.o
+	${CC} ${DEBUG} -o rev rev.o
+rm: rm.o
+	${CC} ${DEBUG} -o rm rm.o
+rmdir: rmdir.o
+	${CC} ${DEBUG} -o rmdir rmdir.o
+sh: sh.o
+	${CC} ${DEBUG} -o sh sh.o
+size: size.o
+	${CC} ${DEBUG} -o size size.o
+sleep: sleep.o
+	${CC} ${DEBUG} -o sleep sleep.o
+sort: sort.o
+	${CC} ${DEBUG} -o sort sort.o
+split: split.o
+	${CC} ${DEBUG} -o split split.o
+strip: strip.o
+	${CC} ${DEBUG} -o strip strip.o
+stty: stty.o
+	${CC} ${DEBUG} -o stty stty.o
+sum: sum.o
+	${CC} ${DEBUG} -o sum sum.o
+sync: sync.o
+	${CC} ${DEBUG} -o sync sync.o
+tail: tail.o
+	${CC} ${DEBUG} -o tail tail.o
+tar: tar.o
+	${CC} ${DEBUG} -o tar tar.o
+tee: tee.o
+	${CC} ${DEBUG} -o tee tee.o
+time: time.o
+	${CC} ${DEBUG} -o time time.o
+touch: touch.o
+	${CC} ${DEBUG} -o touch touch.o
+tr: tr.o
+	${CC} ${DEBUG} -o tr tr.o
+tty: tty.o
+	${CC} ${DEBUG} -o tty tty.o
+uname: uname.o
+	${CC} ${DEBUG} -o uname uname.o
+uniq: uniq.o
+	${CC} ${DEBUG} -o uniq uniq.o
+wc: wc.o
+	${CC} ${DEBUG} -o wc wc.o
+who: who.o
+	${CC} ${DEBUG} -o who who.o
+
+ac.o: ac.c
+basename.o: basename.c
+cal.o: cal.c
+cat.o: cat.c
+chgrp.o: chgrp.c
+chk.o: chk.c
+chmod.o: chmod.c
+chown.o: chown.c
+clri.o: clri.c
+cmp.o: cmp.c
+col.o: col.c
+comm.o: comm.c
+cp.o: cp.c
+dcheck.o: dcheck.c
+date.o: date.c
+dd.o: dd.c
+df.o: df.c
+diff.o: diff.c
+du.o: du.c
+echo.o: echo.c
+ed.o: ed.c
+egrep.o: egrep.c
+fgrep.o: fgrep.c
+file.o: file.c
+find.o: find.c
+grep.o: grep.c
+icheck.o: icheck.c
+idate.o: idate.c
+kill.o: kill.c
+ln.o: ln.c
+login.o: login.c
+ls.o: ls.c
+mail.o: mail.c
+man.o: man.c
+mkdir.o: mkdir.c
+mv.o: mv.c
+ncheck.o: ncheck.c
+newgrp.o: newgrp.c
+nice.o: nice.c
+nm.o: nm.c
+od.o: od.c
+passwd.o: passwd.c
+pr.o: pr.c
+prof.o: prof.c
+ps.o: ps.c
+pwd.o: pwd.c
+reloc.o: reloc.c
+rev.o: rev.c
+rm.o: rm.c
+rmdir.o: rmdir.c
+sh.o: sh.c
+size.o: size.c
+sleep.o: sleep.c
+sort.o: sort.c
+split.o: split.c
+strip.o: strip.c
+stty.o: stty.c
+sum.o: sum.c
+sync.o: sync.c
+tail.o: tail.c
+tar.o: tar.c
+tee.o: tee.c
+time.o: time.c
+touch.o: touch.c
+tr.o: tr.c
+tty.o: tty.c
+uname.o: uname.c
+uniq.o: uniq.c
+wc.o: wc.c
+who.o: who.c
+
+bc.o: bc.c
+	${CC} -D${MODEL} ${DEBUG} -I../../v6 -c bc.c
+dc.o: dc.c dc.h
+	${CC} -D${MODEL} ${DEBUG} -I../../v6 -c dc.c
+
+bc.c: bc.y
+	${YACC} bc.y
+	cp y.tab.c bc.c
+	rm y.tab.c
+
+egrep.c: egrep.y
+	${YACC} egrep.y
+	cp y.tab.c egrep.c
+	rm y.tab.c

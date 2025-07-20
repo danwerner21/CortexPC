@@ -1,0 +1,500 @@
+ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0001
+ERROR HANDLER - CORTEX BASIC REV 1.1
+
+              2         IDT  'ERROR'
+              3  *
+              4  *
+              5  *
+              6         DEF  ERRS,STPY
+              7         DEF  STPYA,ERRY
+              8  *
+              9         REF  CRLF,EFLG,ENUM,RTSTOR,TBEND
+             10         REF  EVSKB,TYPS$,ESCFLG,PLF,GOSB1,MODE,B2E,NLIN
+             11         REF  TYP11$,MOVEB,MOVEL,PLC,SLN,CPYST
+             12         REF  TYPSN$,TYPBE$,TYPC$,TYPEN$,IOB
+             13         REF  NOERR,CRLF1T,CRLF2T,SYSERR,D10
+             14         REF  ERR00T,ERR01T,ERR02T,ERR03T,ERR04T,ERR05T
+             15         REF  ERR06T,ERR07T,ERR08T,ERR09T,ERR10T,ERR11T
+             16         REF  ERR12T,ERR13T,ERR14T,ERR15T,ERR16T,ERR17T
+             17         REF  ERR18T,ERR19T,ERR20T,ERR21T,ERR22T,ERR23T
+             18         REF  ERR24T,ERR25T,ERR26T,ERR27T,ERR28T,ERR29T
+             19         REF  ERR30T,ERR31T,ERR32T,ERR33T,ERR34T,ERR35T
+             20         REF  ERR36T,ERR37T,ERR38T,ERR39T,ERR40T,ERR41T
+             21         REF  ERR42T,ERR43T,ERR44T,ERR45T,ERR46T,ERR47T
+             22         REF  ERR48T,ERR49T
+             23         DEF  ERRLS2
+             24         REF  SLT,FFLG,STACNT
+             25         REF  D$RTWP,CRASH$,WAIT$
+             26         DXOP OUTINT,13
+             27         DXOP EVFIX,11
+             28         COPY 'IODEFS.INC'
+ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0002
+ERROR HANDLER - CORTEX BASIC REV 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0003
+ERROR HANDLER - CORTEX BASIC REV 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0004
+ERROR HANDLER - CORTEX BASIC REV 1.1
+
+             30  *
+             31  * ERROR HANDLER CALLED FROM EDER IN GETLINE MODULE
+             32  *
+0000 C80B    33  ERRLS2 MOV  R11,@RTSTOR       SAVE RETURN
+0002 0000 
+0004 03C0    34         CKOF
+0006 0000    35         DATA TYPSN$,CRLF1T     OUT 'CRLF** '
+000A 04E0    36         CLR  @ESCFLG           ENABLE ESCAPE
+000C 0000 
+000E C003    37         MOV  R3,R0             GET ASCII ERROR NUMBER
+0010 06C0    38         SWPB R0                RJ TENS DIGIT
+0012 0240    39         ANDI R0,>000F          MASK
+0014 000F 
+0016 3820    40         MPY  @D10,R0           CONVERT
+0018 0000 
+001A C283    41         MOV  R3,R10            COPY ERROR NUMBER
+001C 024A    42         ANDI R10,>000F         MASK
+001E 000F 
+0020 A04A    43         A    R10,R1            ADD IN
+0022 C2A0    44         MOV  @MODE,R10         IDLE ?
+0024 0000 
+0026 1304    45         JEQ  GETRR             Y, OK
+0028 C081    46         MOV  R1,R2             N, PUT ERROR # IN R2
+002A 0000    47         DATA TYP11$,>0D00      OUT A 'CR' TO COVER '** '
+002E 102A    48         JMP  ERRS0             AND DO PROPPER ERROR
+0030 0281    49  GETRR  CI   R1,MAXERR         VALID?
+0032 0031 
+0034 1203    50         JLE  GETER4            Y, LOOKUP
+0036 0202    51         LI   R2,SYSERR         N, GET 'SYTEM ERROR'
+0038 0000 
+003A 1003    52         JMP  GETER3
+003C A041    53  GETER4 A    R1,R1             GET WORD INDEX INTO TABLE
+003E C0A1    54         MOV  @ERRTBL(1),R2     GET ERROR TEXT ADDRESS
+0040 0170'
+0042 0207    55  GETER3 LI   R7,EVSKB          PUT THE MSG IN THE EVAL STACK
+0044 0000 
+0046 06A0    56         BL   @MOVE$R           GO COPY IT
+0048 013A'
+004A 1D05    57         SBO  ROMON-PIO         TURN ROM OFF
+004C 75D7    58         SB   *R7,*R7           PUT NULL ON END OF ERR MSG
+004E 0000    59         DATA TYPS$,EVSKB       OUTPUT IT
+0052 0201    60         LI   R1,CRLF2T         POINT TO ' ** '
+0054 0000 
+0056 0000    61         DATA TYPEN$            OUT STRING
+0058 0000    62         DATA TYPC$             OUT CRLF
+005A C2E0    63         MOV  @RTSTOR,R11       GET RETURN ADDRESS
+005C 0002'
+005E 045B    64         B    *R11              RETURN
+ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0005
+ERROR HANDLER - CORTEX BASIC REV 1.1
+
+             66  *
+             67  * ERROR RECOVERY ROUTINE
+             68  *
+0060 C0AE    69  ERRS   MOV  @-2(14),R2        GET INSTRUCTION
+0062 FFFE 
+0064 0242    70         ANDI R2,>3F            ISOLATE ERROR #
+0066 003F 
+0068 03C0    71         CKOF
+             72  *
+             73  * COPY BACK THE ERROR MESSAGES
+             74  *
+006A 0201    75         LI   R1,CPYST          REF START
+006C 0000 
+             76X        ASMIF PIO
+             77X        LI   R12,PIO
+             78         ASMELS
+006E 04CC    79         CLR  R12
+             80         ASMEND
+             81  *
+0070 0300    82  CPY1   LIMI 0                 NO INTERRUPTS
+0072 0000 
+0074 1E05    83         SBZ  ROMON-PIO         ROM ON
+0076 CC51    84         MOV  *R1,*R1+          COPY WORD
+0078 1D05    85         SBO  ROMON-PIO         ROM OFF
+007A 0300    86         LIMI 15                ENABLE INTERRUPTS
+007C 000F 
+007E 0281    87         CI   R1,TBEND          DONE COPY ?
+0080 0000 
+0082 1AF6    88         JL   CPY1              N, LOOP
+             89  *
+0084 C802    90  ERRS0  MOV  R2,@ENUM          SAVE IT
+0086 0000 
+0088 04E0    91         CLR  @FFLG             KILL FORMATTING FLAG
+008A 0000 
+008C 04E0    92         CLR  @PLF              KIL LOAD/SAVE FLAG
+008E 0000 
+0090 C060    93         MOV  @EFLG,R1          ERROR COMMAND EXECUTED?
+0092 0000 
+0094 1304    94         JEQ  ERRS01
+0096 04E0    95         CLR  @EFLG             Y - RESET ERROR HANDLER
+0098 0092'
+009A 0460    96         B    @GOSB1            DO SYSTEM GOSUB
+009C 0000 
+009E C042    97  ERRS01 MOV  R2,R1             GET ERROR NUMBER
+00A0 C1E0    98         MOV  @IOB,R7           GET I/O BUFFER
+00A2 0000 
+00A4 0202    99         LI   R2,CRLF1T         POINT TO 'CRLF** '
+00A6 0008'
+00A8 06A0   100         BL   @MOVE             COPY INTO BUFFER
+00AA 0142'
+00AC 0281   101         CI   R1,MAXERR         VALID ERROR ?
+00AE 0031 
+00B0 1203   102         JLE  ERRL1             Y, LEAVE ALONE
+00B2 0202   103         LI   R2,SYSERR         N, GET SYSTEM ERROR
+00B4 0038'
+00B6 1003   104         JMP  ERRL2             & OUTPUT
+00B8 A041   105  ERRL1  A    R1,R1             WORD INDEX
+00BA C0A1   106         MOV  @ERRTBL(1),R2     GET ERROR TEXT
+00BC 0170'
+00BE 06A0   107  ERRL2  BL   @MOVE             OUT TEXT
+ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0006
+ERROR HANDLER - CORTEX BASIC REV 1.1
+
+00C0 0142'
+00C2 0202   108         LI   R2,CRLF2T         OUT ' ** '
+00C4 0054'
+00C6 06A0   109         BL   @MOVE             OUTPUT IT
+00C8 0142'
+00CA C020   110  ERRS02 MOV  @MODE,R0          CHECK MODE
+00CC 0024'
+00CE 1325   111         JEQ  ERRS2             IDLE
+00D0 C120   112         MOV  @SLN,R4           RUN. PICK UP LINE #
+00D2 0000 
+00D4 1015   113         JMP  ERRS1
+ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0007
+ERROR HANDLER - CORTEX BASIC REV 1.1
+
+            115  *
+            116  *    ENTRY POINT FOR STOP STATEMENT
+            117  *
+00D6 C0A0   118  STPYA  MOV  @PLC,R2
+00D8 0000 
+00DA 0222   119         AI   R2,-4             CHECK TO SEE IF THERE IS A
+00DC FFFC 
+00DE 8802   120         C    R2,@SLT           STATEMENT AFTER THE STOP
+00E0 0000 
+00E2 1A06   121         JL   STPY
+00E4 C120   122         MOV  @SLN,R4
+00E6 00D2'
+00E8 C822   123         MOV  @-2(R2),@SLN      SAVE LINE # FOR CONT
+00EA FFFE 
+00EC 00E6'
+00EE 1002   124         JMP  STPY1
+            125  *
+            126  * ENTRY POINT FOR ESCAPE KEY OR END
+            127  *
+00F0 C120   128  STPY   MOV  @SLN,R4
+00F2 00EC'
+00F4 06A0   129  STPY1  BL   @MOVEB
+00F6 0000 
+00F8 0A0D   130         DATA >0A0D
+00FA 53     131         TEXT 'Stop '
+00FB 74   
+00FC 6F   
+00FD 70   
+00FE 20   
+00FF 00     132         BYTE 0
+            133  *
+0100 0720   134  ERRS1  SETO @ENUM             NON-FATAL ERROR
+0102 0086'
+0104 06A0   135         BL   @MOVEL
+0106 0000 
+0108 61     136         TEXT 'at '
+0109 74   
+010A 20   
+010B 00     137         BYTE 0
+010C 2F44   138  ERRS1A OUTINT R4              OUT CURRENT LINE #
+010E C060   139         MOV  @STACNT,R1        GET STATEMENT INDENT COUNT
+0110 0000 
+0112 1303   140         JEQ  ERRS2             0, LEAVE LINE No.
+0114 DDE0   141         MOVB @B2E,*R7+         OUT '.'
+0116 0000 
+0118 2F41   142         OUTINT R1              OUT INDENT COUNT
+            143  *
+011A C060   144  ERRS2  MOV  @ENUM,R1          GET ERROR NUMBER
+011C 0102'
+011E 1604   145         JNE  ERRS2A            NON-FATAL, SKIP
+0120 0201   146         LI   R1,D$RTWP         FATAL, POINT TO A RTWP
+0122 0000 
+0124 C801   147         MOV  R1,@>FFFE         KILL OFF NMI
+0126 FFFE 
+0128 0000   148  ERRS2A DATA TYPBE$            OUTPUT BUFFER
+012A C060   149         MOV  @ENUM,R1          GET ERROR NUMBER
+012C 011C'
+012E 1302   150         JEQ  ERRS2B            0, CRASH
+0130 0460   151         B    @CRLF             <>0, RETURN TO CRLF
+0132 0000 
+ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0008
+ERROR HANDLER - CORTEX BASIC REV 1.1
+
+0134 0000   152  ERRS2B DATA WAIT$             WAIT FOR I/O TO COMPLETE
+0136 0460   153         B    @CRASH$           CALL SYSTEM CRASH HANDLER
+0138 0000 
+            154  *
+013A 0300   155  MOVE$R LIMI 0                 NO INTERRUPTS
+013C 0000 
+            156X        ASMIF PIO
+            157X        LI   R12,2*PIO         LOAD CRUBASE
+            158         ASMELS
+013E 04CC   159         CLR  R12
+            160         ASMEND
+0140 1E05   161         SBZ  ROMON-PIO         TURN ROM ON
+     0142'  162  MOVE   EQU  $
+0142 DDF2   163         MOVB *R2+,*R7+         MOVE CHARACTER
+0144 15FE   164         JGT  MOVE              +VE, COPY
+0146 1102   165         JLT  NTERM             -VE, SPECIAL EXIT PATH
+            166  *                             0,   EXIT
+0148 0607   167         DEC  R7                BACKUP BUFFER POINTER
+014A 045B   168  DONIT  B    *R11              RETURN
+            169  *
+014C 04C9   170  NTERM  CLR  R9                -VE,READY HOLDING REG
+014E D267   171         MOVB @-1(R7),R9        GET BACK BYTE
+0150 FFFF 
+0152 0509   172         NEG  R9                RESTORE IT
+0154 D9C9   173         MOVB R9,@-1(R7)        PUT IT BACK
+0156 FFFF 
+0158 10F8   174         JMP  DONIT             EXIT
+ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0009
+ERROR HANDLER - CORTEX BASIC REV 1.1
+
+            176  *
+            177  *   ERROR COMMAND
+            178  *
+015A C060   179  ERRY   MOV  @MODE,R1          IDLE?
+015C 00CC'
+015E 1304   180         JEQ  ERRY1             Y, TOGGLE ENABLE FLAG
+0160 2EE0   181         EVFIX @EFLG            SAVE ERROR HANDLER LINE NUMBER
+0162 0098'
+0164 0460   182         B    @NLIN             NEW LINE
+0166 0000 
+0168 0560   183  ERRY1  INV  @NOERR            TOGGLE FLAG
+016A 0000 
+016C 0460   184         B    @CRLF             EXIT
+016E 0132'
+ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0010
+ERROR HANDLER - CORTEX BASIC REV 1.1
+
+0170 0000   186  ERRTBL DATA ERR00T
+0172 0000   187         DATA ERR01T
+0174 0000   188         DATA ERR02T
+0176 0000   189         DATA ERR03T
+0178 0000   190         DATA ERR04T
+017A 0000   191         DATA ERR05T
+017C 0000   192         DATA ERR06T
+017E 0000   193         DATA ERR07T
+0180 0000   194         DATA ERR08T
+0182 0000   195         DATA ERR09T
+0184 0000   196         DATA ERR10T
+0186 0000   197         DATA ERR11T
+0188 0000   198         DATA ERR12T
+018A 0000   199         DATA ERR13T
+018C 0000   200         DATA ERR14T
+018E 0000   201         DATA ERR15T
+0190 0000   202         DATA ERR16T
+0192 0000   203         DATA ERR17T
+0194 0000   204         DATA ERR18T
+0196 0000   205         DATA ERR19T
+0198 0000   206         DATA ERR20T
+019A 0000   207         DATA ERR21T
+019C 0000   208         DATA ERR22T
+019E 0000   209         DATA ERR23T
+01A0 0000   210         DATA ERR24T
+01A2 0000   211         DATA ERR25T
+01A4 0000   212         DATA ERR26T
+01A6 0000   213         DATA ERR27T
+01A8 0000   214         DATA ERR28T
+01AA 0000   215         DATA ERR29T
+01AC 0000   216         DATA ERR30T
+01AE 0000   217         DATA ERR31T
+01B0 0000   218         DATA ERR32T
+01B2 0000   219         DATA ERR33T
+01B4 0000   220         DATA ERR34T
+01B6 0000   221         DATA ERR35T
+01B8 0000   222         DATA ERR36T
+01BA 0000   223         DATA ERR37T
+01BC 0000   224         DATA ERR38T
+01BE 0000   225         DATA ERR39T
+01C0 0000   226         DATA ERR40T
+01C2 0000   227         DATA ERR41T
+01C4 0000   228         DATA ERR42T
+01C6 0000   229         DATA ERR43T
+01C8 0000   230         DATA ERR44T
+01CA 0000   231         DATA ERR45T
+01CC 0000   232         DATA ERR46T
+01CE 0000   233         DATA ERR47T
+01D0 0000   234         DATA ERR48T
+01D2 0000   235         DATA ERR49T
+     0031   236  MAXERR EQU  ($-ERRTBL-2)/2    HIGHEST USED BASIC ERROR
+            237         END
+ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0011
+ERROR HANDLER - CORTEX BASIC REV 1.1
+
+B2E        0116R  BELLON     0006   BTENBL     0003   BUSACK     0002   
+BUSINT     0007   CASS02     00C0   CLKLED     0000   CPY1       0070'  
+CPYST      006CR  CRASH$     0138R  CRLF       016ER  CRLF1T     00A6R  
+CRLF2T     00C4R  CTBA       0700   CTBA1      2000   D$RTWP     0122R  
+D1$DEN     0003   D1$SIZ     0002   D10        0018R  DMAC       00E0   
+DONIT      014A'  DRVSIZ     0004   EDATA      0208   EFLG       0162R  
+EIA02      0040   ENUM       012CR  EPADR      0210   EPTYPE     0201   
+ERR00T     0170R  ERR01T     0172R  ERR02T     0174R  ERR03T     0176R  
+ERR04T     0178R  ERR05T     017AR  ERR06T     017CR  ERR07T     017ER  
+ERR08T     0180R  ERR09T     0182R  ERR10T     0184R  ERR11T     0186R  
+ERR12T     0188R  ERR13T     018AR  ERR14T     018CR  ERR15T     018ER  
+ERR16T     0190R  ERR17T     0192R  ERR18T     0194R  ERR19T     0196R  
+ERR20T     0198R  ERR21T     019AR  ERR22T     019CR  ERR23T     019ER  
+ERR24T     01A0R  ERR25T     01A2R  ERR26T     01A4R  ERR27T     01A6R  
+ERR28T     01A8R  ERR29T     01AAR  ERR30T     01ACR  ERR31T     01AER  
+ERR32T     01B0R  ERR33T     01B2R  ERR34T     01B4R  ERR35T     01B6R  
+ERR36T     01B8R  ERR37T     01BAR  ERR38T     01BCR  ERR39T     01BER  
+ERR40T     01C0R  ERR41T     01C2R  ERR42T     01C4R  ERR43T     01C6R  
+ERR44T     01C8R  ERR45T     01CAR  ERR46T     01CCR  ERR47T     01CER  
+ERR48T     01D0R  ERR49T     01D2R  ERRL1      00B8'  ERRL2      00BE'  
+ERRLS2     0000D  ERRS       0060D  ERRS0      0084'  ERRS01     009E'  
+ERRS02     00CA'  ERRS1      0100'  ERRS1A     010C'  ERRS2      011A'  
+ERRS2A     0128'  ERRS2B     0134'  ERRTBL     0170'  ERRY       015AD  
+ERRY1      0168'  ESCFLG     000CR  EVSKB      0050R  FDC        F140   
+FDCINT     0004   FFLG       008AR  GETER3     0042'  GETER4     003C'  
+GETRR      0030'  GOSB1      009CR  IOB        00A2R  KBDACK     0001   
+KBDINT     0005   KDS        0000   KEYBRD     0008   M$REG0     F100   
+M$REG1     F102   M$REG2     F104   M$REG3     F106   M$REG4     F108   
+M$REG5     F10A   M$REG6     F10C   M$REG7     F10E   M$REG8     F110   
+M$REG9     F112   M$REGA     F114   M$REGB     F116   M$REGC     F118   
+M$REGD     F11A   M$REGE     F11C   M$REGF     F11E   MAPPER     F100   
+MAXERR     0031   MODE       015CR  MOVE       0142'  MOVE$R     013A'  
+MOVEB      00F6R  MOVEL      0106R  NLIN       0166R  NOERR      016AR  
+NTBA       0400   NTBA1      1800   NTERM      014C'  PGBA       0800   
+PGM        0205   PGMPUL     0206   PGTBA1     0000   PIO        0000   
+PLC        00D8R  PLF        008ER  PPBUSY     0409   PPDS       0408   
+PPRINT     0400   PRMPOP     0200   PROERR     0206   PRORDY     0204   
+PRORST     0200   R0         0000   R1         0001   R10        000A   
+R11        000B   R12        000C   R13        000D   R14        000E   
+R15        000F   R2         0002   R3         0003   R4         0004   
+R5         0005   R6         0006   R7         0007   R8         0008   
+R9         0009   ROMON      0005   RTSTOR     005CR  SLN        00F2R  
+SLT        00E0R  SNTBA      0780   SNTBA1     1B00   SPGBA      0000   
+SPGBA1     3800   STACNT     0110R  STPY       00F0D  STPY1      00F4'  
+STPYA      00D6D  SYSERR     00B4R  TBEND      0080R  TYP11$     002AR  
+TYPBE$     0128R  TYPC$      0058R  TYPEN$     0056R  TYPS$      004ER  
+TYPSN$     0006R  V30        0207   VCCON      0204   VDP        F120   
+VDPINT     0006   VDPREG     F121   VRAM       F120   WAIT$      0134R  
+
+
+0 Errors in assembly

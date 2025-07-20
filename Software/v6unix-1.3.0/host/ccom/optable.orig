@@ -1,0 +1,2615 @@
+%{
+/*
+ * c code tables-- compile to register
+ */
+
+struct table regtab[] = {
+	{106,cr106},	/* load */
+	{30,cr70},	/* prefix ++, handled as += */
+	{31,cr70},	/* prefix --, handled as -= */
+	{32,cr32},	/* postfix ++ */
+	{33,cr32},	/* postfix -- */
+	{37,cr37},	/* unary - */
+	{38,cr37},	/* ~ */
+	{98,cr100},	/* call */
+	{99,cr100},	/* call */
+	{80,cr80},	/* = */
+	{91,cr91},	/* +1, +2 */
+	{92,cr91},	/* -1, -2 */
+	{40,cr40},	/* + */
+	{41,cr40},	/* - */
+	{42,cr42},	/* *, char/int, both signed & unsigned */
+	{43,cr43},	/* /, signed char/int, calls @idiv */
+	{14,cr14},	/* PTOI: scale pointer difference to int */
+	{44,cr43},	/* %, signed char/int, calls @irem */
+	{45,cr45},	/* >>, signed */
+	{17,cr45},	/* >>, unsigned */
+	{46,cr45},	/* << */
+	{55,cr40},	/* &~ */
+	{48,cr40},	/* | */
+	{49,cr49},	/* ^ */
+	{70,cr70},	/* += */
+	{71,cr70},	/* -= */
+	{72,cr72},	/* *= */
+	{73,cr73},	/* /=, signed char/int, calls @idiv */
+	{74,cr73},	/* %=, signed char/int, calls @irem */
+	{75,cr75},	/* >>=, signed */
+	{18,cr75},	/* >>=, unsigned */
+	{76,cr75},	/* <<= */
+	{78,cr78},	/* |= */
+	{85,cr78},	/* &= */
+	{79,cr79},	/* ^= */
+	{102,cr102},	/* goto */
+	{51,cr51},	/* cvt int => float */
+	{52,cr52},	/* cvt float => int */
+	{56,cr56},	/* cvt long => float */
+	{57,cr57},	/* cvt float => long */
+	{58,cr58},	/* cvt int => long */
+	{59,cr59},	/* cvt long => int */
+	{82,cr82},	/* *, signed long, calls @lmul */
+	{83,cr82},	/* /, signed long, calls @ldiv */
+	{84,cr82},	/* %, signed long, calls @lrem */
+	{86,cr86},	/* *=, signed long, calls @almul */
+	{87,cr86},	/* /=, signed long, calls @aldiv */
+	{88,cr86},	/* %=, signed long, calls @alrem */
+	{16,cr16},	/* = for bit fields */
+	{109,cr109},	/* cvt int -> char */
+	{117,cr117},	/* /  for unsigned char/int or divisor known positive */
+	{118,cr117},	/* %  for unsigned char/int or divisor known positive */
+	{119,cr119},	/* /= for unsigned char/int or divisor known positive */
+	{120,cr119},	/* %= for unsigned char/int or divisor known positive */
+	{107,cr107},	/* special case (int *) - (int *) */
+	{121,cr121},	/* *, unsigned long, calls @lmul */
+	{122,cr121},	/* /, unsigned long, calls @uldiv */
+	{123,cr121},	/* %, unsigned long, calls @ulrem */
+	{124,cr124},	/* *=, unsigned long, calls @almul */
+	{125,cr124},	/* /=, unsigned long, calls @ualdiv */
+	{126,cr124},	/* %=, unsigned long, calls @ualrem */
+	{127,cr127},	/* cvt unsigned long to float, calls @ultof */
+	{130,cr130},	/* special handling of 'x - &name' */
+	{0}
+};
+%}
+
+/* goto (are these entries still used?) */
+cr102:
+%a,n
+	b	A1
+
+%n*,n
+	F*
+	b	#1(R)
+
+/* call */
+cr100:
+%a,n
+	bl	A1
+
+%n*,n
+	F*
+	bl	#1(R)
+
+%n,n
+	F
+	bl	(R)
+
+/* load */
+cr106:
+%z,n
+	clr	R
+
+%zf,n
+	clrf	R
+
+%c,n
+	li	R,A1
+
+%aub,n
+%ab,n
+%a,n
+%ad,n
+	movB1	A1,R
+	>1	R,8
+
+%af,n
+	movof	A1,R
+
+%nub*,n
+%nb*,n
+%n*,n
+%nd*,n
+	F*
+	movB1	#1(R),R
+	>1	R,8
+
+%nf*,n
+	F*
+	movof	#1(R),R
+
+%cl,n
+%cul,n
+	li	R+,A1+
+	li	R,A1
+
+%al,n
+%aul,n
+	mov	A1+,R+
+	mov	A1,R
+
+%nl*,n
+%nul*,n
+	F*
+	mov	#1+2(R),R+
+	mov	#1(R),R
+
+%n,n
+	F
+
+/* ++,-- postfix; the right operand is always a CON */
+cr32:
+%aw,1
+	mov	A1',R
+	I'	A1''
+
+%aw,2
+	mov	A1',R
+	I't	A1''
+
+%aw,n
+	mov	A1',R
+	li	r0,A2
+	I	r0,A1''
+
+%ab,n
+%aub,n
+	movb	A1',R
+	>1	R,8
+	li	r0,256*A2
+	Ib	r0,A1''
+
+%ew*,1
+	F1*
+	mov	#1(R1),R
+	I'	#1(R1)
+
+%nw*,1
+	F*
+	Q
+	mov	#1(R),(sp)
+	I'	#1(R)
+	mov	(sp)+,R
+
+%ew*,n
+	F1*
+	mov	#1(R1),R
+	li	r0,A2
+	I	r0,#1(R1)
+
+%eb*,n
+%eub*,n
+	F1*
+	movb	#1(R1),R
+	>1	R,8
+	li	r0,256*A2
+	Ib	r0,#1(R1)
+
+%nw*,n
+	F*
+	Q
+	mov	#1(R),(sp)
+	I	A2,#1(R)
+	mov	(sp)+,R
+
+%nb*,n
+%nub*,n
+	F*
+	Q
+	movb	(R),(sp)
+	li	r0,256*A2
+	Ib	r0,(R)
+	movb	(sp)+,R
+	>1	R,8
+
+%al,1
+%aul,1
+	F
+	I'	A1+
+	V	A1
+
+%el*,1
+%eul*,1
+	F1*
+	mov	#1+2(R1),R+
+	mov	#1(R1),R
+	I'	#1+2(R1)
+	V	#1(R1)
+
+%nl*,1
+%nul*,1
+	F*
+	Q
+	mov	#1+2(R),(sp)
+	Q
+	mov	#1(R),(sp)
+	I'	#1+2(R)
+	V	#1(R)
+	mov	(sp)+,R
+	mov	(sp)+,R+
+
+/* - unary, ~ */
+cr37:
+%n,n
+%nf,n
+	F
+	IBF	R
+
+%nl,n
+%nul,n
+	F
+	I	R
+	I	R+
+	V	R
+
+/* = */
+cr80:
+%aub,n
+%a,n
+%ad,nf
+	S
+	<1	R,8
+	movB1	R,A1
+	>1	R,8
+
+%af,nf
+	S
+	movfo	R,A1
+
+%nd*,af
+	F*
+	S
+	movf	R,#1(R)
+
+%nb*,c
+%nub*,c
+	F*
+	li	r0,A2*256
+	movb	r0,#1(R)
+	>1	r0,8
+	mov	r0,R
+
+%n*,c
+	F*
+	li	r0,A2
+	mov	r0,#1(R)
+	mov	r0,R
+
+%nb*,ab
+%nub*,ab
+%nb*,aub
+%nub*,aub
+	F*
+	movb	A2,#1(R)
+
+%nb*,a
+%nub*,a
+	F*
+	mov	A2,r0
+	<1	r0,8
+	IB1	r0,#1(R)
+
+%n*,aw
+	F*
+	movB1	A2',#1(R)
+	movB1	A2,R
+	>1	R,8
+
+%nf*,af
+	F*
+	S
+	movfo	R,#1(R)
+
+%nub*,e
+%n*,e
+	F*
+	S1
+	<1	R1,8
+	movB1	R1,#1(R)
+	>1	R1,8
+	mov	R1,R
+
+%ed*,nf
+	S
+	F1*
+	movf	R,#1(R1)
+
+%ef*,nf
+	S
+	F1*
+	movfo	R,#1(R1)
+
+%nub*,n
+%n*,n
+%nd*,nf
+	FS*
+	S
+	<1	R,8
+	mov	(sp)+,r0
+	movB1	R,(r0)
+	>1	R,8
+
+%nf*,nf
+	FS*
+	S
+	mov	(sp)+,r0
+	movfo	R,(r0)
+
+%al,nl
+%al,nul
+%aul,nl
+%aul,nul
+	S
+	mov	R+,A1+
+	mov	R,A1
+
+%el*,nl
+%el*,nul
+%eul*,nl
+%eul*,nul
+	S
+	F1*
+	mov	R+,#1+2(R1)
+	mov	R,#1(R1)
+
+%nl*,nl
+%nl*,nul
+%nul*,nl
+%nul*,nul
+	FS*
+	S
+	mov	(sp)+,r0
+	mov	R,(r0)+
+	mov	R+,(r0)
+
+/* field assign, value in reg. */
+cr16:
+%a,n
+	S
+	li	r0,Z
+	szcB1	r0,A1'
+	socB1	R,A1''
+
+%e*,n
+%	[fas1]
+
+%n*,n
+	SS
+	F*
+	li	r0,Z
+	szcB1	r0,#1(R)
+	socB1	(sp),#1(R)
+	mov	(sp)+,R
+
+/* <<, >>, unsigned >> */
+cr45:
+%nub,c
+%n,c
+	F
+	I	R,A2
+
+%nub,a
+%n,a
+	F
+	mov	A2,r0
+	>2	r0,8
+	jeq	.+4
+	I	R,0
+
+%nub,e
+%n,e
+	F
+	S1
+	mov	R1,r0
+	jeq	.+4
+	I	R,0
+
+%nub,n
+%n,n
+	SS
+	F
+	mov	(sp)+,r0
+	jeq	.+4
+	I	R,0
+
+%nl,c
+%nul,c
+	F!
+	li	r0,A2
+	bl	I'
+
+%nul,a
+%nl,a
+	F!
+	movB2	A2,r0
+	>2	r0,8
+	jeq	.+6
+	bl	I'
+
+%nul,e
+%nl,e
+	F!
+	S1
+	mov	R1,r0
+	jeq	.+6
+	bl	I'
+
+%nul,n
+%nl,n
+	SS
+	F!
+	mov	(sp)+,r0
+	jeq	.+6
+	bl	I'
+
+/* +1, +2, -1, -2 */
+cr91:
+%n,1
+	F
+	I	R
+
+%n,2
+	F
+	It	R
+
+/* +, -, |, &~ */
+cr40:
+%n,z
+	F
+
+%c,c
+	li	R,A1
+	I"	R,A2
+
+%aub,c
+%a,c
+	movB1	A1,R
+	>1	R,8
+	I"	R,A2
+
+%n,c
+	F
+	I"	R,A2
+
+%[add1:]
+%n,aw
+%nf,ad
+	F
+	IB2	A2,R
+
+%[add2:]
+%n,ew*
+%nf,ed*
+	F
+	S1*
+	IB2	#2(R1),R
+
+%[add3:]
+%n,e
+%nf,ef
+	F
+	S1
+	IBF	R1,R
+
+%[add5:]
+%n,n
+%nf,nf
+	SS
+	F
+	IBF	(sp)+,R
+
+%nl,c
+%nul,c
+	F
+	I"	R+,A2
+	V	R
+
+%nl,cl
+%nul,cl
+	F
+	I"	R,A2
+	I"	R+,A2+
+	V	R
+
+%nl,a
+%nul,a
+	F
+	I	A2,R+
+	V	R
+
+%nl,e
+%nul,e
+	F
+	S1
+	I	R1,R+
+	V	R
+
+%nl,al
+%nl,aul
+%nul,al
+%nul,aul
+	F
+	I	A2,R
+	I	A2+,R+
+	V	R
+
+%[addl1:]
+%nl,el
+%nl,eul
+%nul,el
+%nul,eul
+	F
+	S1
+	I	R1+,R+
+	I	R1,R
+	V	R
+
+%[addl2:]
+%nl,nl
+%nl,nul
+%nul,nl
+%nul,nul
+	SS
+	F
+	I	(sp)+,R
+	I	(sp)+,R+
+	V	R
+
+/* ^ -- xor */
+cr49:
+%n,e
+%	[add3]
+
+%n,n
+	FS
+	S
+	I	(sp)+,R
+
+%nl,el
+%nl,eul
+%nul,el
+%nul,eul
+%	[addl1]
+
+%nl,nl
+%nl,nul
+%nul,nl
+%nul,nul
+	SS
+	F
+	I	(sp)+,R
+	I	(sp)+,R+
+
+/* '*' -- low word of result is okay for both signed and unsigned.
+ * R is increased by 1 following these snippets.
+ */
+cr42:
+%ab,c
+	li	R,A2
+	movb	A1,r0
+	>1	r0,8
+	I	r0,R
+
+%a,c
+	li	R,A2
+	I	A1,R
+
+%n,c
+	F
+	li	r0,A2
+	I	r0,R
+
+%n,aw
+%nf,ad
+	F
+	IB2	A2,R
+
+%n,ew*
+%nf,ed*
+	F
+	S1*
+	IB2	#2(R1),R
+
+%n,e
+%nf,ef
+	F
+	S1
+	IBF	R1,R
+
+%n,n
+%nf,nf
+	SS
+	F
+	IBF	(sp)+,R
+
+/* / and % -- signed */
+cr43:
+%n,e
+	F!
+	S1!
+	bl	I
+
+%n,n
+	SS
+	F!
+	mov	(sp)+,R1
+	bl	I
+
+%nf,ad
+%	[add1]
+
+%nf,ed*
+%	[add2]
+
+%nf,ef
+%	[add3]
+
+%nf,nf
+%	[add5]
+
+/* PTOI */
+cr14:
+%nl,a
+%nul,a
+	F
+	li	r0,A2
+	div	r0,R
+
+/* +=, -= */
+cr70:
+%aw,1
+	I'	A1'
+	xxx
+	mov	A1,R
+
+%aw,2
+	I't	A1'
+	mov	A1,R
+
+%aub,c
+%a,c
+	movB1	A1',R
+	>1	R,8
+	I"	R,A2
+	<1	R,8
+	movB1	R,A1
+	>1	R,8
+
+%[addq1:]
+%aw,aw
+	I	A2,A1'
+	mov	A1,R
+
+%[addq20:]
+%aub,aw
+%a,aw
+	movB1	A1',R
+	>1	R,8
+	I	R,A2
+	<1	R,8
+	movB1	R,A1
+	>1	R,8
+
+%[addq1a:]
+%ad,ad
+	movB1	A1',R
+	IBF	A2,R
+	movB1	R,A1
+
+%[addq2:]
+%aw,nw*
+	S*
+	I	#2(R),A1'
+	mov	A1,R
+
+%[addq3:]
+%aw,n
+	S
+	I	R,A1'
+	mov	A1,R
+
+%[addq21:]
+%a,n
+%aub,n
+	SS
+	movB1	A1',R
+	>1	R,8
+	I	(sp)+,R
+	<1	R,8
+	movB1	R,A1
+	>1	R,8
+
+%[addq4:]
+%ew*,nw*
+	S*
+	F1*
+	I	#2(R),#1(R1)
+	mov	#1(R1),R
+
+%[addq4a:]
+%ad,ef
+	movf	A1',R
+	S1
+	IBF	R1,R
+	movf	R,A1
+
+%[addq5:]
+%ad,nf
+	SS
+	movB1	A1',R
+	IBF	(sp)+,R
+	movB1	R,A1
+
+%[addq6:]
+%af,nf
+	SS
+	movof	A1',R
+	IBF	(sp)+,R
+	movfo	R,A1''
+
+%[addq7:]
+%ew*,n
+	S
+	F1*
+	I	R,#1(R1)
+	mov	#1(R1),R
+
+%[addq8:]
+%nw*,n
+	SS
+	F*
+	I	(sp)+,#1(R)
+	mov	#1(R),R
+
+%[addq9:]
+%nub*,n
+%n*,n
+	FS*
+	SS
+	mov	@2(sp),r0
+	movB1	(r0),R
+	>1	R,8
+	IBF	(sp)+,R
+	<1	
+	movB1	R,(r0)
+	>1	R,8
+	inct	sp
+
+%[addq22:]
+%nub*,n
+%	[addq9]
+
+%[addq9a:]
+%nd*,nf
+	SS
+	F*
+	movB1	#1(R),R
+	IBF	(sp)+,R
+	movB1	R,#1(R)
+
+%[addq10:]
+%nf*,nf
+	SS
+	F*
+	movof	#1(R),R1
+	IBF	(sp)+,R1
+	movfo	R1,#1(R)
+	movf	R1,R
+
+%al,1
+%aul,1
+	I'	A1+
+	V	A1
+	F
+
+%al,2
+%aul,2
+	I't	A1+
+	V	A1
+	F
+
+%[addq11:]
+%al,c
+%aul,c
+	li	R,A2
+	I	R,A1+
+	V	A1
+	F
+
+%[addq12:]
+%al,al
+%al,aul
+%aul,al
+%aul,aul
+	I	A2+,A1+
+	V	A1
+	I	A2,A1
+	F
+
+%[addq13:]
+%al,nl
+%al,nul
+%aul,nl
+%aul,nul
+	S
+	I	R+,A1+
+	V	A1
+	I	R,A1
+	F
+
+%[addq14:]
+%nl*,c
+%nul*,c
+	F*
+	li	r0,A2
+	I	r0,#1+2(R)
+	V	#1(R)
+	mov	#1+2(R),R+
+	mov	#1(R),R
+
+%nl*,cl
+%nul*,cl
+	F*
+	li	r0,A2+
+	I	r0,#1+2(R)
+	V	#1(R)
+	li	r0,A2
+	I	r0,#1(R)
+	mov	#1+2(R),R+
+	mov	#1(R),R
+
+%[addq15:]
+%nl*,al
+%nl*,aul
+%nul*,al
+%nul*,aul
+	F*
+	I	A2+,#1+2(R)
+	V	#1(R)
+	I	A2,#1(R)
+	mov	#1+2(R),R+
+	mov	#1(R),R
+
+%[addq16:]
+%nl*,nl
+%nl*,nul
+%nul*,nl
+%nul*,nul
+	SS
+	F*
+	I	(sp)+,#1(R)
+	I	(sp)+,#1+2(R)
+	V	#1(R)
+	mov	#1+2(R),R+
+	mov	#1(R),R
+
+/* '*=' */
+cr72:
+%aub,c
+%a,c
+	movB1	A1',R
+	>1	R,8
+	li	R1,A2
+	I	R1,R
+	<1	R1,8
+	movB1	R1,A1
+
+%aub,ab
+%aub,aub
+%a,ab
+%a,aub
+	movB1	A1',R
+	>1	R,8
+	movB1	A2,R1
+	>2	R1,8
+	I	R1,R
+	<1	R1,8
+	movB1	R1,A1
+
+%aub,aw
+%a,aw
+	movB1	A1',R
+	>1	R,8
+	I	A2,R
+	<1	R1,8
+	movB1	R1,A1
+
+%aub,n
+%a,n
+	SS
+	movB1	A1',R
+	>1	R,8
+	I	(sp)+,R
+	<1	R1,8
+	movB1	R1,A1
+
+%nub*,n
+%n*,n
+	FS*
+	S
+	mov	R,r0
+	mov	(sp)+,r1
+	movB1	#1(r1),R
+	>1	R,8
+	I	r0,R
+	<1	R1,8
+	movB1	R1,#1(r1)
+
+%ad,ad
+%	[addq1a]
+
+%ad,ef
+%	[addq4a]
+
+%ad,nf
+%	[addq5]
+
+%af,nf
+%	[addq6]
+
+%nd*,nf
+%	[addq9a]
+
+%nf*,nf
+%	[addq10]
+
+/* /= and %= -- signed int */
+cr73:
+%a,e
+%aub,e
+	movB1	A1',R
+	>1	R,8
+	S1!
+	bl	I
+	<1	R,8
+	movB1	R,A1
+	>1	R,8
+
+%a,n
+%aub,n
+	SS
+	movB1	A1',R
+	>1	R,8
+	mov	(sp)+,R1
+	bl	I
+	<1	R,8
+	movB1	R,A1
+	>1	R,8
+
+%n*,n
+%nub*,n
+	FS*
+	S!
+	mov	R,R1
+	mov	(sp)+,r13
+	movB1	#1(r13),R
+	>1	R,8
+	bl	I
+	<1	R,8
+	movB1	R,#1(r13)
+	>1	R,8
+
+%ad,ad
+%	[addq1a]
+
+%ad,ef
+%	[addq4a]
+
+%ad,nf
+%	[addq5]
+
+%af,nf
+%	[addq6]
+
+%nd*,nf
+%	[addq9a]
+
+%nf*,nf
+%	[addq10]
+
+/* ^= -- =xor */
+cr79:
+%aw,n
+	S
+	I	A1',R
+	mov	R,A1
+
+%aub,n
+%ab,n
+	SS
+	movb	A1',R
+	>1	R,8
+	I	(sp)+,R
+	<1	R,8
+	movb	R,A1
+	>1	R,8
+
+%nub*,n
+%nb*,n
+	FS*
+	S
+	mov	(sp)+,r1
+	movb	#1(r1),r0
+	>1	r0,8
+	I	r0,R
+	<1	R,8
+	movb	R,#1(r1)
+	>1	R,8
+
+%n*,n
+	FS*
+	S
+	mov	(sp)+,r1
+	I	(r1),R
+	mov	R,(r1)
+
+/* <<=, >>=, unsigned >>= */
+cr75:
+%r,c
+	I	A1,A2
+	mov	A1,R
+
+%r,n
+	S
+	mov	R,r0
+	jeq	.+4
+	I	A1,0
+	mov	A1,R
+
+%aub,c
+%a,c
+	movB1	A1,R
+	>1	R,8
+	I	R,A2
+	<1	R,8
+	movB1	R,A1
+
+%aub,n
+%a,n
+	S
+	mov	R,r0
+	movB1	A1,R
+	>1	R,8
+	I	R,0
+	<1	R,8
+	movB1	R,A1
+
+%aul,c
+%al,c
+	F!
+	li	r0,A2
+	>2	r0,8
+	jeq	.+6
+	bl	I'
+	mov	R+,A1+
+	mov	R,A1
+
+%aul,e
+%al,e
+	F!
+	S1
+	mov	R1,r0
+	jeq	.+6
+	bl	I'
+	mov	R+,A1+
+	mov	R,A1
+
+%aul,n
+%al,n
+	SS
+	F!
+	mov	(sp)+,r0
+	jeq	.+6
+	bl	I'
+	mov	R+,A1+
+	mov	R,A1
+
+/* with a long shift ignore the high word */
+%aul,nl
+%al,nl
+	SS
+	F!
+	mov	(sp)+,r0
+	mov	(sp)+,r0
+	jeq	.+6
+	bl	I'
+	mov	R+,A1+
+	mov	R,A1
+
+/* =|, =&~ */
+cr78:
+%aw,aw
+%	[addq1]
+
+%aub,a
+	IBE	A2,A1'
+	clr	R
+	bisb	A1'',R
+
+%a,aw
+%ad,ad
+%	[addq1a]
+
+%aw,nw*
+%	[addq2]
+
+%aw,n
+%	[addq3]
+
+%aub,n
+	SS
+	IBE	(sp)+,A1'
+	clr	R
+	bisb	A1'',R
+
+%ew*,nw*
+%	[addq4]
+
+%ad,ef
+%	[addq4a]
+
+%a,n
+%ad,nf
+%	[addq5]
+
+%af,nf
+%	[addq6]
+
+%ew*,n
+%	[addq7]
+
+%nw*,n
+%	[addq8]
+
+%n*,n
+%	[addq9]
+
+%nub*,n
+	FS*
+	SS
+	IBE	(sp),*2(sp)
+	tst	(sp)+
+	clr	R
+	bisb	*(sp)+,R
+
+%nd*,nf
+%	[addq9a]
+
+%nf*,nf
+%	[addq10]
+
+%al,c
+%aul,c
+%	[addq11]
+
+%al,al
+%al,aul
+%aul,al
+%aul,aul
+%	[addq12]
+
+%al,nl
+%al,nul
+%aul,nl
+%aul,nul
+%	[addq13]
+
+%nl*,c
+%nul*,c
+%	[addq14]
+
+%nl*,al
+%nl*,aul
+%nul*,al
+%nul*,aul
+%	[addq15]
+
+%nl*,nl
+%nl*,nul
+%nul*,nl
+%nul*,nul
+%	[addq16]
+
+/* int -> float */
+cr51:
+%aw,n
+	movif	A1,R
+
+%nw*,n
+	F*
+	movif	#1(R),R
+
+%n,n
+	F
+	movif	R,R
+
+/* float, double -> int */
+cr52:
+%nf,n
+	F
+	movfi	R,R
+
+/* double (float) to long */
+cr56:
+%nf,n
+	F
+	setl
+	dect	sp
+	dect	sp
+	movfi	R,(sp)
+	mov	(sp)+,R
+	mov	(sp)+,R+
+	seti
+
+/* long to double */
+cr57:
+%al,n
+	setl
+	movif	A1,R
+	seti
+
+%nl*,n
+	F*
+	setl
+	movif	#1(R),R
+	seti
+
+%nl,n
+	FS
+	setl
+	movif	(sp)+,R
+	seti
+
+/* unsigned long to float(double) */
+cr127:
+%aul,n
+	mov	A1+,(sp)
+	dect	sp
+	mov	A1,(sp)
+	bl	I
+	c	(sp)+,(sp)+
+
+%nul*,n
+	F*
+	mov	#1+2(R),(sp)
+	dect	sp
+	mov	#1(R),(sp)
+	bl	I
+	c	(sp)+,(sp)+
+
+%nul,n
+	FS
+	bl	I
+	c	(sp)+,(sp)+
+
+/* integer to long */
+cr58:
+%eu,n
+	F1!
+	clr	R
+
+%nu,n
+	F
+	mov	R,R1
+	clr	R
+
+%e,n
+	F1!
+	mov	R1,R
+	sra	R,15
+
+%n,n
+	F
+	mov	R,R1
+	sra	R,15
+
+/* long to integer */
+cr59:
+%al,n
+%aul,n
+	mov	A1+,R
+
+%nl*,n
+%nul*,n
+	F*
+	mov	#1+2(R),R
+
+/* *, /, % for longs. */
+cr82:
+%[l82:]
+%nl,nl
+%nl,nul
+%nul,nl
+%nul,nul
+	SS
+	FS
+	bl	I
+	ai	sp,8
+
+/* *, /, % for unsigned long */
+cr121:
+%nul,nl
+%nl,nul
+%nul,nul
+%	[l82]
+
+/* *=, /=, %= for unsigned long */
+cr124:
+%n,nl
+%n,nul
+%nl,n
+%nul,n
+%	[l86]
+
+/* *=, /=, %= for longs */
+/* Operands of the form &x op y, so stack space is known. */
+cr86:
+%[l86:]
+%n,nl
+%n,nul
+	SS
+	FS
+	bl	I
+	ai	sp,6
+
+/* convert integer to character (sign extend) */
+cr109:
+%n,n
+	F
+	sla	R,8
+	sra	R,8
+
+/* / and % where divisor is unsigned or known to be positive */
+cr117:
+%n,c
+	F
+	T
+	li	r0,A2
+	I	r0,R-
+
+%n,aw
+	F
+	T
+	I	A2,R-
+
+%n,ew*
+	F
+	T
+	S1*
+	I	#2(R1),R-
+
+%n,e
+	F
+	T
+	S1
+	I	R1,R-
+
+%n,n
+	SS
+	F
+	T
+	I	(sp)+,R-
+
+
+/* /= and %= where divisor is unsigned or known to be positive */
+cr119:
+%aub,c
+%a,c
+	movB1	A1',R
+	>1	R,8
+	T
+	li	r0,A2
+	I	r0,R-
+	<1	R=,8
+	movB1	R=,A1
+	>1	R=,8
+
+%aub,aw
+%a,aw
+	movB1	A1',R
+	>1	R,8
+	T
+	I	A2,R-
+	<1	R=,8
+	movB1	R=,A1
+	>1	R=,8
+
+%aub,n
+%a,n
+	SS
+	movB1	A1',R
+	>1	R,8
+	T
+	I	(sp)+,R-
+	<1	R=,8
+	movB1	R=,A1
+	>1	R=,8
+
+%eub*,n
+%e*,n
+	SS
+	F1*
+	movB1	#1(R1),R
+	>1	R,8
+	T
+	I	(sp)+,R-
+	<1	R=,8
+	movB1	R=,#1(R1)
+	>1	R=,8
+
+%nub*,n
+%n*,n
+	FS*
+	SS
+	mov	@2(sp),r1
+	movB1	#1(r1),R
+	>1	R,8
+	T
+	I	(sp)+,R-
+	<1	R=,8
+	movB1	R=,#1(R1)
+	>1	R=,8
+	inct	sp
+
+/* (int *) - (int *) */
+cr107:
+%n,n
+	F?
+	sra	R,1
+
+/* x - &name */
+cr130:
+%n,n
+	F
+	li	R1,A2
+	s	R1,R
+
+%nl,n
+	F
+	li	r0,A2
+	s	r0,R+
+	V	R
+
+%{
+/*
+ * c code tables -- compile for side effects.
+ * Also set condition codes properly (except for ++, --)
+ */
+
+struct table efftab[] = {
+	{30,ci70},	/* prefix ++ */
+	{31,ci70},	/* prefix -- */
+	{32,ci70},	/* postfix ++ */
+	{33,ci70},	/* postfix -- */
+	{80,ci80},	/* = */
+	{70,ci70},	/* += */
+	{71,ci70},	/* -= */
+	{78,ci78},	/* |= */
+	{79,ci79},	/* ^= */
+	{85,ci78},	/* &~= */
+	{16,ci16},	/* field assign, FSELA */
+	{116,ci116},	/* structure assignment setup */
+	{0}
+};
+%}
+
+/* = */
+ci80:
+%r,z
+	I'	A1
+
+%ab,z
+%aub,z
+	I'	r0
+	IB1	r0,A1
+
+%r,c
+	li	A1,A2
+
+%r,a
+%r,aub
+	IB2	A2,A1
+	>2	A1,8
+
+%r,n
+	S
+	I	R,A1
+
+%ab,c
+%aub,c
+	li	R,256*A2
+	IB1	R,A1
+
+%ab,ab
+%ab,aub
+%aub,ab
+%aub,aub
+	IB1	A2,A1
+
+%ab,n
+%aub,n
+	S
+	<1	R,8
+	IB1	R,A1
+
+%aw,z
+%ad,zf
+	I'B1	A1
+
+%nb*,z
+%nub*,z
+	F*
+	clr	r0
+	IB1	r0,#1(R)
+
+%[move2:]
+%n*,z
+%nd*,zf
+%nub*,z
+	F*
+	I'B1	#1(R)
+
+%r,c
+	li	A1,A2
+
+%a,c
+	li	R,A2
+	I	R,A1
+
+%ab,c
+%aub,c
+	li	R,A2*256
+	IBE	R,A1
+
+%[move3:]
+%aw,aw
+	I	A2,A1
+
+%[move4:]
+%a,n*
+%aub,n*
+	S*
+	movB2	#2(R),R
+	>2	R,8
+	<1	R,8
+	IB1	R,A1
+
+%[move5:]
+%a,n
+%aub,n
+	S
+	<1	R,8
+	IB1	R,A1
+
+%nb*,c
+%nub*,c
+	F*
+	li	r1,A2*256
+	IB1	r1,#1(R)
+
+%n*,c
+	F*
+	li	R1,A2
+	IB1	R1,#1(R)
+
+%nb*,ab
+%nub*,ab
+%nb*,aub
+%nub*,aub
+	F*
+	movb	A2,#1(R)
+
+%[move6:]
+%nb*,a
+%nub*,a
+	F*
+	mov	A2,r0
+	<1	r0,8
+	IB1	r0,#1(R)
+
+%n*,a
+	F*
+	I	A2,#1(R)
+
+%[move7:]
+%n*,ew*
+%nb*,e*
+%nub*,e*
+	F*
+	S1*
+	IBE	#2(R1),#1(R)
+
+%[move8:]
+%nub*,e
+%n*,e
+	F*
+	S1
+	<1	R1,8
+	IB1	R1,#1(R)
+
+%[move9:]
+%e*,nw*
+%eb*,n*
+%eub*,n*
+	S*
+	F1*
+	IBE	#2(R),#1(R1)
+
+%[move10:]
+%e*,n
+%eub*,n
+	S
+	F1*
+	<1	R,8
+	IB1	R,#1(R1)
+
+%[move11:]
+%n*,nw*
+%nb*,n*
+%nub*,n*
+	FS*
+	S*
+	mov	(sp)+,r1
+	IBE	#2(R),#1(r1)
+
+%[move12:]
+%n*,n
+%nub*,n
+	FS*
+	S
+	mov	(sp)+,r1
+	IB1	R,#1(r1)
+
+%aw,nf
+	S
+	movfi	R,A1
+
+%ew*,nf
+	S
+	F1*
+	movfi	R,#1(R1)
+
+%al,z
+%aul,z
+	clr	A1
+	clr	A1+
+
+%nl*,z
+%nul*,z
+	F*
+	clr	#1(R)
+	clr	#1+2(R)
+
+
+%al,cw
+%aul,cw
+	li	r0,A2
+	I	r0,A1+
+	sra	r0,15
+	I	r0,A1
+
+%[move13a:]
+%al,aw
+%aul,aw
+	I	A2,A1+
+	V	A1
+
+%al,nw*
+%aul,nw*
+	S*
+	mov	#2(R),A1+
+	V	A1
+
+%al,n
+%aul,n
+	S
+	mov	R,A1+
+	V	A1
+
+%al,nf
+%aul,nf
+	S
+	setl
+	movfi	R,A1
+	seti
+
+%el*,nf
+%eul*,nf
+	S
+	F1*
+	setl
+	movfi	R,#1(R1)
+	seti
+
+%al,cl
+%aul,cl
+	li	r0,A2
+	I	r0,A1
+	li	r0,A2+
+	I	r0,A1+
+
+%[move13:]
+%al,al
+%al,aul
+%aul,al
+%aul,aul
+	I	A2,A1
+	I	A2+,A1+
+	V	A1
+
+%[move14:]
+%al,nl*
+%al,nul*
+%aul,nl*
+%aul,nul*
+	S*
+	I	#2(R),A1
+	I	#2+2(R),A1+
+	V	A1
+
+%[move15:]
+%al,nl
+%al,nul
+%aul,nl
+%aul,nul
+	S
+	I	R,A1
+	I	R+,A1+
+	V	A1
+
+%[move14a:]
+%nl*,aw
+%nul*,aw
+	F*
+	I	A2,#1+2(R)
+	V	#1(R)
+
+%[move16a:]
+%nl*,al
+%nl*,aul
+%nul*,al
+%nul*,aul
+	F*
+	I	A2+,#1+2(R)
+	V	#1(R)
+	I	A2,#1(R)
+
+%[move16:]
+%el*,nl
+%el*,nul
+%eul*,nl
+%eul*,nul
+	S
+	F1*
+	I	R+,#1+2(R1)
+	V	#1(R1)
+	I	R,#1(R1)
+
+%nl*,n
+%nul*,n
+	SS
+	F*
+	mov	(sp)+,#1+2(R)
+	V	#1(R)
+
+%[move17:]
+%nl*,nl
+%nl*,nul
+%nul*,nl
+%nul*,nul
+	SS
+	F*
+	I	(sp)+,#1(R)
+	I	(sp)+,#1+2(R)
+	V	#1(R)
+
+/* |= and &~= */
+ci78:
+%r,c
+	I"	A1,A2
+
+%a,c
+%aub,c
+	F
+	I"	R,A2
+	<1	R,8
+	movB1	R,A1
+
+%aw,aw
+%	[move3]
+
+%aub,n
+	S
+	IBE	R,A1
+
+%a,n
+%aub,n
+%	[move5]
+
+%nb*,c
+%nub*,c
+	F*
+	movB1	#1(R),r0
+	I"	r0,A2*256
+	movB1	r0,#1(R)
+
+%n*,c
+	F*
+	mov	#1(R),r0
+	I"	r0,A2
+	mov	r0,#1(R)
+
+%n*,aw
+%nb*,a
+%nub*,a
+%	[move6]
+
+%n*,ew*
+%nb*,e*
+%nub*,e*
+%	[move7]
+
+%n*,e
+%	[move8]
+
+%e*,nw*
+%eb*,n*
+%eub*,n*
+%	[move9]
+
+%e*,n
+%	[move10]
+
+%n*,nw*
+%nb*,n*
+%nub*,n*
+%	[move11]
+
+%n*,n
+%	[move12]
+
+%al,c
+%al,au
+%aul,c
+%aul,au
+%	[move13a]
+
+%al,al
+%al,aul
+%aul,al
+%aul,aul
+%	[move13]
+
+%al,nl*
+%al,nul*
+%aul,nl*
+%aul,nul*
+%	[move14]
+
+%al,nl
+%al,nul
+%aul,nl
+%aul,nul
+%	[move15]
+
+%nl*,c
+%nul*,c
+%	[move14a]
+
+%nl*,al
+%nl*,aul
+%nul*,al
+%nul*,aul
+%	[move16a]
+
+%el*,nl
+%el*,nul
+%eul*,nl
+%eul*,nul
+%	[move16]
+
+%nl*,nl
+%nl*,nul
+%nul*,nl
+%nul*,nul
+%	[move17]
+
+/* ^= */
+ci79:
+%al,nl
+%al,nul
+%aul,nl
+%aul,nul
+	S
+	I	A1,R
+	I	A1+,R+
+	mov	R,A1
+	mov	R+,A1+
+
+%el*,nl
+%el*,nul
+%eul*,nl
+%eul*,nul
+	S
+	F1*
+	I	#1(R1),R
+	I	#1+2(R1),R+
+	mov	R,#1(R1)
+	mov	R+,#1+2(R1)
+
+%nl*,nl
+%nl*,nul
+%nul*,nl
+%nul*,nul
+	FS*
+	S
+	mov	(sp)+,r1
+	I	#1(r1),R
+	I	#1+2(r1),R+
+	mov	R,#1(R1)
+	mov	R+,#1+2(R1)
+
+/* +=, -=, ++, -- */
+ci70:
+%aw,1
+	I'	A1
+
+%aw,2
+	I't	A1
+
+%r,c
+	I"	A1,A2
+
+%ab,c
+%aub,c
+	li	r0,A2*256
+	Ib	r0,A1
+
+%a,c
+	li	r0,A2
+	I	r0,A1
+
+%aw,aw
+%	[move3]
+
+%a,n*
+%aub,n*
+%	[move4]
+
+%a,n
+%aub,n
+%	[move5]
+
+%nw*,1
+%	[move2]
+
+%ew*,nw*
+%	[move9]
+
+%a,ew*
+%aub,ew*
+	S*
+	movB1	A1',R1
+	>1	R1,8
+	I	#2(R),R1
+	<1	R1,8
+	movB1	R1,A1
+
+%a,n
+%aub,n
+	S
+	movB1	A1',R1
+	>1	R1,8
+	I	R,R1
+	<1	R1,8
+	movB1	R1,A1
+
+%ew*,n
+%	[move10]
+
+%nw*,n
+%	[move12]
+
+%n*,n
+	SS
+	F*
+	movB1	#1(R),R1
+	>1	R1,8
+	I	(sp)+,R1
+	<1	R1,8
+	movB1	R1,#1(R)
+
+%al,c
+%aul,c
+	li	r0,A2
+	I	r0,A1+
+	V	A1
+	sra	r0,15
+	I	r0,A1
+
+%al,cl
+%aul,cl
+	li	r0,A2
+	I	r0,A1
+	li	r0,A2+
+	I	r0,A1+
+	V	A1
+
+%al,au
+%aul,au
+%	[move13a]
+
+%al,al
+%al,aul
+%aul,al
+%aul,aul
+%	[move13]
+
+%al,nl*
+%al,nul*
+%aul,nl*
+%aul,nul*
+%	[move14]
+
+%al,nl
+%al,nul
+%aul,nl
+%aul,nul
+%	[move15]
+
+%nl*,c
+%nl*,au
+%nul*,c
+%nul*,au
+%	[move14a]
+
+%nl*,al
+%nl*,aul
+%nul*,al
+%nul*,aul
+%	[move16a]
+
+%el*,nl
+%el*,nul
+%eul*,nl
+%eul*,nul
+%	[move16]
+
+%nl*,nl
+%nl*,nul
+%nul*,nl
+%nul*,nul
+%	[move17]
+
+/* field = ... */
+ci16:
+%ab,c
+	li	r0,Z*256
+	szcb	r0,A1'
+	li	r0,A2*256
+	socb	r0,A1
+
+%a,c
+	li	r0,Z
+	szc	r0,A1'
+	li	r0,A2
+	soc	r0,A1
+
+%a,a
+	li	r0,Z
+	szcB1	r0,A1'
+	li	r0,A2
+	socB1	r0,A1
+
+%a,n
+	S
+	li	r0,Z
+	szcB1	r0,A1'
+	<1	R,8
+	socB1	R,A1
+
+%n*,a
+	F*
+	li	r0,Z
+	szcB1	r0,#1(R)
+	li	r0,A2
+	socB1	r0,#1(R)
+
+%[fas1:]
+%e*,n
+	S
+	F1*
+	li	r0,Z
+	szcB1	r0,#1(R1)
+	socB1	R,#1(R1)
+
+%n*,e
+	F*
+	S1
+	li	r0,Z
+	szcB1	r0,#1(R)
+	socB1	R1,#1(R)
+
+%n*,n
+	SS
+	F*
+	li	r0,Z
+	szcB1	r0,#1(R)
+	socB1	(sp)+,#1(R)
+
+%{
+/*
+ * c code tables-- set condition codes
+ */
+
+struct table cctab[] = {
+	{106,cc60},	/* load */
+	{55,rest},	/* &~ */
+	{34,rest},	/* ! */
+	{35,rest},	/* & */
+	{36,rest},	/* * */
+	{37,rest},	/* unary - */
+	{40,rest},	/* + */
+	{41,rest},	/* - */
+	{43,rest},	/* / */
+	{81,cc81},	/* & as in "if ((a&b)==0)" */
+	{48,rest},	/* | */
+	{60,cc60},	/* == */
+	{61,cc60},	/* =! */
+	{62,cc60},	/* <=, signed */
+	{63,cc60},	/* <, signed */
+	{64,cc60},	/* >=, signed */
+	{65,cc60},	/* >, signed */
+	{66,cc60},	/* <=, unsigned */
+	{67,cc60},	/* <, unsigned */
+	{68,cc60},	/* >=, unsigned */
+	{69,cc60},	/* > , unsigned */
+	{72,rest},	/* *= */
+	{73,rest},	/* /= */
+	{79,rest},	/* ^= */
+	{0}
+};
+%}
+
+/* relationals */
+cc60:
+%c,z
+	li	r0,A1
+
+%a,z
+%ad,zf
+%aub,z
+	movB1	A1,r0
+
+%af,z
+	movof	A1,R
+
+%n*,z
+%nd*,zf
+%nub*,z
+	F*
+	movB1	#1(R),r0
+
+%nf*,z
+	F*
+	movof	#1(R),R
+
+%n,z
+%nf,zf
+	FC
+
+%r,c
+	ci	A1,A2
+
+%n,c
+	F
+	ci	R,A2
+
+%aw,aw
+%ab,ab
+%aub,aub
+	IBE	A1,A2
+
+%nw*,aw
+%nb*,ab
+%nub*,aub
+	F*
+	IBE	#1(R),A2
+
+%n,aw
+%nf,ad
+	F
+	IB2	R,A2
+
+%nw*,ew*
+%nb*,eb*
+%nub*,eub*
+	F*
+	S1*
+	IBE	#1(R),#2(R1)
+
+%nw*,e
+	F*
+	S1
+	IB1	#1(R),R1
+
+%n,ew*
+%nf,ed*
+	F
+	S1*
+	IB2	R,#2(R1)
+
+%n,e
+%nf,ef
+	F
+	S1
+	IBF	R,R1
+
+%n,n
+%nf,nf
+	SS
+	F
+	IBF	R,(sp)+
+
+%al,z
+%aul,z
+	mov	A1,r0
+	X0
+	mov	A1+,r0
+	X1
+
+%al,c
+%aul,c
+	mov	A1,r0
+	X0
+	mov	A1+,r0
+	ci	r0,A2
+	X1
+
+%al,cl
+%aul,cl
+	mov	A1,r0
+	ci	r0,A2
+	X0
+	mov	A1+,r0
+	ci	r0,A2+
+	X1
+
+
+%cl,al
+%cl,aul
+	li	r0,A1
+	I	r0,A2
+	X0
+	li	r0,A1+
+	I	r0,A2+
+	X1
+
+%al,au
+%aul,au
+	mov	A1,r0
+	X0
+	I	A1+,A2
+	X1
+
+%[lcmp1:]
+%al,al
+%al,aul
+%aul,al
+%aul,aul
+	I	A1,A2
+	X0
+	I	A1+,A2+
+	X1
+
+%nl*,z
+%nul*,z
+	F*
+	mov	#1(R),r0
+	X0
+	mov	#1+2(R),r0
+	X1
+
+%nl*,c
+%nul*,c
+	F*
+	mov	#1(R),r0
+	X0
+	mov	#1+2(R),r0
+	ci	r0,A2
+	X1
+
+%nl*,au
+%nul*,au
+	F*
+	mov	#1(R),r0
+	X0
+	I	#1+2(R),A2
+	X1
+
+%[lcmp2:]
+%nl*,al
+%nl*,aul
+%nul*,al
+%nl*,aul
+	F*
+	I	#1(R),A2
+	X0
+	I	#1+2(R),A2+
+	X1
+
+%nl,z
+%nul,z
+	F
+	mov	R,r0
+	X0
+	mov	R+,r0
+	X1
+
+%nl,c
+%nul,c
+	F
+	mov	R,r0
+	X0
+	ci	R+,A2
+	X1
+
+%nl,cl
+%nul,cl
+	F
+	ci	R,A2
+	X0
+	ci	R+,A2+
+	X1
+
+%nl,au
+%nul,au
+	F
+	mov	R,r0
+	X0
+	I	R+,A2
+	X1
+
+%[lcmp3:]
+%nl,al
+%nl,aul
+%nul,al
+%nul,aul
+	F
+	I	R,A2
+	X0
+	I	R+,A2+
+	X1
+
+%[lcmp4:]
+%nl*,el*
+%nl*,eul*
+%nul*,el*
+%nul*,eul*
+	F*
+	S1*
+	I	#1(R),#2(R1)
+	X0
+	I	#1+2(R),#2+2(R1)
+	X1
+
+%[lcmp5:]
+%nl,el*
+%nl,eul*
+%nul,el*
+%nul,eul*
+	F
+	S1*
+	I	R,#2(R1)
+	X0
+	I	R+,#2+2(R1)
+	X1
+
+%[lcmp6:]
+%nl,nl
+%nl,nul
+%nul,nl
+%nul,nul
+	FS
+	S
+	Q
+	mov	R,(sp)
+	mov	@4(sp),R
+	mov	(sp)+,@2(sp)
+	I	(sp)+,(sp)+
+	X0
+	I	R,R+
+	X1
+
+/* & as in "if ((a&b) ==0)" */
+cc81:
+%ab,c
+%aub,c
+	movb	A1,R
+	I"	R,A2*256
+
+%n,c
+	F
+	I"	R,A2
+
+%a,e
+%aub,e
+	S
+	movB1	A1,r0
+	>1	r0,8
+	I	R,r0
+
+%n*,a
+%nub*,a
+%	[move6]
+
+%n,aw
+%	[add1]
+
+%n,e
+%	[add3]
+
+%n,n
+%	[add5]
+
+/* set codes right by moving the result */
+rest:
+%n,n
+%nf,nf
+	H
+
+%{
+/*
+ * c code tables-- expression to -(sp)
+ */
+
+struct table sptab[] = {
+	{106,cs106},		/* load */
+	{91,cs91},		/* +1, +2 */
+	{92,cs91},		/* -1, -2 */
+	{40,cs40},		/* + */
+	{41,cs40},		/* - */
+	{55,cs40},		/* &~ */
+	{48,cs40},		/* | */
+	{58,cs58},		/* cvt int->long */
+	{56,cs56},		/* cvt float->long */
+	{0}
+};
+%}
+
+/* load */
+cs106:
+%z,n
+%zf,n
+	Q
+	clr	(sp)
+
+%c,n
+	Q
+	li	r0,A1
+	mov	r0,(sp)
+
+%ab,n
+%aub,n
+	Q
+	movb	A1,r0
+	>1	r0,8
+	mov	r0,(sp)
+
+%aw,n
+	Q
+	mov	A1,(sp)
+
+%nw*,n
+	F*
+	Q
+	mov	#1(R),(sp)
+
+%cl,n
+	Q
+	li	r0,A1+
+	mov	r0,(sp)
+	Q
+	li	r0,A1
+	mov	r0,(sp)
+
+%al,n
+%aul,n
+	Q
+	mov	A1+,(sp)
+	Q
+	mov	A1,(sp)
+
+/* +1, +2, -1, -2 */
+cs91:
+%n,1
+	FS
+	I	(sp)
+
+%n,2
+	FS
+	It	(sp)
+
+/* +, -, |, &~ */
+cs40:
+%a,c
+%aub,c
+	Q
+	movB1	A1,r0
+	>1	r0,8
+	I"	r0,A2
+	mov	r0,(sp)
+
+%n,c
+%nub,c
+	FS
+	mov	(sp),r0
+	I"	r0,A2
+	mov	r0,(sp)
+
+%a,aw
+	FS
+	I	A2,(sp)
+
+%a,nw*
+	FS
+	S*
+	I	#2(R),(sp)
+
+%a,n
+	FS
+	S
+	I	R,(sp)
+
+/* integer to long */
+cs58:
+%c,n
+	Q
+	li	r0,A1
+	mov	r0,(sp)
+	sra	r0,15
+	Q
+	mov	r0,(sp)
+
+%nu,n
+	FS
+	Q
+	clr	(sp)
+
+%aw,n
+	Q
+	mov	A1,r0
+	mov	r0,(sp)
+	sra	r0,15
+	Q
+	mov	r0,(sp)
+
+/* float to long */
+cs56:
+%nf,n
+	F
+	setl
+	Q
+	movfi	R,(sp)
+	seti
+
+/* setup for structure assign */
+ci116:
+%n,e
+	F!
+	S1!
+
+%n,n
+	SS
+	F!
+	mov	(sp)+,r1
+
+/* end of table */

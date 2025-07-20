@@ -1,0 +1,31 @@
+CC	= cc
+YACC	= yacc
+
+
+# Description file for the Make command
+
+OBJECTS = ident.o main.o doname.o misc.o files.o dosys.o gram.o 
+CFLAGS = -O -DUNIX 
+
+all:	make
+
+make:  $(OBJECTS)
+	$(CC) -o make $(OBJECTS)
+
+clean:
+	-rm -f *.o make
+
+install:
+	cp make /bin/make
+
+gram.c: gram.y
+	$(YACC) gram.y
+	mv y.tab.c gram.c
+
+doname.o: doname.c defs
+dosys.o: dosys.c defs
+files.o: files.c defs
+gram.o: gram.c defs
+ident.o: ident.c
+main.o: main.c defs
+misc.o: misc.c defs

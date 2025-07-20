@@ -1,0 +1,1319 @@
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0001
+EVAL - CORTEX BASIC REV. 1.1
+
+              2         IDT  'EVAL'
+              3  *
+              4  *       EVARZ           ;EVALUATE VARIABLE
+              5  *       EVERZ           ;EVALUATE EXPRESSION
+              6  *       EVSDZ           ;EVALUATE STRING
+              7  *       EVFX            ;EVALUATE AND FIX
+              8  *       CKEX            ;CHECK FOR EXPRESSION
+              9  *       EVAL            ;RECURSIZE EVALUATOR
+             10  *       EVALS2          ;2ND ENTRY IN RECURSIVE EVALUATOR
+             11  *       ADDF            ;ADD TWO VARIABLES
+             12  *       SUBF            ;SUBTRACT TWO VARIABLES
+             13  *
+             14         DXOP LOADF,0           ;LOAD FPAC
+             15         DXOP STORE,1           ;STORE FPAC
+             16         DXOP FADD,2            ;ADD TO FPAC
+             17         DXOP FSUB,3            ;SUBTRACT FROM FPAC
+             18         DXOP FMUL,4            ;MULTIPLY FPAC
+             19         DXOP FDIV,5            ;DIVIDE FPAC
+             20         DXOP SCALE,6           ;SCALE FPAC
+             21         DXOP NORMAL,7          ;NORMALIZE FPAC
+             22         DXOP CLEAR,8           ;CLEAR FPAC
+             23         DXOP NEGATE,9          ;NEGATE FPAC
+             24         DXOP FLOATF,10         ;FLOAT FPAC
+             25         DXOP EVFIX,11          ;EVALUATE AND FIX
+             26         DXOP OUTFP,12          ;OUT FLOATING POINT #
+             27         DXOP OUTINT,13         ;OUT INTEGER
+     2F80    28  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+     2FA0    29  ERROR2 EQU  ERROR+>20
+             30  *
+             31         REF  ABSF              ;ABSOLUTE VALUE FUNCTION
+             32         REF  ASCF              ;CONVERT ASCII FUNCTION
+             33         REF  ATNF              ;ARC-TANGENT FUNCTION
+             34         REF  COSF              ;COSINE FUNCTION
+             35         REF  EXPF              ;EXPONENTIAL FUNCTION
+             36         REF  FRAF              ;FRACTIONAL PART FUNCTION
+             37         REF  INTF              ;INTEGER PART FUNCTION
+             38         REF  LOGF              ;LOG FUNCTION
+             39         REF  NKYF              ;KEY FUNCTION
+             40         REF  SINF              ;SINE FUNCTION
+             41         REF  SQRF              ;SQUARE ROOT FUNCTION
+             42         REF  SYSF              ;SYSTEM FUNCTION
+             43         REF  TICF              ;TIC FUNCTION
+             44         REF  SGNF              ;SIGN FUNCTION
+             45         REF  BITF              ;BIT FUNCTION
+             46         REF  CRBF              ;CRB FUNCTION
+             47         REF  CRFF              ;CRF FUNCTION
+             48         REF  MEMF              ;MEM FUNCTION
+             49         REF  MWDF              ;MEMORY WORD FUNCTION
+             50         REF  LENF              ;STRING LENGTH FUNCTION
+             51         REF  MCHF              ;STRING MATCH FUNCTION
+             52         REF  POSF              ;STRING SEARCH FUNCTION
+             53         REF  COLF              ;PIXEL COLOUR TEST
+             54         REF  MODF              ;MOD FUNCTION
+             55         REF  POWF              ;POWER FUNCTION
+             56         REF  LORF              ;LOGICAL OR FUNCTION
+             57         REF  LXORF             ;LOGICAL EXCLUSIVE OR FUNCTION
+             58         REF  LANDF             ;LOGICAL AND FUNCTION
+             59         REF  ANDF              ;AND FUNCTION
+             60         REF  ORF               ;OR FUNCTION
+             61         REF  NOTF              ;NOT FUNCTION
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0002
+EVAL - CORTEX BASIC REV. 1.1
+
+             62         REF  LNOTF             ;LOGICAL NOT FUNCTION
+             63         REF  FIX               ;FIX ROUTINE
+             64         REF  FLOAT             ;FLOAT ROUTINE
+             65         REF  RANDZ             ;GET RANDOM NUMBER ROUTINE
+             66         REF  ADRF              ;RETURN ADDRESS OF VARIABLE FUCTI
+             67         REF  EVSKB,EVSKE       ;EVALUATION STACK
+             68         REF  FPAC,FPAC2        ;FLOATING POINT ACCUMULATOR
+             69         REF  TEMP              ;TEMP FLOATING POINT REGISTER
+             70         REF  E$TEMP,TEMP2,TEMP4
+             71         REF  FUZZ              ;FUZZ VALUE
+             72         REF  UFT               ;USER-FUNCTION-TABLE INDEX
+             73         REF  VDT               ;VARIABLE-DEFINITION-TABLE INDEX
+             74         REF  VNT               ;NVARIABLE-NAME-TABLE INDEX
+             75         REF  IOB               ;I/O-BUFFER INDEX
+             76         REF  DLIM              ;DELIMITER INDEX
+             77         REF  NVD               ;NEXT-VARIABLE-DEFINITION INDEX
+             78         REF  NVS               ;NEXT-VARIABLE-STORAGE INDEX
+             79         REF  WPR2              ;SECONDARY WORKSPACE
+             80         REF  RTSTOR            ;TEMP. STORE FOR R11
+             81  *
+             82         DEF  EVSFR             ;RETURN FOR FUNCTIONS
+             83         DEF  EVSFR$            ;RETURN WITH R2 RELOAD
+             84         DEF  EVOP3A            ;RETURN FOR OPERATORS
+             85         DEF  B01,B05           ;BYTES
+             86         DEF  C1,C4,C6          ;WORDS
+             87         DEF  EVSDZ
+             88         DEF  EVARZ
+             89         DEF  CKEX
+             90         DEF  EVERZ
+             91         DEF  EVFX
+             92         DEF  EVAL              ;FULL EXPRESSION EVALUATION
+             93         DEF  EVALS2            ;PARTIAL EXPRESSION EVALUATION
+             94         DEF  SUBF
+             95         DEF  ADDF
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0003
+EVAL - CORTEX BASIC REV. 1.1
+
+             97  *       EVSD EVALUATES FOR A STRING CONSTANT OR VARIABLE
+             98  *       BEGINNING AT THE PBC (R8).  MULTIPLE RETURNS ARE
+             99  *       USED ACCORDING TO WHAT IS FOUND.  IF NO STRING
+            100  *       OR VARIABLE IS FOUND, THE PBC (PROGRAM BYTE COUNTER)
+            101  *       IS LEFT UNCHANGED.
+            102  *
+            103  * CALLING SEQUENCE:
+            104  *
+            105  *       BLWP @EVSDZ
+            106  *         STRING CONSTANT RETURN ("---")
+            107  *         STRING VARIABLE RETURN ($VAR)
+            108  *       NEITHER
+            109  *
+            110  *       IN  R8 = PBC (PROGRAM BYTE COUNTER)
+            111  *       OUT R0 = DLIM (DELIMITER
+            112  *           R2 = PTR TO STRING
+            113  *           R8 = PBC UPDATED
+            114  *
+            115  * EXCEPTIONS AND CONDITIONS:
+            116  *
+            117  *       ERRORS INCLUDE EXPECTING VARIABLE, SYNTAX ERROR,
+            118  *       UNDEFINED FUNCTION, ILLEGAL DELIMITER, STORAGE
+            119  *       OVERFLOW, UNDEFINED VARIABLE, EXPRESSION TOO
+            120  *       COMPLEX, SUBSCRIPT ERROR, TOO MANY SUBSCRIPTS,
+            121  *       UNDIMENSIONED VARIABLE, AND ALL ARITHMETIC ERRORS.
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0004
+EVAL - CORTEX BASIC REV. 1.1
+
+0000 0000   123  EVSDZ  DATA WPR2,EVSD
+            124  *
+0004 C22D   125  EVSD   MOV  @16(13),R8        ;GET PBC
+0006 0010 
+0008 9818   126         CB   *R8,@B43          ;$?
+000A 0569'
+000C 130C   127         JEQ  EVSD2             ;Y
+000E 1A09   128         JL   EVSD1             ;NOT STRING
+0010 9838   129         CB   *R8+,@B45         ;" OR '?
+0012 056A'
+0014 1B06   130         JH   EVSD1             ;N
+0016 C088   131         MOV  R8,R2             ;Y
+            132  *
+0018 D038   133         MOVB *R8+,R0           ;LOOK FOR "0
+001A 16FE   134         JNE  $-2
+            135  *
+001C 04C0   136         CLR  R0
+001E D038   137         MOVB *R8+,R0           ;RETURN DELIMITER
+0020 101D   138         JMP  EVER1
+            139  *
+0022 8FBE   140  EVSD1  C    *R14+,*R14+       ;NOT STRING, RETURN 4(14)
+0024 0380   141         RTWP
+            142  *
+0026 05CE   143  EVSD2  INCT R14
+0028 05AD   144         INC  @16(13)           ;SKIP $
+002A 0010 
+            145  *
+            146  *  THIS SHOULD FALL THROUGH INTO EVAR
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0005
+EVAL - CORTEX BASIC REV. 1.1
+
+            148  *       EVAR CALLS THE EXPRESSION EVALUATOR FOR
+            149  *       ONE ITEM ONLY, NAMELY A VARIABLE.  WITH
+            150  *       R5 ZEROED, THE EVALUATOR WILL EVALUATE
+            151  *       UP TO THE FIRST OPERATER OR DELIMITER.
+            152  *       UPON RETURNING, EVAR WILL CHECK TO SEE
+            153  *       IF THE RESULT IS IN THE EXPRESSION STACK
+            154  *       IN WHICH CASE AN EXCEPTION WOULD OCCUR.
+            155  *
+            156  * CALLING SEQUENCE:
+            157  *
+            158  *       BLWP @EVARZ
+            159  *       NORMAL RETURN
+            160  *
+            161  *       IN  R8 = PBC
+            162  *       OUT R0 = DLIM
+            163  *           R2 = ADR
+            164  *           R8 = PBC UPDATED
+            165  *
+            166  * EXCEPTIONS AND CONDITIONS:
+            167  *
+            168  *       SAME AS EVSD
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0006
+EVAL - CORTEX BASIC REV. 1.1
+
+002C 04C5   170  EVAR   CLR  R5                ;SET FOR VARIABLE ONLY
+002E 06A0   171         BL   @EVALS1           ;EVALUATE
+0030 01D8'
+0032 0282   172         CI   R2,EVSKB          ;# IN STACK?
+0034 0000 
+0036 1A12   173         JL   EVER1             ;N, RETURN
+            174  *
+0038 2F96   175  ERR22  DATA ERROR+22          ;EXPECTING VARIABLE
+003A 0000'  176  EVARZ  DATA WPR2,EVAR
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0007
+EVAL - CORTEX BASIC REV. 1.1
+
+            178  *       CKEX IS CALLED TO SEE IF AN EXPRESSION
+            179  *       COULD OCCUR NEXT.  THE EXCEPTION WOULD
+            180  *       OCCUR IF A DELIMITER WAS THE NEXT ITEM.
+            181  *
+            182  * CALLING SEQUENCE:
+            183  *
+            184  *       BL @CKEX
+            185  *         NO EXPRESSION
+            186  *       EXPRESSION
+            187  *
+            188  *       IN  R8 = PBC
+            189  *
+003E D818   190  CKEX   MOVB *R8,@DLIM
+0040 0000 
+0042 1307   191         JEQ  CKEX2             ;EOL
+0044 9818   192         CB   *R8,@B38          ;FUNCTION?
+0046 0568'
+0048 1A03   193         JL   CKEX1             ;Y
+004A 9818   194         CB   *R8,@B4C          ;OPERATOR OR VARIABLE?
+004C 056C'
+004E 1A01   195         JL   CKEX2             ;N, TAKE ERROR RETURN
+            196  *
+0050 05CB   197  CKEX1  INCT R11
+0052 045B   198  CKEX2  RT
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0008
+EVAL - CORTEX BASIC REV. 1.1
+
+            200  *       EVER WILL EVALUATE A FULL EXPRESSION AND
+            201  *       WILL EXIT THRU THE ERROR CALL
+            202  *       WITH ANY EXCEPTION.
+            203  *
+            204  * CALL SEQUENCE:
+            205  *
+            206  *       BLWP @EVERZ
+            207  *
+            208  *       IN  R8 = PBC
+            209  *       OUT R0 = DLIM
+            210  *           R2 = ADR
+            211  *           R8 = PBC UPDATED
+            212  *
+            213  * EXCEPTIONS AND CONDITIONS:
+            214  *
+            215  *       SAME AS EVSD
+            216  *
+0054 003A'  217  EVERZ  DATA WPR2,EVER
+0058 06A0   218  EVER   BL   @EVALS            ;EVALUATE
+005A 01D6'
+005C CB42   219  EVER1  MOV  R2,@4(13)         ;RETURN PARAMETERS
+005E 0004 
+0060 C800   220  EVER2  MOV  R0,@DLIM          ;RETURN DELIMITER
+0062 0040'
+0064 C740   221         MOV  R0,*R13
+0066 CB48   222         MOV  R8,@16(13)        ;UPDATE PBC
+0068 0010 
+006A 0380   223         RTWP
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0009
+EVAL - CORTEX BASIC REV. 1.1
+
+            225  *       EVFX USES AN XOP CALL SINCE IT IS
+            226  *       USED SO OFTEN AND RETURNS A 1 WORD,
+            227  *       2'S COMPLEMENT INTEGER IN THE OPERAND
+            228  *       OF THE EXOP.  EVFX DOES A FULL
+            229  *       EVALUATION (R5 <> 0) AND RETURNS
+            230  *       R0, R8, AND THE RESULT.
+            231  *
+            232  *       SINCE R0 IS ALTERED, EVFX R0 WOULD
+            233  *       BE ILLEGAL.
+            234  *
+            235  * CALLING SEQUENCE:
+            236  *
+            237  *       XOP XX,11
+            238  *
+            239  *       IN  R8 = PBC
+            240  *       OUT R0 = DLIM
+            241  *           R8 = PBC UPDATED
+            242  *         *R11 = #
+            243  *
+            244  * EXCEPTIONS AND CONDITIONS:
+            245  *
+            246  *       SAME AS EVSD WITH THE ADDITION OF
+            247  *       A FIX ERROR POSSIBILITY.
+            248  *
+            249  *       R0,R8 CANNOT BE USED AS THE RETURNING
+            250  *       FIELD.
+            251  *
+006C C80B   252  EVFX   MOV  R11,@RTSTOR       SAVE ADDRESS
+006E 0000 
+0070 06A0   253         BL   @EVALS            EVALUATE
+0072 01D6'
+0074 06A0   254         BL   @FIX              FIX RESULT
+0076 0000 
+0078 C320   255         MOV  @RTSTOR,R12       RESTORE RETURN ADDRESS
+007A 006E'
+007C C701   256         MOV  R1,*R12           RETURN #
+007E 10F0   257         JMP  EVER2
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0010
+EVAL - CORTEX BASIC REV. 1.1
+
+            259  *       EVAL IS A RECURSIVE STACK EXPRESSION EVALUATOR.
+            260  *       R6 POINTS TO THE BOTTOM OF THE STACK WHERE
+            261  *       OPERANDS AND OTHER DATA ARE STACKED
+            262  *       WHILE R7 POINTS TO THE TOP OF THE STACK WHERE
+            263  *       OPERATORS ARE STACKED.  BOTH ENDS OF THE STACK
+            264  *       ARE MARKED WITH NULLS TO CHECK FOR PROPER
+            265  *       EXPRESSION TERMINATION.  THE ROUTINE CONSISTS
+            266  *       MAINLY OF A MULTIPLEXOR AND A PRECEDENCE ORIENTED
+            267  *       PROCESSOR.
+            268  *
+            269  *       VARIABLES ARE STORED ON A STACK AS AN ADDRESS.
+            270  *       CONSTANTS GO DIRECTLY ON THE STACK FOLLOWED BY
+            271  *       A -1 TO INDICATE A CONSTANT VALUE.  IE:
+            272  *
+            273  *               * (PTR) * ----- /XXXX XXXX XXXX/
+            274  *               * 4110  *
+            275  *               * 0000  *
+            276  *               * 0000  *
+            277  *               *  -1   *
+            278  *
+            279  *       USER FUNCTIONS, SYSTEM FUNCTIONS, AND DIMENSIONED
+            280  *       VARIABLES ALL RECURSE ON THE EVALUATOR TO
+            281  *       OBTAIN THE ARGUMENTS.
+            282  *
+            283  *       THE LEFT BYTE OF R5 CONTROLS WHETHER A OPERATOR
+            284  *       IS UNARY OR NOT.  WHEN NULL AND AN OPERATOR IS
+            285  *       ENCOUNTERED, IT MUST BE UNARY!  UPON ENCOUNTERING
+            286  *       A VARIABLE, THIS LEFT BYTE IS SET INDICATING
+            287  *       THE NEXT OPERATOR WILL NOT BE UNARY.
+            288  *
+            289  *       THE RIGHT BYTE OF R5 CONTROLS HOW FAR THE
+            290  *       EVALUATION IS TO GO.  IE, ONE ONLY WANTS THE
+            291  *       FIRST VARIABLE FOR AN ASSIGNMENT STATEMENT OR
+            292  *       ANYWHERE ONE WANTS TO STORE A VALUE.  THUS,
+            293  *       WHEN THE RIGHT BYTE OF R5 IS ZERO, EVALUATION
+            294  *       WILL TERMINATE AT THE FIRST OPERATOR.
+            295  *
+            296  *       WHEN A DELIMITER IS ENCOUNTED, THE RIGHT BYTE
+            297  *       OF R5 IS SET TO ZERO THUS TERMINATING THE
+            298  *       EVALUATION OF THE EXPRESSION.
+            299  *
+            300  *       THE LEAST SIGNIFICANT BIT OF THE OPERATOR
+            301  *       ADDRESS IS USED TO INDICATE A UNARY OPERATION.
+            302  *
+            303  *       USER FUNCTIONS USE THE STACK QUITE EXTENSIVELY
+            304  *       PUSHING FUNCTION ADDRESS, DUMMY ARGUMENTS, PLC,
+            305  *       R5, AND A RETORE-STACK-POINTER (R4) FOR EACH
+            306  *       LEVEL OF FUNCTIONS.
+            307  *
+            308  * CALLING SEQUENCE:
+            309  *
+            310  *       BL @EVALS       ;START EVALUATION
+            311  *
+            312  *       IN  R5  = EXPRESSION FLAG
+            313  *
+            314  *         (FALL THRU TO EVAL)
+            315  *
+            316  *       BL @EVAL        ;RECURSIVE EVALUATOR
+            317  *
+            318  *           R5  = EXPRESSION FLAG
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0011
+EVAL - CORTEX BASIC REV. 1.1
+
+            319  *           R6  = BOTTOM OF STACK
+            320  *           R7  = TOP OF STACK
+            321  *           R8  = PLC
+            322  *
+            323  * EXCEPTIONS AND CONDITIONS:
+            324  *
+            325  *       IF R6 >= R7, THEN AN EXPRESSION TOO
+            326  *          COMPLEX OCCURS.
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0012
+EVAL - CORTEX BASIC REV. 1.1
+
+            328  *USER FUNCTION EVALUATION
+            329  *
+            330  *STACK: R5
+            331  *       FUNC ADR
+            332  *       DUMMY #1
+            333  *       DUMMY #2
+            334  *       DUMMY #3
+            335  *       . . .
+            336  *       R8
+            337  *       R4 = STACK+2
+            338  *
+0080 2FA0   339  ERR38  DATA ERROR2,38         ;UNDEFINED FUNCTION
+            340  *
+0084 CD85   341  EVAFN  MOV  R5,*R6+           ;SAVE R5
+0086 C106   342         MOV  R6,R4             ;MARK
+0088 C0E0   343         MOV  @UFT,R3           ;GET TABLE ADR
+008A 0000 
+008C 0960   344         SRL  R0,6              ;GET INDEX
+008E A0C0   345         A    R0,R3             ;INDEX
+0090 CDB3   346         MOV  *R3+,*R6+         ;STACK ADR
+0092 13F6   347         JEQ  ERR38             ;NOT DEFINED, ERROR
+0094 C053   348         MOV  *R3,R1            ;GET COUNT
+0096 132C   349         JEQ  EVAFN5            ;NO ARGUMENTS
+0098 C0E0   350         MOV  @VDT,R3
+009A 0000 
+009C CDB3   351         MOV  *R3+,*R6+         ;SAVE OLD DUMMIES
+009E CDB3   352         MOV  *R3+,*R6+
+00A0 CD93   353         MOV  *R3,*R6+
+00A2 0223   354         AI   R3,-4
+00A4 FFFC 
+00A6 0705   355         SETO R5                ;DO FULL EVAL IF NOT [
+00A8 9838   356         CB   *R8+,@B4A         ;[?
+00AA 056B'
+00AC 1303   357         JEQ  EVAFN1            ;Y
+00AE 0608   358         DEC  R8                ;N
+00B0 04C5   359         CLR  R5
+00B2 0701   360         SETO R1                ;SET COUNT TO -1
+            361  *
+00B4 CD81   362  EVAFN1 MOV  R1,*R6+           ;PUSH COUNT
+00B6 CD83   363         MOV  R3,*R6+
+00B8 CD84   364         MOV  R4,*R6+
+00BA 06A0   365         BL   @EVAL             ;EVALUATE NEXT PARAMETER
+00BC 01E4'
+00BE 0646   366         DECT R6
+00C0 C116   367         MOV  *R6,R4            ;POP R4
+00C2 0646   368         DECT R6
+00C4 C0D6   369         MOV  *R6,R3            ;POP SYMBOL TABLE PTR
+00C6 0646   370         DECT R6
+00C8 C056   371         MOV  *R6,R1            ;POP COUNT
+00CA CCC6   372         MOV  R6,*R3+           ;LOAD NEW DUMMY ADR
+00CC CDB2   373         MOV  *R2+,*R6+         ;STACK
+00CE CDB2   374         MOV  *R2+,*R6+
+00D0 CD92   375         MOV  *R2,*R6+
+00D2 0581   376         INC  R1                ;LOOKING FOR VARIABLE ONLY?
+00D4 1308   377         JEQ  EVAFN2            ;Y
+00D6 0641   378         DECT R1                ;N, DONE?
+00D8 1308   379         JEQ  EVAFN4            ;Y
+00DA 0705   380         SETO R5                ;N, DO FULL
+00DC 0280   381         CI   R0,>3F00          ;,?
+00DE 3F00 
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0013
+EVAL - CORTEX BASIC REV. 1.1
+
+00E0 13E9   382         JEQ  EVAFN1            ;Y
+00E2 2FA0   383  EVER37 DATA ERROR2,37         ;ILLEGAL DELIMITER
+            384  *
+00E6 0608   385  EVAFN2 DEC  R8                ;BACKUP OVER DELIMITER
+00E8 1003   386         JMP  EVAFN5
+            387  *
+00EA 0280   388  EVAFN4 CI   R0,>4B00          ;]?
+00EC 4B00 
+00EE 16F9   389         JNE  EVER37            ;N, ERROR
+            390  *
+00F0 CD84   391  EVAFN5 MOV  R4,*R6+           ;PUSH R4
+00F2 CD88   392         MOV  R8,*R6+           ;PUSH R8
+00F4 C214   393         MOV  *R4,R8            ;GET DEF ADR
+00F6 0705   394         SETO R5
+00F8 06A0   395         BL   @EVAL             ;EVALUATE
+00FA 01E4'
+00FC 0646   396         DECT R6
+00FE C216   397         MOV  *R6,R8            ;POP R8
+0100 0646   398         DECT R6
+0102 C196   399         MOV  *R6,R6            ;POP R6 (R4)
+0104 C106   400         MOV  R6,R4
+0106 05C4   401         INCT R4                ;MOVE TO DUMMY STORAGE
+0108 C0E0   402         MOV  @VDT,R3
+010A 009A'
+010C CCF4   403         MOV  *R4+,*R3+         ;RESTORE OLD VARIABLE ADDRESSES
+010E CCF4   404         MOV  *R4+,*R3+
+0110 C4D4   405         MOV  *R4,*R3
+0112 1051   406         JMP  EVSFR             ;RETURN
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0014
+EVAL - CORTEX BASIC REV. 1.1
+
+            408  *DO SYSTEM STRING OPERAND
+            409  *
+0114 9818   410  EVSFO  CB   *R8,@B43          ;$?
+0116 0569'
+0118 130B   411         JEQ  EVSFO2            ;Y
+011A 1A09   412         JL   EVSFO1
+011C 9818   413         CB   *R8,@B45          ;" OR '?
+011E 056A'
+0120 1B06   414         JH   EVSFO1            ;N
+0122 0588   415         INC  R8                ;Y
+0124 C088   416         MOV  R8,R2             ;SAVE ADR
+            417  *
+0126 D038   418         MOVB *R8+,R0           ;MOVE TO END OF STRING
+0128 16FE   419         JNE  $-2
+012A D038   420         MOVB *R8+,R0           ;GET DELIMITER
+012C 05CB   421         INCT R11
+            422  *
+012E 045B   423  EVSFO1 RT
+            424  *
+0130 0588   425  EVSFO2 INC  R8                ;MOVE TO VARIABLE
+0132 05CB   426         INCT R11               ;SET RETURN
+0134 04C5   427         CLR  R5
+0136 0460   428         B    @EVAL             ;DO EVALUATION
+0138 01E4'
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0015
+EVAL - CORTEX BASIC REV. 1.1
+
+            430  *SYSTEM FUNCTION EVALUATION
+            431  *
+013A CD85   432  EVSF   MOV  R5,*R6+           ;STACK R5,R0
+013C CD80   433         MOV  R0,*R6+
+013E 0201   434         LI   R1,1              ;DEFAULT SECOND PARAMETER TO 1
+0140 0001 
+0142 9838   435         CB   *R8+,@B4A         ;[?
+0144 056B'
+0146 1306   436         JEQ  EVSF1             ;Y
+0148 04C5   437         CLR  R5                ;N, DO VARIABLE ONLY
+014A 0608   438         DEC  R8
+014C 06A0   439         BL   @EVAL
+014E 01E4'
+0150 0608   440         DEC  R8
+0152 1029   441         JMP  EVSF2
+            442  *
+0154 06A0   443  EVSF1  BL   @EVSFO            ;CHECK FOR STRING
+0156 0114'
+0158 1009   444         JMP  EVSF1A            ;N
+015A CD82   445         MOV  R2,*R6+           ;STACK ADR
+015C 0280   446         CI   R0,>3F00          ;,?
+015E 3F00 
+0160 161D   447         JNE  EVSF1B            ;N
+0162 06A0   448         BL   @EVSFO            ;GET SECOND STRING
+0164 0114'
+0166 10BD   449         JMP  EVER37
+0168 C042   450         MOV  R2,R1
+016A 1018   451         JMP  EVSF1B
+            452  *
+016C 0705   453  EVSF1A SETO R5                ;DO FULL EVALUATION
+016E 06A0   454         BL   @EVAL
+0170 01E4'
+0172 0280   455         CI   R0,>4B00          ;]?
+0174 4B00 
+0176 1317   456         JEQ  EVSF2             ;Y
+0178 0280   457         CI   R0,>3F00          ;,?
+017A 3F00 
+017C 16B2   458         JNE  EVER37            ;N, ERROR
+            459  *
+            460  *      2 PARM FUNCTIONS LEAVE PARM1 ON THE STACK UNPROTECTED
+            461  *      IF IT IS A CONSTANT (AND FORGETS ABOUT IT !)
+            462  *
+017E 8182   463         C    R2,R6             ;CONST ON STACK ?
+0180 1A07   464         JL   E$$1              ;N, LEAVE ALONE
+0182 020B   465         LI   R11,E$TEMP        ;Y, GET ITS STOREAGE
+0184 0000 
+0186 C142   466         MOV  R2,R5             ;GET ITS PLACE ON THE STACK
+0188 C08B   467         MOV  R11,R2            ;SAVE STOREAGE ADR
+018A CEF5   468         MOV  *R5+,*R11+        ;COPY IT
+018C CEF5   469         MOV  *R5+,*R11+
+018E C6D5   470         MOV  *R5,*R11
+0190 CD82   471  E$$1   MOV  R2,*R6+           ;STACK ADR
+0192 0705   472         SETO R5
+0194 06A0   473         BL   @EVAL             ;GET SECOND PARAMETER
+0196 01E4'
+0198 06A0   474         BL   @FIX
+019A 0076'
+            475  *
+019C 0646   476  EVSF1B DECT R6                ;POP 1ST OPERAND
+019E C096   477         MOV  *R6,R2
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0016
+EVAL - CORTEX BASIC REV. 1.1
+
+01A0 0280   478         CI   R0,>4B00          ;]?
+01A2 4B00 
+01A4 169E   479         JNE  EVER37            ;N, ERROR
+            480  *
+01A6 0646   481  EVSF2  DECT R6                ;POP ID
+01A8 C0D6   482         MOV  *R6,R3
+01AA 0973   483         SRL  R3,7              ;GET INDEX
+01AC C2E3   484         MOV  @SFUNP->36(3),R11
+01AE 03DE'
+01B0 1308   485         JEQ  SYSERR            ;0, SYSTEM ERROR
+01B2 2E00   486         CLEAR 0                ;CLEAR FPAC
+01B4 069B   487         BL   *R11              ;GOTO ROUTINE
+            488  *
+01B6 0646   489  EVSFR  DECT R6                ;POP R5
+01B8 C156   490         MOV  *R6,R5
+            491  *
+01BA CDB2   492  EVSF4  MOV  *R2+,*R6+         ;MOVE RESULT ON STACK
+01BC CDB2   493         MOV  *R2+,*R6+
+01BE CD92   494         MOV  *R2,*R6+
+01C0 1069   495         JMP  EVAL6             ;CONTINUE
+            496  *
+01C2 2FA0   497  SYSERR DATA ERROR2,-1         ;SYSTEM ERROR
+            498  *
+            499  * FUNCTION RETURN WITH R2 RELOAD
+            500  *
+01C6 0202   501  EVSFR$ LI   R2,FPAC           ;RELOAD R2
+01C8 0000 
+01CA 10F5   502         JMP  EVSFR             ;RETURN
+            503  *
+            504  *GET RANDOM NUMBER
+            505  *
+01CC 0420   506  EVRND  BLWP @RANDZ            ;GET RANDOM # IN FPAC
+01CE 0000 
+01D0 0202   507         LI   R2,FPAC
+01D2 01C8'
+01D4 10F2   508         JMP  EVSF4
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0017
+EVAL - CORTEX BASIC REV. 1.1
+
+            510  *
+01D6 0705   511  EVALS  SETO R5                ;FULL EXPRESSION
+            512  *
+01D8 C22D   513  EVALS1 MOV  @16(13),R8        ;GET PBC
+01DA 0010 
+            514  *
+01DC 0206   515  EVALS2 LI   R6,EVSKB          ;GET BEGINNING STACK PTR
+01DE 0034'
+01E0 0207   516         LI   R7,EVSKE          ;GET END STACK PTR
+01E2 0000 
+            517  *
+            518  *EVALUATE SIMPLE EXPRESSION
+            519  *
+01E4 CD8B   520  EVAL   MOV  R11,*R6+          ;STACK RETURN
+01E6 04F6   521         CLR  *R6+              ;MARK OPERAND STACK
+01E8 04C0   522         CLR  R0                ;MARK OPERATOR STACK
+01EA D140   523         MOVB R0,R5             ;IF OPERATOR: MUST BE UNARY
+            524  *
+01EC 0607   525  EVAL1  DEC  R7                ;PUSH ON OPERATOR STACK
+01EE D5C0   526         MOVB R0,*R7
+01F0 81C6   527         C    R6,R7             ;STACK OVERFLOW?
+01F2 1457   528         JHE  EVER27            ;Y, ERROR
+            529  *
+01F4 D038   530  EVAL2  MOVB *R8+,R0           ;PARSE
+01F6 1376   531         JEQ  EVADL             ;DONE
+01F8 0280   532         CI   R0,>6F00          ;VARIABLE?
+01FA 6F00 
+01FC 1B22   533         JH   EVAV              ;Y
+01FE 130F   534         JEQ  EVFP              ;N, FP #
+0200 0280   535         CI   R0,>6200          ;CONSTANT?
+0202 6200 
+0204 1413   536         JHE  EVAL3             ;Y
+0206 0280   537         CI   R0,>4C00          ;"( OR OPERATER?
+0208 4C00 
+020A 1B64   538         JH   EVOP              ;OPERATER
+020C 13EF   539         JEQ  EVAL1             ;"(, PUSH
+020E 0280   540         CI   R0,>3800          ;DELIMITER?
+0210 3800 
+0212 1468   541         JHE  EVADL             ;Y
+0214 0280   542         CI   R0,>1B00          ;SYSTEM FUNCTION?
+0216 1B00 
+0218 1490   543         JHE  EVSF              ;Y
+021A 0460   544         B    @EVAFN            ;FUNCTION
+021C 0084'
+            545  *
+021E DDB8   546  EVFP   MOVB *R8+,*R6+         ;FP CONSTANT
+0220 DDB8   547         MOVB *R8+,*R6+
+0222 DDB8   548         MOVB *R8+,*R6+
+0224 DDB8   549         MOVB *R8+,*R6+
+0226 DDB8   550         MOVB *R8+,*R6+
+0228 DDB8   551         MOVB *R8+,*R6+
+022A 1034   552         JMP  EVAL6             ;MARK
+            553  *
+022C 0280   554  EVAL3  CI   R0,>6D00          ;1 WORD INTEGER?
+022E 6D00 
+0230 142A   555         JHE  EVAL4             ;Y
+0232 06C0   556         SWPB R0
+0234 0220   557         AI   R0,->63           ;N, -1 THRU 9
+0236 FF9D 
+0238 102A   558         JMP  EVAL5             ;STORE #
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0018
+EVAL - CORTEX BASIC REV. 1.1
+
+            559  *
+023A 2F8A   560  EVER10 DATA ERROR+10          ;STORAGE OVERFLOW
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0019
+EVAL - CORTEX BASIC REV. 1.1
+
+            562  *UNARY MINUS
+            563  *
+023C 0200   564  EVAL9  LI   R0,>6100          ;STACK -
+023E 6100 
+0240 10D5   565  EVAL91 JMP  EVAL1
+            566  *
+            567  *VARIABLE
+            568  *
+0242 0280   569  EVAV   CI   R0,>7300          ;RND?
+0244 7300 
+0246 13C2   570         JEQ  EVRND             ;Y
+0248 C060   571         MOV  @VNT,R1           ;GET VARIABLE TABLE
+024A 0000 
+024C 0970   572         SRL  R0,7              ;SWAP & X 2
+024E A040   573         A    R0,R1             ;INDEX
+0250 C061   574         MOV  @->70*2(1),R1     ;DIMENSIONED
+0252 FF20 
+0254 117F   575         JLT  EVADV             ;Y
+0256 C060   576         MOV  @VDT,R1
+0258 010A'
+025A A040   577         A    R0,R1
+025C C021   578         MOV  @->70*2(1),R0     ;DEFINED?
+025E FF20 
+0260 161A   579         JNE  EVAL7             ;Y
+0262 06C5   580         SWPB R5                ;POSITION EVALUATION TYPE LJ IN R
+0264 D145   581         MOVB R5,R5             ;FULL OR VARIABLE EVALUATION ?
+0266 06C5   582         SWPB R5                ;RESTORE EVALUATION TYPE TO ORIGI
+0268 160C   583         JNE  EVER40            ;NE - FULL EVAL - DO NOT DEFINE -
+026A C020   584         MOV  @NVS,R0           ;VARIABLE EVALUATION ONLY - DEFIN
+026C 0000 
+026E 0220   585         AI   R0,-6
+0270 FFFA 
+0272 8800   586         C    R0,@NVD           ;OK?
+0274 0000 
+0276 1AE1   587         JL   EVER10            ;N, STORAGE OVERFLOW
+0278 C840   588         MOV  R0,@->70*2(1)
+027A FF20 
+027C C800   589         MOV  R0,@NVS           ;UPDATA NVS
+027E 026C'
+0280 100A   590         JMP  EVAL7
+0282 2FA0   591  EVER40 DATA ERROR2,40         ;UNDEFINED VARIABLE
+            592  *
+            593  *CONSTANTS
+            594  *
+0286 D038   595  EVAL4  MOVB *R8+,R0           ;1 WRD CONSTANT
+0288 06C0   596         SWPB R0
+028A D038   597         MOVB *R8+,R0
+028C 06C0   598         SWPB R0
+            599  *
+028E 04F6   600  EVAL5  CLR  *R6+              ;MOVE INTO STACK
+0290 CD80   601         MOV  R0,*R6+           ;INSERT 0,#,0
+0292 04F6   602         CLR  *R6+
+            603  *
+0294 0700   604  EVAL6  SETO R0                ;MARK AS CONSTANT
+            605  *
+0296 CD80   606  EVAL7  MOV  R0,*R6+           ;MARK STACK
+0298 04C0   607         CLR  R0
+            608  *
+029A D160   609  EVAL8  MOVB @BFF,R5           ;IF OPERATOR: MUST NOT BE UNARY
+029C 056D'
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0020
+EVAL - CORTEX BASIC REV. 1.1
+
+029E 81C6   610         C    R6,R7             ;STACK OVERFLOW?
+02A0 1AA9   611         JL   EVAL2             ;N, OK
+            612  *
+02A2 2F9B   613  EVER27 DATA ERROR+27          ;Y, EXPRESSION TOO COMPLEX
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0021
+EVAL - CORTEX BASIC REV. 1.1
+
+            615  *OPERATOR
+            616  *
+            617  *HANDLE UNARY OPERATORS
+            618  *
+02A4 0280   619  EVOPA  CI   R0,>5D00          ;"+?
+02A6 5D00 
+02A8 13A5   620         JEQ  EVAL2             ;Y, IGNOR
+02AA 0280   621         CI   R0,>5C00          ;N, "-?
+02AC 5C00 
+02AE 13C6   622         JEQ  EVAL9             ;Y, STACK UNARY -
+02B0 0280   623         CI   R0,>5200          ;NOT?
+02B2 5200 
+02B4 139B   624         JEQ  EVAL1             ;Y, STACK
+02B6 0280   625         CI   R0,>5300          ;LNOT?
+02B8 5300 
+02BA 1398   626         JEQ  EVAL1             ;Y, STACK
+02BC 2F81   627  EVER0  DATA ERROR+1           ;N, SYNTAX ERROR
+            628  *
+            629  *HANDLE OPENING AND CLOSING PAREN'S
+            630  *
+02BE 0280   631  EVOP0  CI   R0,>4D00          ;")?
+02C0 4D00 
+02C2 1612   632         JNE  EVOP1             ;N
+02C4 9817   633  EVOP0A CB   *R7,@B4C          ;(?
+02C6 056C'
+02C8 160F   634         JNE  EVOP1             ;N
+02CA 0587   635         INC  R7                ;Y, POP
+02CC 1093   636         JMP  EVAL2
+            637  *
+02CE D057   638  EVOP0B MOVB *R7,R1            ;NULL?
+02D0 16F9   639         JNE  EVOP0A            ;N
+02D2 1008   640         JMP  EVADL             ;Y, TERMINATE
+            641  *
+            642  *OPERATER ENTRY
+            643  *
+02D4 D045   644  EVOP   MOVB R5,R1             ;NEED UNARY OPERATER?
+02D6 13E6   645         JEQ  EVOPA             ;Y
+02D8 0280   646         CI   R0,>4D00          ;)?
+02DA 4D00 
+02DC 13F8   647         JEQ  EVOP0B            ;Y
+02DE 0245   648         ANDI R5,>FF            ;N, ALLOW UNARY ONLY TO FOLLOW
+02E0 00FF 
+02E2 1602   649         JNE  EVOP1             ;FULL EXPRESSION
+            650  *
+            651  *DELIMITER ENTRY
+            652  *
+02E4 04C5   653  EVADL  CLR  R5                ;SET TO TERMINATE
+02E6 04C0   654         CLR  R0                ;DO CR
+            655  *
+02E8 D057   656  EVOP1  MOVB *R7,R1            ;LOOK AT TOP OPERATOR
+02EA C100   657         MOV  R0,R4
+02EC 0244   658         ANDI R4,>FE00          ;LAP OFF LOW BIT
+02EE FE00 
+02F0 9044   659         CB   R4,R1             ;HIGHER PRECEDENCE?
+02F2 1BA6   660         JH   EVAL91            ;Y, STACK
+02F4 D0F7   661         MOVB *R7+,R3           ;N, POP OPERATER
+02F6 131C   662         JEQ  EVOP4             ;DONE
+02F8 0973   663         SRL  R3,7              ;SWAP & X 2
+02FA C2E3   664         MOV  @EVATB->9C(3),R11
+02FC 0342'
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0022
+EVAL - CORTEX BASIC REV. 1.1
+
+            665  *
+02FE 0646   666         DECT R6                ;POP VARIABLE
+0300 C056   667         MOV  *R6,R1            ;EMPTY?
+0302 13DC   668         JEQ  EVER0             ;Y
+0304 0596   669         INC  *R6               ;CONSTANT?
+0306 1603   670         JNE  EVOP2             ;N
+0308 0226   671         AI   R6,-6             ;Y
+030A FFFA 
+030C C046   672         MOV  R6,R1
+            673  *
+030E 22E0   674  EVOP2  COC  @C1,R11           ;UNARY OPERATION?
+0310 0408'
+0312 1308   675         JEQ  EVOP3             ;Y
+0314 0646   676         DECT R6                ;N, GET SECOND OPERAND
+0316 C096   677         MOV  *R6,R2            ;EMPTY?
+0318 13D1   678         JEQ  EVER0             ;Y
+031A 0596   679         INC  *R6               ;CONSTANT?
+031C 1603   680         JNE  EVOP3             ;N
+031E 0226   681         AI   R6,-6             ;Y
+0320 FFFA 
+0322 C086   682         MOV  R6,R2
+            683  *
+0324 069B   684  EVOP3  BL   *R11              ;DO OPERATION
+            685  *
+0326 CDB2   686  EVOP3A MOV  *R2+,*R6+         ;MOVE RESULTS ON STACK
+0328 CDB2   687         MOV  *R2+,*R6+
+032A CD92   688         MOV  *R2,*R6+
+032C 0736   689         SETO *R6+              ;MARK AS CONSTANT
+032E 10C7   690         JMP  EVOP0             ;CONTINUE
+            691  *
+0330 D028   692  EVOP4  MOVB @-1(8),R0         ;GET DELIMITER
+0332 FFFF 
+0334 0646   693         DECT R6                ;POP VARIABLE
+0336 C096   694         MOV  *R6,R2            ;EMPTY?
+0338 13C1   695         JEQ  EVER0             ;Y, ERROR
+033A 0596   696         INC  *R6               ;CONSTANT?
+033C 1603   697         JNE  EVOP5             ;N
+033E 0226   698         AI   R6,-6             ;Y
+0340 FFFA 
+0342 C086   699         MOV  R6,R2
+            700  *
+0344 0226   701  EVOP5  AI   R6,-4             ;DONE, POP STACK
+0346 FFFC 
+0348 C2D6   702         MOV  *R6,R11
+034A C066   703         MOV  @2(6),R1          ;STACK EMPTIED?
+034C 0002 
+034E 16B6   704         JNE  EVER0             ;N, ERROR
+0350 045B   705         RT
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0023
+EVAL - CORTEX BASIC REV. 1.1
+
+0352 10A3   707  EVAL8P JMP  EVAL8
+            708  *
+            709  *DIMENSIONED VARIABLE
+            710  *
+0354 C060   711  EVADV  MOV  @VDT,R1
+0356 0258'
+0358 A040   712         A    R0,R1
+035A C121   713         MOV  @->70*2(1),R4     ;DEFINED?
+035C FF20 
+035E 133B   714         JEQ  ERR39             ;N, UNDIMENSIONED VARIABLE
+0360 CD85   715         MOV  R5,*R6+           ;STACK R5
+0362 04F6   716         CLR  *R6+              ;ZERO INDEX & STACK
+            717  *
+0364 CD84   718  EVADV1 MOV  R4,*R6+           ;STACK R4
+0366 0705   719         SETO R5                ;DO FULL EXPRESSION
+0368 06A0   720         BL   @EVAL             ;RECURSE
+036A 01E4'
+036C 06A0   721         BL   @FIX              ;FIX #
+036E 019A'
+0370 0646   722         DECT R6                ;POP BASE ADR
+0372 C116   723         MOV  *R6,R4
+0374 0646   724         DECT R6                ;READY FOR INDEX POP
+0376 8D01   725         C    R1,*R4+           ;EXCEED DIMENSION?
+0378 1B2C   726         JH   ERR17             ;Y, SUBSCRIPT ERROR
+037A C174   727         MOV  *R4+,R5           ;GET DEL MULTIPLIER
+037C 0285   728         CI   R5,-1             ;DONE?
+037E FFFF 
+0380 1306   729         JEQ  EVADV2            ;Y
+0382 3845   730         MPY  R5,R1             ;MULTIPLY
+0384 AD82   731         A    R2,*R6+           ;ADD TO INDEX & STACK
+0386 0280   732         CI   R0,>3F00          ;,?
+0388 3F00 
+038A 13EC   733         JEQ  EVADV1            ;Y, DO AGAIN
+            734  *
+038C 2F92   735  ERR18  DATA ERROR+18          ;N, TOO FEW SUBSCRIPTS
+            736  *
+038E A056   737  EVADV2 A    *R6,R1            ;ADD FINAL DIMENSION
+0390 3860   738         MPY  @C6,R1            ;MULTIPLY BY 6
+0392 0412'
+0394 A084   739         A    R4,R2             ;ADD BASE
+0396 0646   740         DECT R6                ;POP R5
+0398 C156   741         MOV  *R6,R5
+039A CD82   742         MOV  R2,*R6+           ;STACK ADDRESS
+039C 0280   743         CI   R0,>4B00          ;]?
+039E 4B00 
+03A0 13D8   744         JEQ  EVAL8P            ;Y
+03A2 0280   745         CI   R0,>4000          ;;?
+03A4 4000 
+03A6 1616   746         JNE  ERR19             ;N, TOO MANY SUBSCRIPTS
+03A8 CD85   747         MOV  R5,*R6+           ;Y, STACK R5
+03AA 0705   748         SETO R5                ;DO FULL EVAL
+03AC 06A0   749         BL   @EVAL             ;RECURSE
+03AE 01E4'
+03B0 06A0   750         BL   @FIX              ;GET INTEGER
+03B2 036E'
+03B4 0280   751         CI   R0,>4B00          ;]?
+03B6 4B00 
+03B8 1610   752         JNE  EVADVE            ;N, ERROR
+03BA 0646   753         DECT R6                ;Y, POP R5
+03BC C156   754         MOV  *R6,R5
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0024
+EVAL - CORTEX BASIC REV. 1.1
+
+03BE 0646   755         DECT R6                ;POP ADR
+03C0 C016   756         MOV  *R6,R0
+03C2 0601   757         DEC  R1                ;INDEX=COUNT-1
+03C4 1106   758         JLT  ERR17             ;ERROR
+03C6 A001   759         A    R1,R0             ;INDEX
+03C8 8800   760         C    R0,@IOB           ;EXCEED MEMORY?
+03CA 0000 
+03CC 1402   761         JHE  ERR17             ;Y, ERROR
+03CE 0460   762         B    @EVAL7            ;N, CONTINUE
+03D0 0296'
+            763  *
+03D2 2F91   764  ERR17  DATA ERROR+17          ;SUBSCRIPT ERROR
+            765  *
+03D4 2F93   766  ERR19  DATA ERROR+19          ;TOO MANY SUBSCRIPTS
+            767  *
+03D6 2FA0   768  ERR39  DATA ERROR2,39         ;UNDIMENSIONED VARIABLE
+            769  *
+03DA 2FA0   770  EVADVE DATA ERROR2,37         ;INVALID DELIMITER
+            771  *
+03DE 0000   772  EVATB  DATA ORF,LORF
+03E2 0000   773         DATA ANDF,LANDF
+03E6 0000   774         DATA NOTF,LNOTF
+03EA 0000   775         DATA LXORF
+03EC 0516'  776         DATA FUZF
+03EE 0516'  777         DATA EQUF,GTHF
+03F2 0516'  778         DATA GEQF,LTHF
+03F6 0516'  779         DATA LEQF,NEQUF
+03FA 0498'  780         DATA SUBF,ADDF
+03FE 04DA'  781         DATA DIVF,MULF
+0402 0000   782         DATA POWF,UMNF+1
+            783  *
+     0028   784  EVPR   EQU  $-EVATB
+0406 0000   785         DATA 0
+     0409'  786  B01    EQU  $+1
+0408 0001   787  C1     DATA 1
+040A 0004   788  C4     DATA 4
+     040D'  789  B05    EQU  $+1
+040C 0005   790         DATA 5
+040E 0002   791         DATA 2
+0410 0003   792         DATA 3
+0412 0006   793  C6     DATA 6
+            794  *
+0414 0000   795  SFUNP  DATA ABSF              1B
+0416 0000   796         DATA ADRF              1C
+0418 0000   797         DATA ASCF              1D
+041A 0000   798         DATA ATNF              1E
+041C 0000   799         DATA COSF              1F
+041E 0000   800         DATA EXPF              20
+0420 0000   801         DATA FRAF              21
+0422 0000   802         DATA INTF              22
+0424 0000   803         DATA LOGF              23
+0426 0000   804         DATA NKYF              24
+0428 0000   805         DATA SINF              25
+042A 0000   806         DATA SQRF              26
+042C 0000   807         DATA SYSF              27
+042E 0000   808         DATA TICF              28
+0430 0000   809         DATA SGNF              29
+0432 0000   810         DATA BITF              2A
+0434 0000   811         DATA CRBF              2B
+0436 0000   812         DATA CRFF              2C
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0025
+EVAL - CORTEX BASIC REV. 1.1
+
+0438 0000   813         DATA MEMF              2D
+043A 0000   814         DATA MWDF              2E
+043C 0000   815         DATA LENF              2F
+043E 0000   816         DATA MCHF              30
+0440 0000   817         DATA POSF              31
+0442 0000   818         DATA COLF              32
+0444 0000   819         DATA MODF              33
+0446 0000   820         DATA 0                 34
+0448 0000   821         DATA 0                 35
+044A 0000   822         DATA 0                 36
+044C 0000   823         DATA 0                 37
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0026
+EVAL - CORTEX BASIC REV. 1.1
+
+            825  *       ARITHMETIC OPERATIONS SUCH AS ADD, SUBTRACT,
+            826  *       MULTIPLY, DIVIDE, UNARY MINUS, AND RELATIONAL
+            827  *       OPERATORS SUCH AS FUZZ, EQUAL, NOT EQUAL,
+            828  *       LESS THAN, GREATER THAN, LESS THAN OR EQUAL,
+            829  *       GREAT THAN OR EQUAL, AND NOT EQUAL USE
+            830  *       OPERANDS POINTED TO BY R1,R2 AND RETURN A
+            831  *       RESULT POINTED TO BY R2.
+            832  *
+            833  *       PREP DETERMINES IF BOTH OPERANDS ARE INTEGER
+            834  *       VALUES (IN WHICH CASE AN ATTEMPT IS MADE TO
+            835  *       DO AN INTERATION OPERATION) OR IF 1 OR BOTH
+            836  *       OF THE OPERANDS IS A FLOATING POINT NUMBER
+            837  *       (IN WHICH CASE BOTH ARE FLOATED AND A FLOATING
+            838  *       POINT OPERATION IS PERFORMED.)
+            839  *
+            840  *       RELATIONAL OPERATORS ARE GIVEN A VALUE CORRE-
+            841  *       SPONDING TO THE COMPARISON TO BE MADE.  BIT 0
+            842  *       IS THE EQUAL BIT, BIT 1 IS THE LESS-THAN BIT,
+            843  *       AND BIT 2 IS THE GREATER-THAN BIT.  HENCE:
+            844  *
+            845  *         0000  =  FUZZ
+            846  *         0001  =  EQUAL
+            847  *         0002  =  LESS-THAN
+            848  *         0003  =  LESS-THAN OR EQUAL
+            849  *         0004  =  GREATER-THAN
+            850  *         0005  =  GREATER-THAN OR EQUAL
+            851  *         0006  =  NOT EQUAL (LESS-THAN, GREATER-THAN)
+            852  *
+            853  * CALLING SEQUENCE:
+            854  *
+            855  *       BL @ADDF
+            856  *       BL @SUBF
+            857  *       BL @MULF
+            858  *       BL @DIVF
+            859  *
+            860  *       IN (R1) = OPERAND 1
+            861  *          (R2) = OPERAND 2
+            862  *
+            863  *       OUT (R2) = RESULT
+            864  *
+            865  *
+            866  *       B @FUZF         ;==
+            867  *       B @EQUF         ;=
+            868  *       B @LTHF         ;<
+            869  *       B @LEQF         ;<=
+            870  *       B @GTHF         ;>
+            871  *       B @GEQF         ;>=
+            872  *       B @NEQUF        ;<>
+            873  *
+            874  *       IN (R1) = OPERAND 1
+            875  *          (R2) = OPERAND 2
+            876  *
+            877  *       OUT (R2) = RESULT
+            878  *       EXITS TO EVOP3A
+            879  *
+            880  *       B @UMNF         ;- (UNARY MINUS)
+            881  *
+            882  *       IN (R1) = OPERAND
+            883  *
+            884  *       OUT (R2) = RESULT
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0027
+EVAL - CORTEX BASIC REV. 1.1
+
+            885  *       EXISTS TO EVOP3A
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0028
+EVAL - CORTEX BASIC REV. 1.1
+
+            887  *ARITHMETIC PREPARATION
+            888  *       BL @PREP
+            889  *         VECTOR
+            890  *       BOTH INTEGERS
+            891  *
+            892  *       IN      R1 = SOURCE 1
+            893  *               R2 = SOURCE 2
+            894  *
+            895  *       INT OUT R3 = S1
+            896  *               R1 = S2
+            897  *
+044E C811   898  PREP   MOV  *R1,@TEMP         ;LOAD TEMP
+0450 0000 
+0452 C821   899         MOV  @2(1),@TEMP2
+0454 0002 
+0456 0000 
+0458 C821   900         MOV  @4(1),@TEMP4
+045A 0004 
+045C 0000 
+045E 2C12   901         LOADF *R2              ;LOAD FPAC
+0460 C0F1   902         MOV  *R1+,R3           ;INTEGER?
+0462 160C   903         JNE  PREP4             ;N
+0464 C0F2   904         MOV  *R2+,R3           ;INTEGER?
+0466 160A   905         JNE  PREP4             ;N
+0468 C0D1   906         MOV  *R1,R3            ;BOTH INTEGERS
+046A C052   907         MOV  *R2,R1            ;GET INTEGERS
+046C 046B   908         B    @2(11)
+046E 0002 
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0029
+EVAL - CORTEX BASIC REV. 1.1
+
+0470 C28B   910  ADDF   MOV  R11,R10           ;SAVE RETURN
+0472 06A0   911         BL   @PREP             ;PREPARE OPEANDS
+0474 044E'
+0476 2CA0   912         DATA 2*>40+>2C20
+0478 A043   913         A    R3,R1             ;BOTH INTEGERS
+047A 1907   914         JNO  PREP5A            ;NO OVERFLOW
+047C 0420   915  PREP4  BLWP @FLTMZ            ;FLOAT TEMP
+047E 0494'
+0480 2E80   916         FLOATF 0               ;FLOAT FPAC
+0482 049B   917         X    *R11              ;DO FP OPERATION
+0484 0450'  918         DATA TEMP
+0486 1003   919         JMP  PREP5B            ;RETURN
+            920  *
+0488 0501   921  PREP5  NEG  R1                ;NEGATE RESULT
+            922  *
+048A C801   923  PREP5A MOV  R1,@FPAC2         ;SAVE RESULT
+048C 0000 
+            924  *
+048E 0202   925  PREP5B LI   R2,FPAC           ;GET ADDRESS OF RESULT
+0490 01D2'
+0492 045A   926         B    *R10              ;RETURN
+            927  *
+0494 0484'  928  FLTMZ  DATA TEMP,FLOAT
+            929  *
+            930  * SUBTRACT
+            931  *
+            932  *
+0498 C28B   933  SUBF   MOV  R11,R10           ;SAVE RETURN
+049A 06A0   934         BL   @PREP
+049C 044E'
+049E 2CE0   935         DATA 3*>40+>2C20
+04A0 6043   936         S    R3,R1             ;INTEGERS
+04A2 19F3   937         JNO  PREP5A
+04A4 10EB   938         JMP  PREP4             ;OVERFLOW
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0030
+EVAL - CORTEX BASIC REV. 1.1
+
+            940  *
+            941  *MULTIPLY
+            942  *
+04A6 C28B   943  MULF   MOV  R11,R10           ;SAVE RETURN
+04A8 06A0   944         BL   @PREP
+04AA 044E'
+04AC 2D20   945         DATA 4*>40+>2C20
+04AE C0C3   946         MOV  R3,R3             ;R3<0?
+04B0 1108   947         JLT  MULF5             ;Y
+04B2 C041   948         MOV  R1,R1             ;R1<0?
+04B4 110B   949         JLT  MULF6             ;Y
+            950  *
+04B6 3843   951  MULF2  MPY  R3,R1             ;R1,R2 = R3 X R1
+04B8 C041   952         MOV  R1,R1             ;OVERFLOW?
+04BA 16E0   953         JNE  PREP4             ;Y
+04BC C042   954         MOV  R2,R1             ;OVERFLOW?
+04BE 11DE   955         JLT  PREP4             ;Y
+04C0 10E4   956         JMP  PREP5A            ;N
+            957  *
+04C2 0503   958  MULF5  NEG  R3                ;R3<0
+04C4 C041   959         MOV  R1,R1             ;R1<0
+04C6 1503   960         JGT  MULF7             ;N
+04C8 0501   961         NEG  R1                ;Y
+04CA 10F5   962         JMP  MULF2             ;Y
+            963  *
+04CC 0501   964  MULF6  NEG  R1                ;SIGNS DIFFERENT
+04CE 3843   965  MULF7  MPY  R3,R1             ;R1,R2 = R3 X R1
+04D0 C041   966         MOV  R1,R1             ;OVERFLOW?
+04D2 16D4   967         JNE  PREP4             ;Y
+04D4 C042   968         MOV  R2,R1             ;OVERFLOW?
+04D6 11D2   969         JLT  PREP4             ;Y
+04D8 10D7   970         JMP  PREP5             ;RETURN
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0031
+EVAL - CORTEX BASIC REV. 1.1
+
+            972  *
+            973  *DIVIDE
+            974  *
+04DA C28B   975  DIVF   MOV  R11,R10           ;SAVE RETURN
+04DC 06A0   976         BL   @PREP
+04DE 044E'
+04E0 2D60   977         DATA 5*>40+>2C20
+04E2 C0C3   978         MOV  R3,R3             ;SOURCE<0?
+04E4 110A   979         JLT  DIVF5             ;Y
+04E6 1316   980         JEQ  ERR28             ;DIVISION BY ZERO
+04E8 C081   981         MOV  R1,R2             ;DESTINATION<0?
+04EA 110C   982         JLT  DIVF6             ;Y
+            983  *
+04EC 04C1   984  DIVF2  CLR  R1                ;POSITIVE RESULT
+04EE 3C43   985         DIV  R3,R1             ;DIVIDE
+04F0 C082   986         MOV  R2,R2             ;REMAINDER?
+04F2 16C4   987         JNE  PREP4             ;Y, FLOAT
+04F4 C041   988         MOV  R1,R1             ;OVERFLOW?
+04F6 11C2   989         JLT  PREP4             ;Y, FLOAT
+04F8 10C8   990         JMP  PREP5A            ;N, STORE RESULTS
+            991  *
+04FA 0503   992  DIVF5  NEG  R3                ;SOURCE<0
+04FC C081   993         MOV  R1,R2             ;DESTINATION<0?
+04FE 1503   994         JGT  DIVF7             ;N
+0500 0502   995         NEG  R2                ;Y, POSITIVE RESULT
+0502 10F4   996         JMP  DIVF2
+            997  *
+0504 0502   998  DIVF6  NEG  R2                ;SIGNS DIFFERENT
+0506 04C1   999  DIVF7  CLR  R1
+0508 3C43  1000         DIV  R3,R1             ;DIVIDE
+050A C082  1001         MOV  R2,R2             ;REMAINDER?
+050C 16B7  1002         JNE  PREP4             ;Y, OVERFLOW
+050E C041  1003         MOV  R1,R1             ;OVERFLOW?
+0510 11B5  1004         JLT  PREP4             ;Y
+0512 10BA  1005         JMP  PREP5             ;RETURN
+           1006  *
+0514 2F9C  1007  ERR28  DATA ERROR+28          ;DIVISION BY ZERO
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0032
+EVAL - CORTEX BASIC REV. 1.1
+
+           1009  *
+           1010  *RELATIONAL OPERATERS
+           1011  *
+     0516' 1012  FUZF   EQU  $
+     0516' 1013  EQUF   EQU  $
+     0516' 1014  LTHF   EQU  $
+     0516' 1015  LEQF   EQU  $
+     0516' 1016  GTHF   EQU  $
+     0516' 1017  GEQF   EQU  $
+     0516' 1018  NEQUF  EQU  $
+0516 C123  1019         MOV  @EVATB->AA+EVPR(3),R4
+0518 035C'
+051A 06A0  1020         BL   @SUBF
+051C 0498'
+051E 0203  1021         LI   R3,4              ;GET MATCH CONSTANT
+0520 0004 
+0522 C104  1022         MOV  R4,R4             ;FUZZ?
+0524 1609  1023         JNE  EQUF1             ;N
+0526 0584  1024         INC  R4                ;Y, R4=0001
+0528 C052  1025         MOV  *R2,R1            ;GET EXPONENT
+052A 1306  1026         JEQ  EQUF1             ;INTEGER
+052C 0241  1027         ANDI R1,>7F00          ;ISOLATE
+052E 7F00 
+0530 0281  1028         CI   R1,FUZZ           ;LESS THAN FUZZ?
+0532 0000 
+0534 1A06  1029         JL   EQUF2A            ;Y, EQUAL
+0536 1007  1030         JMP  EQUF3             ;N, UNEQUAL, SET R3 TO -2
+           1031  *
+0538 C072  1032  EQUF1  MOV  *R2+,R1           ;GET SIGN OF RESULT
+053A 1601  1033         JNE  EQUF2
+053C C052  1034         MOV  *R2,R1
+053E 1503  1035  EQUF2  JGT  EQUF3
+0540 1601  1036         JNE  $+4
+0542 0603  1037  EQUF2A DEC  R3
+0544 0643  1038         DECT R3
+           1039  *
+0546 2E00  1040  EQUF3  CLEAR 0                ;CLEAR FPAC
+0548 2103  1041         COC  R3,R4             ;CORRESPONDING BITS SET?
+054A 160A  1042         JNE  UMNF3
+054C 05A0  1043         INC  @FPAC2            ;RETURN 1
+054E 048C'
+0550 1007  1044         JMP  UMNF3
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0033
+EVAL - CORTEX BASIC REV. 1.1
+
+           1046  *
+           1047  *UNARY MINUS
+           1048  *
+0552 2C11  1049  UMNF   LOADF *R1              ;LOAD FPAC
+0554 C051  1050         MOV  *R1,R1            ;INTEGER
+0556 1302  1051         JEQ  UMNF1             ;Y
+0558 2E40  1052         NEGATE 0               ;N, NEGATE FPAC
+055A 1002  1053         JMP  UMNF3
+           1054  *
+055C 0520  1055  UMNF1  NEG  @FPAC2
+055E 054E'
+           1056  *
+0560 0202  1057  UMNF3  LI   R2,FPAC           ;RETURN
+0562 0490'
+0564 0460  1058  UMNF4  B    @EVOP3A
+0566 0326'
+0568 38    1059  B38    BYTE >38
+0569 43    1060  B43    BYTE >43
+056A 45    1061  B45    BYTE >45
+056B 4A    1062  B4A    BYTE >4A
+056C 4C    1063  B4C    BYTE >4C
+056D FF    1064  BFF    BYTE >FF
+056E       1065         EVEN
+           1066         END
+ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0034
+EVAL - CORTEX BASIC REV. 1.1
+
+ABSF       0414R  ADDF       0470D  ADRF       0416R  ANDF       03E2R  
+ASCF       0418R  ATNF       041AR  B01        0409D  B05        040DD  
+B38        0568'  B43        0569'  B45        056A'  B4A        056B'  
+B4C        056C'  BFF        056D'  BITF       0432R  C1         0408D  
+C4         040AD  C6         0412D  CKEX       003ED  CKEX1      0050'  
+CKEX2      0052'  COLF       0442R  COSF       041CR  CRBF       0434R  
+CRFF       0436R  DIVF       04DA'  DIVF2      04EC'  DIVF5      04FA'  
+DIVF6      0504'  DIVF7      0506'  DLIM       0062R  E$$1       0190'  
+E$TEMP     0184R  EQUF       0516'  EQUF1      0538'  EQUF2      053E'  
+EQUF2A     0542'  EQUF3      0546'  ERR17      03D2'  ERR18      038C'  
+ERR19      03D4'  ERR22      0038'  ERR28      0514'  ERR38      0080'  
+ERR39      03D6'  ERROR      2F80   ERROR2     2FA0   EVADL      02E4'  
+EVADV      0354'  EVADV1     0364'  EVADV2     038E'  EVADVE     03DA'  
+EVAFN      0084'  EVAFN1     00B4'  EVAFN2     00E6'  EVAFN4     00EA'  
+EVAFN5     00F0'  EVAL       01E4D  EVAL1      01EC'  EVAL2      01F4'  
+EVAL3      022C'  EVAL4      0286'  EVAL5      028E'  EVAL6      0294'  
+EVAL7      0296'  EVAL8      029A'  EVAL8P     0352'  EVAL9      023C'  
+EVAL91     0240'  EVALS      01D6'  EVALS1     01D8'  EVALS2     01DCD  
+EVAR       002C'  EVARZ      003AD  EVATB      03DE'  EVAV       0242'  
+EVER       0058'  EVER0      02BC'  EVER1      005C'  EVER10     023A'  
+EVER2      0060'  EVER27     02A2'  EVER37     00E2'  EVER40     0282'  
+EVERZ      0054D  EVFP       021E'  EVFX       006CD  EVOP       02D4'  
+EVOP0      02BE'  EVOP0A     02C4'  EVOP0B     02CE'  EVOP1      02E8'  
+EVOP2      030E'  EVOP3      0324'  EVOP3A     0326D  EVOP4      0330'  
+EVOP5      0344'  EVOPA      02A4'  EVPR       0028   EVRND      01CC'  
+EVSD       0004'  EVSD1      0022'  EVSD2      0026'  EVSDZ      0000D  
+EVSF       013A'  EVSF1      0154'  EVSF1A     016C'  EVSF1B     019C'  
+EVSF2      01A6'  EVSF4      01BA'  EVSFO      0114'  EVSFO1     012E'  
+EVSFO2     0130'  EVSFR      01B6D  EVSFR$     01C6D  EVSKB      01DER  
+EVSKE      01E2R  EXPF       041ER  FIX        03B2R  FLOAT      0496R  
+FLTMZ      0494'  FPAC       0562R  FPAC2      055ER  FRAF       0420R  
+FUZF       0516'  FUZZ       0532R  GEQF       0516'  GTHF       0516'  
+INTF       0422R  IOB        03CAR  LANDF      03E4R  LENF       043CR  
+LEQF       0516'  LNOTF      03E8R  LOGF       0424R  LORF       03E0R  
+LTHF       0516'  LXORF      03EAR  MCHF       043ER  MEMF       0438R  
+MODF       0444R  MULF       04A6'  MULF2      04B6'  MULF5      04C2'  
+MULF6      04CC'  MULF7      04CE'  MWDF       043AR  NEQUF      0516'  
+NKYF       0426R  NOTF       03E6R  NVD        0274R  NVS        027ER  
+ORF        03DER  POSF       0440R  POWF       0402R  PREP       044E'  
+PREP4      047C'  PREP5      0488'  PREP5A     048A'  PREP5B     048E'  
+R0         0000   R1         0001   R10        000A   R11        000B   
+R12        000C   R13        000D   R14        000E   R15        000F   
+R2         0002   R3         0003   R4         0004   R5         0005   
+R6         0006   R7         0007   R8         0008   R9         0009   
+RANDZ      01CER  RTSTOR     007AR  SFUNP      0414'  SGNF       0430R  
+SINF       0428R  SQRF       042AR  SUBF       0498D  SYSERR     01C2'  
+SYSF       042CR  TEMP       0494R  TEMP2      0456R  TEMP4      045CR  
+TICF       042ER  UFT        008AR  UMNF       0552'  UMNF1      055C'  
+UMNF3      0560'  UMNF4      0564'  VDT        0356R  VNT        024AR  
+WPR2       0054R  
+
+0 Errors in assembly

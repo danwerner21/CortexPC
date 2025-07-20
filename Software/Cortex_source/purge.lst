@@ -1,0 +1,72 @@
+ASM990 2.4.6     PURGE                      Sun Jul 20 19:28:49 2025 Page 0001
+PURGE STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT  'PURGE'
+              3  *
+              4  *
+              5  *
+              6         DEF  PURGY
+              7         REF  EMV,PLC,PRDY,SLN,SLT,VNT
+              8         REF  GETC$,MODEOK,ESCFLG
+              9         DXOP EVFIX,11
+             10  *
+     2F80    11  ERROR  EQU  >2F80
+     2FA0    12  ERROR2 EQU  ERROR+>20
+             13  *
+0000 06A0    14  PURGY  BL   @MODEOK           ABORT IF RUNNING
+0002 0000 
+0004 C0A0    15         MOV  @PLC,R2           SAVE CURRENT LINE + 1
+0006 0000 
+0008 1303    16         JEQ  PRG0
+000A C822    17         MOV  @-6(2),@SLN
+000C FFFA 
+000E 0000 
+0010 2EC1    18  PRG0   EVFIX R1               GET START LINE #
+0012 0280    19         CI   R0,>3800          'TO' ?
+0014 3800 
+0016 161C    20         JNE  ERR37             N, ILLEGAL DELIMITER
+0018 2EC3    21         EVFIX R3               GET STOP LINE #
+001A C3C3    22         MOV  R3,R15            SAVE END
+001C C3A0    23  PRG2   MOV  @VNT,R14          GET TABLE ADR
+001E 0000 
+0020 064E    24         DECT R14               BACKUP
+0022 880E    25  PRG1   C    R14,@SLT          DONE?
+0024 0000 
+0026 1212    26         JLE  PRG3              Y
+0028 022E    27         AI   R14,-4            N, MOVE TO NEXT ENTRY
+002A FFFC 
+002C 8781    28         C    R1,*R14           SAME ?
+002E 15F9    29         JGT  PRG1              N, CONTINUE
+0030 880E    30         C    R14,@SLT          DONE?
+0032 0024'
+0034 1A0B    31         JL   PRG3              Y
+0036 83DE    32         C    *R14,R15          REACHED END?
+0038 1509    33         JGT  PRG3              Y
+003A 04C0    34         CLR  R0
+003C C05E    35         MOV  *R14,R1           GET LINE #
+003E 0720    36         SETO @ESCFLG           DISABLE ESCAPE KEY
+0040 0000 
+0042 06A0    37         BL   @EMV              DELETE LINE
+0044 0000 
+0046 0000    38         DATA GETC$             CHARACTER ?
+0048 10E9    39         JMP  PRG2              N, CONTINUE
+004A 10E8    40         JMP  PRG2              Y, NORMAL CHARACTER - IGNORE
+004C 0460    41  PRG3   B    @PRDY             ESCAPE, EXIT
+004E 0000 
+             42  *
+0050 2FA0    43  ERR37  DATA ERROR2,37         ILLEGAL DELIMITER
+             44         END
+ASM990 2.4.6     PURGE                      Sun Jul 20 19:28:49 2025 Page 0002
+PURGE STATEMENT - CORTEX BASIC REV. 1.1
+
+EMV       0044R  ERR37     0050'  ERROR     2F80   ERROR2    2FA0   
+ESCFLG    0040R  GETC$     0046R  MODEOK    0002R  PLC       0006R  
+PRDY      004ER  PRG0      0010'  PRG1      0022'  PRG2      001C'  
+PRG3      004C'  PURGY     0000D  R0        0000   R1        0001   
+R10       000A   R11       000B   R12       000C   R13       000D   
+R14       000E   R15       000F   R2        0002   R3        0003   
+R4        0004   R5        0005   R6        0006   R7        0007   
+R8        0008   R9        0009   SLN       000ER  SLT       0032R  
+VNT       001ER  
+
+0 Errors in assembly

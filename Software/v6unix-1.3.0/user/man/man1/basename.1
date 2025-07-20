@@ -1,0 +1,33 @@
+.th BASENAME 1 
+.sh NAME
+basename \- strip filename affixes
+.sh SYNOPSIS
+.bd basename
+string [ suffix ]
+.sh DESCRIPTION
+.it Basename
+deletes any prefix ending in `/' and the
+.it suffix,
+if present in
+.it string,
+from
+.it string,
+and prints the result on the standard output.
+It is normally used inside substitution marks \`\ \`
+in shell procedures.
+.pp
+This shell procedure invoked with the argument
+.it /usr/src/cmd/cat.c
+compiles the named file and moves the output to
+.it cat
+in the current directory:
+.sp
+.br
+.in +6
+cc $1
+.br
+mv a.out \`basename $1 .c\`
+.i0
+.dt
+.sh "SEE ALSO"
+sh(1)

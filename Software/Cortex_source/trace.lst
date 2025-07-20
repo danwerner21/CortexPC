@@ -1,0 +1,32 @@
+ASM990 2.4.6     TRACE                      Sun Jul 20 19:28:50 2025 Page 0001
+TRACE ROUTINES - CORTEX BASIC REV. 1.1
+
+              2         IDT  'TRACE'
+              3  *
+              4  *
+              5  *
+              6         REF  TRAFLG,NLIN0
+              7         DEF  TONY,TOFY
+              8  *
+              9  *  TRACE ON (TON)
+0000 0720    10  TONY   SETO @TRAFLG           ;SET TRACE FLAG
+0002 0000 
+0004 0460    11  TONY1  B    @NLIN0            ;EXIT TO NLIN
+0006 0000 
+             12  *
+             13  *  TRACE OFF (TOF)
+             14  *
+0008 04E0    15  TOFY   CLR  @TRAFLG           ;RESET TRACE FLAG
+000A 0002'
+000C 10FB    16         JMP  TONY1             ;EXIT
+             17         END
+ASM990 2.4.6     TRACE                      Sun Jul 20 19:28:50 2025 Page 0002
+TRACE ROUTINES - CORTEX BASIC REV. 1.1
+
+NLIN0    0006R  R0       0000   R1       0001   R10      000A   R11      000B   
+R12      000C   R13      000D   R14      000E   R15      000F   R2       0002   
+R3       0003   R4       0004   R5       0005   R6       0006   R7       0007   
+R8       0008   R9       0009   TOFY     0008D  TONY     0000D  TONY1    0004'  
+TRAFLG   000AR  
+
+0 Errors in assembly

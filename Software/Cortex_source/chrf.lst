@@ -1,0 +1,95 @@
+ASM990 2.4.6     CHRF                       Sun Jul 20 19:28:48 2025 Page 0001
+CHARACTER FUNCTIONS - CORTEX BASIC REV. 1.1
+
+              2         IDT  'CHRF'
+              3  *
+              4  *       POSF            ;STRING SEARCH FUNCTION
+              5  *       MCHF            ;STRING MATCH FUNCTION
+              6  *       LENF            ;STRING LENGTH FUNCTION
+              7  *
+              8         REF  EVSFR$            EXIT ENTRY TO EVALUATOR
+              9         REF  FPAC2             FLOATING POINT ACCUMULATOR
+             10         DEF  POSF              ENTRY PT. FOR 'POS' FUNCTION
+             11         DEF  MCHF              ENTRY PT. FOR 'MCH' FUNCTION
+             12         DEF  LENF              ENTRY PT. FOR 'LEN' FUNCTION
+             13  *
+             14  *      POS:-   SEARCH FOR THE FIRST STRING IN THE SECOND
+             15  *              STRING AND RETURN THE STARTING POSITION
+             16  *              OF THE FIRST MATCH.
+             17  *              IF NO MATCH IS FOUND A '0' IS RETURNED.
+             18  *
+             19  *      MCH:-   MATCH STRING 1 INTO STRING 2 AND RETURN
+             20  *              THE NUMBER OF CHARACTERS TO WHICH THEY
+             21  *              AGREE. IF NO MATCH IS FOUND A '0' IS RETURNED
+             22  *
+             23  *      LEN:-   RETURN THE LENGTH OF THE STRING UPTO THE 1ST
+             24  *              NULL BYTE.
+ASM990 2.4.6     CHRF                       Sun Jul 20 19:28:48 2025 Page 0002
+CHARACTER FUNCTIONS - CORTEX BASIC REV. 1.1
+
+             26  * CALLING SEQUENCE:
+             27  *
+             28  *       B @POSF
+             29  *
+             30  *       EXIT TO EVSFR$
+             31  *
+0000 05A0    32  POSF   INC  @FPAC2            ;COUNT
+0002 0000 
+0004 D031    33         MOVB *R1+,R0           ;GET FIRST BYTE
+0006 130A    34         JEQ  POSF2             ;NOT FOUND, RETURN 0
+0008 9012    35         CB   *R2,R0            ;SAME?
+000A 16FA    36         JNE  POSF              ;N, CONTINUE LOOKING
+000C C0C2    37         MOV  R2,R3             ;Y, LOOK FURTHER
+000E 0583    38         INC  R3
+0010 C101    39         MOV  R1,R4
+             40  *
+0012 D033    41  POSF1  MOVB *R3+,R0           ;MATCH?
+0014 1305    42         JEQ  POSF3             ;Y, RETURN FPAC
+0016 9D00    43         CB   R0,*R4+           ;SAME?
+0018 13FC    44         JEQ  POSF1             ;Y, CONTINUE
+001A 10F2    45         JMP  POSF              ;N, START AGAIN
+             46  *
+001C 04E0    47  POSF2  CLR  @FPAC2
+001E 0002'
+             48  * EXIT TO EVSFR WITH R2 RELOADED WITH 'FPAC'
+0020 0460    49  POSF3  B    @EVSFR$
+0022 0000 
+             50  *
+             51  *
+             52  * CALLING SEQUENCE:
+             53  *
+             54  *       B @MCHF
+             55  *
+             56  *       EXIT TO EVSFR$
+             57  *
+0024 9C52    58  MCHF   CB   *R2,*R1+          SAME?
+0026 16FC    59         JNE  POSF3             N
+0028 DC92    60         MOVB *R2,*R2+          Y - BUT WERE THEY NULL?
+002A 13FA    61         JEQ  POSF3             Y - THEN DON'T COUNT
+002C 05A0    62         INC  @FPAC2            N - NOT NULL; THEN COUNT
+002E 001E'
+0030 10F9    63         JMP  MCHF
+             64  *
+             65  *
+             66  * CALLING SEQUENCE:
+             67  *
+             68  *       B @LENF
+             69  *
+             70  *       EXIT TO EVSFR$
+             71  *
+0032 D072    72  LENF   MOVB *R2+,R1
+0034 13F5    73         JEQ  POSF3             ;DONE
+0036 05A0    74         INC  @FPAC2            ;COUNT
+0038 002E'
+003A 10FB    75         JMP  LENF
+             76         END
+ASM990 2.4.6     CHRF                       Sun Jul 20 19:28:48 2025 Page 0003
+CHARACTER FUNCTIONS - CORTEX BASIC REV. 1.1
+
+EVSFR$   0022R  FPAC2    0038R  LENF     0032D  MCHF     0024D  POSF     0000D  
+POSF1    0012'  POSF2    001C'  POSF3    0020'  R0       0000   R1       0001   
+R10      000A   R11      000B   R12      000C   R13      000D   R14      000E   
+R15      000F   R2       0002   R3       0003   R4       0004   R5       0005   
+R6       0006   R7       0007   R8       0008   R9       0009   
+
+0 Errors in assembly

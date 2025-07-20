@@ -1,0 +1,66 @@
+#
+# Make stdlib part of std C library.
+#
+
+CC = cc
+AR = ar
+
+OBJS = clrerr.o fdopen.o fgetc.o fgets.o filbuf.o flsbuf.o \
+      fopen.o fprintf.o fputc.o fputs.o freopen.o fseek.o \
+      ftell.o getchar.o gets.o printf.o putchar.o puts.o rdwr.o \
+      rew.o setbuf.o sprintf.o ungetc.o vfprintf.o kput.o \
+      getpwnam.o getpwent.o getgrnam.o getgrent.o popen.o \
+      getpass.o getpwuid.o doscan.o scanf.o tmpfile.o
+
+all: stdlib
+
+install: all
+	${AR} r /lib/libc.a ${OBJS}
+
+clean:
+	rm -f *.o
+
+stdlib: ${OBJS}
+
+.s.o:
+	as99 -u -o $@ $<
+
+.c.o:
+	${CC} -O -c -o $@ $<
+
+clrerr.o: clrerr.c
+fdopen.o: fdopen.c
+fgetc.o: fgetc.c
+fgets.o: fgets.c
+filbuf.o: filbuf.c
+flsbuf.o: flsbuf.c
+fopen.o: fopen.c
+fprintf.o: fprintf.c
+fputc.o: fputc.c
+fputs.o: fputs.c
+freopen.o: freopen.c
+fseek.o: fseek.c
+ftell.o: ftell.c
+getchar.o: getchar.c
+gets.o: gets.c
+popen.o: popen.c
+printf.o: printf.c
+putchar.o: putchar.c
+puts.o: puts.c
+rdwr.o: rdwr.c
+rew.o: rew.c
+setbuf.o: setbuf.c
+sprintf.o: sprintf.c
+ungetc.o: ungetc.c
+vfprintf.o: vfprintf.c
+kput.o: kput.c
+getpwnam.o: getpwnam.c
+getpwent.o: getpwent.c
+getgrnam.o: getgrnam.c
+getgrent.o: getgrent.c
+getpass.o: getpass.c
+getpwuid.o: getpwuid.c
+doscan.o: doscan.c
+scanf.o: scanf.c
+tmpfile.o: tmpfile.c
+

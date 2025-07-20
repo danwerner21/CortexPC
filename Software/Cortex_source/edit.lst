@@ -1,0 +1,2298 @@
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0001
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+              2         IDT  'EDIT'
+              3  *
+              4  *  COMMANDS :-
+              5  *
+              6  *   RUN
+              7  *   SIZ(E)
+              8  *   CON(TINUE)
+              9  *   MON(ITOR)
+             10  *   <SPARE>
+             11  *   <SPARE>
+             12  *   <SPARE>
+             13  *   <SPARE>
+             14  *   <SPARE>
+             15  *   <SPARE>
+             16  *   <SPARE>
+             17  *
+             18  *
+             19  *  FUNCTIONS  DELIMITERS  OPERATORS  VARIABLES
+             20  * *01-1A FNx *38 TO      *4E OR     *62 -1
+             21  *            *39 TAB     *4F LOR    *63 0
+             22  *  1B ABS    *3A STEP    *50 AND    *64 1
+             23  *  1C ADR    *3B THEN    *51 LAND   *65 2
+             24  *  1D ASC    *3C :       *52 NOT    *66 3
+             25  *  1E ATN    *3D @       *53 LNOT   *67 4
+             26  *  1F COS    *3E #       *54 LXOR   *68 5
+             27  *  20 EXP    *3F ,       *55 ==     *69 6
+             28  *  21 FRA    *40 ;       *56 =      *6A 7
+             29  *  22 INT    *41 ?       *57 >      *6B 8
+             30  *  23 LOG    *42 %       *58 >=     *6C 9
+             31  *  24 KEY    *43 $       *59 <      *6D 2B INT.
+             32  *  25 SIN    *44 "       *5A <=     *6E 2B HEX
+             33  *  26 SQR    *45 '       *5B <>     *6F 6B FP.
+             34  *  27 SYS    *46 \ (NU)  *5C -      *70 DUMMY
+             35  *  28 TIC    *47 !       *5D +      *71 DUMMY
+             36  *  29 SGN    *48 &       *5E /      *72 DUMMY
+             37  *  2A BIT    *49 _ (NU)  *5F *      *73 RND
+             38  *  2B CRB    *4A [       *60 ^       74-FF USER
+             39  *  2C CRF    *4B ]       *61 UN.-
+             40  *  2D MEM    *4C (
+             41  *  2E MWD    *4D )
+             42  *  2F LEN
+             43  *  30 MCH
+             44  *  31 POS
+             45  *  32 COL
+             46  *  33 MOD
+             47  *  34
+             48  *  35
+             49  *  36
+             50  *  37
+             51  *
+             52  *
+             53  *   ( ) = SPECIAL      * = TABLE POSITION FIXED
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0002
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+             55  *                       STATEMENTS
+             56  *                     ==============      
+             57  *
+             58  *
+             59  *  00                   20 TEXT           40 ON
+             60  *  01 GOTO*             21 WAIT           41 IF
+             61  *  02 GOSUB*            22 CHAR           42 DEF
+             62  *  03 ELSE*             23 NUMBER         43 NEW
+             63  *  04 REM*              24 LIST           44 END
+             64  *  05 FOR*              25 RENUM          45 (?) (PRINT)
+             65  *  06 (LET)*            26 SPRITE         46 (*) (EXTEND)
+             66  *  07 DATA              27 SHAPE          47 BIT
+             67  *  08 NEXT              28 SPUT           48 CRB
+             68  *  09 ERROR             29 SGET           49 CRF
+             69  *  0A PRINT             2A BOOT           4A MEM
+             70  *  0B CALL              2B SWAP           4B MWD
+             71  *  0C LOAD              2C                4C
+             72  *  0D INPUT             2D MOTOR          4D
+             73  *  0E READ              2E                4E
+             74  *  0F RESTOR            2F                4F
+             75  *  10 RETURN            30    
+             76  *  11 STOP              31    
+             77  *  12 UNIT              32    
+             78  *  13 TIME              33    
+             79  *  14 SAVE              34            
+             80  *  15 BASE              35   
+             81  *  16 ESCAPE            36   
+             82  *  17 NOESC             37    
+             83  *  18 RANDOM            38    
+             84  *  19 BAUD              39 MAG
+             85  *  1A ENTER             3A TOF        
+             86  *  1B PLOT              3B TON
+             87  *  1C UNPLOT            3C POP
+             88  *  1D COLOUR            3D DIM
+             89  *  1E PURGE             3E LET
+             90  *  1F GRAPH             3F (;) (PRINT)
+             91  *
+             92  *   ( ) = SPECIAL      * = TABLE POSITION FIXED
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0003
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+             94  *
+             95  * LAST UPDATED 15:22 21/12/81
+             96  *
+             97         DEF  EDIT,LST,LSTL,MODEOK,EMV
+             98         DEF  LCN1,LCN2,LCN3,LCN4
+             99         DEF  LNXT,LDEF,EDIT1
+            100         DEF  RNGOTO,RNGSUB,RNRSTR
+            101         DEF  RNON,RNINP,RNERR,RNREM,RNELSE,RNIF
+            102  *
+            103         REF  EDTMP
+            104         REF  AINC,ESCFLG
+            105         REF  DEBUG$,FTM$
+            106         REF  B2A,B20,B01
+            107         REF  BUS,DDM,DLC,EBP
+            108         REF  CKEX,CVDB20,C1
+            109         REF  CVDIFZ,CVDIZ,EDER
+            110         REF  FNS,GSC,GSS,LNUM
+            111         REF  FOR2,JMPR0,R8STOR
+            112         REF  FPAC,SLT,SLN,IOB
+            113         REF  LINE2
+            114         REF  MODE,NVD,NVS,EFLG
+            115         REF  RUNP,SIZE
+            116         REF  SSP,UFT,VDT,VNT
+            117         REF  TYPC$,TYPBE$
+            118         REF  HALTO$,DCNT,GOS2
+            119         REF  CRLF,NINE,RENCMP
+            120         REF  HOUT
+            121         DXOP EVFIX,11
+            122         DXOP OUTFP,12
+            123         DXOP OUTINT,13
+            124  *
+     2F80   125  ERROR  EQU  >2F80
+     2FA0   126  ERROR2 EQU  ERROR+>20
+     1600   127  SYN    EQU  >1600             TAPE SYNC CHARACTER
+     0200   128  STX    EQU  >0200             TAPE START OF TEXT CHARACTER
+     0300   129  ETX    EQU  >0300             TAPE END OF TEXT CHARACTER
+            130         COPY 'IODEFS.INC'
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0004
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0005
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0006
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            132  *
+            133  * CONTINUE COMMAND
+            134  *
+0000 0720   135  CONT   SETO @MODE             SET TO RUN
+0002 0000 
+0004 0000   136         DATA TYPC$             OUT CRLF
+0006 C060   137         MOV  @SLN,R1           GET LINE #
+0008 0000 
+000A 0460   138         B    @GOS2
+000C 0000 
+            139  *
+            140  *   CHECK TO SEE THAT WE ARE IN KEYBOARD MODE
+            141  *
+000E C820   142  MODEOK MOV  @MODE,@MODE       ;ARE WE RUNNING
+0010 0002'
+0012 0010'
+0014 1601   143         JNE  ERR48             ;Y, NOT ALLOWED
+0016 045B   144         RT
+            145  *
+0018 2FA0   146  ERR48  DATA ERROR2,48         ;WRONG MODE
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0007
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            148  * EDIT INPUT STRING
+            149  *
+            150  *       R6  = SUBSCRIPT STACK PTR
+            151  *       R7  = INPUT BYTE PTR
+            152  *       R8  = OUTPUT BYTE PTR
+            153  *       R10 = RETURN ADR
+            154  *       R12 = BEGINNING OF COMMAND PTR
+            155  *       R14 = SAVE FOR LINE COUNTER
+            156  *
+001C C820   157  EDIT   MOV  @NINE,@RENCMP     ;COMPRESSED FLAG=9 (FULL)
+001E 0000 
+0020 0000 
+0022 C28B   158  EDIT1  MOV  R11,R10           ;SAVE RETURN
+0024 C806   159         MOV  R6,@EDTMP         ;SAVE LINE COUNT FOR EDER ROUTINE
+0026 0000 
+0028 04E0   160         CLR  @EFLG             ;KILL ERROR FLAG
+002A 0000 
+002C C1E0   161         MOV  @IOB,R7           ;GET I/O PTR
+002E 0000 
+0030 0206   162         LI   R6,SSP            ;GET SUBSCRIPT STACK PTR
+0032 0000 
+0034 0716   163         SETO *R6               ;MARK SUBSCRIPT STACK
+0036 0208   164         LI   R8,EBP            ;GET EDIT BUFFER PTR
+0038 0000 
+003A C160   165         MOV  @VNT,R5           ;SET UP RESERVED WORDS
+003C 0000 
+003E 04F5   166         CLR  *R5+              ;CLEAR DUMMY VARIABLES
+0040 04F5   167         CLR  *R5+
+0042 04F5   168         CLR  *R5+
+0044 0200   169         LI   R0,>11D2          ;'RND'
+0046 11D2 
+0048 C540   170         MOV  R0,*R5
+            171  *
+            172  *       GET LINE NUMBER
+            173  *
+004A 0420   174         BLWP @CVDIZ            ;CONVERT LINE NUMBER
+004C 0000 
+004E 1042   175         JMP  EDER3             ;OVERFLOW
+0050 04C1   176         CLR  R1                ;NO NUMBER
+0052 C801   177         MOV  R1,@LNUM          ;STORE LINE NUMBER
+0054 0000 
+0056 113E   178         JLT  EDER3
+0058 1301   179         JEQ  $+4               ;LINE #
+005A 0607   180         DEC  R7                ;Y, BACKUP OVER DELIMITER
+005C C000   181         MOV  R0,R0             ;DONE?
+005E 1608   182         JNE  ED3               ;N
+            183  *
+            184  * IF AN EMPTY LINE IS ENTERED IN AUTO-INC MODE THEN
+            185  * THE AUTO-INCREMENT MODE IS TERMINATED
+            186  *
+0060 C2E0   187         MOV  @AINC,R11         ;AUTO-INC MODE ?
+0062 0000 
+0064 1602   188         JNE  NOAINC            ;Y, KILL IT
+0066 0460   189         B    @EMV0             ;Y, DELETE LINE
+0068 041A'
+006A 04E0   190  NOAINC CLR  @AINC             ;KILL AUTO-INC FLAG
+006C 0062'
+006E 045A   191         B    *R10              ;EXIT
+            192  *
+            193  *DECODE COMMAND WORD
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0008
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            194  *
+0070 06A0   195  ED3    BL   @EDGLS            ;GET FIRST LETTER
+0072 05C0'
+0074 1038   196         JMP  EDSCI             ;LET OR ";
+0076 C0C7   197         MOV  R7,R3             ;MARK
+0078 C001   198         MOV  R1,R0
+007A 06A0   199         BL   @EDGL             ;GET SECOND LETTER
+007C 05C8'
+007E 1014   200         JMP  EDLET
+0080 A001   201         A    R1,R0
+            202  *
+            203  *CHECK FOR TWO LETTER COMMANDS HERE
+            204  *
+0082 0280   205         CI   R0,>1920          ;IF?
+0084 1920 
+0086 1329   206         JEQ  EDIF              ;Y
+0088 0280   207         CI   R0,>39E0          ;ON?
+008A 39E0 
+008C 1329   208         JEQ  EDON              ;Y
+008E 06A0   209         BL   @EDGL             ;N, GET 3RD LETTER
+0090 05C8'
+0092 100A   210         JMP  EDLET             ;LET
+0094 A001   211         A    R1,R0
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0009
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            213  *SEARCH COMMAND LIST
+            214  *
+0096 0204   215         LI   R4,EDSCL          ;Y, GET COMMAND LIST PTR
+0098 0630'
+            216  *
+009A C074   217  ED5    MOV  *R4+,R1           ;GET FIRST COMMAND
+009C 0911   218         SRL  R1,1              ;MOVE 2ND WORD INDICATOR INTO CAR
+009E 8040   219         C    R0,R1             ;FOUND?
+00A0 1307   220         JEQ  ED6               ;MAYBE
+00A2 0284   221         CI   R4,EDCLE          ;N, MORE COMMANDS?
+00A4 06DC'
+00A6 1AF9   222         JL   ED5               ;Y
+            223  *
+00A8 C1C3   224  EDLET  MOV  R3,R7             ;RESTORE R7
+            225  *
+00AA DE20   226  EDLETA MOVB @LETB,*R8+        ;INSERT >6 (IMPLIED LET)
+00AC 08D0'
+00AE 105B   227         JMP  ED13
+            228  *
+00B0 C080   229  ED6    MOV  R0,R2             ;SAVE IN CASE NOT FOUND
+00B2 C3C7   230         MOV  R7,R15
+00B4 C024   231         MOV  @EDCS(4),R0       ;GET SECOND WORD
+00B6 00AA 
+00B8 1733   232         JNC  ED9               ;FOUND
+            233  *
+00BA C140   234  ED7    MOV  R0,R5
+00BC 0245   235         ANDI R5,>3E            ;MASK CHARACTER
+00BE 003E 
+00C0 132F   236         JEQ  ED9               ;FOUND
+00C2 06A0   237         BL   @EDGL             ;GET LETTER
+00C4 05C8'
+00C6 1003   238         JMP  ED8               ;PROBLEM
+00C8 0991   239         SRL  R1,9              ;POSITION
+00CA 8045   240         C    R5,R1             ;LETTER SAME?
+00CC 13F6   241         JEQ  ED7               ;Y
+            242  *
+00CE C002   243  ED8    MOV  R2,R0             ;PROBLEM, CONTINUE TO LOOK
+00D0 C1CF   244         MOV  R15,R7
+00D2 10E3   245         JMP  ED5
+            246  *
+00D4 06A0   247  EDER3  BL   @EDER             ;INVALID LINE NUMBER
+00D6 0000 
+00D8 30     248         TEXT '03'
+00D9 33   
+            249  *
+00DA 0204   250  EDIF   LI   R4,IFB            ;IF ENTRY
+00DC 0082 
+00DE 1029   251         JMP  ED10
+            252  *
+00E0 0204   253  EDON   LI   R4,ONB            ;ON ENTRY
+00E2 0080 
+00E4 1026   254         JMP  ED10
+            255  *
+00E6 9817   256  EDSCI  CB   *R7,@B2A          ;'*' ?
+00E8 0000 
+00EA 160D   257         JNE  EDSCI0            N, TRY OTHER SPECIALS
+00EC 0587   258         INC  R7                BUMP PTR
+00EE 0204   259         LI   R4,PASBX*128      LOAD EXTENDED COMMAND BYTE
+00F0 4600 
+00F2 DE04   260         MOVB R4,*R8+           STORE IT
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0010
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+00F4 D037   261  ECH$0  MOVB *R7+,R0           GET CHARACTER
+00F6 1305   262         JEQ  ECH$1             NULL, EXIT LOOP
+00F8 9800   263         CB   R0,@B20           ' ' ?
+00FA 0000 
+00FC 1302   264         JEQ  ECH$1             Y, END OF COMMAND
+00FE DE00   265         MOVB R0,*R8+           N, COPY OVER BYTE
+0100 10F9   266         JMP  ECH$0             AND LOOP
+0102 7E18   267  ECH$1  SB   *R8,*R8+          END, PUT A NULL
+0104 1031   268         JMP  ED14              AND CONTINUE
+            269  *
+0106 9837   270  EDSCI0 CB   *R7+,@B3F         ;'?' ?
+0108 0802'
+010A 1603   271         JNE  EDSCI1            N, TRY ';'
+010C 0204   272         LI   R4,PQMBX          Y, LOAD '?' ENTRY
+010E 008A 
+0110 1010   273         JMP  ED10
+0112 0607   274  EDSCI1 DEC  R7                ;BACKUP POINTER
+0114 9837   275         CB   *R7+,@B3B         ;";?
+0116 0801'
+0118 16C8   276         JNE  EDLETA            ;N
+011A 0204   277         LI   R4,PSCBX          ;"; ENTRY
+011C 007E 
+011E 1009   278         JMP  ED10
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0011
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            280  *COMMAND TYPE DONE
+            281  *CHECK FOR GOTO OR GOSUB
+            282  *
+0120 0201   283  ED9    LI   R1,EDCL           AI   R4,-EDCL  (NOT ALLOWED)
+0122 0646'
+0124 6101   284         S    R1,R4             SYSTEM COMMAND?
+0126 1505   285         JGT  ED10              N, CONTINUE TRANSLATION
+0128 C000   286         MOV  R0,R0             Y, COMMAND INSTALLED ?
+012A 1301   287         JEQ  SYSERR            N, SYSTEM ERROR
+012C 0450   288         B    *R0               Y, EXECUTE COMMAND
+            289  *
+012E 2F80   290  SYSERR DATA ERROR,-1          SYSTEM ERROR
+            291  *
+0132 E820   292  ED10   SOC  @C1,@ESCFLG       ;NO ESCAPE IN EDIT !!!
+0134 0000 
+0136 0000 
+0138 0A74   293         SLA  R4,7              ;POSITION BYTE
+013A DE04   294         MOVB R4,*R8+           ;STORE IN STREAM
+013C 0284   295         CI   R4,>300           ;CHECK SPECIAL TYPES
+013E 0300 
+0140 1108   296         JLT  ED12              ;GOTO,GOSUB
+0142 1396   297         JEQ  ED3               ;ELSE
+0144 0284   298         CI   R4,>400           ;REM?
+0146 0400 
+0148 160F   299         JNE  ED14              ;N
+014A 0460   300         B    @EDREM            ;Y
+014C 035E'
+            301  *
+014E DE20   302  ED11   MOVB @B3F,*R8+         ;STORE ,
+0150 0802'
+            303  *
+0152 0420   304  ED12   BLWP @CVDIZ            ;GET INTEGER
+0154 004C'
+0156 1000   305         NOP
+0158 10BD   306         JMP  EDER3
+015A DE01   307         MOVB R1,*R8+           ;STORE INTEGER
+015C 06C1   308         SWPB R1
+015E DE01   309         MOVB R1,*R8+
+0160 0280   310         CI   R0,>2C00          ;",?
+0162 2C00 
+0164 13F4   311         JEQ  ED11              ;Y
+            312  *
+0166 0607   313  ED13   DEC  R7                ;FALL THRU TO ED20
+            314  *
+0168 C308   315  ED14   MOV  R8,R12            ;MARK
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0012
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            317  *PROCESS REST OF LIST
+            318  *
+016A 0420   319  ED20   BLWP @CVDIFZ           ;LOOK FOR NUMBER
+016C 0000 
+016E 1014   320         JMP  ED23              ;OVERFLOW, FP
+0170 101D   321         JMP  ED30              ;NO NUMBER
+0172 1009   322         JMP  ED20H             ;HEX
+0174 0281   323         CI   R1,-1             ;<-1?
+0176 FFFF 
+0178 1109   324         JLT  ED21              ;Y
+017A 8801   325         C    R1,@RENCMP        FULL COMPRESSION?
+017C 0020'
+017E 1506   326         JGT  ED21              ;N
+0180 0221   327         AI   R1,>63            ;GET CODE (62-6C)
+0182 0063 
+0184 1006   328         JMP  ED22              ;INSERT
+            329  *
+0186 DE20   330  ED20H  MOVB @B6E,*R8+         ;MARK AS HEX
+0188 0A45'
+018A 1002   331         JMP  ED21A
+            332  *
+018C DE20   333  ED21   MOVB @B6D,*R8+         ;2 BYTE INTEGER, INSERT >6D
+018E 0810'
+0190 DE01   334  ED21A  MOVB R1,*R8+
+0192 06C1   335  ED22   SWPB R1
+0194 DE01   336         MOVB R1,*R8+
+0196 1009   337         JMP  ED24              ;LOOK FOR OPERATOR
+            338  *
+0198 DE20   339  ED23   MOVB @B6F,*R8+         ;FP #, INSERT >6F
+019A 0812'
+019C 0203   340         LI   R3,6
+019E 0006 
+01A0 0204   341         LI   R4,FPAC           ;GET FPAC ADR
+01A2 0000 
+            342  *
+01A4 DE34   343         MOVB *R4+,*R8+         ;MOVE IN NUMBER
+01A6 0603   344         DEC  R3                ;DONE?
+01A8 16FD   345         JNE  $-4               ;N
+            346  *
+01AA 0607   347  ED24   DEC  R7                ;Y, BACKUP OVER DELIMITER
+            348  *
+            349  *VARIABLE OR KEY WORD
+            350  *GET 3 CHARACTERS - EXIT TO EDOP IF NON-LETTER
+            351  *
+01AC 06A0   352  ED30   BL   @EDGWO            ;CHECK FOR WORD OPERATER
+01AE 05E0'
+01B0 06A0   353         BL   @EDGLS            ;PROCESS COMMAND LIST
+01B2 05C0'
+01B4 105E   354         JMP  EDOP              ;NOT LETTER, OPERATOR
+01B6 C001   355         MOV  R1,R0
+01B8 06A0   356         BL   @EDGL             ;GET NEXT LETTER
+01BA 05C8'
+01BC 101D   357         JMP  EDV1              ;NOT LETTER, 1 CHARACTER VARIABLE
+01BE A001   358         A    R1,R0             ;ADD NEW LETTER
+01C0 0280   359         CI   R0,>38C0          ;'FN'?
+01C2 38C0 
+01C4 1602   360         JNE  ED31              ;N
+01C6 0460   361         B    @EDFN             ;Y, FUNCTION
+01C8 03A8'
+            362  *
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0013
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+01CA 06A0   363  ED31   BL   @EDGL             ;N, GET 3RD LETTER
+01CC 05C8'
+01CE 1025   364         JMP  EDV2              ;NOT LETTER, 2 LETTER VARIABLE
+01D0 A001   365         A    R1,R0
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0014
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            367  *LOOK FOR 3 LETTER KEY WORDS
+            368  *
+01D2 0204   369         LI   R4,EDIL           ;GET LIST PTR
+01D4 0762'
+            370  *
+01D6 C074   371  ED32   MOV  *R4+,R1           ;GET CHARACTERS
+01D8 0911   372         SRL  R1,1              ;REMOVE TERMINATOR
+01DA 8040   373         C    R0,R1             ;SAME?
+01DC 1609   374         JNE  ED34              ;N
+01DE 020B   375         LI   R11,EDIL
+01E0 0762'
+01E2 0224   376         AI   R4,>1A*2
+01E4 0034 
+01E6 610B   377         S    R11,R4
+01E8 0914   378         SRL  R4,1              ;SYSTEM FUNCTION
+            379  *
+01EA 06C4   380  ED33   SWPB R4                ;POSITION
+01EC DE04   381         MOVB R4,*R8+           ;INSERT
+01EE 10BD   382         JMP  ED20
+            383  *
+01F0 0284   384  ED34   CI   R4,EDILE          ;N, LIST DONE?
+01F2 079C'
+01F4 1AF0   385         JL   ED32              ;N
+01F6 1011   386         JMP  ED35
+            387  *
+            388  *1 CHARACTER VARIABLE
+            389  *
+01F8 C0C0   390  EDV1   MOV  R0,R3             ;LOOK FOR #
+01FA 06A0   391         BL   @CVDB20           ;CHECK FOR DIGIT
+01FC 0000 
+01FE 100B   392         JMP  EDV1A             ;N
+0200 0607   393         DEC  R7                ;Y, BACKUP
+0202 0420   394         BLWP @CVDIZ            ;CONVERT
+0204 0154'
+0206 101D   395         JMP  EDER4             ;FP #, ILLEGAL VARIABLE NAME
+0208 1007   396         JMP  EDV1B             ;NO NUMBER
+020A 2460   397         CZC  @CFF80,R1         ;TOO LARGE?
+020C 06FA'
+020E 1619   398         JNE  EDER4             ;Y, ILLEGAL NAME
+0210 A0C1   399         A    R1,R3             ;COMBINE
+0212 0263   400         ORI  R3,>0380          ;INDICATE AS NUMBER
+0214 0380 
+     0214'  401  C380   EQU  $-2
+            402  *
+0216 0607   403  EDV1A  DEC  R7                ;BACKUP OVER DELIMITER
+            404  *
+0218 C003   405  EDV1B  MOV  R3,R0             ;RESTORE R0
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0015
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            407  *2 OR 3 CHARACTER VARIABLE
+            408  *
+     021A'  409  EDV2   EQU  $
+021A 06A0   410  ED35   BL   @EDGP             ;LOOK FOR DIMENSION
+021C 0616'
+021E 1002   411         JMP  ED35A             ;Y, DIMENSIONED
+0220 0607   412         DEC  R7                ;BACKUP
+0222 1003   413         JMP  ED36
+            414  *
+0224 0500   415  ED35A  NEG  R0                ;SET DIMENSION
+0226 05C6   416         INCT R6                ;STACK -1
+0228 0716   417         SETO *R6
+            418  *
+            419  *SAVE VARIABLE NAME
+            420  *
+022A 0204   421  ED36   LI   R4,>FF00+>70      ;-# OF VARIABLES
+022C FF70 
+022E C160   422         MOV  @VNT,R5           ;GET VARIABLE TABLE ADR
+0230 003C'
+            423  *
+0232 8805   424  ED37   C    R5,@VDT           ;DONE?
+0234 0000 
+0236 1409   425         JHE  ED38              ;Y, MAKE NEW VARIABLE
+0238 8D40   426         C    R0,*R5+           ;VARIABLE SAME?
+023A 1317   427         JEQ  ED39              ;Y, FOUND
+023C 0584   428         INC  R4                ;STILL ROOM?
+023E 16F9   429         JNE  ED37              ;Y
+            430  *
+0240 2F85   431  ERR5   DATA ERROR+5           ;N, TOO MANY VARIABLES
+            432  *
+0242 06A0   433  EDER4  BL   @EDER             ;ILLEGAL VARIABLE NAME
+0244 00D6'
+0246 30     434         TEXT '04'
+0247 34   
+            435  *
+0248 2F8A   436  ERR10  DATA ERROR+10          ;STORAGE OVERFLOW
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0016
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            438  *DEFINE NEW VARIABLE
+            439  *
+024A C0A0   440  ED38   MOV  @NVD,R2           ;GET END OF TABLE
+024C 0000 
+024E 8CB2   441         C    *R2+,*R2+         ;ADD 4
+0250 8802   442         C    R2,@NVS           ;ROOM FOR NEW VARIABLE?
+0252 0000 
+0254 14F9   443         JHE  ERR10             ;N
+0256 C802   444         MOV  R2,@NVD           ;Y, UPDATE NVD
+0258 024C'
+            445  *
+025A 0222   446  ED38A  AI   R2,-4             ;MOVE POINTERS UP 2 BYTES
+025C FFFC 
+025E C4B2   447         MOV  *R2+,*R2
+0260 8142   448         C    R2,R5             ;DONE?
+0262 1BFB   449         JH   ED38A             ;N
+0264 C540   450         MOV  R0,*R5            ;Y, STORE NEW NAME
+0266 05E0   451         INCT @VDT              ;UPDATE VDT
+0268 0234'
+            452  *
+026A C000   453  ED39   MOV  R0,R0             ;DIMENSIONED?
+026C 11BE   454         JLT  ED33              ;Y
+026E 06C4   455         SWPB R4                ;N, INSERT VARIABLE CODE
+0270 DE04   456         MOVB R4,*R8+
+            457  *
+            458  *       TRANSLATE CHARACTER INTO CODE
+            459  *
+0272 04C0   460  EDOP   CLR  R0                ;GET OPERATER
+0274 D037   461         MOVB *R7+,R0           ;GET BYTE
+0276 1375   462         JEQ  ED90              ;DONE
+0278 C040   463         MOV  R0,R1
+027A 06C1   464         SWPB R1
+027C 0280   465         CI   R0,>4100          ;<"A?
+027E 4100 
+0280 1A08   466         JL   EDOP1             ;Y
+0282 0280   467         CI   R0,>5B00          ;>"Z?
+0284 5B00 
+0286 1A47   468         JL   ED49              ;N, LETTER, TRY WORD OPERATER
+0288 0221   469         AI   R1,-26            ;SKIP ALPHABET
+028A FFE6 
+028C 0280   470         CI   R0,>5E00          ;>"^?
+028E 5E00 
+0290 1B3F   471         JH   EDER6             ;Y, INVALID CHARACTER
+            472  *
+0292 D061   473  EDOP1  MOVB @EDSL->21(1),R1   ;GET CODE
+0294 077D'
+0296 133C   474         JEQ  EDER6             ;INVALID CHARACTER
+0298 D601   475         MOVB R1,*R8            ;STORE BYTE
+029A 06A0   476         BL   @JMPR0            ;SWITCHBOARD ON SPECIAL CHARACTER
+029C 0000 
+029E EA     477  EDOPTB BYTE EDOP-EDOPTB/2,>20 SP
+02A0 42     478         BYTE ED50-EDOPTB/2,>28 "(
+02A2 42     479         BYTE ED50-EDOPTB/2,>5B "[
+02A4 55     480         BYTE ED51-EDOPTB/2,>29 ")
+02A6 55     481         BYTE ED51-EDOPTB/2,>5D "]
+02A8 0F     482         BYTE ED42-EDOPTB/2,>22 ""
+02AA 0F     483         BYTE ED42-EDOPTB/2,>27 "'
+02AC 30     484         BYTE ED47-EDOPTB/2,>3A ":
+02AE 5F     485         BYTE ED54-EDOPTB/2,>21 "!
+02B0 16     486         BYTE ED43-EDOPTB/2,>3D "=
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0017
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+02B2 27     487         BYTE ED45-EDOPTB/2,>3E ">
+02B4 0000   488         DATA 0
+02B6 0588   489  ED40   INC  R8                ;MOVE OVER CODE
+02B8 0460   490  ED41   B    @ED20             ;CONTINUE PARSE
+02BA 016A'
+            491  *
+02BC 0588   492  ED42   INC  R8                ;PROCESS " OR '
+02BE D637   493         MOVB *R7+,*R8          ;GET NEXT BYTE
+02C0 1370   494         JEQ  EDER2             ;PROBLEM
+02C2 9600   495         CB   R0,*R8            ;CLOSE?
+02C4 16FB   496         JNE  ED42              ;N
+02C6 7E18   497         SB   *R8,*R8+          ;Y, TERMINATE WITH NULL
+02C8 10F7   498         JMP  ED41
+            499  *
+02CA 0608   500  ED43   DEC  R8                ;PROCESS "=
+02CC 9818   501         CB   *R8,@B57          ;>=?
+02CE 07BB'
+02D0 130A   502         JEQ  ED44              ;Y
+02D2 9818   503         CB   *R8,@B59          ;<=?
+02D4 07B9'
+02D6 1307   504         JEQ  ED44              ;Y
+02D8 9838   505         CB   *R8+,@B56         ;==?
+02DA 07BA'
+02DC 16EC   506         JNE  ED40
+02DE 7A20   507         SB   @B01,@-1(8)       ;Y, MAKE ==
+02E0 0000 
+02E2 FFFF 
+02E4 10E9   508         JMP  ED41
+            509  *
+02E6 BE20   510  ED44   AB   @B01,*R8+         ;MODIFY CODE
+02E8 02E0'
+02EA 10E6   511         JMP  ED41              ;GOTO ED20
+            512  *
+02EC 9828   513  ED45   CB   @-1(8),@B59       ;PROCESS ">
+02EE FFFF 
+02F0 07B9'
+02F2 16E1   514         JNE  ED40
+02F4 BA20   515         AB   @B02,@-1(8)       ;MAKE <>
+02F6 06FF'
+02F8 FFFF 
+02FA 10DE   516  ED41P  JMP  ED41
+            517  *
+02FC 0587   518  ED46   INC  R7                ;PROCESS :,THEN
+02FE 9817   519  ED47   CB   *R7,@B20          ;SPACE
+0300 00FA'
+0302 13FC   520         JEQ  ED46              ;Y, IGNOR
+0304 9817   521         CB   *R7,@B3A          ;N, IS IT ANOTHER COLON ?
+0306 07FD'
+0308 13F9   522         JEQ  ED46              ;Y, IGNORE IT THEN
+030A 0588   523         INC  R8                ;N, PROCESS NEW COMMAND
+030C 0460   524         B    @ED3
+030E 0070'
+            525  *
+0310 06A0   526  EDER6  BL   @EDER             ;ILLEGAL CHARACTER
+0312 0244'
+0314 30     527         TEXT '06'
+0315 36   
+            528  *
+            529  *LOOK FOR WORD OPERATER
+            530  *
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0018
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+0316 0607   531  ED49   DEC  R7
+0318 06A0   532         BL   @EDGWO
+031A 05E0'
+031C 06A0   533         BL   @EDER             ;EXPECTING OPERATER
+031E 0312'
+0320 30     534         TEXT '07'
+0321 37   
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0019
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            536  *( OR [ ENTRY
+            537  *
+0322 8308   538  ED50   C    R8,R12            ;COMMAND BYTE?
+0324 1B05   539         JH   ED50A             ;N
+0326 9828   540         CB   @-1(8),@BCPB      ;MEM,CRB,CRF,BIT?
+0328 FFFF 
+032A 06F8'
+032C 1A0B   541         JL   ED50B             ;N, LEAVE (
+            542  * FOLLOWING LINE NEEDED AS CMD BYTES BIT - MWD CODE >B38
+032E 1006   543         JMP  ED50A1            ;Y, FORCE '['
+0330 D068   544  ED50A  MOVB @-1(R8),R1        IS LAST CHAR STORED
+0332 FFFF 
+            545  *                             STRING TERMINATOR (0)?
+0334 1307   546         JEQ  ED50B             Y
+0336 9801   547         CB   R1,@B38           N - FUNCTION ARGUMENTS?
+0338 0813'
+033A 1404   548         JHE  ED50B             ;N, LEAVE (
+033C 05C6   549  ED50A1 INCT R6                ;Y, MAKE [
+033E 04D6   550         CLR  *R6               ;INSERT -1 INTO STACK
+0340 7620   551         SB   @B02,*R8          ;*R8=>4A
+0342 06FF'
+            552  *
+0344 0616   553  ED50B  DEC  *R6               ;INCREMENT TOP ITEM ON STACK
+0346 10B7   554         JMP  ED40              ;LEAVE
+            555  *
+            556  *) OR ] ENTRY
+            557  *
+0348 0596   558  ED51   INC  *R6               ;NEED ]?
+034A 1106   559         JLT  ED52              ;N, LEAVE >4D
+034C 0646   560         DECT R6                ;Y, DECREMENT STACK
+034E 0286   561         CI   R6,SSP            ;UNMATCHED?
+0350 0032'
+0352 1A27   562         JL   EDER2             ;Y
+0354 7620   563         SB   @B02,*R8          ;N, INSERT ] CODE (>4B)
+0356 06FF'
+            564  *
+0358 0588   565  ED52   INC  R8                ;LEAVE CODE
+035A 108B   566  ED52A  JMP  EDOP              ;LOOK FOR OPERATER
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0020
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            568  *PROCESS REMARKS
+            569  *
+035C 0588   570  ED54   INC  R8                ;PROCESS TAIL REMARK
+            571  *
+035E DE37   572  EDREM  MOVB *R7+,*R8+         ;MOVE REMARK
+0360 16FE   573         JNE  EDREM
+            574  *
+            575  *END PARSE, CHECK FINAL ERRORS
+            576  *
+0362 0286   577  ED90   CI   R6,SSP            ;SUBSCRIPT ERROR?
+0364 0350'
+0366 161D   578         JNE  EDER2             ;Y
+0368 0596   579         INC  *R6               ;PAREN ERROR?
+036A 161B   580         JNE  EDER2             ;Y
+036C 7E18   581         SB   *R8,*R8+          ;N, MARK OUTPUT
+036E 7618   582         SB   *R8,*R8           ;DOUBLE NULL
+0370 0700   583         SETO R0                ;SET TO INSERT
+0372 C060   584         MOV  @LNUM,R1          ;GET LINE NUMBER
+0374 0054'
+0376 1651   585         JNE  EMV0              ;INSERT OR CHANGE
+0378 C1E0   586         MOV  @IOB,R7           ;NO LINE NUMBER
+037A 002E'
+037C 0227   587         AI   R7,30             ;MOVE INTO IOB
+037E 001E 
+0380 C007   588         MOV  R7,R0             ;MARK
+0382 0203   589         LI   R3,EBP            ;**NOTE** ALL PTRS ON WRD BOUNDAR
+0384 0038'
+            590  *
+0386 CDF3   591         MOV  *R3+,*R7+         ;MOVE
+0388 8203   592         C    R3,R8             ;DONE?
+038A 1AFD   593         JL   $-4               ;N
+            594  *
+038C 04E0   595         CLR  @ESCFLG           ;Y, ENABLE ESCAPE
+038E 0136'
+0390 C200   596         MOV  R0,R8             ;SET R8
+0392 9818   597         CB   *R8,@B01          ;CHECK TYPE, GOTO?
+0394 02E8'
+0396 1B03   598         JH   ED91              ;N
+0398 0720   599         SETO @MODE             ;Y, SET TO RUN MODE
+039A 0012'
+039C 0004'  600         DATA TYPC$             ;OUT CRLF
+            601  *
+039E 0460   602  ED91   B    @LINE2
+03A0 0000 
+            603  *
+03A2 06A0   604  EDER2  BL   @EDER             ;UNMATCHED PARENTHESIS
+03A4 031E'
+03A6 30     605         TEXT '02'
+03A7 32   
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0021
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            607  *PROCESS FN-
+            608  *
+03A8 06A0   609  EDFN   BL   @EDGLS            ;GET LETTER
+03AA 05C0'
+03AC 102F   610         JMP  EDER8             ;NO LETTER
+03AE 0921   611         SRL  R1,2              ;POSITION
+03B0 DE01   612         MOVB R1,*R8+           ;INSERT INLINE
+03B2 C0C8   613         MOV  R8,R3             ;CHECK PREVIOUS BYTE
+03B4 0643   614         DECT R3                ;LOOK FOR OPERATOR
+03B6 0283   615         CI   R3,EBP            ;BEGINNING OF BUFFER?
+03B8 0384'
+03BA 16CF   616         JNE  ED52A             ;N, DISREGUARD
+03BC 9813   617         CB   *R3,@DEFXB        ;'DEF'?
+03BE 0814'
+03C0 16CC   618         JNE  ED52A             ;N, CONTINUE
+03C2 06A0   619         BL   @EDGP             ;Y, LOOK FOR ( OR [
+03C4 0616'
+03C6 1002   620         JMP  EDFN0             ;"( OR "[, OK
+03C8 0607   621         DEC  R7                ;NEITHER, LOOK FOR "=
+03CA 1017   622         JMP  EDFN3
+            623  *
+03CC 0203   624  EDFN0  LI   R3,3              ;Y, ALLOW 3 DUMMY VARIABLES
+03CE 0003 
+03D0 C120   625         MOV  @VNT,R4           ;GET STORAGE ADR
+03D2 0230'
+            626  *
+03D4 06A0   627  EDFN1  BL   @EDGLS            ;GET DUMMY VARIABLE
+03D6 05C0'
+03D8 101C   628         JMP  EDER9             ;PROBLEM
+03DA DE01   629         MOVB R1,*R8+           ;INSERT IN CODE
+03DC CD01   630         MOV  R1,*R4+           ;STORE CODE
+03DE 06A0   631         BL   @EDGP             ;GET NEXT BYTE
+03E0 0616'
+03E2 1017   632         JMP  EDER9
+03E4 0603   633         DEC  R3                ;ROOM FOR MORE?
+03E6 1303   634         JEQ  EDFN2             ;N, SEE IF ")
+03E8 0281   635         CI   R1,>2C00          ;Y, DELIMITER ",?
+03EA 2C00 
+03EC 13F3   636         JEQ  EDFN1             ;Y, LOOP
+            637  *
+03EE 0281   638  EDFN2  CI   R1,>2900          ;N, CLOSING PAREN?
+03F0 2900 
+03F2 1303   639         JEQ  EDFN3             ;Y, LOOK FOR "=
+03F4 0281   640         CI   R1,>5D00          ;N, "]?
+03F6 5D00 
+03F8 16D4   641         JNE  EDER2             ;N, PROBLEM
+03FA 95E0   642  EDFN3  CB   @B3D,*R7          ;Y, "=?
+03FC 0817'
+03FE 13AD   643         JEQ  ED52A             ;Y
+0400 9DE0   644         CB   @B20,*R7+         ;SPACE?
+0402 0300'
+0404 13FA   645         JEQ  EDFN3             ;Y, TRY AGAIN
+0406 06A0   646         BL   @EDER             ;MISSING ASSIGNMENT
+0408 03A4'
+040A 33     647         TEXT '36'
+040B 36   
+            648  *
+040C 06A0   649  EDER8  BL   @EDER             ;ILLEGAL FUNCTION NAME
+040E 0408'
+0410 30     650         TEXT '08'
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0022
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+0411 38   
+            651  *
+0412 06A0   652  EDER9  BL   @EDER             ;ILLEGAL FUNCTION ARGUMENT
+0414 040E'
+0416 30     653         TEXT '09'
+0417 39   
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0023
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            655  *FINISH EDIT PROCESS
+            656  *       BL @EMV
+            657  *
+            658  *       IN  R0 = 0 FOR DELETE, <>0 FOR CHANGE OR INSERT
+            659  *           R1 = LINE NUMBER
+            660  *
+0418 C28B   661  EMV    MOV  R11,R10           ;SAVE RETURN
+041A C041   662  EMV0   MOV  R1,R1             ;DELETE 0?
+041C 1375   663         JEQ  EMVR              ;Y, ACTION COMPLETE
+041E 0202   664         LI   R2,EBP
+0420 03B8'
+0422 6202   665         S    R2,R8             ;GET # OF BYTES
+0424 0588   666         INC  R8                ;GET # OF WORDS (NEXT HIGHEST)
+0426 0818   667         SRA  R8,1
+0428 C088   668         MOV  R8,R2             ;GET # OF BYTES
+042A A082   669         A    R2,R2
+042C C1A0   670         MOV  @SLT,R6           ;GET START OF STATEMENT TABLE
+042E 0000 
+0430 C1C6   671         MOV  R6,R7
+0432 61E0   672         S    @BUS,R7           ;R7=POINT OF QUESTION IN PSEUDO S
+0434 0000 
+            673  *
+            674  *UPON EXIT OF EMV1, R7 DISPLACES INTO PSEUDO SOURCE
+            675  *  AND R6 POINTS INTO SLT
+            676  *
+0436 C116   677  EMV1   MOV  *R6,R4            ;DONE?
+0438 1307   678         JEQ  EMV2              ;Y
+043A 8581   679         C    R1,*R6            ;N, FOUND?
+043C 1366   680         JEQ  EMV5              ;Y, CHANGE OR DELETE
+043E 1504   681         JGT  EMV2              ;Y, NEW LINE
+0440 05C6   682         INCT R6
+0442 C1F6   683         MOV  *R6+,R7           ;GET NEW POINT OF QUESTION
+0444 10F8   684         JMP  EMV1
+            685  *
+0446 2F8D   686  ERR13  DATA ERROR+13          ;NO SUCH LINE NUMBER
+            687  *
+0448 C000   688  EMV2   MOV  R0,R0             ;NEW #, DELETE?
+044A 13FD   689         JEQ  ERR13             ;Y, PROBLEM
+            690  *
+            691  *INSERT NEW LINE ENTRY
+            692  *
+044C C0C6   693         MOV  R6,R3             ;GET SOURCE
+044E 06A0   694         BL   @EMVA             ;ADJUST
+0450 053E'
+0452 0004   695         DATA 4                 ;INSERT 4 BYTES IN SLT
+0454 CD81   696         MOV  R1,*R6+           ;INSERT NEW LINE #
+0456 C587   697         MOV  R7,*R6            ;INSERT DISPLACEMENT
+            698  *
+0458 0204   699  EMV3   LI   R4,EBP            ;MOVE IN SOURCE LINE
+045A 0420'
+045C C196   700         MOV  *R6,R6            ;GET ADR
+045E A1A0   701         A    @BUS,R6           ;MAKE DISPLACEMENT, POINTER
+0460 0434'
+0462 C1C6   702         MOV  R6,R7             ;MOVE IN STRING
+            703  *
+0464 CDF4   704         MOV  *R4+,*R7+         ;MOVE
+0466 0608   705         DEC  R8                ;DONE?
+0468 16FD   706         JNE  $-4               ;N
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0024
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            708  *ADJUST GOSUB
+            709  *
+            710  *       IN  R2 = PBC ADJUSTMENT
+            711  *           R3 = PLC ADJUSTMENT
+            712  *           R6 = START
+            713  *           R7 = END
+            714  *
+046A C120   715  EMV4   MOV  @GSC,R4           ;GET GOSUB STACK PTR
+046C 0000 
+            716  *
+046E 8804   717  EMV4A  C    R4,@GSS           ;DONE?
+0470 0000 
+0472 1217   718         JLE  EMV4E             ;Y
+0474 0224   719         AI   R4,-4             ;N, BACKUP
+0476 FFFC 
+0478 8506   720         C    R6,*R4            ;LESS THAN INSERTED LINE?
+047A 1B0E   721         JH   EMV4C1            ;Y
+047C 8507   722         C    R7,*R4            ;GREATER THAN?
+047E 120A   723         JLE  EMV4C             ;Y
+0480 C144   724         MOV  R4,R5             ;N, DELETE ENTRY
+            725  *
+0482 CD65   726  EMV4B  MOV  @4(5),*R5+        ;DELETE ENTRY
+0484 0004 
+0486 8805   727         C    R5,@GSC           ;DONE?
+0488 046C'
+048A 1AFB   728         JL   EMV4B
+048C A820   729         A    @CM4,@GSC         ;BACKUP PTR
+048E 051E'
+0490 0488'
+0492 10ED   730         JMP  EMV4A
+            731  *
+0494 A502   732  EMV4C  A    R2,*R4            ;Y, ADJUST PBC
+0496 1002   733         JMP  EMV4C2
+0498 A903   734  EMV4C1 A    R3,@2(4)          ;PLC=PLC+PLC ADJUSTOR
+049A 0002 
+049C A902   735  EMV4C2 A    R2,@2(4)          ;PLC=PLC+PBC ADJUSTOR
+049E 0002 
+04A0 10E6   736         JMP  EMV4A
+            737  *
+            738  *ADJUST FOR/NEXT STACK
+            739  *
+04A2 C120   740  EMV4E  MOV  @FNS,R4           ;DO FOR/NEXT STACK
+04A4 0000 
+            741  *
+04A6 C014   742  EMV4F  MOV  *R4,R0            ;DONE?
+04A8 1313   743         JEQ  EMV4J             ;Y
+04AA C144   744         MOV  R4,R5             ;N
+04AC 0225   745         AI   R5,14
+04AE 000E 
+04B0 8546   746         C    R6,*R5            ;LESS THAN INSERTED LINE?
+04B2 1B07   747         JH   EMV4I             ;Y
+04B4 8547   748         C    R7,*R5            ;>=?
+04B6 1203   749         JLE  EMV4H             ;Y
+04B8 06A0   750         BL   @FOR2             ;DELETE ENTRY
+04BA 0000 
+04BC 10F4   751         JMP  EMV4F             ;LOOK AGAIN
+            752  *
+04BE A542   753  EMV4H  A    R2,*R5            ;Y, ADJUST PBC
+04C0 1002   754         JMP  EMV4I1
+04C2 A943   755  EMV4I  A    R3,@2(R5)         ;PLC=PLC+PLC ADJUSTOR
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0025
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+04C4 0002 
+04C6 A942   756  EMV4I1 A    R2,@2(R5)         ;PLC=PLC+PBC ADJUSTOR
+04C8 0002 
+04CA 0224   757         AI   R4,18             ;MOVE TO NEXT
+04CC 0012 
+04CE 10EB   758         JMP  EMV4F
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0026
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            760  *ADJUST DATA POINTERS
+            761  *
+04D0 0204   762  EMV4J  LI   R4,DDM            ;GET DELIMITER PTR
+04D2 0000 
+04D4 8506   763         C    R6,*R4            ;CHECK DATA PTRS
+04D6 1B09   764         JH   EMV4L             ;OK
+04D8 8507   765         C    R7,*R4            ;DELETED OR CHANGED?
+04DA 1202   766         JLE  EMV4K             ;N, INSERTED
+04DC 04D4   767         CLR  *R4               ;Y, SET TO LOOK FURTHER
+04DE 1003   768         JMP  EMV4KA
+            769  *
+04E0 C014   770  EMV4K  MOV  *R4,R0            ;DEFINED?
+04E2 1303   771         JEQ  EMV4L             ;N, DON'T WORRY ABOUT IT
+04E4 A502   772         A    R2,*R4            ;Y, ADJUST PBC
+            773  *
+04E6 A803   774  EMV4KA A    R3,@DLC           ;ADJUST PLC
+04E8 0000 
+            775  *
+            776  *ADJUST FUNCTION DEFINITION STACK
+            777  *
+04EA C120   778  EMV4L  MOV  @UFT,R4           ;GET POINTER
+04EC 0000 
+            779  *
+04EE C014   780  EMV4M  MOV  *R4,R0            ;DEFINED?
+04F0 1307   781         JEQ  EMV4O             ;N
+04F2 8506   782         C    R6,*R4            ;LESS THAN CHANGED LINE?
+04F4 1B05   783         JH   EMV4O             ;Y
+04F6 8507   784         C    R7,*R4
+04F8 1202   785         JLE  EMV4N             ;N
+04FA 04D4   786         CLR  *R4               ;UNDEFINE
+04FC 1001   787         JMP  EMV4O
+            788  *
+04FE A502   789  EMV4N  A    R2,*R4            ;ADJUST PBC
+0500 8D34   790  EMV4O  C    *R4+,*R4+         ;MOVE TO NEXT
+0502 8804   791         C    R4,@GSS           ;DONE?
+0504 0470'
+0506 1AF3   792         JL   EMV4M             ;N
+            793  *
+0508 045A   794  EMVR   B    *R10              ;RETURN
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0027
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            796  *DELETE OR CHANGE LINE
+            797  *
+050A C2E6   798  EMV5   MOV  @2(6),R11         ;GET BOL
+050C 0002 
+050E 62C7   799         S    R7,R11            ;GET -LINE LENGTH
+0510 C000   800         MOV  R0,R0             ;DELETE LINE?
+0512 1607   801         JNE  EMV6              ;N
+            802  *
+            803  *DELETE LINE
+            804  *
+0514 C08B   805         MOV  R11,R2            ;Y
+0516 C0C6   806         MOV  R6,R3
+            807  *      AI   R3,4              ;GET SLT SOURCE
+0518 8CF3   808         C    *R3+,*R3+         LESS CODE THAN AI R3,4
+051A 06A0   809         BL   @EMVA             ;ADJUST
+051C 053E'
+051E FFFC   810  CM4    DATA -4                ;DELETE 4 BYTES FROM SLT
+0520 10A4   811         JMP  EMV4
+            812  *
+            813  *CHANGE LINE
+            814  *
+0522 A08B   815  EMV6   A    R11,R2            ;GET DELTA CHANGE
+0524 C020   816         MOV  @NVD,R0           ;CHECK STORAGE
+0526 0258'
+0528 A002   817         A    R2,R0
+052A 8800   818         C    R0,@NVS           ;ROOM?
+052C 0252'
+052E 1406   819         JHE  EMVE10            ;N
+0530 020D   820         LI   R13,EMV6A         ;GET RETURN ADR
+0532 0536'
+0534 1017   821         JMP  EMVA1
+            822  *
+0536 0000   823  EMV6A  DATA 0                 ;LEAVE PLC ALONE
+0538 05C6   824         INCT R6                ;MOVE TO LINE ADR
+053A 108E   825         JMP  EMV3
+            826  *
+053C 2F8A   827  EMVE10 DATA ERROR+10          ;STORAGE OVERFLOW
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0028
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            829  *ALTER SOURCE CODE
+            830  *       BL @EMVA
+            831  *         DATA (SLT ADJUSTMENT)
+            832  *         R3=SLT SOURCE PTR
+            833  *
+053E C34B   834  EMVA   MOV  R11,R13           ;SAVE RETURN
+0540 C120   835         MOV  @NVD,R4           ;GET THRU POINTER (END OF VARIABL
+0542 0526'
+0544 C143   836         MOV  R3,R5             ;GET DESTINATION
+0546 A15D   837         A    *R13,R5           ; (4=INSERT,-4=DELETE,0=CHANGE)
+0548 C004   838         MOV  R4,R0             ;CHECK FOR SIZE
+054A A01D   839         A    *R13,R0
+054C A002   840         A    R2,R0             ;ADD LINE
+054E 8800   841         C    R0,@NVS
+0550 052C'
+0552 14F4   842         JHE  EMVE10            ;OVERFLOW
+0554 A81D   843         A    *R13,@VNT         ;ADJUST POINTERS
+0556 03D2'
+0558 A81D   844         A    *R13,@VDT
+055A 0268'
+055C A81D   845         A    *R13,@NVD
+055E 0542'
+0560 06A0   846         BL   @MOVE             ;DO FIRST MOVE
+0562 05A0'
+            847  *
+0564 C0C7   848  EMVA1  MOV  R7,R3             ;MAKE HOLE IN PSEUDO SOURCE
+0566 A0E0   849         A    @BUS,R3           ;MAKE DISPLACEMENT INTO POINTER
+0568 0460'
+056A C120   850         MOV  @NVD,R4           ;THRU
+056C 055E'
+056E C143   851         MOV  R3,R5
+0570 A142   852         A    R2,R5             ;DESTINATION
+0572 A182   853         A    R2,R6
+0574 A802   854         A    R2,@SLT           ;ADJUST POINTERS
+0576 042E'
+0578 A802   855         A    R2,@VNT
+057A 0556'
+057C A802   856         A    R2,@VDT
+057E 055A'
+0580 A802   857         A    R2,@NVD
+0582 056C'
+0584 A802   858         A    R2,@R8STOR        ;UPDATE R8STOR FOR ENTER.
+0586 0000 
+0588 06A0   859         BL   @MOVE             ;DO SECOND MOVE
+058A 05A0'
+            860  *
+            861  *ADJUST SLT
+            862  *
+058C C0C6   863         MOV  R6,R3             ;GET POINTER
+            864  *
+058E 8803   865  EMVA2  C    R3,@SLT           ;DONE?
+0590 0576'
+0592 1204   866         JLE  EMVA3             ;Y
+0594 0643   867         DECT R3                ;N
+0596 A4C2   868         A    R2,*R3            ;ADJUST PTR
+0598 0643   869         DECT R3
+059A 10F9   870         JMP  EMVA2
+            871  *
+059C C0FD   872  EMVA3  MOV  *R13+,R3          ;GET PLC ADJUSTMENT
+059E 045D   873         B    *R13              ;RETURN
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0029
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            875  *MOVE
+            876  *       BL @MOVE
+            877  *
+            878  *       IN  R3 = SOURCE
+            879  *           R4 = SOURCE END
+            880  *           R5 = DESTINATION
+            881  *
+05A0 8143   882  MOVE   C    R3,R5             ;THERE?
+05A2 131D   883         JEQ  MOVE4             ;Y
+05A4 1A04   884         JL   MOVE2             ;N, S<D
+            885  *
+05A6 8103   886  MOVE1  C    R3,R4             ;S>D, DONE?
+05A8 1B1A   887         JH   MOVE4             ;Y
+05AA CD73   888         MOV  *R3+,*R5+         ;MOVE DATA
+05AC 10FC   889         JMP  MOVE1
+            890  *
+05AE C004   891  MOVE2  MOV  R4,R0             ;S<D
+05B0 6003   892         S    R3,R0             ;GET # OF WORDS
+05B2 A140   893         A    R0,R5
+            894  *
+05B4 C554   895  MOVE3  MOV  *R4,*R5           ;MOVE DATA
+05B6 8103   896         C    R3,R4             ;DONE?
+05B8 1312   897         JEQ  MOVE4             ;Y
+05BA 0644   898         DECT R4                ;N, BACKUP
+05BC 0645   899         DECT R5
+05BE 10FA   900         JMP  MOVE3
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0030
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            902  *GET LETTER
+            903  *       BL @EDGL
+            904  *         NO LETTER, R7 UNCHANGED
+            905  *       LETTER, R7 UPDATED
+            906  *
+05C0 9DE0   907  EDGLS  CB   @B20,*R7+         ;GET LETTER, SPACE?
+05C2 0402'
+05C4 13FD   908         JEQ  EDGLS             ;Y
+05C6 0607   909         DEC  R7                ;N, BACKUP
+            910  *
+05C8 9817   911  EDGL   CB   *R7,@B40          ;<"A?
+05CA 07FE'
+05CC 1208   912         JLE  EDGL1             ;Y
+05CE 9817   913         CB   *R7,@B5B          ;>"Z?
+05D0 080B'
+05D2 1405   914         JHE  EDGL1             ;Y
+05D4 04C1   915         CLR  R1                ;LETTER
+05D6 D077   916         MOVB *R7+,R1
+05D8 0A21   917         SLA  R1,2              ;REMOVE UPPER BITS
+05DA 0950   918         SRL  R0,5              ;ADJUST R0
+05DC 05CB   919         INCT R11
+05DE 045B   920  EDGL1  RT
+            921  *
+     05DE'  922  MOVE4  EQU  EDGL1
+            923  *
+            924  *GET WORD OPERATER
+            925  *
+05E0 C14B   926  EDGWO  MOV  R11,R5
+05E2 06A0   927         BL   @EDGLS            ;GET LETTER
+05E4 05C0'
+05E6 0455   928         B    *R5               ;NO LETTER, RETURN
+05E8 0607   929         DEC  R7                ;OK, PROCESS
+05EA 0204   930         LI   R4,EDGWOL         ;GET WORD OPERATER LIST
+05EC 07C2'
+            931  *
+05EE C0C7   932  EDGWO1 MOV  R7,R3             ;MARK
+            933  *
+05F0 D074   934  EDGWO2 MOVB *R4+,R1           ;GET CHARACTER, FOUND?
+05F2 1308   935         JEQ  EDGWO4            ;Y
+05F4 9073   936         CB   *R3+,R1           ;N, SAVE LETTER?
+05F6 13FC   937         JEQ  EDGWO2            ;Y
+05F8 D074   938         MOVB *R4+,R1           ;N, MOVE TO NEXT
+05FA 16FE   939         JNE  $-2
+05FC 0584   940         INC  R4                ;MOVE OVER CODE
+05FE D054   941         MOVB *R4,R1            ;DONE?
+0600 16F6   942         JNE  EDGWO1            ;N, KEEP TRYING
+0602 0455   943         B    *R5               ;Y, RETURN
+            944  *
+0604 D614   945  EDGWO4 MOVB *R4,*R8           ;RESERVED WORD, GET CODE
+0606 C1C3   946         MOV  R3,R7             ;UPDATE R7
+0608 9818   947         CB   *R8,@B3B          ;THEN?
+060A 0801'
+060C 1302   948         JEQ  EDGWO5            ;Y, PROCESS :
+060E 0460   949         B    @ED40             ;N, INSERT OPERATER
+0610 02B6'
+            950  *
+0612 0460   951  EDGWO5 B    @ED47
+0614 02FE'
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0031
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            953  *GET CHARACTER
+            954  *
+            955  *       BL @EDGP
+            956  *         "( OR "[
+            957  *       OTHER
+            958  *
+0616 04C1   959  EDGP   CLR  R1
+0618 D077   960         MOVB *R7+,R1           ;GET CHARACTER
+061A 0281   961         CI   R1,>2000          ;SP?
+061C 2000 
+061E 13FB   962         JEQ  EDGP              ;Y
+0620 0281   963         CI   R1,>2800          ;"(?
+0622 2800 
+0624 1304   964         JEQ  EDGP1             ;Y
+0626 0281   965         CI   R1,>5B00          ;"[?
+0628 5B00 
+062A 1301   966         JEQ  EDGP1             ;Y
+062C 05CB   967         INCT R11               ;N, RETURN 2(11)
+062E 045B   968  EDGP1  RT
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0032
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+            970  *
+            971  * COMMAND LIST
+            972  *
+            973  * SYMBOLS STORED AS:
+            974  *  3333 3222 2211 111S
+            975  *  WHERE S=0  3 LETTERS
+            976  *        S=1  4-6 LETTERS
+            977  *
+            978  *          0 1 2 3 4 5 6 7
+            979  *       0  @ A B C D E F G
+            980  *       1  H I J K L M N O
+            981  *       2  P Q R S T U V W
+            982  *       3  X Y Z
+            983  *
+0630 7564   984  EDSCL  DATA >7564             RUN              A
+0632 D266   985         DATA >D266             SIZ(E)           B
+0634 73C6   986         DATA >73C6             CON(TINUE)       C
+0636 73DA   987         DATA >73DA             MON(ITOR)        D
+0638 0000   988         DATA >0000                              E
+063A 0000   989         DATA >0000                              F
+063C 0000   990         DATA >0000                              G
+063E 0000   991         DATA >0000                              H
+0640 0000   992         DATA >0000                              I
+0642 0000   993         DATA >0000                              J
+0644 0000   994         DATA >0000                              K
+            995  *
+0646 A3CF   996  EDCL   DATA >A3CF             GOTO*            01
+     0001   997  RNGOTO EQU  ($-EDCL)/2        RENUMBER OPCODE
+0648 9BCF   998         DATA >9BCF             GOSUB*           02
+     0002   999  RNGSUB EQU  ($-EDCL)/2        RENUMBER OPCODE
+064A 9B0B  1000         DATA >9B0B             ELSE*            03
+     0003  1001  RNELSE EQU  ($-EDCL)/2        RENUMBER OPCODE
+064C 6964  1002         DATA >6964             REM*             04
+     0004  1003  RNREM  EQU  ($-EDCL)/2        RENUMBER OPCODE
+064E 93CC  1004         DATA >93CC             FOR*             05
+0650 0000  1005         DATA 0                 (LET*)           06
+0652 A049  1006         DATA >A049             DATA             07
+0654 C15D  1007  NXTX   DATA >C15D             NEXT             08
+0656 948B  1008         DATA >948B             ERROR            09
+     0009  1009  RNERR  EQU  ($-EDCL)/2        RENUMBER OPCODE
+0658 4CA1  1010  PRTX   DATA >4CA1             PRINT            0A
+065A 6047  1011         DATA >6047             CALL             0B
+065C 0BD9  1012         DATA >0BD9             LOAD             0C
+065E 8393  1013         DATA >8393             INPUT            0D
+     000D  1014  RNINP  EQU  ($-EDCL)/2        RENUMBER OPCODE
+0660 0965  1015         DATA >0965             READ             0E
+0662 9965  1016         DATA >9965             RESTOR           0F
+     000F  1017  RNRSTR EQU  ($-EDCL)/2        RENUMBER OPCODE
+0664 A165  1018         DATA >A165             RETURN           10
+0666 7D27  1019         DATA >7D27             STOP             11
+0668 4BAB  1020         DATA >4BAB             UNIT             12
+066A 6A69  1021         DATA >6A69             TIME             13
+066C B067  1022         DATA >B067             SAVE             14
+066E 9845  1023         DATA >9845             BASE             15
+0670 1CCB  1024         DATA >1CCB             ESCAPE           16
+0672 2BDD  1025         DATA >2BDD             NOESC            17
+0674 7065  1026         DATA >7065             RANDOM           18
+0676 A845  1027         DATA >A845             BAUD             19
+0678 A38B  1028         DATA >A38B             ENTER            1A
+067A 7B21  1029         DATA >7B21             PLOT             1B
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0033
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+067C 83AB  1030         DATA >83AB             UNPLOT           1C
+067E 63C7  1031         DATA >63C7             COLOUR           1D
+0680 9561  1032         DATA >9561             PURGE            1E
+0682 0C8F  1033         DATA >0C8F             GRAPH            1F
+0684 C169  1034         DATA >C169             TEXT             20
+0686 486F  1035         DATA >486F             WAIT             21
+0688 0A07  1036         DATA >0A07             CHAR             22
+068A 6D5D  1037         DATA >6D5D             NUMBER           23
+068C 9A59  1038         DATA >9A59             LIST             24
+068E 7165  1039         DATA >7165             RENUM            25
+0690 9427  1040         DATA >9427             SPRITE           26
+0692 0A27  1041         DATA >0A27             SHAPE            27
+0694 AC27  1042         DATA >AC27             SPUT             28
+0696 29E7  1043         DATA >29E7             SGET             29
+0698 7BC5  1044         DATA >7BC5             BOOT             2A
+069A 0DE7  1045         DATA >0DE7             SWAP             2B
+069C 0000  1046         DATA >0000                              2C
+069E A3DB  1047         DATA >A3DB             MOTOR            2D
+06A0 0000  1048         DATA >0000                              2E
+06A2 0000  1049         DATA >0000                              2F
+06A4 0000  1050         DATA >0000                              30
+06A6 0000  1051         DATA >0000                              31
+06A8 0000  1052         DATA >0000                              32
+06AA 0000  1053         DATA >0000                              33
+06AC 0000  1054         DATA >0000                              34
+06AE 0000  1055         DATA >0000                              35 
+06B0 0000  1056         DATA >0000                              36
+06B2 0000  1057         DATA >0000                              37
+06B4 0000  1058         DATA >0000                              38
+06B6 385A  1059         DATA >385A             MAG              39
+06B8 33E8  1060         DATA >33E8             TOF              3A
+06BA 73E8  1061         DATA >73E8             TON              3B
+06BC 83E0  1062         DATA >83E0             POP              3C
+06BE 6A48  1063         DATA >6A48             DIM              3D
+06C0 A158  1064         DATA >A158             LET              3E
+     007E  1065  PSCBX  EQU  $-EDCL+2
+06C2 0000  1066         DATA 0                 ';' (PRINT)      3F
+06C4 73C0  1067  ONX    DATA >73C0             ON               40
+     0040  1068  RNON   EQU  ($-EDCL)/2        RENUMBER OPCODE
+06C6 3240  1069  IFX    DATA >3240             IF               41
+     0041  1070  RNIF   EQU  ($-EDCL)/2        RENUMBER OPCODE
+06C8 3148  1071  DEFX   DATA >3148             DEF              42
+06CA B95C  1072         DATA >B95C             NEW              43
+06CC 238A  1073         DATA >238A             END              44
+     008A  1074  PQMBX  EQU  $-EDCL+2
+06CE 0000  1075         DATA 0                 (?)  (PRINT)     45
+     008C  1076  PASBX  EQU  $-EDCL+2
+06D0 0000  1077         DATA 0                 (*)  (EXTEND)    46
+     0047  1078  BCP    EQU  $-EDCL/2+1        ****** INSERTS BEFORE HERE
+06D2 A244  1079         DATA >A244             BIT  (SEE ED50)  47
+06D4 1486  1080         DATA >1486             CRB              48
+06D6 3486  1081         DATA >3486             CRF              49
+06D8 695A  1082         DATA >695A             MEM              4A
+06DA 25DA  1083         DATA >25DA             MWD              4B
+     06DC' 1084  EDCLE  EQU  $
+           1085  *
+     0082  1086  IFB    EQU  IFX-EDCL+2
+     0080  1087  ONB    EQU  ONX-EDCL+2
+     0014  1088  PTRB   EQU  PRTX-EDCL+2
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0034
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+           1090  *
+           1091  * SECOND HALF OF PRIMITIVE TABLE
+           1092  *
+06DC 0000  1093         DATA RUNP        RUN                    A
+06DE 0000  1094         DATA SIZE        SIZ(E)                 B
+06E0 0000' 1095         DATA CONT        CON(TINUE)             C
+06E2 0000  1096         DATA DEBUG$      MON(ITOR)              D
+06E4 0000  1097         DATA >0000       <SPARE>                E
+06E6 0000  1098         DATA >0000       <SPARE>                F
+06E8 0000  1099         DATA >0000       <SPARE>                G
+06EA 0000  1100         DATA >0000       <SPARE>                H
+06EC 0000  1101         DATA >0000       <SPARE>                I
+06EE 0000  1102         DATA >0000       <SPARE>                J
+06F0 0000  1103         DATA >0000       <SPARE>                K
+           1104  *
+     00AA  1105  EDCS   EQU  $-EDCL-2
+06F2 001E  1106         DATA >001E             GOTO             01
+06F4 00AA  1107         DATA >00AA             GOSUB            02
+     06F7' 1108  B0A    EQU  $+1
+06F6 000A  1109         DATA >000A             ELSE*            03
+06F8 47    1110  BCPB   BYTE BCP,0             REM*             04
+06FA FF80  1111  CFF80  DATA >FF80             FOR*             05
+06FC 0000  1112         DATA >0000             (LET)*           06
+     06FF' 1113  B02    EQU  $+1
+06FE 0002  1114         DATA >0002             DATA             07
+0700 0028  1115         DATA >0028             NEXT             08
+0702 049E  1116         DATA >049E             ERROR            09
+0704 051C  1117         DATA >051C             PRINT            0A
+0706 0018  1118         DATA >0018             CALL             0B
+0708 0008  1119         DATA >0008             LOAD             0C
+070A 052A  1120         DATA >052A             INPUT            0D
+070C 0008  1121         DATA >0008             READ             0E
+070E 93E8  1122         DATA >93E8             RESTOR           0F
+0710 74AA  1123         DATA >74AA             RETURN           10
+0712 0020  1124         DATA >0020             STOP             11
+0714 0028  1125         DATA >0028             UNIT             12
+0716 000A  1126         DATA >000A             TIME             13
+0718 000A  1127         DATA >000A             SAVE             14
+071A 000A  1128         DATA >000A             BASE             15
+071C 2C02  1129         DATA >2C02             ESCAPE           16
+071E 00E6  1130         DATA >00E6             NOESC            17
+0720 6BC8  1131         DATA >6BC8             RANDOM           18
+0722 0008  1132         DATA >0008             BAUD             19
+0724 048A  1133         DATA >048A             ENTER            1A
+0726 0028  1134         DATA >0028             PLOT             1B
+0728 A3D8  1135         DATA >A3D8             UNPLOT           1C
+072A 955E  1136         DATA >955E             COLOUR           1D
+072C 014E  1137         DATA >014E             PURGE            1E
+072E 0220  1138         DATA >0220             GRAPH            1F
+0730 0028  1139         DATA >0028             TEXT             20
+0732 0028  1140         DATA >0028             WAIT             21
+0734 0024  1141         DATA >0024             CHAR             22
+0736 9144  1142         DATA >9144             NUMBER           23
+0738 0028  1143         DATA >0028             LIST             24
+073A 036A  1144         DATA >036A             RENUM            25
+073C 2D12  1145         DATA >2D12             SPRITE           26
+073E 0160  1146         DATA >0160             SHAPE            27
+0740 0028  1147         DATA >0028             SPUT             28
+0742 0028  1148         DATA >0028             SGET             29
+0744 0028  1149         DATA >0028             BOOT             2A
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0035
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+0746 0020  1150         DATA >0020             SWAP             2B
+0748 0000  1151         DATA >0000                              2C
+074A 049E  1152         DATA >049E             MOTOR            2D
+074C 0000  1153         DATA >0000                              2E
+074E 0000  1154         DATA >0000                              2F
+0750 0000  1155         DATA >0000                              30
+0752 0000  1156         DATA >0000                              31
+0754 0000  1157         DATA >0000                              32
+0756 0000  1158         DATA >0000                              33
+0758 0000  1159         DATA >0000                              34
+075A 0000  1160         DATA >0000                              35
+075C 0000  1161         DATA >0000                              36
+075E 0000  1162         DATA >0000                              37
+0760 0000  1163         DATA >0000                              38
+           1164  *
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0036
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+           1166  *
+           1167  * SYSTEM FUNCTION TABLE
+           1168  *
+0762 9882  1169  EDIL   DATA >9882             ABS      1B
+0764 9102  1170         DATA >9102             ADR      1C
+0766 1CC2  1171         DATA >1CC2             ASC      1D
+0768 7502  1172         DATA >7502             ATN      1E
+076A 9BC6  1173         DATA >9BC6             COS      1F
+076C 860A  1174         DATA >860A             EXP      20
+076E 0C8C  1175         DATA >0C8C             FRA      21
+0770 A392  1176         DATA >A392             INT      22
+0772 3BD8  1177         DATA >3BD8             LOG      23
+0774 C956  1178         DATA >C956             KEY      24
+0776 7266  1179         DATA >7266             SIN      25
+0778 9466  1180         DATA >9466             SQR      26
+077A 9E66  1181         DATA >9E66             SYS      27
+077C 1A68  1182         DATA >1A68             TIC      28
+077E 71E6  1183         DATA >71E6             SGN      29
+           1184  *
+           1185  *       ASSIGNABLE FUNCTIONS
+           1186  *
+0780 A244  1187         DATA >A244             BIT      2A
+0782 1486  1188         DATA >1486             CRB      2B
+0784 3486  1189         DATA >3486             CRF      2C
+0786 695A  1190         DATA >695A             MEM      2D
+0788 25DA  1191         DATA >25DA             MWD      2E
+           1192  *
+           1193  *       CHARACTER FUNCTIONS
+           1194  *
+078A 7158  1195         DATA >7158             LEN      2F
+078C 40DA  1196         DATA >40DA             MCH      30
+078E 9BE0  1197         DATA >9BE0             POS      31
+0790 63C6  1198         DATA >63C6             COL      32
+0792 23DA  1199         DATA >23DA             MOD      33
+0794 0000  1200         DATA 0                          34
+0796 0000  1201         DATA 0                          35
+0798 0000  1202         DATA 0                          36
+079A 0000  1203         DATA 0                          37
+     079C' 1204  EDILE  EQU  $
+           1205  *
+           1206  * TRANSLATION TABLE INDEXED BY ASCII CODE.
+           1207  *       NULLS ARE ILLEGAL.
+           1208  *
+079C FFFF  1209         DATA >FFFF             !! FIX FOR ' ' CHARACTER !!
+079E 4744  1210  EDSL   DATA >4744,>3E43       ! " # $
+07A2 4248  1211         DATA >4248,>454C       % & ' (
+07A6 4D5F  1212         DATA >4D5F,>5D3F       ) * + ,
+07AA 5C00  1213         DATA >5C00,>5E00       - . / 0
+07AE 0000  1214         DATA >0000,>0000       1 2 3 4
+07B2 0000  1215         DATA >0000,>0000       5 6 7 8
+07B6 003C  1216         DATA >003C,>4059       9 : ; <
+07BA 5657  1217  B56    DATA >5657,>413D       = > ? @
+07BE 4C46  1218         DATA >4C46,>4D60       [ \ ] ^
+           1219  *
+     07B9' 1220  B59    EQU  EDSL+27
+     07BB' 1221  B57    EQU  EDSL+29
+     07BF' 1222  B46    EQU  EDSL+33
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0037
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+     07C2' 1224  EDGWOL EQU  $                 WORD OPERATORS
+07C2 54    1225  LSTO   TEXT 'TO'
+07C3 4F   
+07C4 00    1226         BYTE 0,>38
+07C6 54    1227  LSTB   TEXT 'TAB'
+07C7 41   
+07C8 42   
+07C9 00    1228         BYTE 0,>39
+07CB 53    1229  LSST   TEXT 'STEP'
+07CC 54   
+07CD 45   
+07CE 50   
+07CF 00    1230         BYTE 0,>3A
+07D1 54    1231  LSTH   TEXT 'THEN'
+07D2 48   
+07D3 45   
+07D4 4E   
+07D5 00    1232         BYTE 0,>3B
+07D7 4F    1233  LSOR   TEXT 'OR'
+07D8 52   
+07D9 00    1234         BYTE 0,>4E
+07DB 4C    1235  LSLOR  TEXT 'LOR'
+07DC 4F   
+07DD 52   
+07DE 00    1236         BYTE 0,>4F
+07E0 41    1237  LSAN   TEXT 'AND'
+07E1 4E   
+07E2 44   
+07E3 00    1238         BYTE 0,>50
+07E5 4C    1239  LSLAN  TEXT 'LAND'
+07E6 41   
+07E7 4E   
+07E8 44   
+07E9 00    1240         BYTE 0,>51
+07EB 4E    1241  LSNT   TEXT 'NOT'
+07EC 4F   
+07ED 54   
+07EE 00    1242         BYTE 0,>52
+07F0 4C    1243  LSLNT  TEXT 'LNOT'
+07F1 4E   
+07F2 4F   
+07F3 54   
+07F4 00    1244         BYTE 0,>53
+07F6 4C    1245  LSLXO  TEXT 'LXOR'
+07F7 58   
+07F8 4F   
+07F9 52   
+07FA 00    1246         BYTE 0,>54,0
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0038
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+           1248  *
+           1249  * LIST TRANSLATION TABLE INDEXED BY PSEUDO CODE.
+           1250  *       "_ ARE UNDEFINED.
+           1251  *
+     07FD' 1252  EDLC   EQU  $
+07FD 3A    1253  B3A    BYTE >3A               :
+07FE 40    1254  B40    BYTE >40               @
+07FF 23    1255         BYTE >23               #
+0800 2C    1256  B2C    BYTE >2C               ,
+0801 3B    1257  B3B    BYTE >3B               ;
+0802 3F    1258  B3F    BYTE >3F               ?
+0803 25    1259         BYTE >25               %
+0804 24    1260         BYTE >24               $
+0805 22    1261         BYTE >22               "
+0806 27    1262         BYTE >27               '
+0807 5C    1263         BYTE >5C               \
+0808 21    1264         BYTE >21               !
+0809 26    1265         BYTE >26               &
+080A 03    1266  B03    BYTE >03               _    (UNUSED)
+080B 5B    1267  B5B    BYTE >5B               [
+080C 5D    1268  B5D    BYTE >5D               ]
+080D 28    1269         BYTE >28               (
+080E 29    1270         BYTE >29               )
+080F 1B    1271  B1B    BYTE >1B               OR   (UNUSED)
+0810 6D    1272  B6D    BYTE >6D               LOR  (UNUSED)
+0811 4E    1273  B4E    BYTE >4E               AND  (UNUSED)
+0812 6F    1274  B6F    BYTE >6F               LAND (UNUSED)
+0813 38    1275  B38    BYTE >38               NOT  (UNUSED)
+0814 42    1276  DEFXB  BYTE DEFX-EDCL/2+1     LNOT (UNUSED)
+0815 08    1277  NXTXB  BYTE NXTX-EDCL/2+1     LXOR (UNUSED)
+0816 3D    1278         BYTE >3D               ==
+0817 3D    1279  B3D    BYTE >3D               =
+0818 3E    1280         BYTE >3E               >
+0819 3E    1281         BYTE >3E               >=
+081A 3C    1282         BYTE >3C               <
+081B 3C    1283         BYTE >3C               <=
+081C 3C    1284         BYTE >3C               <>
+081D 2D    1285         BYTE >2D               -
+081E 2B    1286         BYTE >2B               +
+081F 2F    1287         BYTE >2F               /
+0820 2A    1288         BYTE >2A               *
+0821 5E    1289         BYTE >5E               ^
+           1290  *
+0822       1291         EVEN
+     07C1' 1292  LCN1   EQU  EDLC->3C
+     0644' 1293  LCN2   EQU  EDCL-2
+     072C' 1294  LCN3   EQU  EDIL->36
+     00AC  1295  LCN4   EQU  EDCS+2
+     0010  1296  LNXT   EQU  NXTX-EDCL+2
+     0084  1297  LDEF   EQU  DEFX-EDCL+2
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0039
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+           1299  *
+           1300  * LIST COMMAND
+           1301  *   FORM :                         LISTS LINES :-
+           1302  *
+           1303  *     LIST                       FIRST LINE ==> LAST LINE
+           1304  *     LIST <ARG 1>                    ARG 1 ==> ARG 1
+           1305  *     LIST TO <ARG 1>            FIRST LINE ==> ARG 1
+           1306  *     LIST <ARG 1> TO <ARG 2>         ARG 1 ==> ARG 2
+           1307  *
+     0822' 1308  LST    EQU  $
+0822 06A0  1309         BL   @MODEOK           ;ABORT IF RUNNING
+0824 000E'
+0826 039C' 1310         DATA TYPC$             ;OUT 'CRLF'
+0828 04C1  1311         CLR  R1                ;DEFAULT START=1ST LINE
+082A 0706  1312         SETO R6                ;DEFAULT STOP = LAST LINE
+082C 9838  1313         CB   *R8+,@B38         ; 'TO' ?
+082E 0813'
+0830 1309  1314         JEQ  GSTOP             ;Y, GET STOP
+0832 0608  1315         DEC  R8                ;N, BACKUP
+0834 06A0  1316         BL   @CKEX             ;EXPRESSION ?
+0836 0000 
+0838 1006  1317         JMP  LST0B             ;N, LIST WHOLE PROGRAM
+083A 2EC1  1318         EVFIX R1               ;Y, GET START ADDRESS
+083C C181  1319         MOV  R1,R6             ;MAKE IT THE DEFAULT STOP TOO
+083E 0280  1320         CI   R0,>3800          ;'TO' ?
+0840 3800 
+0842 1601  1321         JNE  LST0B             ;N, TAKE DEFAULT STOP
+0844 2EC6  1322  GSTOP  EVFIX R6               ;Y, GET STOP LINE
+           1323  *
+           1324  *     LIST PROGRAM LINES
+           1325  *        R1= START LINE NUMBER
+           1326  *        R6= STOP  LINE NUMBER
+0846 C220  1327  LST0B  MOV  @VNT,R8           ;GET TABLE ADR
+0848 057A'
+084A 0648  1328         DECT R8                ;BACKUP
+084C 8808  1329  LST0   C    R8,@SLT           ;DONE?
+084E 0590'
+0850 1215  1330         JLE  LST2              ;Y
+0852 0228  1331         AI   R8,-4             ;MOVE TO NEXT ENTRY
+0854 FFFC 
+0856 8601  1332         C    R1,*R8            ;SAME?
+0858 15F9  1333         JGT  LST0
+085A 0720  1334         SETO @DCNT             ;RESET INDENT COUNTER
+085C 0000 
+085E 8808  1335  LST1   C    R8,@SLT           ;DONE?
+0860 084E'
+0862 1A0C  1336         JL   LST2              ;Y
+0864 C078  1337         MOV  *R8+,R1           ;N, GET LINE NUMBER
+0866 8181  1338         C    R1,R6             ;PAST LAST LINE ?
+0868 1B09  1339         JH   LST2              ;Y, END LIST
+           1340  *      MOV  @IOB,R7           ;GET BUFFER ADR !DONE IN LSTL
+086A 06A0  1341         BL   @LSTL             ;LIST LINE
+086C 0898'
+           1342  *
+           1343  *      TEST FOR HALT OUTPUT
+           1344  *
+086E 0420  1345         BLWP @HALTO$
+0870 0000 
+0872 0228  1346         AI   R8,-6             ;PREPARE FOR NEXT LINE
+0874 FFFA 
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0040
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+0876 0000  1347         DATA TYPBE$            ;TERMINATE & OUTPUT LINE
+0878 0826' 1348         DATA TYPC$             ;OUT 'CRLF'
+087A 10F1  1349         JMP  LST1              ;LOOP TILL DONE
+087C 0460  1350  LST2   B    @CRLF             ;EXIT TO CRLF
+087E 0000 
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0041
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+           1352  *LIST GOTO'S AND GOSUB'S
+           1353  *
+0880 DDE0  1354  LSTG1  MOVB @B2C,*R7+         ;OUT ",
+0882 0800'
+0884 0583  1355         INC  R3                ;SKIP ','
+           1356  *
+0886 D073  1357  LSTG   MOVB *R3+,R1           ;GET LINE NUMBER
+0888 06C1  1358         SWPB R1
+088A D073  1359         MOVB *R3+,R1
+088C 06C1  1360         SWPB R1
+088E 2F41  1361         OUTINT R1              ;CONVERT
+0890 9813  1362         CB   *R3,@B3F          ;CHECK NEXT BYTE FOR ",
+0892 0802'
+0894 13F5  1363         JEQ  LSTG1             ;Y, ANOTHER GOTO, OR GOSUB
+0896 1050  1364         JMP  LSTLX             ;N, PROCESS
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0042
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+           1366  *LIST LINE
+           1367  *       BL @LSTL
+           1368  *
+           1369  *       IN  R1 = LINE #
+           1370  *          *R8 = PBC
+           1371  *       R15 = SP
+           1372  *
+           1373  *       OUT R7 = IOB
+           1374  *           PRESERVE R6,R8
+           1375  *
+0898 C28B  1376  LSTL   MOV  R11,R10           ;SAVE RETURN
+089A 0000  1377         DATA FTM$              ;FORCE TO TEXT MODE
+089C C1E0  1378         MOV  @IOB,R7           ;GET IO BUFFER POINTER
+089E 037A'
+08A0 C0D8  1379         MOV  *R8,R3            ;GET PBC
+08A2 A0E0  1380         A    @BUS,R3           ;MAKE DISPLACEMENT INTO POINTER
+08A4 0568'
+08A6 020F  1381         LI   R15,>2000         ;GET SPACE
+08A8 2000 
+08AA DDCF  1382         MOVB R15,*R7+          ;OUT SPACE
+08AC 2F41  1383         OUTINT R1              ;CONVERT LINE NUMBER
+08AE C0A0  1384         MOV  @DCNT,R2          ;GET INDENT COUNT
+08B0 085C'
+08B2 9813  1385         CB   *R3,@B03          ;ELSE?
+08B4 080A'
+08B6 1601  1386         JNE  LSTL1             ;N
+08B8 0642  1387         DECT R2                ;Y, INDENT 2 MORE SPACES
+           1388  *
+08BA DDCF  1389  LSTL1  MOVB R15,*R7+          ;OUT SPACE
+08BC 0582  1390         INC  R2                ;MORE?
+08BE 11FD  1391         JLT  LSTL1             ;Y
+08C0 9813  1392         CB   *R3,@NXTXB        ;NEXT?
+08C2 0815'
+08C4 1601  1393         JNE  LSTL2             ;N
+08C6 0607  1394         DEC  R7                ;Y, INDENT 1 LESS
+           1395  *
+08C8 DDCF  1396  LSTL2  MOVB R15,*R7+          ;OUT SPACE
+           1397  *
+08CA 04C0  1398  LSTL3  CLR  R0
+08CC D033  1399         MOVB *R3+,R0           ;GET TYPE
+08CE 0280  1400         CI   R0,>0600          ;IMPLIED LET?
+08D0 0600 
+     08D0' 1401  LETB   EQU  $-2
+08D2 131E  1402         JEQ  LSTL4             ;Y
+           1403  *
+08D4 0280  1404         CI   R0,PASBX*128      ;(*) EXTENDED COMMAND ?
+08D6 4600 
+08D8 1606  1405         JNE  LETP$1            ;N, TRY PRINT
+08DA DDE0  1406         MOVB @B2A,*R7+         ;Y, OUT A '*'
+08DC 00E8'
+08DE DDF3  1407  OUTEXT MOVB *R3+,*R7+         COPY OVER CHARACTER
+08E0 16FE  1408         JNE  OUTEXT            LOOP TILL NULL FOUND
+08E2 0607  1409         DEC  R7                BACKUP
+08E4 100B  1410         JMP  LETB$2            OUT ' ' AND CONTINUE
+08E6 0280  1411  LETP$1 CI   R0,PQMBX*128      ;(?) COMPRESSED PRINT ?
+08E8 4500 
+08EA 1603  1412         JNE  LETB$1            ;N , TRY (;)
+08EC DDE0  1413         MOVB @B3F,*R7+         ;Y, OUT A '?'
+08EE 0802'
+08F0 1005  1414         JMP  LETB$2            ; OUT SPACE & CONTINUE
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0043
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+08F2 0280  1415  LETB$1 CI   R0,PSCBX*128      ;(;) COMPRESSED PRINT ?
+08F4 3F00 
+08F6 1604  1416         JNE  LSTL3A            ;N, NORMAL CODE
+08F8 DDE0  1417         MOVB @B3B,*R7+         ;Y, OUT ';'
+08FA 0801'
+08FC 0870  1418  LETB$2 SRA  R0,7              ;ADJUST R0
+08FE 1003  1419         JMP  LSTL3B            ;OUT SPACE & CONTINUE
+0900 06A0  1420  LSTL3A BL   @LWRD             ;LIST COMMAND TYPE
+0902 0AAE'
+0904 0644' 1421         DATA LCN2              ;EDCL-2
+0906 DDCF  1422  LSTL3B MOVB R15,*R7+          ;OUT SPACE
+0908 0280  1423         CI   R0,BCP*2          ;BIT,CRB,CRF,MEM?
+090A 008E 
+090C 1A01  1424         JL   LSTL4             ;N
+090E 0607  1425         DEC  R7                ;Y, ELIMINATE SPACE
+           1426  *
+0910 C380  1427  LSTL4  MOV  R0,R14            ;SAVE TYPE
+0912 0280  1428         CI   R0,>3*2           ;CHECK TYPE
+0914 0006 
+0916 11B7  1429         JLT  LSTG              ;GOTO OR GOSUB
+0918 13D8  1430         JEQ  LSTL3             ;ELSE
+091A 0280  1431         CI   R0,>5*2
+091C 000A 
+091E 115D  1432         JLT  LSTRM             ;LT - REMARK STATEMENT
+0920 1502  1433         JGT  LSTL5             ;GT - CONTINUE LOOKING
+0922 0620  1434         DEC  @DCNT             ;FOR, DECREMENT COUNTER
+0924 08B0'
+           1435  *
+0926 0280  1436  LSTL5  CI   R0,LNXT           ;NEXT?
+0928 0010 
+092A 1605  1437         JNE  LSTL6             ;N
+092C 05A0  1438         INC  @DCNT             ;Y, INCREMENT COUNTER
+092E 0924'
+0930 1102  1439         JLT  LSTL6             ;COUNTER OK
+0932 0720  1440         SETO @DCNT             ;RESET COUNTER
+0934 092E'
+0936 C380  1441  LSTL6  MOV  R0,R14            ;SAVE TYPE
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0044
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+0938 D033  1443  LSTLX  MOVB *R3+,R0           ;GET CODE
+093A 1336  1444         JEQ  LSTLE             ;DONE
+093C 9800  1445         CB   R0,@B1B           ;USER FUNCTION?
+093E 080F'
+0940 1A59  1446         JL   LSTFNP            ;Y
+0942 9800  1447         CB   R0,@B38           ;SYSTEM FUNCTION?
+0944 0813'
+0946 1A5D  1448         JL   LSTSF             ;Y
+0948 0980  1449         SRL  R0,8              ;READY R0,R4
+094A C100  1450         MOV  R0,R4
+094C 0280  1451         CI   R0,>3C            ;TO, TAB, STEP, THEN?
+094E 003C 
+0950 1A62  1452         JL   LSTTT             ;Y
+0952 0280  1453         CI   R0,>4E            ;< OR?
+0954 004E 
+0956 1A03  1454         JL   LSTLX0            ;Y
+0958 0280  1455         CI   R0,>54            ;> LXOR?
+095A 0054 
+095C 125A  1456         JLE  LSTTI             ;N
+           1457  *
+095E 0280  1458  LSTLX0 CI   R0,>62            ;CHARACTER?
+0960 0062 
+0962 1A24  1459         JL   LSTCR             ;Y
+0964 0280  1460         CI   R0,>6F            ;CONSTANT?
+0966 006F 
+0968 1A61  1461         JL   LSTCN             ;Y, INTEGERS
+096A 1373  1462         JEQ  LSTCNF            ;Y, FLOATING POINT
+           1463  *
+096C C160  1464         MOV  @VNT,R5           ;N, VARIABLE
+096E 0848'
+0970 A000  1465         A    R0,R0             ;X 2
+0972 A140  1466         A    R0,R5             ;INDEX & GET VARIABLE
+0974 04C2  1467         CLR  R2
+0976 C165  1468         MOV  @-2*>70(5),R5
+0978 FF20 
+097A 1503  1469         JGT  LSTVN             ;DIMENSIONED?
+097C 0505  1470         NEG  R5                ;Y
+     0981' 1471  B4A    EQU  $+3
+097E 0202  1472         LI   R2,>4A            ;OUT [
+0980 004A 
+           1473  *
+0982 2160  1474  LSTVN  COC  @C380,R5          ;LETTER + NUMBER?
+0984 0214'
+0986 1608  1475         JNE  LSTVN1            ;N
+0988 06A0  1476         BL   @LWRDO            ;Y, OUT CHARACTER
+098A 0AD4'
+098C 0921  1477         SRL  R1,2
+098E C045  1478         MOV  R5,R1             ;OUT #
+0990 0241  1479         ANDI R1,>7F            ;MASK
+0992 007F 
+0994 2F41  1480         OUTINT R1              ;CONVERT
+0996 1005  1481         JMP  LSTVN2
+           1482  *
+0998 0A15  1483  LSTVN1 SLA  R5,1              ;REGULAR VARIABLE
+099A 020D  1484         LI   R13,LSTVN2
+099C 09A2'
+099E 0460  1485         B    @LWRD2            ;LIST
+09A0 0AB8'
+           1486  *
+09A2 C102  1487  LSTVN2 MOV  R2,R4             ;"[ NEEDED?
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0045
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+09A4 162B  1488         JNE  LSTCR1            ;Y
+09A6 10C8  1489         JMP  LSTLX
+           1490  *
+09A8 75D7  1491  LSTLE  SB   *R7,*R7           ;PUT NULL ON END
+09AA 045A  1492         B    *R10
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0046
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+09AC DDE4  1494  LSTCR  MOVB @LCN1(4),*R7+     ;EDLC->3C
+09AE 07C1'
+09B0 06C0  1495         SWPB R0
+09B2 06A0  1496         BL   @JMPR0            ;LOOK FOR CODES
+09B4 029C'
+09B6 20    1497  LSTCRT BYTE LSTCR0-LSTCRT/2,>44 "
+09B8 20    1498         BYTE LSTCR0-LSTCRT/2,>45 '
+09BA 0C    1499         BYTE LSTTR-LSTCRT/2,>47 !
+09BC 1D    1500         BYTE LSTL2P-LSTCRT/2,>3C :
+09BE 0000  1501         DATA 0
+09C0 06A0  1502         BL   @LSTCR2           ;LOOK FOR DOUBLES  (>AAII)
+09C2 09E4'
+           1503  *             ==    >=    <=    <>
+09C4 3D55  1504         DATA >3D55,>3D58,>3D5A,>3E5B,>0000
+           1505  *
+           1506  *TAIL REMARK
+           1507  *
+09CE 0607  1508  LSTTR  DEC  R7                ;BACKUP OVER !
+09D0 DDCF  1509         MOVB R15,*R7+          ;OUT SPACE
+09D2 DDCF  1510         MOVB R15,*R7+
+09D4 DDE4  1511         MOVB @LCN1(4),*R7+
+09D6 07C1'
+09D8 1001  1512         JMP  LSTRM1
+           1513  *
+           1514  *REMARK ENTRY
+           1515  *
+09DA 0607  1516  LSTRM  DEC  R7                ;REM, MOVE BACK 1 CHAR
+           1517  *
+09DC DDF3  1518  LSTRM1 MOVB *R3+,*R7+         ;MOVE INTO LINE
+09DE 16FE  1519         JNE  $-2
+09E0 0607  1520         DEC  R7                ;BACKUP
+09E2 045A  1521         B    *R10              ;RETURN
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0047
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+           1523  *
+09E4 D5FB  1524  LSTCR2 MOVB *R11+,*R7         ;MOVE CHARACTER INTO LINE
+09E6 13A8  1525         JEQ  LSTLX             ;NOT FOUND
+09E8 9EC0  1526         CB   R0,*R11+          ;FOUND?
+09EA 16FC  1527         JNE  LSTCR2            ;N, KEEP LOOKING
+09EC 0587  1528         INC  R7                ;Y, SKIP OVER CHARACTER
+09EE 10A4  1529         JMP  LSTLX             ;CONTINUE
+09F0 0460  1530  LSTL2P B    @LSTL2
+09F2 08C8'
+           1531  *
+09F4 1032  1532  LSTFNP JMP  LSTFN
+09F6 DDF3  1533  LSTCR0 MOVB *R3+,*R7+         ;MOVE IN CHARACTER STRING
+09F8 16FE  1534         JNE  $-2               ;LOOP UNTIL NULL
+09FA 0607  1535         DEC  R7                ;BACKUP OVER NULL
+           1536  *
+09FC DDE4  1537  LSTCR1 MOVB @LCN1(4),*R7+     ;EDLC->3C
+09FE 07C1'
+0A00 109B  1538         JMP  LSTLX
+           1539  *
+0A02 06A0  1540  LSTSF  BL   @LWRD             ;LIST SYSTEM FUNCTION
+0A04 0AAE'
+0A06 072C' 1541         DATA LCN3              ;EDIL->36
+0A08 9813  1542  LSTSF1 CB   *R3,@B4A          ;[?
+0A0A 0981'
+0A0C 1395  1543         JEQ  LSTLX             ;Y, NO SPACE
+0A0E DDCF  1544  LSTSP  MOVB R15,*R7+          ;OUT SPACE
+0A10 1093  1545  LSTLXP JMP  LSTLX
+           1546  *
+0A12 0224  1547  LSTTI  AI   R4,->12           ;MOVE BACK BY THEN
+0A14 FFEE 
+           1548  *
+0A16 DDCF  1549  LSTTT  MOVB R15,*R7+          ;OUT SPACE
+0A18 A104  1550         A    R4,R4             ;DOUBLE INDEX
+0A1A C164  1551         MOV  @LSTTL->70(4),R5  38*2
+0A1C 0A28'
+           1552  *
+0A1E DDF5  1553  LSTT1  MOVB *R5+,*R7+         ;MOVE LETTER
+0A20 D015  1554         MOVB *R5,R0            ;CHECK END
+0A22 16FD  1555         JNE  LSTT1             ;LOOP
+0A24 0284  1556         CI   R4,>3B*2          ;THEN?
+0A26 0076 
+0A28 13E3  1557         JEQ  LSTL2P            ;Y
+0A2A 10F1  1558         JMP  LSTSP             ;OUT SPACE
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0048
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+0A2C 0280  1560  LSTCN  CI   R0,>6D            ;-1 THRU 9?
+0A2E 006D 
+0A30 1404  1561         JHE  LSTCN1            ;N
+0A32 0220  1562         AI   R0,->63           ;Y
+0A34 FF9D 
+0A36 C040  1563         MOV  R0,R1
+0A38 1007  1564         JMP  LSTCN2            ;CONVERT
+           1565  *
+0A3A D073  1566  LSTCN1 MOVB *R3+,R1           ;INTEGER
+0A3C 06C1  1567         SWPB R1
+0A3E D073  1568         MOVB *R3+,R1
+0A40 06C1  1569         SWPB R1
+     0A45' 1570  B6E    EQU  $+3
+0A42 0280  1571         CI   R0,>6E            ;HEX?
+0A44 006E 
+0A46 1302  1572         JEQ  LSTCN3            ;Y
+           1573  *
+0A48 2F41  1574  LSTCN2 OUTINT R1              ;N, CONVERT
+0A4A 10E2  1575         JMP  LSTLXP
+           1576  *
+0A4C 06A0  1577  LSTCN3 BL   @HOUT             ;OUT HEX
+0A4E 0000 
+0A50 10DF  1578         JMP  LSTLXP
+           1579  *
+0A52 2F13  1580  LSTCNF OUTFP *R3              ;OUTPUT FP #
+0A54 0223  1581         AI   R3,6              ;INCREMENT OVER NUMBER
+0A56 0006 
+0A58 10DB  1582         JMP  LSTLXP
+           1583  *
+           1584  *USER FUNCTION ENTRY
+           1585  *
+0A5A DDE0  1586  LSTFN  MOVB @B46,*R7+         ;OUT "F
+0A5C 07BF'
+0A5E DDE0  1587         MOVB @B4E,*R7+         ;OUT "N
+0A60 0811'
+0A62 0220  1588         AI   R0,>4000
+0A64 4000 
+0A66 DDC0  1589         MOVB R0,*R7+           ;OUT LETTER
+0A68 028E  1590         CI   R14,LDEF          ;DEF?
+0A6A 0084 
+0A6C 16CD  1591         JNE  LSTSF1            ;N, CHECK FOR (
+0A6E C3A0  1592         MOV  @VNT,R14          GET TABLE ADDR & CLEAR 'LDEF'
+0A70 096E'
+0A72 9813  1593         CB   *R3,@B56          ;Y, ARGUMENTS?
+0A74 07BA'
+0A76 13CC  1594         JEQ  LSTLXP            ;N
+0A78 DDE0  1595         MOVB @B5B,*R7+         ;Y, OUT "[
+0A7A 080B'
+           1596  *
+0A7C D7B3  1597  LSTFD1 MOVB *R3+,*R14         ;SAVE DUMMY NAME
+0A7E C07E  1598         MOV  *R14+,R1
+0A80 0821  1599         SRA  R1,2
+0A82 06A0  1600         BL   @LWRDO1           ;MAKE LETTER & STORE
+0A84 0ADE'
+0A86 9813  1601         CB   *R3,@B56          ;=?
+0A88 07BA'
+0A8A 1303  1602         JEQ  LSTFD2            ;Y
+0A8C DDE0  1603         MOVB @B2C,*R7+         ;N, OUT ','
+0A8E 0800'
+0A90 10F5  1604         JMP  LSTFD1            ;LOOP AGAIN
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0049
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+           1605  *
+0A92 DDE0  1606  LSTFD2 MOVB @B5D,*R7+         ;OUT ']'
+0A94 080C'
+0A96 10BC  1607         JMP  LSTLXP
+           1608  *
+0A98 07C2' 1609  LSTTL  DATA LSTO,LSTB
+0A9C 07CB' 1610         DATA LSST,LSTH
+0AA0 07D7' 1611         DATA LSOR,LSLOR
+0AA4 07E0' 1612         DATA LSAN,LSLAN
+0AA8 07EB' 1613         DATA LSNT,LSLNT
+0AAC 07F6' 1614         DATA LSLXO
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0050
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+           1616  *LIST WORD
+           1617  *      BL   @LWRD
+           1618  *           ADDR
+           1619  *
+0AAE C13B  1620  LWRD   MOV  *R11+,R4          ;GET ADR OF WORD
+0AB0 C34B  1621         MOV  R11,R13           ;SAVE RETURN
+0AB2 0870  1622         SRA  R0,7              ;SWAP AND X 2
+0AB4 A100  1623         A    R0,R4             ;INDEX
+           1624  *
+0AB6 C154  1625  LWRD1  MOV  *R4,R5            ;GET WORD
+0AB8 06A0  1626  LWRD2  BL   @LWRDO            ;OUT FIRST CHARACTER
+0ABA 0AD4'
+0ABC 0A71  1627         SLA  R1,7
+0ABE 06A0  1628         BL   @LWRDO            ;OUT 2ND OR 5TH CHARACTER
+0AC0 0AD4'
+0AC2 0A21  1629         SLA  R1,2
+0AC4 06A0  1630         BL   @LWRDO            ;OUT 3RD OR 6TH CHARACTER
+0AC6 0AD4'
+0AC8 0931  1631         SRL  R1,3
+0ACA 0224  1632         AI   R4,LCN4           ;MOVE TO NEXT HALF (EDCS+2)
+0ACC 00AC 
+0ACE 0915  1633         SRL  R5,1              ;ANOTHER HALF?
+0AD0 18F2  1634         JOC  LWRD1             ;Y
+0AD2 045D  1635         B    *R13              ;N, RETURN
+           1636  *
+0AD4 C045  1637  LWRDO  MOV  R5,R1             ;LOAD TEMP
+0AD6 04BB  1638         X    *R11+             ;EXECUTE SHIFT
+0AD8 0241  1639         ANDI R1,>1F00          ;MASK
+0ADA 1F00 
+0ADC 1303  1640         JEQ  LWRDO2            ;RETURN
+           1641  *
+0ADE 0221  1642  LWRDO1 AI   R1,>4000          ;ADD LETTER BITS
+0AE0 4000 
+0AE2 DDC1  1643         MOVB R1,*R7+           ;MOVE OUT
+0AE4 045B  1644  LWRDO2 B    *R11              ;RETURN
+           1645         END
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0051
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+AINC       006CR  B01        0394R  B02        06FF'  B03        080A'  
+B0A        06F7'  B1B        080F'  B20        05C2R  B2A        08DCR  
+B2C        0800'  B38        0813'  B3A        07FD'  B3B        0801'  
+B3D        0817'  B3F        0802'  B40        07FE'  B46        07BF'  
+B4A        0981'  B4E        0811'  B56        07BA'  B57        07BB'  
+B59        07B9'  B5B        080B'  B5D        080C'  B6D        0810'  
+B6E        0A45'  B6F        0812'  BCP        0047   BCPB       06F8'  
+BELLON     0006   BTENBL     0003   BUS        08A4R  BUSACK     0002   
+BUSINT     0007   C1         0134R  C380       0214'  CASS02     00C0   
+CFF80      06FA'  CKEX       0836R  CLKLED     0000   CM4        051E'  
+CONT       0000'  CRLF       087ER  CTBA       0700   CTBA1      2000   
+CVDB20     01FCR  CVDIFZ     016CR  CVDIZ      0204R  D1$DEN     0003   
+D1$SIZ     0002   DCNT       0934R  DDM        04D2R  DEBUG$     06E2R  
+DEFX       06C8'  DEFXB      0814'  DLC        04E8R  DMAC       00E0   
+DRVSIZ     0004   EBP        045AR  ECH$0      00F4'  ECH$1      0102'  
+ED10       0132'  ED11       014E'  ED12       0152'  ED13       0166'  
+ED14       0168'  ED20       016A'  ED20H      0186'  ED21       018C'  
+ED21A      0190'  ED22       0192'  ED23       0198'  ED24       01AA'  
+ED3        0070'  ED30       01AC'  ED31       01CA'  ED32       01D6'  
+ED33       01EA'  ED34       01F0'  ED35       021A'  ED35A      0224'  
+ED36       022A'  ED37       0232'  ED38       024A'  ED38A      025A'  
+ED39       026A'  ED40       02B6'  ED41       02B8'  ED41P      02FA'  
+ED42       02BC'  ED43       02CA'  ED44       02E6'  ED45       02EC'  
+ED46       02FC'  ED47       02FE'  ED49       0316'  ED5        009A'  
+ED50       0322'  ED50A      0330'  ED50A1     033C'  ED50B      0344'  
+ED51       0348'  ED52       0358'  ED52A      035A'  ED54       035C'  
+ED6        00B0'  ED7        00BA'  ED8        00CE'  ED9        0120'  
+ED90       0362'  ED91       039E'  EDATA      0208   EDCL       0646'  
+EDCLE      06DC'  EDCS       00AA   EDER       0414R  EDER2      03A2'  
+EDER3      00D4'  EDER4      0242'  EDER6      0310'  EDER8      040C'  
+EDER9      0412'  EDFN       03A8'  EDFN0      03CC'  EDFN1      03D4'  
+EDFN2      03EE'  EDFN3      03FA'  EDGL       05C8'  EDGL1      05DE'  
+EDGLS      05C0'  EDGP       0616'  EDGP1      062E'  EDGWO      05E0'  
+EDGWO1     05EE'  EDGWO2     05F0'  EDGWO4     0604'  EDGWO5     0612'  
+EDGWOL     07C2'  EDIF       00DA'  EDIL       0762'  EDILE      079C'  
+EDIT       001CD  EDIT1      0022D  EDLC       07FD'  EDLET      00A8'  
+EDLETA     00AA'  EDON       00E0'  EDOP       0272'  EDOP1      0292'  
+EDOPTB     029E'  EDREM      035E'  EDSCI      00E6'  EDSCI0     0106'  
+EDSCI1     0112'  EDSCL      0630'  EDSL       079E'  EDTMP      0026R  
+EDV1       01F8'  EDV1A      0216'  EDV1B      0218'  EDV2       021A'  
+EFLG       002AR  EIA02      0040   EMV        0418D  EMV0       041A'  
+EMV1       0436'  EMV2       0448'  EMV3       0458'  EMV4       046A'  
+EMV4A      046E'  EMV4B      0482'  EMV4C      0494'  EMV4C1     0498'  
+EMV4C2     049C'  EMV4E      04A2'  EMV4F      04A6'  EMV4H      04BE'  
+EMV4I      04C2'  EMV4I1     04C6'  EMV4J      04D0'  EMV4K      04E0'  
+EMV4KA     04E6'  EMV4L      04EA'  EMV4M      04EE'  EMV4N      04FE'  
+EMV4O      0500'  EMV5       050A'  EMV6       0522'  EMV6A      0536'  
+EMVA       053E'  EMVA1      0564'  EMVA2      058E'  EMVA3      059C'  
+EMVE10     053C'  EMVR       0508'  EPADR      0210   EPTYPE     0201   
+ERR10      0248'  ERR13      0446'  ERR48      0018'  ERR5       0240'  
+ERROR      2F80   ERROR2     2FA0   ESCFLG     038ER  ETX        0300   
+FDC        F140   FDCINT     0004   FNS        04A4R  FOR2       04BAR  
+FPAC       01A2R  FTM$       089AR  GOS2       000CR  GSC        0490R  
+GSS        0504R  GSTOP      0844'  HALTO$     0870R  HOUT       0A4ER  
+IFB        0082   IFX        06C6'  IOB        089ER  JMPR0      09B4R  
+KBDACK     0001   KBDINT     0005   KDS        0000   KEYBRD     0008   
+LCN1       07C1D  LCN2       0644D  LCN3       072CD  LCN4       00ACD  
+LDEF       0084D  LETB       08D0'  LETB$1     08F2'  LETB$2     08FC'  
+LETP$1     08E6'  LINE2      03A0R  LNUM       0374R  LNXT       0010D  
+LSAN       07E0'  LSLAN      07E5'  LSLNT      07F0'  LSLOR      07DB'  
+ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0052
+BASIC LINE EDITOR - CORTEX BASIC REV 1.1
+
+LSLXO      07F6'  LSNT       07EB'  LSOR       07D7'  LSST       07CB'  
+LST        0822D  LST0       084C'  LST0B      0846'  LST1       085E'  
+LST2       087C'  LSTB       07C6'  LSTCN      0A2C'  LSTCN1     0A3A'  
+LSTCN2     0A48'  LSTCN3     0A4C'  LSTCNF     0A52'  LSTCR      09AC'  
+LSTCR0     09F6'  LSTCR1     09FC'  LSTCR2     09E4'  LSTCRT     09B6'  
+LSTFD1     0A7C'  LSTFD2     0A92'  LSTFN      0A5A'  LSTFNP     09F4'  
+LSTG       0886'  LSTG1      0880'  LSTH       07D1'  LSTL       0898D  
+LSTL1      08BA'  LSTL2      08C8'  LSTL2P     09F0'  LSTL3      08CA'  
+LSTL3A     0900'  LSTL3B     0906'  LSTL4      0910'  LSTL5      0926'  
+LSTL6      0936'  LSTLE      09A8'  LSTLX      0938'  LSTLX0     095E'  
+LSTLXP     0A10'  LSTO       07C2'  LSTRM      09DA'  LSTRM1     09DC'  
+LSTSF      0A02'  LSTSF1     0A08'  LSTSP      0A0E'  LSTT1      0A1E'  
+LSTTI      0A12'  LSTTL      0A98'  LSTTR      09CE'  LSTTT      0A16'  
+LSTVN      0982'  LSTVN1     0998'  LSTVN2     09A2'  LWRD       0AAE'  
+LWRD1      0AB6'  LWRD2      0AB8'  LWRDO      0AD4'  LWRDO1     0ADE'  
+LWRDO2     0AE4'  M$REG0     F100   M$REG1     F102   M$REG2     F104   
+M$REG3     F106   M$REG4     F108   M$REG5     F10A   M$REG6     F10C   
+M$REG7     F10E   M$REG8     F110   M$REG9     F112   M$REGA     F114   
+M$REGB     F116   M$REGC     F118   M$REGD     F11A   M$REGE     F11C   
+M$REGF     F11E   MAPPER     F100   MODE       039AR  MODEOK     000ED  
+MOVE       05A0'  MOVE1      05A6'  MOVE2      05AE'  MOVE3      05B4'  
+MOVE4      05DE'  NINE       001ER  NOAINC     006A'  NTBA       0400   
+NTBA1      1800   NVD        0582R  NVS        0550R  NXTX       0654'  
+NXTXB      0815'  ONB        0080   ONX        06C4'  OUTEXT     08DE'  
+PASBX      008C   PGBA       0800   PGM        0205   PGMPUL     0206   
+PGTBA1     0000   PIO        0000   PPBUSY     0409   PPDS       0408   
+PPRINT     0400   PQMBX      008A   PRMPOP     0200   PROERR     0206   
+PRORDY     0204   PRORST     0200   PRTX       0658'  PSCBX      007E   
+PTRB       0014   R0         0000   R1         0001   R10        000A   
+R11        000B   R12        000C   R13        000D   R14        000E   
+R15        000F   R2         0002   R3         0003   R4         0004   
+R5         0005   R6         0006   R7         0007   R8         0008   
+R8STOR     0586R  R9         0009   RENCMP     017CR  RNELSE     0003D  
+RNERR      0009D  RNGOTO     0001D  RNGSUB     0002D  RNIF       0041D  
+RNINP      000DD  RNON       0040D  RNREM      0004D  RNRSTR     000FD  
+ROMON      0005   RUNP       06DCR  SIZE       06DER  SLN        0008R  
+SLT        0860R  SNTBA      0780   SNTBA1     1B00   SPGBA      0000   
+SPGBA1     3800   SSP        0364R  STX        0200   SYN        1600   
+SYSERR     012E'  TYPBE$     0876R  TYPC$      0878R  UFT        04ECR  
+V30        0207   VCCON      0204   VDP        F120   VDPINT     0006   
+VDPREG     F121   VDT        057ER  VNT        0A70R  VRAM       F120   
+
+
+0 Errors in assembly

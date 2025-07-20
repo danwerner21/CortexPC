@@ -1,0 +1,36 @@
+TARGETS = tools rtl os usr
+
+all: ${TARGETS}
+
+tools: 
+	(cd cc; make -f makefile.ti)
+	(cd ccom; make -f makefile.ti)
+	(cd c2; make -f makefile.ti)
+	(cd cpp; make -f makefile.ti)
+	(cd binutils; make -f makefile.ti)
+
+rtl: 
+	(cd crt; make -f makefile.ti)
+	(cd libc/std; make -f makefile.ti)
+	(cd libc/stdio; make -f makefile.ti)
+	(cd libc/syscall; make -f makefile.ti)
+
+os:
+	(cd v6; make -f makefile.ti)
+	(cd bbnnet; make -f makefile.ti)
+
+usr:
+	(cd user; make -f makefile.ti)
+
+clean:
+	(cd cc; make -f makefile.ti clean)
+	(cd ccom; make -f makefile.ti clean)
+	(cd c2; make -f makefile.ti clean)
+	(cd cpp; make -f makefile.ti clean)
+	(cd binutils; make -f makefile.ti clean)
+	(cd crt; make -f makefile.ti clean)
+	(cd libc/std; make -f makefile.ti clean)
+	(cd libc/stdio; make -f makefile.ti clean)
+	(cd libc/syscall; make -f makefile.ti clean)
+	(cd v6; make -f makefile.ti clean)
+	(cd user; make -f makefile.ti clean)

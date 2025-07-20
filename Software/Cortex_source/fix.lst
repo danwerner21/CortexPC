@@ -1,0 +1,102 @@
+ASM990 2.4.6     FIX                        Sun Jul 20 19:28:51 2025 Page 0001
+FIX ROUTINE - CORTEX BASIC REV. 1.1
+
+              2         IDT  'FIX'
+              3  *
+              4  *       FIX     ;FIX 2'S COMPLEMENT INTEGER
+              5  *       PFIX    ;FIX 16-BIT POSITIVE INTEGER
+              6  *
+              7         DXOP LOADF,0           ;LOAD FPAC
+              8         DXOP SCALE,6           ;SCALE FPAC
+              9         DXOP CLEAR,8           ;CLEAR FPAC
+     2F80    10  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+             11  *
+             12         REF  FPAC2             ;FLOATING POINT ACCUMULATOR
+             13         REF  C4600
+             14         DEF  FIX
+             15         DEF  PFIX
+ASM990 2.4.6     FIX                        Sun Jul 20 19:28:51 2025 Page 0002
+FIX ROUTINE - CORTEX BASIC REV. 1.1
+
+             17  *       FIX RETURNS THE 2'S COMPLEMENT 16-BIT INTEGER VALUE OF
+             18  *       THE 3 WORD NUMBER POINTED TO BY R2.  IF THE NUMBER IS A
+             19  *       AN INTEGER (1ST WORD = 0 ) THEN IT SIMPLY RETURNS THE S
+             20  *       IF THE VALUE IS A FLOATING POINT NUMBER (1ST WORD <> 0)
+             21  *       NUMBER IS LOADED INTO THE FLOATING POINT ACCUMULATOR, S
+             22  *       THE DECIMAL POINT IS AFTER THE SECOND WORD, AD THEN THE
+             23  *       2ND WORD OF FPAC IS RETURNED.  CARE IS TAKE TO ZERO FPA
+             24  *       TO NEGATE THE RESULT DEPENDING UPON THE SIGN BIT.
+             25  *
+             26  *       PFIX RETURNS A 16-BIT RESULT RATHER THAN THE 2'S
+             27  *       COMPLEMENT VALUE.
+             28  *
+             29  * CALLING SEQUENCE:
+             30  *
+             31  *       BL @FIX
+             32  *         OR
+             33  *       BL @PFIX
+             34  *
+             35  *       IN - (R2) = 3 WORD PBASIC NUMBER.
+             36  *       OUT - R1 = RESULT.
+             37  *
+             38  *      NORMAL EXIT - RETURN
+             39  *
+             40  * EXCEPTIONS AND CONDITIONS:
+             41  *
+             42  *       ERROR 30 RESULTS IF THE ABSOLUTE VALUE OF THE NUMBER IS
+             43  *       GREATER THAN 2^15
+             44  *
+             45  *       R0 IS PRESERVED
+ASM990 2.4.6     FIX                        Sun Jul 20 19:28:51 2025 Page 0003
+FIX ROUTINE - CORTEX BASIC REV. 1.1
+
+0000 C072    47  FIX    MOV  *R2+,R1           ;INTEGER?
+0002 1602    48         JNE  FIX1              ;N, DO INTF
+0004 C052    49         MOV  *R2,R1            ;Y, RETURN #
+0006 045B    50         RT
+             51  *
+0008 2C22    52  FIX1   LOADF @-2(2)           ;LOAD FPAC
+000A FFFE 
+             53  *
+000C C081    54  FIX2   MOV  R1,R2             ;SAVE
+000E 0241    55         ANDI R1,>7F80          ;MASK TO EXPONENT + 1 BIT
+0010 7F80 
+0012 0281    56         CI   R1,>4400          ;TOO LARGE?
+0014 4400 
+0016 1509    57         JGT  ERR30             ;Y
+0018 2DA0    58         SCALE @C4600           ;N, GET INTEGER
+001A 0000 
+001C C060    59         MOV  @FPAC2,R1
+001E 0000 
+0020 2E00    60         CLEAR 0                ;LEAVE FPAC ZERO
+0022 0A12    61         SLA  R2,1              ;NEGATIVE?
+0024 1701    62         JNC  FIX3              ;N
+0026 0501    63         NEG  R1                ;Y
+0028 045B    64  FIX3   RT
+             65  *
+002A 2F9E    66  ERR30  DATA ERROR+30          ;FIX ERROR
+             67  *
+             68  *
+             69  *
+002C 2C12    70  PFIX   LOADF *R2              ;LOAD FPAC
+002E C052    71         MOV  *R2,R1            ;INTEGER?
+0030 1302    72         JEQ  PFIX1             ;Y
+0032 2DA0    73         SCALE @C4600           ;N, SCALE
+0034 001A'
+             74  *
+0036 C060    75  PFIX1  MOV  @FPAC2,R1         ;GET RESULT
+0038 001E'
+003A 045B    76         RT
+             77         END
+ASM990 2.4.6     FIX                        Sun Jul 20 19:28:51 2025 Page 0004
+FIX ROUTINE - CORTEX BASIC REV. 1.1
+
+C4600     0034R  ERR30     002A'  ERROR     2F80   FIX       0000D  
+FIX1      0008'  FIX2      000C'  FIX3      0028'  FPAC2     0038R  
+PFIX      002CD  PFIX1     0036'  R0        0000   R1        0001   
+R10       000A   R11       000B   R12       000C   R13       000D   
+R14       000E   R15       000F   R2        0002   R3        0003   
+R4        0004   R5        0005   R6        0006   R7        0007   
+R8        0008   R9        0009   
+
+0 Errors in assembly

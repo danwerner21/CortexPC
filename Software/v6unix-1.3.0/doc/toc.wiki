@@ -1,0 +1,9 @@
+<b>DOCUMENTATION</b>
+
+<b>Phase 'c1'</b>
+
+  #  [/doc/tip/doc/im-language.wiki|Intermediate language]
+  #  [/doc/tip/doc/exprtree.wiki|Expression trees]
+  #  [/doc/tip/doc/type-enc.wiki|Type encoding]
+
+

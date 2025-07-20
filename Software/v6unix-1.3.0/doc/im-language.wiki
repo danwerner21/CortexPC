@@ -1,0 +1,146 @@
+<b>THE INTERMEDIATE LANGUAGE</b>
+
+<b>Introduction</b>
+
+The first compiler pass ("c0") communicates with the second compiler pass ("c1") by means of a formal intermediate language. This intermediate language is a not a byte code for a virtual machine, such as EM used by the Amsterdam Compiler Kit (as used in Minix) or such as LLVM as used by clang. Instead it is more like a heavily prepocessed and annotated version of the source. For example:
+
+  *  Storage allocation for automatic variables and arguments has been performed, and nodes for such variables refer to them by offset from a display pointer.
+  *  Expressions have been converted to reverse polish ordering and type information has been added.
+  *  Type conversion operators have been added using the assumption of byte addressing and 2-byte words.
+  *  etc.
+
+The c0 pass writes out two files, and c1 reads these two files sequentially. These two files both contain the same form of intermediate language, although the second file contains only the code generated for strings. It was felt convenient to write strings out separately to reduce the need for multiple location counters in a later assembly phase.
+
+The intermediate language consists of a sequence of binary numbers without any explicit demarcations. It consists of a sequence of conceptual lines, each headed by an operator, and possibly containing various operands. The operators are small numbers; to assist in recognizing failure in synchronization, the high-order byte of each operator word is always the hexadecimal number <i>0xFE</i>. Operands are either 16-bit binary numbers or strings of characters representing names. Each name is terminated by a null character. There is no alignment requirement for numerical operands and so there is no padding after a name string.
+
+<b>The non-expression operators</b>
+
+Below is a description of the non-expression operators. Each description begins with the (defined name of the) opcode and arguments if any. An argument in round brackets is a 16-bit word, an argument in curly brackets is a zero terminated string.
+
+  <b>SINIT (int)</b><br>
+  Output a single word value. The assembler will place this value at the current location in the current segment. Its use is to initialize static variables as needed. [/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=902,904|Code]
+
+  <b>EOFC</b><br>
+  Terminate the input of intermediate code; the reader routine returns to its caller. [/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=906,907|Code]
+
+  <b>BDATA (1) (byte) ... (0)</b><br>
+  Output a <b>.byte</b> directive and follows that by a comma-separated sequence of byte values. In the intermediate code, the BDATA opcode is followed by a sequence of word pairs; the first word in each pair has value one, the second word contains the byte value. The sequence is terminated by a single word with value zero. This opcode is used to assemble string literals. [/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=909,920|Code]
+
+  <b>PROG</b><br>
+  Select the "text" segment, i.e. it outputs a <b>.text</b> directive. See the documentation of the assembler and linker for details on how segments work. [/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=922,924|Code]
+
+  <b>DATA</b><br>
+  Select the "data" segment, i.e. it outputs a <b>.data</b> directive. See the documentation of the assembler and linker for details on how segments work. [/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=926,928|Code]
+
+  <b>BSS</b><br>
+  Select the "bss" segment, i.e. it outputs a <b>.bss</b> directive. See the documentation of the assembler and linker for details on how segments work. [/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=930,932|Code]
+
+  <b>SYMDEF {name}</b><br>
+  This opcode indicates that the symbol name is an external name defined in the current program. It is produced for each external data or function definition and generates a <b>.globl</b> statement in the assembler output.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=934,938|Code]
+
+  <b>RETRN</b><br>
+  Generate the function exit sequence. It It occurs once, typically at the end of each function.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=940,942|Code]
+
+  <b>CSPACE {name} (length)</b><br>
+  Reserve <i>length</i> bytes of space for symbol <i>name</i> in the bss segment, i.e. generate a <b>.comm</b> assembler statement. It is produced for external data definitions without explicit initialization. 
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=944,947|Code]
+
+  <b>SSPACE (length)</b><br>
+  Set <i>length</i> bytes aside for data storage. It is used to pad out short initializations of external data and to reserve space for static data. It will be preceded by an appropriate label.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=949,952|Code]
+
+  <b>EVEN</b><br>
+  Output a <b>.even</b> directive, i.e. round the location counter up to an even value. See the documentation of the assembler for background on the location counter. It is produced after each external data definition whose size is not an integral number of words. It is not produced after strings except when they initialize a character array. [/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=954,956|Code]
+
+  <b>SAVE</b><br>
+  Output the register-save sequence. It occurs at the start of each function, just after its label. [/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=958,960|Code]
+
+  <b>SETSTK (count)</b><br>
+  Allocate <i>count</i> bytes on the stack for local variables, i.e. decrement the stack pointer by count. It occurs immediately after a SAVE opcode when needed.  
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=962,968|Code]
+
+  <b>PROFIL (label)</b><br>
+  Output code to count the number of invocations of the current functions. It is output at the start of a function when profiling is in effect. 
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=970,975|Code]
+
+  <b>ASSEM {stmt}</b><br>
+  Include the assembler statement <i>stmt</i> in the generated output. It is used to implement the 'asm()' extension of the compiler.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=977,979|Code]
+
+  <b>SNAME (label) {name}</b><br>
+  Include a symbol in the debugging symbol table. It is produced at the start of each function for each static variable or label declared therein. Subsequent uses of the variable will be in terms of the given label number.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=982,985|Code]
+
+  <b>ANAME (offset) {name}</b><br>
+  Include a symbol in the debugging symbol table. It is produced at the start of each function for each local variable or label declared therein. Subsequent uses of the variable will be in terms of the given offset relative to the frame pointer (= base pointer, "bp").
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=987,990|Code]
+
+  <b>RNAME (register) {name}</b><br>
+  Include a symbol in the debugging symbol table. It is produced at the start of each function for each register variable or label declared therein. Subsequent uses of the variable will be in terms of the given register number.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=992,995|Code]
+
+  <b>SWIT (deflab) (line) (label) (value) ... (0)</b><br>
+  Output a switch sequence. The value being switched on is left in the first register by the immediately preceding expression operator. The switch statement occurred on the indicated line of the source, and the label number of the default location is <i>deflab</i>. Then the operator is followed by a sequence of <i>label</i> and <i>value</i> pairs; the list is terminated by a 0 label. 
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=997,1003|Code]
+
+  <b>CBRANCH (cond) (label)</b><br>
+  Output a conditional branch. This operator follows an expression sequence and generates code for that expression, just like the EXPR operator. Next it outputs a conditional jump to <i>label</i>, testing for condition <i>cond</i>.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1012,1052|Code]
+
+  <b>BRANCH (label)</b><br>
+  Output an unconditional branch to the label with number<i>label</i>.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1142,1144|Code]
+
+  <b>LABEL (label)</b><br>
+  Output a label definition with number<i>label</i>.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1127,1129|Code]
+
+  <b>NLABEL {name}</b><br>
+  Output a label definition with name <i>name</i>.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1131,1134|Code]
+
+  <b>RLABEL (label)</b><br>
+  Output a label definition with name <i>name</i>. This operator is a synonym for NLABEL, but is used to define function name labels.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1136,1140|Code]
+
+<b>Reading expressions</b>
+
+Reading expressions, and generating code for them, involves most of the code in this pass. The algorithm has three phases:
+  #  Read the expression into a tree of expression nodes
+  #  Pre-process ("optimize") the expression tree for easier code generation
+  #  Select and output code snippets that implement the expression
+The intermediate language works with expressions in Reverse Polish Notation, RPN. For example the expression "2+3*4" is rendered as "2 3 4 * +" and "2*3+4" is rendered as "2 3 * 4 +".  The tree consists of value nodes and operator nodes [/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1146,1148|(definition)]. Value nodes are either constants or names.
+
+Below are the operators related to expressions: 
+
+  <b>SETREG (maxreg)</b><br>
+  Define the maximum number of registers available for expression evaluation. Registers 0 up to <i>maxreg</i> minus one are available. This operator occurs at the start of each block that declares a register variable, and again if that block is excited. 
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1146,1148|Code]
+
+  <b>NAME (class) (type) {name}</b><br>
+  <b>NAME (class) (type) (number)</b><br>
+  Generate a node to load the value represented by a given name, and place it on the node stack. The first form is used when the name is external; the second when the name is automatic, static, or a register. Then the number indicates the stack offset, the label number, or the register number as appropriate.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1042,1044|Code]
+
+  <b>CON (val)</b><br>
+  Generate a node to load the 16 bit value, and place it on the node stack. <i>val</i>.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1073,1076|Code]
+
+  <b>LCON (type) (val-high) (val-low)</b><br>
+  Generate a node to load the 32 bit value given by <i>val-high, val-low</i>, and place it on the node stack. The field <i>type</i> is discarded. If the 32 bit value actually fits in a single 16 bit word, generate a node to load that 16 bit value instead.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1078,1091|Code]
+
+  <b>FCON (type) {val}</b><br>
+  Generate a node to load the floating point value given by the text string<i>val</i>, and place it on the node stack. The field <i>type</i> is indicates a single or double precision value.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1093,1102|Code]
+
+  <b><i>binary operator</i> (type)</b><br>
+  Generate a node for the operator, using the top two nodes on the stack as the left and right operand respectively.  Remove the top two entries on the node stack and place the new operator node on the stack. There are binary operators corresponding to each C-language operator; the type of the result of each is passed as well. Some perhaps-unexpected ones are: COMMA, which is a right- associative operator designed to simplify right-to-left evaluation of function arguments; prefix and postfix ++ and --, whose second operand is the increment amount, as a CON; QUEST and COLON, to express the conditional expression as ‘a?(b:c)’; and operators for expressing relations between unsigned values.
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1151,1159|Code]
+
+  <b><i>unary operator</i> (type)</b><br>
+  Generate a node for the operator, using the top node on the stack as the operand.  Remove the top entry on the node stack and place the new operator node on the stack. There are also numerous unary operators. These include ITOF, FTOI, FTOL, LTOF, ITOL, LTOI which convert among floating, long, and integer; JUMP which branches indirectly through a label expression; INIT, which compiles the value of a constant expression used as an initializer; RFORCE, which is used before a return sequence or a switch to place a value in an agreed-upon register. 
+[/artifact/fa16845cd8ea17f8030ba27984492bba2ac8b147?ln=1159,1160|Code]
+

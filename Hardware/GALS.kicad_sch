@@ -6,8 +6,8 @@
 	(paper "B")
 	(title_block
 		(title "CortexPC")
-		(date "2025-05-25")
-		(rev "V0.5")
+		(date "2025-07-13")
+		(rev "V0.9")
 	)
 	(lib_symbols
 		(symbol "74xx:74LS32"
@@ -1744,6 +1744,10 @@
 		(at 143.51 77.47)
 		(uuid "c9e74dd7-d9e1-4e4b-ae5d-1cba7c146ab2")
 	)
+	(no_connect
+		(at 168.91 95.25)
+		(uuid "ffa6dbce-9e8a-4153-8492-8b7efc5f0a36")
+	)
 	(wire
 		(pts
 			(xy 142.24 92.71) (xy 143.51 92.71)
@@ -2230,7 +2234,7 @@
 		)
 		(uuid "37caf958-2d1d-4c9c-a17b-927ec11ed8d8")
 	)
-	(text "The memory map is shown in the table below.\n\nMemory Address	Mapped To\n>0000 - >7FFF	ROM when enabled, otherwise RAM\n>8000 - >EFFF	RAM\n>F000 - >F0FB	TMS 9995 internal RAM\n>F0FC - >FDFF	RAM\n>FE00 - >FE03	CF card ATA registers \n>FE10 - >FE13	SOUND\n>FE20 - >FE23	VIDEO\n>FE40 - >FE4F	Memory mapper registers 0-15 \n>FE60 - >FE7F	SID registers 0-31 \n>FE80 - >FEBF	Offboard IO (ports $80-$FF)\n>FFF0 - >FFF9	RAM\n>FFFA - >FFFF	TMS 9995 internal RAM\n\n\nCRU Address	Mapped To\n>0000 - >003F	TMS 9902 registers\n>0040 - >007F	Control signal latch (further details here)\n 	(Plus processor internal CRU bits)\n"
+	(text "The memory map is shown in the table below.\n\nMemory Address	Mapped To\n>0000 - >7FFF	ROM when enabled, otherwise RAM\n>8000 - >EFFF	RAM\n>F000 - >F0FB	TMS 9995 internal RAM\n>F0FC - >FDFF	RAM\n>FE00 - >FE03	CF card ATA registers \n>FE08 - >FE08	SOUND\n>FE20 - >FE21	VIDEO\n>FE40 - >FE4F	Memory mapper registers 0-15 \n>FE60 - >FE7F	SID registers 0-31 \n>FE80 - >FEBF	Offboard IO (ports $80-$FF)\n>FFF0 - >FFF9	RAM\n>FFFA - >FFFF	TMS 9995 internal RAM\n\n\nCRU Address	Mapped To\n>0000 - >003F	TMS 9902 registers\n>0040 - >007F	Control signal latch (further details here)\n 	(Plus processor internal CRU bits)\n"
 		(exclude_from_sim no)
 		(at 199.136 146.558 0)
 		(effects
@@ -2269,7 +2273,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2291,7 +2295,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2313,7 +2317,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2335,7 +2339,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2357,7 +2361,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2379,7 +2383,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2401,7 +2405,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2423,7 +2427,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2445,7 +2449,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2467,7 +2471,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2489,7 +2493,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2511,7 +2515,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2533,7 +2537,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2555,7 +2559,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2577,7 +2581,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2599,7 +2603,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2621,7 +2625,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2643,7 +2647,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2665,7 +2669,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2687,7 +2691,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2709,7 +2713,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2731,7 +2735,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2753,7 +2757,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2775,7 +2779,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2797,7 +2801,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2819,7 +2823,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2841,7 +2845,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2863,7 +2867,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2885,7 +2889,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2907,7 +2911,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2929,7 +2933,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2951,7 +2955,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -2973,7 +2977,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -2995,7 +2999,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -3017,7 +3021,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -3039,7 +3043,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -3061,7 +3065,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -3083,7 +3087,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -3105,7 +3109,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -3127,7 +3131,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)

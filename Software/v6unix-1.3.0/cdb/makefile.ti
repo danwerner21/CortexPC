@@ -1,0 +1,14 @@
+CFLAGS	= -w -O -I../v6 -DUNIS
+CC = cc
+
+all: cdb
+
+clean:
+	rm -f *.o cdb
+
+cdb: cdb1.o cdb2.o
+	${CC} ${CFLAGS} -o cdb cdb1.o cdb2.o
+
+cdb1.o: cdb1.c
+cdb2.o: cdb2.c
+

@@ -1,0 +1,84 @@
+ASM990 2.4.6     PUTB                       Sun Jul 20 19:28:49 2025 Page 0001
+PUT BYTE IN BUFFER - CORTEX BASIC REV. 1.1
+
+              2         IDT  'PUTB'
+              3         REF  UFT               ;USER FUNCTION TABLE
+              4         REF  CCNT              ;COLUMN COUNTER
+              5         REF  IOB               ;IO BUFFER
+              6         REF  TYP11$            ;OUTPUT IMMEDIATE BYTE
+              7  *
+              8  *       PUTB TRANSFERS LEFT BYTE IN R0 INTO
+              9  *       BUFFER (R7).  A CHECK IS MADE FOR
+             10  *       CARRIAGE RETURN AND CONTROL CHARACTERS.
+             11  *
+             12  * CALLING SEQUENCE:
+             13  *
+             14  *       BL @PUTB
+             15  *         CARRIAGE RETURN
+             16  *         CONTROL CHARACTER
+             17  *       CHARACTER
+             18  *
+             19  *       IN  (R7) = BUFFER
+             20  *            R0  = CHARACTER
+             21  *       OUT  R0  = CHARACTER OR BACKSPACE OR BELL
+ASM990 2.4.6     PUTB                       Sun Jul 20 19:28:49 2025 Page 0002
+PUT BYTE IN BUFFER - CORTEX BASIC REV. 1.1
+
+             23  *
+             24  * ENTRY POINT:
+             25  *
+             26         DEF  PUTB
+             27  *
+0000 0240    28  PUTB   ANDI R0,>FF00          ;REMOVE LS BYTE
+0002 FF00 
+0004 0280    29         CI   R0,>0D00          ;CR?
+0006 0D00 
+0008 1602    30         JNE  PUTB1             ;N
+000A 75D7    31         SB   *R7,*R7           ;Y,NULL TERMINATE
+000C 045B    32         RT
+             33  *
+000E 0280    34  PUTB1  CI   R0,>2000          ;CONTROL?
+0010 2000 
+0012 1402    35         JHE  PUTB2             ;N
+0014 046B    36         B    @2(11)            ;Y,EXIT
+0016 0002 
+             37  *
+0018 0280    38  PUTB2  CI   R0,>7F00          ;RUBOUT?
+001A 7F00 
+001C 1607    39         JNE  PUTB4             ;N
+001E 0584    40         INC  R4                ;Y,ALLOW 1 MORE EMPTY CHARACTER
+0020 8807    41         C    R7,@IOB           ;RUBOUT, EMPTY?
+0022 0000 
+0024 1B08    42         JH   PUTB5             ;N
+0026 0200    43  PUTB3  LI   R0,>0700          ;Y, OUT BELL
+0028 0700 
+002A 100F    44         JMP  PUTB6             ;EXIT
+             45  *
+002C 8807    46  PUTB4  C    R7,@UFT           ;BUFFER FULL?
+002E 0000 
+0030 14FA    47         JHE  PUTB3             ;Y
+0032 DDC0    48         MOVB R0,*R7+           ;N,STORE BYTE
+0034 100A    49         JMP  PUTB6             ;EXIT
+             50  *
+0036 0607    51  PUTB5  DEC  R7                ;BACKUP
+0038 0584    52         INC  R4                ;ALLOW CHARACTER
+003A 0620    53         DEC  @CCNT             ;ADJUST BACKSPACE COUNT
+003C 0000 
+003E 0000    54         DATA TYP11$,>0800      ;OUT BS
+0042 003E'   55         DATA TYP11$,>2000      ;OUT SP
+0046 0200    56         LI   R0,>0800          ;OUT BS
+0048 0800 
+004A 046B    57  PUTB6  B    @4(11)            ;EXIT
+004C 0004 
+             58         END
+ASM990 2.4.6     PUTB                       Sun Jul 20 19:28:49 2025 Page 0003
+PUT BYTE IN BUFFER - CORTEX BASIC REV. 1.1
+
+CCNT     003CR  IOB      0022R  PUTB     0000D  PUTB1    000E'  PUTB2    0018'  
+PUTB3    0026'  PUTB4    002C'  PUTB5    0036'  PUTB6    004A'  R0       0000   
+R1       0001   R10      000A   R11      000B   R12      000C   R13      000D   
+R14      000E   R15      000F   R2       0002   R3       0003   R4       0004   
+R5       0005   R6       0006   R7       0007   R8       0008   R9       0009   
+TYP11$   0042R  UFT      002ER  
+
+0 Errors in assembly

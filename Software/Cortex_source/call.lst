@@ -1,0 +1,75 @@
+ASM990 2.4.6     CALL                       Sun Jul 20 19:28:48 2025 Page 0001
+CALL HANDLER - CORTEX BASIC REV. 1.1
+
+              2         IDT  'CALL'
+              3  *      
+              4  *      CALL HANDLER
+              5  *
+              6         DEF  CLLY
+              7         REF  EVSDZ
+              8         REF  NLIN
+              9         REF  CALLWP,CALL12
+     2F80    10  ERROR  EQU  >2F80
+             11         DXOP EVFIX,11
+             12  *
+             13  * CALL COMMAND
+             14  *
+             15  *   CALL "ROUTINE",ADDRESS,PARMS.....,PARMS
+             16  *
+             17  * THE ROUTINE NAME FIELD IS OPTIONAL
+             18  * PARMS (UPTO 12) ARE SEPARATED BY COMMAS
+             19  * THESE ARE STORED IN THE USER'S REGISTERS R0 - R11;
+             20  * R12 CONTAINS THE NUMBER OF ARGUMENTS PASSED OVER.
+             21  *
+             22  * PARMS SHOULD BE EITHER:
+             23  *      INTEGER VALUES/EXPRESSIONS   OR
+             24  *      THE ADDRESS OF THE VARIABLE/ARRAY ELEMENT
+             25  *      CONTAINING THE DESIRED PARAMETER.
+             26  *
+             27  * THE ADDRESS OF X IS PASSED BY  -  ADR(X)
+ASM990 2.4.6     CALL                       Sun Jul 20 19:28:48 2025 Page 0002
+CALL HANDLER - CORTEX BASIC REV. 1.1
+
+             29  *
+             30  * SET UP THE BLWP VECTOR IN R4,R5 FOR THE USER'S PROG
+             31  *
+0000 020C    32  CLLY   LI   R12,CALLWP        REF "USER'S" WORKSPACE
+0002 0000 
+0004 020B    33         LI   R11,CALL12        REF LAST+1 USEABLE REGISTER
+0006 0000 
+0008 0420    34         BLWP @EVSDZ            ALLOW STRING CONSTANT
+000A 0000 
+000C 1001    35         JMP  GETPC             OK, STRING CONSTANT  ("---")
+000E 2F81    36         DATA ERROR+1           WRONG, STRING VARIABLE  ($VAR)
+             37  *                             NEITHER, DROP THROUGH TO GETPC
+0010 04C2    38  GETPC  CLR  R2                RESET COUNT
+0012 C10C    39         MOV  R12,R4            SET CALLVEC'S WP
+0014 2EC5    40         EVFIX R5               GET PC
+0016 0280    41  CLL2   CI   R0,>3F00          PARAMETERS?
+0018 3F00 
+001A 1604    42         JNE  CLL4              N, EXIT TO USER ROUTINE
+001C 0582    43         INC  R2                Y, INCREMENT COUNT
+001E 2EFC    44  CLL2A  EVFIX *R12+            STUFF NEXT ARGUMENT INTO REGISTER
+0020 82CC    45         C    R12,R11           REGISTER'S FULL?
+0022 1AF9    46         JL   CLL2              N - BACK FOR NEXT ARGUMENT
+             47  *
+             48  * ALL ARGUMENTS HAVE BEEN STORED IN THE REGISTERS
+             49  * (OR ALL THAT ARE GOING TO BE HANDLED)
+             50  *
+0024 C6C2    51  CLL4   MOV  R2,*R11           SAVE COUNT IN USER'S R12
+0026 0404    52         BLWP R4                BLWP TO USER'S ROUTINE
+0028 0460    53         B    @NLIN             RETURNS TO HERE
+002A 0000 
+             54         END
+ASM990 2.4.6     CALL                       Sun Jul 20 19:28:48 2025 Page 0003
+CALL HANDLER - CORTEX BASIC REV. 1.1
+
+CALL12    0006R  CALLWP    0002R  CLL2      0016'  CLL2A     001E'  
+CLL4      0024'  CLLY      0000D  ERROR     2F80   EVSDZ     000AR  
+GETPC     0010'  NLIN      002AR  R0        0000   R1        0001   
+R10       000A   R11       000B   R12       000C   R13       000D   
+R14       000E   R15       000F   R2        0002   R3        0003   
+R4        0004   R5        0005   R6        0006   R7        0007   
+R8        0008   R9        0009   
+
+0 Errors in assembly

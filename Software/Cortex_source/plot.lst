@@ -1,0 +1,282 @@
+ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0001
+PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
+
+              2         IDT  'PLOT'
+              3  *
+              4  *
+              5  *
+     2F80     6  ERROR  EQU  >2F80
+     2FA0     7  ERROR2 EQU  ERROR+>20
+              8         DXOP EVFIX,11
+              9  *
+             10         DEF  PLOTY,UPLOTY,PLOT,UNPLOT
+             11         REF  VDPWP1,PIXON,PIXOFF,V1R5L,V1R6L
+             12         REF  V1R3L,V1R4L
+             13         REF  XLOC,YLOC,NXLOC,NYLOC,NLIN,JMPR0A
+             14         REF  FGM$
+ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0002
+PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
+
+             16  *
+             17  *         PLOT AND UNPLOT POINT/LINE ROUTINES
+             18  *
+             19  *  FORMAT:
+             20  *    PLOT  A,B             PLOT POINT (A,B)
+             21  *    PLOT  TO A,B          PLOT LINE FROM CURSOR TO (A,B)
+             22  *    PLOT  A,B TO C,D      PLOT LINE FROM (A,B) TO (C,D)
+             23  *    UNPLOT A,B            UNPLOT POINT (A,B)
+             24  *    UNPLOT TO A,B         UNPLOT LINE FROM CURSOR TO (A,B)
+             25  *    UNPLOT A,B TO C,D     UNPLOT LINE FROM (A,B) TO (C,D)
+             26  *
+             27  *   FOLLOWING ONE OF THESE STATEMENTS THE CURSOR IS
+             28  *   POSITIONED AT THE LAST CO-ORDINATE PAIR SPECIFIED.
+             29  *
+             30  *   AFTER THE LAST CO-ORDINATE PAIR A 'TO' MAY BE USED
+             31  *   TO EXTEND THE LINE (UN)PLOTTING WITHIN THE ONE
+             32  *   STATEMENT.  EG:-
+             33  *
+             34  *   PLOT TO A,B TO C,D TO E,F     THIS WILL PLOT THE 3 LINES
+             35  *                                 1.  FROM CURSOR TO (A,B)
+             36  *                                 2.  FROM (A,B) TO (C,D)
+             37  *                                 3.  FROM (C,D) TO (E,F)
+             38  *
+             39  *
+ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0003
+PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
+
+0000 070D    41  UPLOTY SETO R13               FLAG AS 'UNPLOT'
+0002 1001    42         JMP  PLOTE
+0004 04CD    43  PLOTY  CLR  R13               FLAG AS 'PLOT'
+             44  *
+0006 0000    45  PLOTE  DATA FGM$              FORCE GRAPH MODE
+0008 06A0    46         BL   @JMPR0A           Y, GET BYTE & CHECK IT
+000A 0000 
+000C 18      47  EOLTST BYTE PLTO-EOLTST/2,>38 'TO' - PLOT LINE
+000E 16      48         BYTE PLTE-EOLTST/2,>00 NULL - EXIT
+0010 16      49         BYTE PLTE-EOLTST/2,>3C ':'  - EXIT
+0012 16      50         BYTE PLTE-EOLTST/2,>47 '!'  - EXIT
+0014 0000    51         DATA 0
+             52  *
+             53  *     NO LEADING 'TO' - MUST BE AN XY PAIR
+             54  *
+0016 0608    55         DEC  R8                BACKUP CODE PTR
+0018 06A0    56         BL   @GETXY            GET X,Y PAIR
+001A 005E'
+001C D80F    57         MOVB R15,@XLOC         SET CURSOR X
+001E 0000 
+0020 D80E    58         MOVB R14,@YLOC         SET CURSOR Y
+0022 0000 
+0024 0280    59         CI   R0,>3800          'TO' ?
+0026 3800 
+0028 1309    60         JEQ  PLTO              Y, LINE
+002A C34D    61         MOV  R13,R13           N, PIXEL SET ?
+002C 1303    62         JEQ  SETIT             Y,
+002E 0420    63         BLWP @PIXOFF           N, TURN PIXEL OFF
+0030 0000 
+0032 1002    64         JMP  PLTE              AND QUIT
+             65  *
+0034 0420    66  SETIT  BLWP @PIXON            TURN PIXEL ON
+0036 0000 
+0038 0460    67  PLTE   B    @NLIN             EXIT TO NLIN
+003A 0000 
+             68  *
+             69  *
+003C 06A0    70  PLTO   BL   @GETXY            'TO' FOUND - GET X,Y PAIR
+003E 005E'
+0040 D80F    71         MOVB R15,@NXLOC        SET STOP X
+0042 0000 
+0044 D80E    72         MOVB R14,@NYLOC        SET STOP Y
+0046 0000 
+0048 C34D    73         MOV  R13,R13           PLOT ?
+004A 1606    74         JNE  UNPLT             N, DO UNPLOT LINE
+004C 0420    75         BLWP @PLOT             Y, CALL PLOT LINE
+004E 0080'
+             76  *
+             77  *      CHECK FOR FOLLOWING 'TO'
+             78  *
+0050 0280    79  LOOKTO CI   R0,>3800          'TO' FOLLOWING ?
+0052 3800 
+0054 13F3    80         JEQ  PLTO              Y, CONTINUE
+0056 10F0    81         JMP  PLTE              N, EXIT
+             82  *
+0058 0420    83  UNPLT  BLWP @UNPLOT           CALL UNPLOT LINE
+005A 0076'
+005C 10F9    84         JMP  LOOKTO            CHECK FOR 'TO'
+             85  *
+             86  *      GET A FOLLOWING  X,Y PAIR AND STORE THEM IN THE
+ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0004
+PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
+
+             87  *      MS BYTE OF R15 & R14 RESPECTIVLY.
+             88  *      RANGE CHECKING IS DONE IN PIXON/PIXOFF ROUTINES
+             89  *
+005E 2ECF    90  GETXY  EVFIX R15              GET X
+0060 06CF    91         SWPB R15               POSITION IT
+0062 0280    92         CI   R0,>3F00          ',' ?
+0064 3F00 
+0066 1603    93         JNE  ERR37             N, ERROR IT
+0068 2ECE    94         EVFIX R14              Y, GET Y
+006A 06CE    95         SWPB R14               POSITION IT
+006C 045B    96         RT
+             97  *
+006E 2FA0    98  ERR37  DATA ERROR2,37         INVALID DELIMITER
+0072 2FA0    99  ERR48  DATA ERROR2,48         NOT ALLOWED IN CURRENT MODE
+ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0005
+PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
+
+            101  *   WORKSPACE       :    VDPWP1
+            102  *   ROUTINE(S)      :    PLOT,UNPLOT
+            103  *   REGISTER USAGE  :
+            104  *                                              GLOBAL DATA
+            105  *           ___________________________________   LABELS
+            106  *   R0      !  PLOT/UNPLOT POINTER            !
+            107  *   R1      !                                 !
+            108  *   R2      !                                 !
+            109  *   R3      !                                 ! LSB=V1R3L
+            110  *   R4      !                                 ! LSB=V1R4L
+            111  *   R5      !                                 ! LSB=V1R5L
+            112  *   R6      !                                 ! LSB=V1R6L
+            113  *   R7      !                                 !
+            114  *   R8      !                                 !
+            115  *   R9      !                                 !
+            116  *   R10     !                                 !
+            117  *   R11     !        BL RETURN ADDRESS        !
+            118  *   R12     !                                 !
+            119  *   R13     !          RETURN WP              !
+            120  *   R14     !          RETURN PC              !
+            121  *   R15     !          RETURN ST              !
+            122  *           -----------------------------------
+            123  *
+0076 0000   124  UNPLOT DATA VDPWP1,$+2
+007A 0200   125         LI   R0,PIXOFF
+007C 0030'
+007E 1004   126         JMP  PLOT1
+0080 0076'  127  PLOT   DATA VDPWP1,$+2
+0084 0200   128         LI   R0,PIXON
+0086 0036'
+0088 070B   129  PLOT1  SETO R11
+008A 070A   130         SETO R10
+008C 0709   131         SETO R9
+008E 04C3   132         CLR  R3
+0090 04C4   133         CLR  R4
+0092 D820   134         MOVB @XLOC,@V1R4L
+0094 001E'
+0096 0000 
+0098 D820   135         MOVB @NXLOC,@V1R3L
+009A 0042'
+009C 0000 
+009E 6103   136         S    R3,R4
+00A0 0744   137         ABS  R4
+00A2 1101   138         JLT  INITY
+00A4 050A   139         NEG  R10
+00A6 D820   140  INITY  MOVB @YLOC,@V1R3L
+00A8 0022'
+00AA 009C'
+00AC 04C5   141         CLR  R5
+00AE D820   142         MOVB @NYLOC,@V1R5L
+00B0 0046'
+00B2 0000 
+00B4 60C5   143         S    R5,R3
+00B6 0743   144         ABS  R3
+00B8 1101   145         JLT  XYORYX
+00BA 0509   146         NEG  R9
+00BC 80C4   147  XYORYX C    R4,R3
+00BE 1508   148         JGT  LEEVEM
+00C0 2903   149         XOR  R3,R4
+00C2 28C4   150         XOR  R4,R3
+ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0006
+PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
+
+00C4 2903   151         XOR  R3,R4
+00C6 D160   152         MOVB @NYLOC,R5
+00C8 00B0'
+00CA D1A0   153         MOVB @NXLOC,R6
+00CC 009A'
+00CE 1008   154         JMP  SLOPE
+00D0 D160   155  LEEVEM MOVB @NXLOC,R5
+00D2 00CC'
+00D4 D1A0   156         MOVB @NYLOC,R6
+00D6 00C8'
+00D8 2A89   157         XOR  R9,R10
+00DA 2A4A   158         XOR  R10,R9
+00DC 2A89   159         XOR  R9,R10
+00DE 05CB   160         INCT R11
+00E0 0985   161  SLOPE  SRL  R5,8
+00E2 0986   162         SRL  R6,8
+00E4 0A53   163         SLA  R3,5
+00E6 04C2   164         CLR  R2
+00E8 3C84   165         DIV  R4,R2
+00EA C1C2   166         MOV  R2,R7
+00EC C083   167         MOV  R3,R2
+00EE 04C3   168         CLR  R3
+00F0 1901   169         JNO  DIVLSB
+00F2 1003   170         JMP  SETREM
+00F4 3C84   171  DIVLSB DIV  R4,R2
+00F6 C0C2   172         MOV  R2,R3
+00F8 C087   173         MOV  R7,R2
+00FA 0207   174  SETREM LI   R7,>10
+00FC 0010 
+00FE 04C8   175         CLR  R8
+0100 04CC   176         CLR  R12
+0102 810C   177  PLOTLP C    R12,R4
+0104 1B1D   178         JH   EXIT
+0106 058C   179         INC  R12
+0108 C2CB   180         MOV  R11,R11
+010A 1107   181         JLT  XLESS
+010C D820   182         MOVB @V1R5L,@XLOC
+010E 00B2'
+0110 0094'
+0112 D820   183         MOVB @V1R6L,@YLOC
+0114 0000 
+0116 00A8'
+0118 1006   184         JMP  SCNDRW
+011A D820   185  XLESS  MOVB @V1R6L,@XLOC
+011C 0114'
+011E 0110'
+0120 D820   186         MOVB @V1R5L,@YLOC
+0122 010E'
+0124 0116'
+0126 0410   187  SCNDRW BLWP *R0
+0128 A203   188         A    R3,R8
+012A 1701   189         JNC  NOCARY
+012C 0587   190         INC  R7
+012E A1C2   191  NOCARY A    R2,R7
+0130 0287   192         CI   R7,>20
+0132 0020 
+0134 1A03   193         JL   EXPLOT
+0136 0227   194         AI   R7,->20
+0138 FFE0 
+013A A18A   195         A    R10,R6
+ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0007
+PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
+
+013C A149   196  EXPLOT A    R9,R5
+013E 10E1   197         JMP  PLOTLP
+0140 D820   198  EXIT   MOVB @NXLOC,@XLOC
+0142 00D2'
+0144 011E'
+0146 D820   199         MOVB @NYLOC,@YLOC
+0148 00D6'
+014A 0124'
+014C 0380   200         RTWP
+            201         END
+ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0008
+PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
+
+DIVLSB    00F4'  EOLTST    000C'  ERR37     006E'  ERR48     0072'  
+ERROR     2F80   ERROR2    2FA0   EXIT      0140'  EXPLOT    013C'  
+FGM$      0006R  GETXY     005E'  INITY     00A6'  JMPR0A    000AR  
+LEEVEM    00D0'  LOOKTO    0050'  NLIN      003AR  NOCARY    012E'  
+NXLOC     0142R  NYLOC     0148R  PIXOFF    007CR  PIXON     0086R  
+PLOT      0080D  PLOT1     0088'  PLOTE     0006'  PLOTLP    0102'  
+PLOTY     0004D  PLTE      0038'  PLTO      003C'  R0        0000   
+R1        0001   R10       000A   R11       000B   R12       000C   
+R13       000D   R14       000E   R15       000F   R2        0002   
+R3        0003   R4        0004   R5        0005   R6        0006   
+R7        0007   R8        0008   R9        0009   SCNDRW    0126'  
+SETIT     0034'  SETREM    00FA'  SLOPE     00E0'  UNPLOT    0076D  
+UNPLT     0058'  UPLOTY    0000D  V1R3L     00AAR  V1R4L     0096R  
+V1R5L     0122R  V1R6L     011CR  VDPWP1    0080R  XLESS     011A'  
+XLOC      0144R  XYORYX    00BC'  YLOC      014AR  
+
+0 Errors in assembly

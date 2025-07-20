@@ -1,0 +1,41 @@
+ASM990 2.4.6     RANDOM                     Sun Jul 20 19:28:50 2025 Page 0001
+RANDOM STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT  'RANDOM'
+              3  *
+              4  *
+              5  *
+              6         REF  NLIN              ;EXIT TO MULTIPLEXOR
+              7         DXOP EVFIX,11          ;EVALUATE AND FIX
+              8         REF  RANDS             ;RANDOM NUMBER SEED
+              9  *
+             10         DEF  RANY
+             11  * ABSTRACT:
+             12  *
+             13  *       THE RANDOM COMMAND WILL SET THE RANDOM
+             14  *       SEED.
+             15  *
+             16  * CALLING SEQUENCE:
+             17  *
+             18  *       B @RANY
+             19  *
+             20  *       EXIT TO NLIN
+             21  *
+             22  * EXCEPTIONS AND CONDITIONS:  (NONE)
+             23  *
+             24  *
+0000 2EE0    25  RANY   EVFIX @RANDS           ;GET RANDOM SEED
+0002 0000 
+0004 0460    26         B    @NLIN
+0006 0000 
+             27         END
+ASM990 2.4.6     RANDOM                     Sun Jul 20 19:28:50 2025 Page 0002
+RANDOM STATEMENT - CORTEX BASIC REV. 1.1
+
+NLIN      0006R  R0        0000   R1        0001   R10       000A   
+R11       000B   R12       000C   R13       000D   R14       000E   
+R15       000F   R2        0002   R3        0003   R4        0004   
+R5        0005   R6        0006   R7        0007   R8        0008   
+R9        0009   RANDS     0002R  RANY      0000D  
+
+0 Errors in assembly

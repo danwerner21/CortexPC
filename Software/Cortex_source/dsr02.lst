@@ -1,0 +1,424 @@
+ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0001
+DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
+
+              2         IDT  'DSR02'
+0000          3         RORG
+              4         COPY 'IODEFS.INC'
+ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0002
+DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0003
+DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+              5  *
+              6         DEF  INT4PC,D$RTWP,C10
+              7         REF  MREG13
+ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0004
+DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
+
+              8         REF  BELCNT,RBUFE,CRDELY
+              9         REF  F$WHO,B00,B0D,BFA,CCNT,FFLG
+             10         REF  UNIT,B1B,MODE,STPY,PRDY,ESCFLG
+             11         REF  DEVTBL,IOSTOR,FDCDON,MONTOP
+             12         REF  CMOF$,NEWP,PLF,C1,WPR1
+             13  *
+             14  *   R0
+             15  *   R1
+             16  *   R2
+             17  *   R3      SCRATCH
+             18  *   R4      'LOADPT' OUTPUT BUFFER LOAD PTR
+             19  *   R5
+             20  *   R6      'INPTR ' RECEIVE BUFFER LOAD PTR
+             21  *   R7      'DSRCNT' ACTIVE DSR COUNTER
+             22  *   R8      'RECPTR' RECEIVE UNLOAD POINTER
+             23  *   R9      'TRAP4 ' BAD LEVEL 4 TRAP
+             24  *   R10     POINTER TO UNLOAD POINTER STORAGE
+             25  *   R12     CRUBASE
+             26  *   R13-R15 RTWP VECTORS
+             27  *
+ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0005
+DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
+
+             29  ************************************************************
+             30  *                                                          *
+             31  *            LEVEL 4 INTERRUPT SERVICE ROUTINE             *
+             32  *                                                          *
+             33  ************************************************************
+             34  *
+             35  *  THIS ROUTINE CHECKS FOR :-
+             36  *      1.   KEYBOARD INTERRUPT.
+             37  *      2.   FDC INTERRUPT
+             38  *      3.   ALL 9902 INTERRUPTS
+             39  *      4.   USER LEVEL 4 INTERRUPT TRAP
+             40  *
+0000 020C    41  INT4PC LI   R12,2*KEYBRD      SET CRUBASE TO KEYBOARD DATA
+0002 0010 
+             42  ************************************************************
+             43  *                                                          *
+             44  *            CHECK FOR KEYBOARD INTERRUPT                  *
+             45  *                                                          *
+             46  ************************************************************
+0004 1DF9    47         SBO  KBDACK-KEYBRD     MAKE SURE IT IS ENABLED !!!
+0006 1FFD    48         TB   KBDINT-KEYBRD     KEYBOARD?
+0008 1313    49         JEQ  FDC1              N, CHECK THE FDC
+000A 04CB    50         CLR  R11               Y, READY HOLDING REGISTER
+000C 360B    51         STCR R11,8             GET THE KEYBOARD DATA
+000E 1EF9    52         SBZ  KBDACK-KEYBRD     ACKNOWLEDGE IT
+0010 1DF9    53         SBO  KBDACK-KEYBRD
+0012 028B    54         CI   R11,>FF00         GRAPHIC RUBOUT
+0014 FF00 
+0016 1605    55         JNE  KBDIN             N, NORMAL KEYBOARD INPUT
+0018 0707    56         SETO R7                Y, KILL DSRCNT FLAG
+001A C820    57         MOV  @C1,@UNIT         AND RESET UNIT FLAG TO 1
+001C 0000 
+001E 0000 
+0020 0380    58         RTWP                   AND EXIT 
+             59  *
+0022 C320    60  KBDIN  MOV  @PLF,R12          LOAD/SAVE?
+0024 0000 
+0026 132A    61         JEQ  CHKESC            N, DECODE AS NORMAL
+0028 980B    62         CB   R11,@B1B          Y, ESCAPE?
+002A 0000 
+002C 1339    63         JEQ  ABRTIO            Y, ABORT
+002E 0380    64         RTWP                   N, THROW IT AWAY
+             65  ************************************************************
+             66  *                                                          *
+             67  *            CHECK FOR FDC INTERRUPT                       *
+             68  *                                                          *
+             69  ************************************************************
+0030 1FFC    70  FDC1   TB   FDCINT-KEYBRD     WAS IT THE FDC?
+0032 1306    71         JEQ  POLL02            N, POLL 9902'S
+0034 D820    72         MOVB @B00,@FDC         Y, RESET FDC
+0036 0000 
+0038 F140 
+003A 0720    73         SETO @FDCDON           SET FDC DONE FLAG
+003C 0000 
+003E 0380    74         RTWP
+             75  ************************************************************
+             76  *                                                          *
+             77  *            ALL 9902'S FOR INTERRUPT                      *
+             78  *                                                          *
+             79  ************************************************************
+ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0006
+DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
+
+0040 020A    80  POLL02 LI   R10,IOSTOR        POINT TO I/O STORAGE AREA
+0042 0000 
+0044 020B    81         LI   R11,DEVTBL        POINT TO DEVICE TABLE
+0046 0000 
+0048 0203    82         LI   R3,16             DO 16 DEVICES
+004A 0010 
+     004A'   83  C10    EQU  $-2
+004C C33B    84  NXTENT MOV  *R11+,R12         GET DEVICE ENTRY
+004E 2320    85         COC  @C1,R12           IS IT A 9902?
+0050 001C'
+0052 1604    86         JNE  NXTDEV            N, DO NEXT DEVICE
+0054 024C    87         ANDI R12,>7FFE         Y, ISOLATE CRUBASE
+0056 7FFE 
+0058 1F1F    88         TB   31                THIS ONE?
+005A 1307    89         JEQ  SERV              Y, SERVICE IT
+005C 8EBA    90  NXTDEV C    *R10+,*R10+       SKIP STORAGE AREA
+005E 0603    91         DEC  R3                COUNT DEVICE
+0060 16F5    92         JNE  NXTENT            LOOP TILL ALL DEVICES DONE
+             93  *
+             94  * NON-STANDARD DEVICE INTERRUPT
+             95  *
+0062 C249    96         MOV  R9,R9             TRAP SET?
+0064 1301    97         JEQ  EXIT4             N, IGNORE IT
+0066 0419    98         BLWP *R9               Y, GOTO ROUTINE
+0068 0380    99  EXIT4  RTWP                   EXIT
+            100  *
+            101  * SERVICE 9902 INTERRUPT
+            102  *
+006A 1F10   103  SERV   TB   16                RECEIVE INTERRUPT
+006C 1639   104         JNE  TRYTIM            N, TRY NEXT INTERRUPT SOURCE
+006E 360B   105         STCR R11,8             Y, GET CHARACTER
+0070 1D12   106         SBO  18                RESET RBRL
+0072 1F09   107         TB   9                 WAS THERE AN ERROR ?
+0074 1340   108         JEQ  QUIT              Y, IGNORE IT !
+0076 C2A0   109         MOV  @PLF,R10          N, TEST LOAD/SAVE ?
+0078 0024'
+007A 1626   110         JNE  LOADIN            Y, DO SPECIAL CHECKS
+            111  *
+007C C320   112  CHKESC MOV  @ESCFLG,R12       RUNING WITH NOESC ?
+007E 0000 
+0080 1627   113         JNE  SERV1             Y, DONT CHECK FOR ESCAPE
+0082 980B   114         CB   R11,@B1B          N, WAS IT AN ESCAPE?
+0084 002A'
+0086 1624   115         JNE  SERV1             N, BUFFER IT 
+0088 04E0   116         CLR  @FFLG             Y, RESET FORMATTING FLAG
+008A 0000 
+            117  *
+008C C020   118         MOV  @F$WHO,R0         WHO IS IN CONTROL ?
+008E 0000 
+0090 130C   119         JEQ  ESC0              BASIC, TAKE BASIC EXIT
+0092 0200   120         LI   R0,MREG13         LOAD POINTER TO R13
+0094 0000 
+0096 CC0D   121         MOV  R13,*R0+          COPY CONTEXT
+0098 CC0E   122         MOV  R14,*R0+          COPY CONTEXT 
+009A CC0F   123         MOV  R15,*R0+          COPY CONTEXT
+009C 0460   124         B    @MONTOP           MONITOR, EXIT TO MONTOP
+009E 0000 
+            125  *
+            126  *      ABORT !     IF PLF > +1 THEN DO A NEW
+            127  *
+ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0007
+DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
+
+00A0 C820   128  ABRTIO MOV  @C1,@UNIT         <>0 SET UNIT TO 1
+00A2 0050'
+00A4 001E'
+00A6 060C   129         DEC  R12               ABORT ?
+00A8 150C   130         JGT  DONEW             +VE, DO A 'NEW'
+            131  *
+00AA 020E   132  ESC0   LI   R14,STPY          DEFAULT TO 'STOP'
+00AC 0000 
+00AE C320   133         MOV  @MODE,R12         KEYBOARD MODE?
+00B0 0000 
+00B2 1602   134         JNE  ESC2              N, EXIT SET UP
+00B4 020E   135  ESC1   LI   R14,PRDY          Y, EXIT TO PRDY
+00B6 0000 
+00B8 020D   136  ESC2   LI   R13,WPR1          SET MAIN WORKSPACE
+00BA 0000 
+00BC 03C0   137         CKOF                   MAKE SURE MAPPER IS OFF
+00BE 0000   138         DATA CMOF$             TURN OFF THE TAPE
+00C0 0380   139         RTWP
+00C2 020E   140  DONEW  LI   R14,NEWP          DO A NEW
+00C4 0000 
+00C6 10F8   141         JMP  ESC2
+            142  *
+            143  *    9902  CHARACTER RECEIVED DURING LOAD/SAVE
+            144  *
+00C8 1116   145  LOADIN JLT  QUIT                 SAVE   - THROW IT AWAY
+00CA 028C   146         CI   R12,2*CASS02         LOAD   - FROM CASSETTE ?
+00CC 0180 
+00CE 1613   147         JNE  QUIT                          N, THROW IT THEN !
+            148  *                                         Y, STORE IT
+            149  *
+00D0 0286   150  SERV1  CI   R6,RBUFE          OFF BUFFER?
+00D2 0000 
+00D4 1402   151         JHE  BEEP              Y, THROW CHARACTER AWAY
+00D6 DD8B   152         MOVB R11,*R6+          N, SAVE IT
+00D8 0380   153         RTWP                   TERMINATE
+00DA 0720   154  BEEP   SETO @BELCNT           BEEP !!
+00DC 0000 
+00DE 0380   155         RTWP
+            156  *
+00E0 1F13   157  TRYTIM TB   19                TIMER?
+00E2 160A   158         JNE  TRYDSC            N, TRY NEXT INTERRUPT SOURCE
+00E4 1E14   159         SBZ  20                Y, DISABLE TIMER INTERRUPTS
+00E6 1F17   160         TB   23                XSRE ?
+00E8 1605   161         JNE  ENBTIM            N, DON'T START COUNT YET
+00EA 1F16   162         TB   22                Y, XBRE ?
+00EC 1603   163         JNE  ENBTIM            N, DON'T COUNT YET
+00EE 062A   164         DEC  @2(10)            DECREMENT CR DELAY
+00F0 0002 
+00F2 1111   165         JLT  DONE              TIME UP, CONTINUE OUTPUT
+00F4 1D14   166  ENBTIM SBO  20                RE-ENABLE TIMER
+00F6 0380   167  QUIT   RTWP                   EXIT
+            168  *
+00F8 1F14   169  TRYDSC TB   20                DSCH INTERRUPT
+00FA 1606   170         JNE  TRYXMT            N, TRY TRANSMITTER INTERRUPT
+00FC 1E15   171         SBZ  21                Y, DISABLE DSCH INTERRUPTS
+00FE 1007   172         JMP  SETREQ            SET UP PTRS AND CHECK DSR  
+            173  *
+0100 1F1B   174  DSR    TB   27                ONLINE?
+0102 1313   175         JEQ  OUTPUT            Y, OUT CHARACTER
+0104 1D15   176         SBO  21                N, ENABLE DSCH INTERRUPTS
+ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0008
+DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
+
+0106 0380   177         RTWP                   EXIT
+            178  *
+            179  *
+0108 1F16   180  TRYXMT TB   22                XBRE INTERRUPT ?
+010A 16F5   181         JNE  QUIT              N, GLITCH
+010C 1E13   182         SBZ  19                DISABLE XBRE INTERRUPTS
+010E C0CB   183  SETREQ MOV  R11,R3            Y, SAVE DEVTBL INDEX REG.
+0110 C2EA   184         MOV  @2(10),R11        CR DELAY SET?
+0112 0002 
+0114 1505   185         JGT  SETTIM            Y, SET TIMER
+            186  *                             N, FALL THROUGH TO DONE
+0116 C2DA   187  DONE   MOV  *R10,R11          GET UNLOAD POINTER
+0118 810B   188         C    R11,R4            DONE
+011A 12F2   189         JLE  DSR               N, CHECK FOR ONLINE
+011C 0607   190         DEC  R7                Y, FLAG DSR TERMINATED
+011E 0380   191  D$RTWP RTWP                   EXIT
+            192  *
+0120 1D0D   193  SETTIM SBO  13                SET LDIR FLAG
+0122 3220   194         LDCR @BFA,8            LOAD TIMER
+0124 0000 
+0126 1D14   195         SBO  20                Y, START TIMER
+0128 0380   196         RTWP                   EXIT
+            197  *
+012A 1D10   198  OUTPUT SBO  16                RTS ON
+012C 321B   199         LDCR *R11,R8           SEND CHARACTER
+012E 028C   200         CI   R12,2*CASS02      IS IT THE CASSETTE PORT ?
+0130 0180 
+0132 1301   201         JEQ  OPT1              Y, LEAVE RTS ALONE
+0134 1E10   202         SBZ  16                N, TURN RTS OFF
+0136 983B   203  OPT1   CB   *R11+,@B0D        CR ?
+0138 0000 
+013A 1608   204         JNE  XMTEN             N, UPDATE POINTER
+013C 04E0   205         CLR  @CCNT             Y, RESET COLUMN COUNTER
+013E 0000 
+0140 C0E3   206         MOV  @-2(R3),R3        FETCH DEVICE ENTRY
+0142 FFFE 
+0144 1503   207         JGT  XMTEN             +VE, NO CR DELAY
+0146 CAA0   208         MOV  @CRDELY,@2(10)    Y, LOAD CR DELAY COUNT
+0148 0000 
+014A 0002 
+014C C68B   209  XMTEN  MOV  R11,*R10          UPDATE UNLOAD POINTER
+014E 1D13   210         SBO  19                ENABLE XBRE INTERRUPTS
+0150 0380   211         RTWP                   EXIT
+            212         END
+ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0009
+DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
+
+ABRTIO   00A0'  B00      0036R  B0D      0138R  B1B      0084R  BEEP     00DA'  
+BELCNT   00DCR  BELLON   0006   BFA      0124R  BTENBL   0003   BUSACK   0002   
+BUSINT   0007   C1       00A2R  C10      004AD  CASS02   00C0   CCNT     013ER  
+CHKESC   007C'  CLKLED   0000   CMOF$    00BER  CRDELY   0148R  CTBA     0700   
+CTBA1    2000   D$RTWP   011ED  D1$DEN   0003   D1$SIZ   0002   DEVTBL   0046R  
+DMAC     00E0   DONE     0116'  DONEW    00C2'  DRVSIZ   0004   DSR      0100'  
+EDATA    0208   EIA02    0040   ENBTIM   00F4'  EPADR    0210   EPTYPE   0201   
+ESC0     00AA'  ESC1     00B4'  ESC2     00B8'  ESCFLG   007ER  EXIT4    0068'  
+F$WHO    008ER  FDC      F140   FDC1     0030'  FDCDON   003CR  FDCINT   0004   
+FFLG     008AR  INT4PC   0000D  IOSTOR   0042R  KBDACK   0001   KBDIN    0022'  
+KBDINT   0005   KDS      0000   KEYBRD   0008   LOADIN   00C8'  M$REG0   F100   
+M$REG1   F102   M$REG2   F104   M$REG3   F106   M$REG4   F108   M$REG5   F10A   
+M$REG6   F10C   M$REG7   F10E   M$REG8   F110   M$REG9   F112   M$REGA   F114   
+M$REGB   F116   M$REGC   F118   M$REGD   F11A   M$REGE   F11C   M$REGF   F11E   
+MAPPER   F100   MODE     00B0R  MONTOP   009ER  MREG13   0094R  NEWP     00C4R  
+NTBA     0400   NTBA1    1800   NXTDEV   005C'  NXTENT   004C'  OPT1     0136'  
+OUTPUT   012A'  PGBA     0800   PGM      0205   PGMPUL   0206   PGTBA1   0000   
+PIO      0000   PLF      0078R  POLL02   0040'  PPBUSY   0409   PPDS     0408   
+PPRINT   0400   PRDY     00B6R  PRMPOP   0200   PROERR   0206   PRORDY   0204   
+PRORST   0200   QUIT     00F6'  R0       0000   R1       0001   R10      000A   
+R11      000B   R12      000C   R13      000D   R14      000E   R15      000F   
+R2       0002   R3       0003   R4       0004   R5       0005   R6       0006   
+R7       0007   R8       0008   R9       0009   RBUFE    00D2R  ROMON    0005   
+SERV     006A'  SERV1    00D0'  SETREQ   010E'  SETTIM   0120'  SNTBA    0780   
+SNTBA1   1B00   SPGBA    0000   SPGBA1   3800   STPY     00ACR  TRYDSC   00F8'  
+TRYTIM   00E0'  TRYXMT   0108'  UNIT     00A4R  V30      0207   VCCON    0204   
+VDP      F120   VDPINT   0006   VDPREG   F121   VRAM     F120   WPR1     00BAR  
+XMTEN    014C'  
+
+0 Errors in assembly

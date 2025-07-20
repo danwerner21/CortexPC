@@ -1,0 +1,26 @@
+MODEL	= TI990
+
+CC	=  cc
+CFLAGS	= -O -D${MODEL} ${DEBUG} -I../v6
+
+EXES = glob init mkfs mknod mount umount wall
+
+all: ${EXES}
+
+clean:
+	rm -f *.o ${EXES}
+
+glob:	glob.c
+	$(CC) ${CFLAGS} -o glob glob.c
+init:	init.c
+	$(CC) ${CFLAGS} -o init init.c
+mkfs:	mkfs.c
+	$(CC) ${CFLAGS} -o mkfs mkfs.c divrem.s
+mknod:	mknod.c
+	$(CC) ${CFLAGS} -o mknod mknod.c
+mount:	mount.c
+	$(CC) ${CFLAGS} -o mount mount.c
+umount:	umount.c
+	$(CC) ${CFLAGS} -o umount umount.c
+wall:	wall.c
+	$(CC) ${CFLAGS} -o wall wall.c

@@ -1,0 +1,22 @@
+.th TOUCH 1 
+.sh NAME
+touch \- update date last modified of a file
+.sh SYNOPSIS
+.bd touch
+[
+.bd \-c
+]
+file ...
+.sh DESCRIPTION
+.it Touch
+attempts to set the modified date of each
+.it file.
+This is done by reading a character from the file
+and writing it back.
+.pp
+If a
+.it file
+does not exist,
+an attempt will be made to create it unless the
+.bd \-c
+option is specified.

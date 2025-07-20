@@ -1,0 +1,56 @@
+ASM990 2.4.6     NUMBER                     Sun Jul 20 19:28:49 2025 Page 0001
+NUMBER - CORTEX BASIC REV 1.1
+
+              2         IDT  'NUMBER'
+              3  *
+              4         DEF  NUMY,D100,D10,C000A
+              5  *
+              6         REF  MODEOK,AINC,CRLF,LNUM
+              7  *
+     2F80     8  ERROR  EQU  >2F80             USER ERROR
+     2FA0     9  ERROR2 EQU  ERROR+>20
+             10         DXOP EVFIX,11
+             11  *
+             12  *  SET AUTO-INCREMENT
+             13  *
+             14  *
+0000 06A0    15  NUMY   BL   @MODEOK           ;ABORT IF RUNNING !
+0002 0000 
+0004 D018    16         MOVB *R8,R0            ;PARAMETERS
+0006 130C    17         JEQ  NUM2              ;N
+0008 2EE0    18         EVFIX @LNUM            ;Y, GET START
+000A 0000 
+000C 0280    19         CI   R0,>3F00          ;,?
+000E 3F00 
+0010 160B    20         JNE  NUM3              ;N
+0012 2EC1    21         EVFIX R1               ;GET AUTO INCREMENT
+0014 C801    22  NUM1   MOV  R1,@AINC          ;SAVE AINC
+0016 0000 
+0018 6801    23         S    R1,@LNUM          ;SUBTRACT INC FROM START VALUE
+001A 000A'
+001C 0460    24         B    @CRLF             ;RETURN
+001E 0000 
+0020 0201    25  NUM2   LI   R1,100
+0022 0064 
+     0022'   26  D100   EQU  $-2
+0024 C801    27         MOV  R1,@LNUM          ;SET DEFAULT START #
+0026 001A'
+0028 0201    28  NUM3   LI   R1,10
+002A 000A 
+     002A'   29  D10    EQU  $-2
+     002A'   30  C000A  EQU  D10
+002C 10F3    31         JMP  NUM1
+             32         END
+ASM990 2.4.6     NUMBER                     Sun Jul 20 19:28:49 2025 Page 0002
+NUMBER - CORTEX BASIC REV 1.1
+
+AINC      0016R  C000A     002AD  CRLF      001ER  D10       002AD  
+D100      0022D  ERROR     2F80   ERROR2    2FA0   LNUM      0026R  
+MODEOK    0002R  NUM1      0014'  NUM2      0020'  NUM3      0028'  
+NUMY      0000D  R0        0000   R1        0001   R10       000A   
+R11       000B   R12       000C   R13       000D   R14       000E   
+R15       000F   R2        0002   R3        0003   R4        0004   
+R5        0005   R6        0006   R7        0007   R8        0008   
+R9        0009   
+
+0 Errors in assembly

@@ -1,0 +1,181 @@
+ASM990 2.4.6     CENTRON                    Sun Jul 20 19:28:48 2025 Page 0001
+CENTRONICS PRINTER DRIVER - CORTEX BASIC REV. 1.1
+
+              2         IDT  'CENTRON'
+              3         COPY 'IODEFS.INC'  
+ASM990 2.4.6     CENTRON                    Sun Jul 20 19:28:48 2025 Page 0002
+CENTRONICS PRINTER DRIVER - CORTEX BASIC REV. 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     CENTRON                    Sun Jul 20 19:28:48 2025 Page 0003
+CENTRONICS PRINTER DRIVER - CORTEX BASIC REV. 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+              4  *
+              5         DEF  CENTRO
+              6  * 
+ASM990 2.4.6     CENTRON                    Sun Jul 20 19:28:48 2025 Page 0004
+CENTRONICS PRINTER DRIVER - CORTEX BASIC REV. 1.1
+
+              7         REF  WP9928
+              8  *
+              9  *         R9   = OUTPUT BUFFER START
+             10  *         R10  = OUTPUT BUFFER END
+             11  *         R11  = POINTER TO LOCAL STORAGE
+             12  *         R13-15 RETURN CONTEXT
+             13  *
+0000 0000    14  CENTRO DATA WP9928,$+2
+0004 020C    15         LI   R12,2*PPRINT      POINT TO THE PARALLEL PRINTER
+0006 0800 
+             16  *
+0008 8289    17  DONE   C    R9,R10            DONE?
+000A 1B06    18         JH   EXIT
+             19  *
+000C 1F09    20  OUTCHR TB   PPBUSY-PPRINT     BUSY?
+000E 13FE    21         JEQ  OUTCHR            Y, LOOP
+             22  *
+0010 3239    23         LDCR *R9+,8            OUTPUT DATA 
+0012 1D08    24         SBO  PPDS-PPRINT       DATA STROBE =1
+0014 1E08    25         SBZ  PPDS-PPRINT       DATA STROBE =0
+0016 10F8    26         JMP  DONE
+             27  *
+0018 0380    28  EXIT   RTWP
+             29         END
+ASM990 2.4.6     CENTRON                    Sun Jul 20 19:28:48 2025 Page 0005
+CENTRONICS PRINTER DRIVER - CORTEX BASIC REV. 1.1
+
+BELLON   0006   BTENBL   0003   BUSACK   0002   BUSINT   0007   CASS02   00C0   
+CENTRO   0000D  CLKLED   0000   CTBA     0700   CTBA1    2000   D1$DEN   0003   
+D1$SIZ   0002   DMAC     00E0   DONE     0008'  DRVSIZ   0004   EDATA    0208   
+EIA02    0040   EPADR    0210   EPTYPE   0201   EXIT     0018'  FDC      F140   
+FDCINT   0004   KBDACK   0001   KBDINT   0005   KDS      0000   KEYBRD   0008   
+M$REG0   F100   M$REG1   F102   M$REG2   F104   M$REG3   F106   M$REG4   F108   
+M$REG5   F10A   M$REG6   F10C   M$REG7   F10E   M$REG8   F110   M$REG9   F112   
+M$REGA   F114   M$REGB   F116   M$REGC   F118   M$REGD   F11A   M$REGE   F11C   
+M$REGF   F11E   MAPPER   F100   NTBA     0400   NTBA1    1800   OUTCHR   000C'  
+PGBA     0800   PGM      0205   PGMPUL   0206   PGTBA1   0000   PIO      0000   
+PPBUSY   0409   PPDS     0408   PPRINT   0400   PRMPOP   0200   PROERR   0206   
+PRORDY   0204   PRORST   0200   R0       0000   R1       0001   R10      000A   
+R11      000B   R12      000C   R13      000D   R14      000E   R15      000F   
+R2       0002   R3       0003   R4       0004   R5       0005   R6       0006   
+R7       0007   R8       0008   R9       0009   ROMON    0005   SNTBA    0780   
+SNTBA1   1B00   SPGBA    0000   SPGBA1   3800   V30      0207   VCCON    0204   
+VDP      F120   VDPINT   0006   VDPREG   F121   VRAM     F120   WP9928   0000R  
+
+
+0 Errors in assembly

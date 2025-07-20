@@ -1,0 +1,191 @@
+ASM990 2.4.6     SIZE                       Sun Jul 20 19:28:50 2025 Page 0001
+SIZE COMMAND - CORTEX BASIC REV. 1.1
+
+              2         IDT  'SIZE'
+              3  *
+              4  * DEFINE FLOATING POINT XOPS
+              5  *
+              6         DXOP LOADF,0           LOAD FPAC
+              7         DXOP STORE,1           STORE FPAC
+              8         DXOP FADD,2            ADD TO FPAC
+              9         DXOP FSUB,3            SUBTRACT FROM FPAC
+             10         DXOP FMUL,4            MULTIPLY FPAC
+             11         DXOP FDIV,5            DIVIDE FPAC
+             12         DXOP SCALE,6           SCALE FPAC
+             13         DXOP NORMAL,7          NORMALIZE FPAC
+             14         DXOP CLEAR,8           CLEAR FPAC
+             15         DXOP NEGATE,9          NEGATE FPAC
+             16         DXOP FLOATF,10         FLOAT FPAC
+             17         DXOP EVFIX,11          EVALUATE AND FIX
+             18         DXOP OUTFP,12          OUT FLOATING POINT #
+             19         DXOP OUTINT,13         OUT INTEGER
+     2F80    20  ERROR  EQU  >2F80             XOP XX,14  (ERROR CALL)
+     2FA0    21  ERROR2 EQU  ERROR+>20
+             22  *
+             23         DEF  SIZE,EVENRT
+             24         DEF  OUTR1U,MOVEB,MOVEL
+             25         DEF  MOVEBN,MOVELN
+             26         REF  VDT,BUS,NVS,NVD,VNT
+             27         REF  CRLF,TYPBE$,RTSTOR
+             28         REF  FPAC,C4A00,IOB
+             29  *
+             30  * SIZE ROUTINE
+             31  *
+0000 06A0    32  SIZE   BL   @MOVEBN           ;OUT 'PRGM:'
+0002 009C'
+0004 0A0D    33         DATA >0A0D
+0006 50      34         TEXT -'PRGM:'
+0007 52   
+0008 47   
+0009 4D   
+000A C6   
+000C C060    35         MOV  @NVD,R1           ;PRGM=((NVD-VDT)+VNT)-BUS
+000E 0000 
+0010 6060    36         S    @VDT,R1
+0012 0000 
+0014 A060    37         A    @VNT,R1
+0016 0000 
+0018 6060    38         S    @BUS,R1
+001A 0000 
+001C 06A0    39         BL   @OUTR1U           OUT R1 UNSIGNED
+001E 0064'
+0020 06A0    40         BL   @MOVBY            ;OUT 'BYTES'+'VARS:'
+0022 0078'
+0024 56      41         TEXT -'VARS:'
+0025 41   
+0026 52   
+0027 53   
+0028 C6   
+002A C060    42         MOV  @IOB,R1           ;VARS=IOB-NVS+NVD-VDT
+002C 0000 
+002E 6060    43         S    @NVS,R1
+0030 0000 
+0032 A060    44         A    @NVD,R1
+ASM990 2.4.6     SIZE                       Sun Jul 20 19:28:50 2025 Page 0002
+SIZE COMMAND - CORTEX BASIC REV. 1.1
+
+0034 000E'
+0036 6060    45         S    @VDT,R1
+0038 0012'
+003A 0221    46         AI   R1,-8             ;REMOVE EPROM OVERHEAD
+003C FFF8 
+003E 06A0    47         BL   @OUTR1U           OUR R1 UNSIGNED
+0040 0064'
+0042 06A0    48         BL   @MOVBY
+0044 0078'
+0046 46      49         TEXT -'FREE:'
+0047 52   
+0048 45   
+0049 45   
+004A C6   
+004C C060    50         MOV  @NVS,R1           ;FREE=NVS-NVD
+004E 0030'
+0050 6060    51         S    @NVD,R1
+0052 0034'
+             52  *
+0054 06A0    53  SIZE1  BL   @OUTR1U           ;OUT R1 UNSIGNED
+0056 0064'
+0058 06A0    54         BL   @MOVBY
+005A 0078'
+005C 00      55         BYTE 0                 ;NO FOLLOWING TEXT
+005E         56         EVEN
+005E 0000    57         DATA TYPBE$            ;OUTPUT BUFFER
+0060 0460    58         B    @CRLF             ;EXIT
+0062 0000 
+             59  *
+             60  *       OUT R1 UNSIGNED     USES R0
+             61  *
+0064 0200    62  OUTR1U LI   R0,FPAC           GET THE FPAC
+0066 0000 
+0068 CC20    63         MOV  @C4A00,*R0+       SET EXPONENT
+006A 0000 
+006C 04F0    64         CLR  *R0+              RESET 2ND WRD
+006E C401    65         MOV  R1,*R0            LOAD UP R1
+0070 2DC0    66         NORMAL R0              NORMALISE IT
+0072 2F20    67         OUTFP @FPAC            OUT THE FPAC
+0074 0066'
+0076 045B    68         RT                     EXIT
+             69  *
+             70  * OUT 'Bytes<CR><LF>'    THEN INLINE TEXT
+             71  *                             (-VE/NULL TERMINATOR)
+             72  *
+0078 C04B    73  MOVBY  MOV  R11,R1            SAVE RETURN
+007A 06A0    74         BL   @MOVELN           OUT 'BYTES'
+007C 00A0'
+007E 20      75         TEXT ' Bytes'
+007F 42   
+0080 79   
+0081 74   
+0082 65   
+0083 73   
+0084 0D      76         BYTE >0D,->0A
+0086 C2C1    77         MOV  R1,R11            RESTORE RETURN ADDRESS
+0088 100B    78         JMP  MOVELN            & OUT INLINE TEXT
+ASM990 2.4.6     SIZE                       Sun Jul 20 19:28:50 2025 Page 0003
+SIZE COMMAND - CORTEX BASIC REV. 1.1
+
+             80  *
+             81  * MOVE STRING ROUTINES - NULL TERMINATOR
+             82  *
+             83  *       BL @MOVEB       MOVE INTO IOB
+             84  *       BL @MOVEL       MOVE INTO R7
+             85  *
+             86  *       IN  0(11) = STRING
+             87  *              R7 = OBC
+             88  *       OUT    R7 = UPDATED OBC
+             89  *
+008A C1E0    90  MOVEB  MOV  @IOB,R7           GET BUFFER ADR
+008C 002C'
+008E DDFB    91  MOVEL  MOVB *R11+,*R7+        MOVE CHARACTER
+0090 16FE    92         JNE  $-2               UNTIL NULL
+0092 0607    93  NTERM  DEC  R7                BACKUP OVER NULL
+             94  *
+             95  * FORCE THE RETURN ADDRESS TO AN EVEN WORD BOUNDARY
+             96  *
+0094 058B    97  EVENRT INC  R11
+0096 024B    98         ANDI R11,>FFFE
+0098 FFFE 
+009A 045B    99         RT
+            100  *
+            101  * MOVE STRING ROUTINES  - NULL/NEGATED CHARACTER TERMINATION
+            102  *
+            103  *       BL @MOVEBN      MOVE INTO IOB
+            104  *       BL @MOVELN      MOVE INTO R7
+            105  *
+            106  *       IN  0(11) = STRING
+            107  *              R7 = OBC
+            108  *       OUT    R7 = UPDATED OBC
+            109  *
+009C C1E0   110  MOVEBN MOV  @IOB,R7           GET BUFFER ADR
+009E 008C'
+00A0 DDFB   111  MOVELN MOVB *R11+,*R7+        MOVE CHARACTER
+00A2 13F7   112         JEQ  NTERM             NULL, TERMINATE
+00A4 15FD   113         JGT  MOVELN            +VE, CONTINUE COPY
+            114  * R7 NOW POINTS TO THE BYTE AFTER THE STRING END
+00A6 C80B   115         MOV  R11,@RTSTOR       SAVE R11
+00A8 0000 
+00AA 04CB   116         CLR  R11               READY R11
+00AC D2E7   117         MOVB @-1(R7),R11       GET BACK THE CHARACTER
+00AE FFFF 
+00B0 050B   118         NEG  R11               NEGATE IT TO GET REAL VALUE
+00B2 D9CB   119         MOVB R11,@-1(R7)       RE-STORE IT
+00B4 FFFF 
+00B6 C2E0   120         MOV  @RTSTOR,R11       GET RETURN ADDRESS
+00B8 00A8'
+00BA 10EC   121         JMP  EVENRT            EXIT
+            122         END
+ASM990 2.4.6     SIZE                       Sun Jul 20 19:28:50 2025 Page 0004
+SIZE COMMAND - CORTEX BASIC REV. 1.1
+
+BUS        001AR  C4A00      006AR  CRLF       0062R  ERROR      2F80   
+ERROR2     2FA0   EVENRT     0094D  FPAC       0074R  IOB        009ER  
+MOVBY      0078'  MOVEB      008AD  MOVEBN     009CD  MOVEL      008ED  
+MOVELN     00A0D  NTERM      0092'  NVD        0052R  NVS        004ER  
+OUTR1U     0064D  R0         0000   R1         0001   R10        000A   
+R11        000B   R12        000C   R13        000D   R14        000E   
+R15        000F   R2         0002   R3         0003   R4         0004   
+R5         0005   R6         0006   R7         0007   R8         0008   
+R9         0009   RTSTOR     00B8R  SIZE       0000D  SIZE1      0054'  
+TYPBE$     005ER  VDT        0038R  VNT        0016R  
+
+0 Errors in assembly

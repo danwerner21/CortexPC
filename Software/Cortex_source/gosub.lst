@@ -1,0 +1,274 @@
+ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0001
+GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
+
+              2          IDT  'GOSUB'
+              3  *
+              4  * ROUTINE LIST:
+              5  *
+              6  *       GOTY            ;GOTO COMMAND
+              7  *       GOSY            ;GOSUB COMMAND
+              8  *       RTNY            ;RETURN COMMAND
+              9  *       POPY            ;POP COMMAND
+             10  *
+             11  * EXTERNAL ROUTINES:
+             12  *
+             13          REF SFSN,CRLF,SLN
+             14          REF LINE0,LINE2,LINE5,NLIN0
+             15          DXOP EVFIX,11
+     2F80    16  ERROR   EQU >2F80        XOP XX,14  (ERROR CALL)
+     2FA0    17  ERROR2  EQU ERROR+>20
+             18  *
+             19  * EXTERNAL DATA:
+             20  *
+             21          REF ELNM        ;ERROR LINE NUMBER
+             22          REF FNS         ;FOR/NEXT STACK
+             23          REF GSC         ;GOSUB STACK COUNTER
+             24          REF GSS         ;GOSUB STACK
+             25          REF PLC         ;PROGRAM LINE COUNTER
+             26          REF SLT         ;STATEMENT LOCATION TABLE
+             27          REF BUS         ;BEGINNING USER STORAGE
+             28          REF C4          ;>0004
+             29  *
+             30  * ABSTRACT:
+             31  *
+             32  * EXECUTE GOTO, GOSUB AND SYSTEM GOSUB COMMANDS.
+             33  * PROVIDE FOR ON COMMAND
+             34  *
+             35  *       STACK FORMAT:   PLC
+             36  *                       PBC
+             37  *
+             38  *                       PLC
+             39  *                       PBC
+             40  *
+             41  *                       ...
+             42  *
+             43  * IF PBC = 0, GOTO NEXT LINE, OTHERWISE CONTINUE EXECUTION ON
+             44  * THE SAME LINE AS THE CALL WAS MADE (NEEDED FOR ON COMMAND TO
+             45  * ENSURE YOU DO NOT JUMP BACK INTO THE PARAMETER LIST.)
+             46  *
+             47  * CALLING SEQUENCE:
+             48  *
+             49  *       B @GOSB1
+             50  *       B @GOSY
+             51  *       B @GOTY
+             52  *
+             53  *       EXIT TO LINE0 IN DEMULTIPLEXOR (RUN)
+             54  *
+             55  * EXCEPTIONS AND CONDITIONS:
+             56  *
+             57  *       STACK OVERFLOW
+             58  *       STACK UNDERFLOW
+             59  *       NO SUCH LINE #
+             60  *
+ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0002
+GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
+
+             62  *
+             63  * ENTRY POINT:
+             64  *
+             65          DEF GOSY        ;GOSUB COMMAND
+             66          DEF GOS1,GOS2
+             67          DEF GOSB1       ;SYSTEM ENTRY
+             68          DEF GOSON       ;ON COMMAND ENTRY
+             69          DEF GOTY        ;GOTO ENTRY
+             70  *
+             71  * ENTRY FOR INPUT ERROR HANDLER/ERRECOVY
+             72  *
+0000 C160    73  GOSB1   MOV  @PLC,R5          GET ADDRESS OF CURRENT LINE
+0002 0000 
+0004 C825    74          MOV  @-2(5),@ELNM     GET ERROR LINE #
+0006 FFFE 
+0008 0000 
+000A 04C6    75          CLR  R6               SET FOR FIRST OF NEXT LINE
+000C 102A    76          JMP  GOS1A
+             77  *
+             78  * ENTRY FOR CONT (EDIT)
+             79  *
+000E C160    80  GOS2    MOV  @PLC,R5          GET ADDRESS OF CURRENT LINE
+0010 0002'
+0012 1031    81          JMP  GOS2A
+             82  *
+             83  * INTERRUPT ENTRY POINT (RUN)
+             84  *
+0014 C160    85  GOS1    MOV  @PLC,R5          GET ADDRESS OF CURRENT LINE
+0016 0010'
+0018 1024    86          JMP  GOS1A
+             87  *
+             88  * GOTO ENTRY - CHECK SYNTAX (VALID TERMINATOR?)
+             89  *
+001A 04C3    90  GOTY    CLR  R3         INDICATE A GOTO             JG 12/1/82
+001C 1001    91          JMP  GOSYA
+             92  *
+             93  * GOSUB ENTRY - CHECK SYNTAX (VALID TERMINATOR?)
+             94  *
+001E 0703    95  GOSY    SETO R3         INDICATE A GOSUB            JG 12/1/82
+0020 C188    96  GOSYA   MOV R8,R6             ;SET TO SAVE PBC
+0022 05C6    97          INCT R6
+0024 04C0    98          CLR R0
+0026 D036    99          MOVB *R6+,R0          ;GET DELIMITER
+0028 1306   100            JEQ GOSY1           ;EOL
+002A 0280   101          CI R0,>3C00           ;::?
+002C 3C00 
+002E 1313   102            JEQ GOSON1    ;Y                          JG 02/3/82
+0030 0280   103          CI R0,>4700           ;!?
+0032 4700 
+0034 1628   104          JNE  GOSYE            ;N - ERROR
+            105  *
+            106  * ON ENTRY POINT - IGNORE REST OF THE LINE
+            107  *
+     0036'  108  GOSON   EQU  $                                      JG 12/1/82
+0036 C160   109  GOSY1   MOV  @PLC,R5  SAVE ADD OF CURRENT STMT # JG 12/1/   82
+0038 0016'
+003A 130D   110          JEQ  GOSON1      ENTERED FROM KEYBOARD MODE? JG 15/1/82
+003C C0C3   111          MOV  R3,R3       N - GOTO?                  JG 12/1/82
+003E 130B   112          JEQ  GOSON1      Y                          JG 12/1/82
+            113  *
+ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0003
+GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
+
+            114  * GOSUB - NOTHING FOLLOWING STATEMENT - GET PBC OF NEXT LINE
+            115  *
+0040 C185   116          MOV  R5,R6      GOTO NEXT STATMENT          JG 12/1/82
+0042 0226   117          AI R6,-4
+0044 FFFC 
+0046 8806   118          C R6,@SLT    ;DONE?
+0048 0000 
+004A 1A19   119            JL GOS6A       Y - SET PBC=0              JG 12/1/82
+004C C806   120          MOV R6,@PLC  ;N, UPDATE
+004E 0038'
+0050 C196   121          MOV *R6,R6
+0052 A1A0   122          A @BUS,R6
+0054 0000 
+0056 D078   123  GOSON1  MOVB *R8+,R1     GET LINE NUMBER
+0058 06C1   124          SWPB R1
+005A D078   125          MOVB *R8+,R1
+005C 06C1   126          SWPB R1
+005E 0922   127          SRL  R2,2        GOTO?
+0060 130A   128          JEQ  GOS2A
+0062 C0E0   129  GOS1A   MOV  @GSC,R3  N - GOSUB
+0064 0000 
+0066 8803   130          C R3,@FNS    ;ROOM?
+0068 0000 
+006A 140B   131            JHE ERR11     ;N, ERROR
+006C CCC6   132          MOV R6,*R3+     ;Y, SAVE PBC OR NULL AND PLC
+006E CCE0   133          MOV @PLC,*R3+
+0070 004E'
+0072 C803   134          MOV R3,@GSC  ;UPDATE GSC
+0074 0064'
+0076 06A0   135  GOS2A   BL  @SFSN        SEARCH FOR STATEMENT #
+0078 0000 
+007A 0460   136          B   @LINE0
+007C 0000 
+            137  *
+007E 04C6   138  GOS6A   CLR  R6          PBC=0                      JG 12/1/82
+0080 10EA   139          JMP  GOSON1                                 JG 12/1/82
+            140  *
+0082 2F8B   141  ERR11   DATA ERROR+11   ;STACK OVERFLOW
+0084 2F8C   142  ERR12   DATA ERROR+12   ;STACK UNDERFLOW
+0086 2FA0   143  GOSYE   DATA ERROR2,37  ILLEGAL DELIMITER
+ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0004
+GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
+
+            145  *
+            146  * ABSTRACT:
+            147  *
+            148  * POPS THE RETURN ADDRESS FROM THE GOSUB STACK (GSS) AND
+            149  * EFFECTS A TRANSFER TO THAT POPPED ADDRESS. IF THE
+            150  * UNSTACKED PLC = 0 THEN IT INDICATES THAT THE GOSUB WAS
+            151  * ENTERED DIRECTLY FROM KEYBOARD MODE.  IF THE PBC <> 0
+            152  * THEN AN EXIT IS MADE TO THE LINE DEMULTIPLEXER; OTHERWISE
+            153  * A NEW STATMENT LINE IS INTERPRETED.
+            154  *
+            155  * CALLING SEQUENCE:
+            156  *
+            157  *       B @RTNY
+            158  *
+            159  *       EXIT TO MULTIPLEXOR
+            160  *
+            161  * EXCEPTIONS AND CONDITIONS:
+            162  *
+            163  *       STACK UNDERFLOW
+            164  *
+            165  * ENTRY POINT:
+            166  *
+            167          DEF RTNY
+            168  *
+008A C0E0   169  RTNY    MOV  @GSC,R3  ;SEE IF STACK EMPTY
+008C 0074'
+008E 8803   170          C    R3,@GSS  ;EMPTY?
+0090 0000 
+0092 12F8   171          JLE  ERR12        Y
+0094 0643   172          DECT R3           N, POP PLC
+0096 C153   173          MOV  *R3,R5     
+0098 0643   174          DECT R3           POP PBC
+009A C803   175          MOV  R3,@GSC      UPDATE GSC
+009C 008C'
+009E C805   176          MOV  R5,@PLC      UPDATE THE PLC
+00A0 0070'
+00A2 1309   177          JEQ  RTRN3        0 - KEYBOARD MODE WHEN STACKED 
+00A4 C825   178          MOV  @-2(R5),@SLN UPDATE SLN
+00A6 FFFE 
+00A8 0000 
+00AA C213   179          MOV  *R3,R8       ;GET PBC
+00AC 1302   180          JEQ  RTRN2        ;0, GOTO NEXT LINE (ON)
+00AE 0460   181          B    @LINE2
+00B0 0000 
+            182  *
+00B2 0460   183  RTRN2   B    @LINE5
+00B4 0000 
+            184  *
+00B6 0460   185  RTRN3   B    @CRLF       RETURN TO INTERPRETER LOOP 
+00B8 0000 
+ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0005
+GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
+
+            187  *
+            188  * ABSTRACT:
+            189  *
+            190  * POP THE PLC AND PBC FROM THE GOSUB STACK AND THROW
+            191  * THE VALUES AWAY.
+            192  *
+            193  * CALLING SEQUENCE:
+            194  *
+            195  *       B @POPY
+            196  *
+            197  *       EXIT TO NLIN0
+            198  *
+            199  * EXCEPTIONS AND CONDITIONS:
+            200  *
+            201  *       STACK UNDERFLOW
+            202  *
+            203  * ENTRY POINT:
+            204  *
+            205          DEF POPY
+            206  *
+00BA 8820   207  POPY   C    @GSC,@GSS         SOMETHING ON THE STACK ?
+00BC 009C'
+00BE 0090'
+00C0 12E1   208         JLE  ERR12             N, ERROR
+00C2 6820   209         S    @C4,@GSC          Y, BACKUP STACK POINTER
+00C4 0000 
+00C6 00BC'
+00C8 0460   210         B    @NLIN0            CONTINUE
+00CA 0000 
+            211  *
+            212         END
+ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0006
+GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
+
+BUS       0054R  C4        00C4R  CRLF      00B8R  ELNM      0008R  
+ERR11     0082'  ERR12     0084'  ERROR     2F80   ERROR2    2FA0   
+FNS       0068R  GOS1      0014D  GOS1A     0062'  GOS2      000ED  
+GOS2A     0076'  GOS6A     007E'  GOSB1     0000D  GOSON     0036D  
+GOSON1    0056'  GOSY      001ED  GOSY1     0036'  GOSYA     0020'  
+GOSYE     0086'  GOTY      001AD  GSC       00C6R  GSS       00BER  
+LINE0     007CR  LINE2     00B0R  LINE5     00B4R  NLIN0     00CAR  
+PLC       00A0R  POPY      00BAD  R0        0000   R1        0001   
+R10       000A   R11       000B   R12       000C   R13       000D   
+R14       000E   R15       000F   R2        0002   R3        0003   
+R4        0004   R5        0005   R6        0006   R7        0007   
+R8        0008   R9        0009   RTNY      008AD  RTRN2     00B2'  
+RTRN3     00B6'  SFSN      0078R  SLN       00A8R  SLT       0048R  
+
+
+0 Errors in assembly

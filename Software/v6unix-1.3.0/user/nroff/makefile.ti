@@ -1,0 +1,32 @@
+CC	= cc
+
+CFLAGS=-O -DNROFF
+NFILES=n1.o n2.o n3.o n4.o n5.o n6.o n7.o n8.o n9.o n10.o ni.o nii.o \
+	ntab.o hytab.o suftab.o
+
+nroff:	$(NFILES)
+	${CC} -o nroff $(NFILES)
+
+n1.o:	n1.c tdef.h d.h v.h tw.h s.h
+n2.o:	n2.c tdef.h d.h v.h tw.h s.h
+n3.o:	n3.c tdef.h d.h v.h tw.h s.h
+n4.o:	n4.c tdef.h d.h v.h tw.h s.h
+n5.o:	n5.c tdef.h d.h v.h tw.h s.h
+n6.o:	n6.c tdef.h d.h v.h tw.h s.h
+n7.o:	n7.c tdef.h d.h v.h tw.h s.h
+n8.o:	n8.c tdef.h d.h v.h tw.h s.h
+n9.o:	n9.c tdef.h d.h v.h tw.h s.h
+n10.o:	n10.c tdef.h d.h v.h tw.h s.h
+ni.o:	ni.c tdef.h d.h v.h tw.h s.h
+nii.o:	nii.c tdef.h d.h v.h tw.h s.h
+t6.o:	t6.c tdef.h d.h v.h tw.h s.h
+t10.o:	t10.c tdef.h d.h v.h tw.h s.h
+
+hytab.o:	hytab.c
+	${CC} -c hytab.c
+
+suftab.o:	suftab.c
+	${CC} -c suftab.c
+
+clean:
+	rm -f nroff *.o

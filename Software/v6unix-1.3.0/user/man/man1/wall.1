@@ -1,0 +1,23 @@
+.th WALL 1M 
+.sh NAME
+wall  \-  write to all users
+.sh SYNOPSIS
+.bd wall
+.sh DESCRIPTION
+.it Wall
+reads its standard input until an end-of-file.
+It then sends this message, preceded by
+`Broadcast Message ...',
+to all logged in users.
+.br
+The sender should be super-user to override
+any protections the users may have invoked.
+.sh FILES
+/dev/tty?
+.br
+/etc/utmp
+.sh "SEE ALSO"
+mesg(1), write(1)
+.sh DIAGNOSTICS
+`Cannot send to ...' when the open on
+a user's tty file fails.

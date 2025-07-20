@@ -1,0 +1,36 @@
+ASM990 2.4.6     ESCAPE                     Sun Jul 20 19:28:48 2025 Page 0001
+ESCAPE/NOESC STATEMENTS - CORTEX BASIC REV. 1.1
+
+              2         IDT  'ESCAPE'
+              3  *
+              4  *
+              5  *
+              6         DEF  ESCY
+              7         DEF  NOEY
+              8         REF  ESCFLG
+              9         REF  NLIN0
+             10  *
+             11  *ESCAPE ENABLE COMMAND
+             12  *
+0000 04E0    13  ESCY   CLR  @ESCFLG           ;RESET ESCAPE FLAG
+0002 0000 
+0004 1002    14         JMP  ESCR              ;RETURN
+             15  *
+             16  *
+             17  *ESCAPE DISABLE COMMAND
+             18  *
+0006 0720    19  NOEY   SETO @ESCFLG           ;SET ESCAPE FLAG
+0008 0002'
+000A 0460    20  ESCR   B    @NLIN0
+000C 0000 
+             21         END
+ASM990 2.4.6     ESCAPE                     Sun Jul 20 19:28:48 2025 Page 0002
+ESCAPE/NOESC STATEMENTS - CORTEX BASIC REV. 1.1
+
+ESCFLG   0008R  ESCR     000A'  ESCY     0000D  NLIN0    000CR  NOEY     0006D  
+R0       0000   R1       0001   R10      000A   R11      000B   R12      000C   
+R13      000D   R14      000E   R15      000F   R2       0002   R3       0003   
+R4       0004   R5       0005   R6       0006   R7       0007   R8       0008   
+R9       0009   
+
+0 Errors in assembly

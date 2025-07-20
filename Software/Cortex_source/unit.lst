@@ -1,0 +1,79 @@
+ASM990 2.4.6     UNIT                       Sun Jul 20 19:28:50 2025 Page 0001
+UNIT STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT  'UNIT'
+              3  *
+              4  *
+              5  *
+              6         REF  NLIN0             ;RETURN TO MULTIPLEXOR
+              7         DXOP EVFIX,11          ;EVALUATE AND FIX
+              8         REF  UNIT              ;INDEX TO UNIT
+              9         REF  ERROR2
+             10         DEF  UNTY
+             11  *
+             12  *       THE UNIT COMMAND IS USED TO SELECT OUTPUT DEVICES
+             13  *       ACCORDING TO BIT POSITIONS WITHIN @UNIT.
+             14  *
+             15  *   BIT:   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+             16  *  PORT:  16 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1
+             17  *
+             18  *  FORMAT :
+             19  *      UNIT <ARG 1>
+             20  *
+             21  *     IF ARG 1 IS 0 THEN ALL PORTS ARE DISABLED
+             22  *     IF ARG 1 IS -VE THEN THE SPECIFIED PORT IS DISABLED
+             23  *     IF ARG 1 IS +VE THEN THE SPECIFIED PORT IS ENABLED
+             24  *
+             25  *     VALID RANGE OF ARG 1 IS 1..16
+             26  * CALLING SEQUENCE:
+             27  *
+             28  *       B @UNTY
+             29  *
+             30  *       NORMAL EXIT TO NLIN0
+             31  *
+ASM990 2.4.6     UNIT                       Sun Jul 20 19:28:50 2025 Page 0002
+UNIT STATEMENT - CORTEX BASIC REV. 1.1
+
+0000 2EC1    33  UNTY   EVFIX R1               GET THE UNIT #
+0002 0202    34         LI   R2,UNIT           POINT TO STORAGE
+0004 0000 
+0006 0204    35         LI   R4,>E481          R4='SOC R1,*R2'
+0008 E481 
+000A C001    36         MOV  R1,R0             PUT UNIT # IN R0
+000C 1310    37         JEQ  NOUNIT            0, RESET UNIT FLAG
+000E 0740    38         ABS  R0
+0010 1502    39         JGT  UNITON            +VE, R4 OK TO SET BIT
+0012 0204    40         LI   R4,>4481          -VE, R4='SZC R1,*R2'
+0014 4481 
+             41  *
+0016 0201    42  UNITON LI   R1,>0001          SET BIT MASK
+0018 0001 
+001A 0600    43         DEC  R0                MAKE 0..15 FOR SHIFT
+001C 1304    44         JEQ  UON1              0, MASK OK
+001E 0280    45         CI   R0,16             VALID?
+0020 0010 
+0022 1407    46         JHE  ERR               N, ERROR IT
+0024 0A01    47         SLA  R1,0              Y, POSITION MASK
+0026 0484    48  UON1   X    R4                SET BIT/RESET BIT
+             49  *
+0028 0608    50  UEXIT  DEC  R8                BACKUP POINTER
+002A 0460    51         B    @NLIN0            EXIT
+002C 0000 
+             52  *
+002E 04D2    53  NOUNIT CLR  *R2               RESET ALL UNIT FLAGS
+0030 10FB    54         JMP  UEXIT             AND EXIT
+             55  *
+0032 0000    56  ERR    DATA ERROR2,46
+             57         END
+ASM990 2.4.6     UNIT                       Sun Jul 20 19:28:50 2025 Page 0003
+UNIT STATEMENT - CORTEX BASIC REV. 1.1
+
+ERR       0032'  ERROR2    0032R  NLIN0     002CR  NOUNIT    002E'  
+R0        0000   R1        0001   R10       000A   R11       000B   
+R12       000C   R13       000D   R14       000E   R15       000F   
+R2        0002   R3        0003   R4        0004   R5        0005   
+R6        0006   R7        0007   R8        0008   R9        0009   
+UEXIT     0028'  UNIT      0004R  UNITON    0016'  UNTY      0000D  
+UON1      0026'  
+
+0 Errors in assembly

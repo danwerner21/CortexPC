@@ -1,0 +1,31 @@
+YACC = yacc
+CC = cc
+AR = ar
+
+CFLAGS = -O -DSMALL -DUNIX -DASCII ${DEBUG}
+
+all: lex 
+
+install: lex libln.a
+	cp lex /bin/lex
+	cp libln.a /lib/libln.a
+
+lex: lmain.o y.tab.o sub1.o sub2.o header.o ldefs.c once.c
+	${CC} ${CFLAGS} -o lex lmain.o y.tab.o sub1.o sub2.o header.o
+
+y.tab.c: parser.y
+	${YACC} parser.y
+
+libln.a:
+	${CC} ${CFLAGS} -c lib/allprint.c lib/main.c lib/reject.c
+	${CC} ${CFLAGS} -c lib/yyless.c lib/yywrap.c
+	${AR} r libln.a allprint.o main.o reject.o yyless.o yywrap.o
+
+clean:
+	rm -f *.o lex libln.a
+
+header.o: header.c
+lmain.o: lmain.c ldefs.c once.c
+sub1.o: sub1.c ldefs.c
+sub2.o: sub2.c ldefs.c
+y.tab.o: y.tab.c ldefs.c

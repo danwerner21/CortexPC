@@ -1,0 +1,71 @@
+ASM990 2.4.6     CVGC                       Sun Jul 20 19:28:51 2025 Page 0001
+GET CONSTANT ROUTINE - CORTEX BASIC REV. 1.1
+
+              2         IDT  'CVGC'
+              3  *
+              4  *       CVGCN           ;GET CONSTANT
+              5  *
+              6         DEF  CVC10             ;FLOATING POINT CONSTANT 10.
+              7         DEF  CVGCN,CVGCN1
+              8  *
+              9  *
+             10  *       CVGCN WILL GET THE POWER OF TEN CLOSEST
+             11  *       TO THE POWER OF 16 IN R8.  IE:
+             12  *
+             13  *               16^1  >  10^1
+             14  *               16^2  >  10^2
+             15  *               16^3  >  10^3
+             16  *               16^4  >  10^4
+             17  *               16^5  >  10^6
+             18  *               16^6  >  10^7
+             19  *               ....     ....
+             20  *
+             21  * CALLING SEQUENCE:
+             22  *
+             23  *       BL @CVGCN
+             24  *
+             25  *       IN    R8 = POWER OF 16
+             26  *       OUT (R0) = FP CONSTANT
+ASM990 2.4.6     CVGC                       Sun Jul 20 19:28:51 2025 Page 0002
+GET CONSTANT ROUTINE - CORTEX BASIC REV. 1.1
+
+0000 0288    28  CVGCN  CI   R8,5
+0002 0005 
+0004 1A06    29         JL   CVGCN2
+0006 0588    30         INC  R8                EXP CHANGE >=5
+0008 0288    31  CVGCN1 CI   R8,10
+000A 000A 
+000C 1A02    32         JL   CVGCN2
+000E 0208    33         LI   R8,9              EXP CHANGE >9, USE 9
+0010 0009 
+             34  *
+0012 04BB    35  CVGCN2 X    *R11+             ADJUST DECIMAL COUNTER
+0014 0200    36         LI   R0,CVTB1          GET 10'S TABLE ADR
+0016 0022'
+0018 0A18    37         SLA  R8,1              MAKE WORD INDEX
+001A A008    38         A    R8,R0             INDEX
+001C 0A18    39         SLA  R8,1              R8 X 2
+001E A008    40         A    R8,R0             R3=R3+3*R8
+0020 045B    41         B    *R11              RETURN
+             42  *
+0022 4110    43  CVTB1  DATA >4110,>0000,>0000 10^0
+0028 41A0    44  CVC10  DATA >41A0,>0000,>0000 10^1
+002E 4264    45         DATA >4264,>0000,>0000 10^2
+0034 433E    46         DATA >433E,>8000,>0000 10^3
+003A 4427    47         DATA >4427,>1000,>0000 10^4
+0040 4518    48         DATA >4518,>6A00,>0000 10^5
+0046 45F4    49         DATA >45F4,>2400,>0000 10^6
+004C 4698    50         DATA >4698,>9680,>0000 10^7
+0052 475F    51         DATA >475F,>5E10,>0000 10^8
+0058 483B    52         DATA >483B,>9ACA,>0000 10^9
+             53         END
+ASM990 2.4.6     CVGC                       Sun Jul 20 19:28:51 2025 Page 0003
+GET CONSTANT ROUTINE - CORTEX BASIC REV. 1.1
+
+CVC10    0028D  CVGCN    0000D  CVGCN1   0008D  CVGCN2   0012'  CVTB1    0022'  
+R0       0000   R1       0001   R10      000A   R11      000B   R12      000C   
+R13      000D   R14      000E   R15      000F   R2       0002   R3       0003   
+R4       0004   R5       0005   R6       0006   R7       0007   R8       0008   
+R9       0009   
+
+0 Errors in assembly

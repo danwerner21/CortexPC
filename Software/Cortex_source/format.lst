@@ -1,0 +1,225 @@
+ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0001
+FORMAT ROUTINE - CORTEX BASIC REV 1.1
+
+              2         IDT  'FORMAT'
+              3  *
+              4  *
+              5  *
+              6         DEF  CVBF
+              7         REF  CVBFR
+              8         REF  B2A,B30
+              9  *
+             10  *PRINT FORMATTING
+             11  *
+0000 C209    12  CVBF   MOV  R9,R8             MARK FORMAT
+0002 C187    13         MOV  R7,R6             MARK CHARACTER BUFFER
+0004 04C3    14         CLR  R3                CLEAR DECIMAL FLAG
+0006 04C4    15         CLR  R4                CLEAR BEFORE DECIMAL COUNT
+0008 04C5    16         CLR  R5                CLEAR TOTAL DIGIT HOLDER COUNT
+             17  *
+000A 06A0    18  CVBF1  BL   @CVBFT            GET TYPE
+000C 00EE'
+000E 100A    19         JMP  CVBF4             NULL, DONE
+0010 1002    20         JMP  CVBF2             DIGIT HOLDER
+0012 0703    21         SETO R3                DECIMAL
+0014 1004    22         JMP  CVBF3             CHARACTER
+             23  *
+0016 C0C3    24  CVBF2  MOV  R3,R3             BEFORE DECIMAL?
+0018 1601    25         JNE  $+4               N
+001A 0584    26         INC  R4                Y, COUNT
+001C 0585    27         INC  R5
+             28  *
+001E DDA0    29  CVBF3  MOVB @B2A,*R6+         OUT "*
+0020 0000 
+0022 10F3    30         JMP  CVBF1
+             31  *
+0024 022A    32  CVBF4  AI   R10,-13           GET # OF LEADING DIGITS
+0026 FFF3 
+0028 050A    33         NEG  R10
+002A 810A    34         C    R10,R4            GREATER THAN DIGIT HOLDERS?
+002C 151A    35         JGT  CVBFR1            Y, ERROR RETURN
+002E 6144    36         S    R4,R5             GET NUMBER OF DIGITS PAST DECI
+0030 A14A    37         A    R10,R5            INDEX TO ROUNDING DIGIT
+0032 0285    38         CI   R5,12             TOO LARGE?
+0034 000C 
+0036 1102    39         JLT  CVBF5             N
+0038 0205    40         LI   R5,12             Y, SET TO 12
+003A 000C 
+             41  *
+003C C005    42  CVBF5  MOV  R5,R0             SET TO ROUND
+003E 0600    43         DEC  R0
+0040 06A0    44         BL   @CVBFR            ROUND
+0042 0000 
+0044 058A    45         INC  R10               ADD NEW DIGIT
+0046 C209    46         MOV  R9,R8             RESET FOR CVBFT
+0048 04C5    47         CLR  R5                CLR # FLAG
+             48  *
+004A 06A0    49  CVBF6  BL   @CVBFT            GET FORMAT TYPE
+004C 00EE'
+004E 100A    50  CVBD7A JMP  CVBFR2            DONE
+0050 100C    51         JMP  CVBF8             DIGIT HOLDER
+0052 102C    52         JMP  CVBF15            ".
+0054 0280    53         CI   R0,>2C00          ",?
+0056 2C00 
+ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0002
+FORMAT ROUTINE - CORTEX BASIC REV 1.1
+
+0058 1602    54         JNE  CVBF7             N
+005A C145    55         MOV  R5,R5             Y, DIGIT OUT?
+005C 1320    56         JEQ  CVBF11            N, OUT SPACE
+005E DDC0    57  CVBF7  MOVB R0,*R7+           Y, OUT CHARACTER
+0060 10F4    58         JMP  CVBF6
+ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0003
+FORMAT ROUTINE - CORTEX BASIC REV 1.1
+
+0062 C1C6    60  CVBFR1 MOV  R6,R7             FORMATTING OVERFLOW
+0064 CB47    61  CVBFR2 MOV  R7,@14(13)        RETURN UPDATE PTR
+0066 000E 
+0068 0380    62         RTWP                   DONE
+             63  *
+006A 0604    64  CVBF8  DEC  R4                DIGIT HOLDER
+006C 8284    65         C    R4,R10            TIME FOR DIGIT?
+006E 111B    66         JLT  CVBF13            Y
+0070 1302    67         JEQ  CVBF8A            N, CHECK FLOATER
+0072 C104    68         MOV  R4,R4             FLOATER?
+0074 1611    69         JNE  CVBF10            N
+0076 0280    70  CVBF8A CI   R0,>2400          N, MAYBE FLOATER THOUGH, "$?
+0078 2400 
+007A 13F1    71         JEQ  CVBF7             Y, INSERT
+007C 0280    72         CI   R0,>5300          "S?
+007E 5300 
+0080 1605    73         JNE  CVBF9             N
+0082 C30C    74         MOV  R12,R12           Y, POSITIVE?
+0084 130C    75         JEQ  CVBF11            Y, INSERT BLANK
+0086 0200    76         LI   R0,>2D00          N, INSERT "-
+0088 2D00 
+008A 10E9    77         JMP  CVBF7
+             78  *
+008C 0280    79  CVBF9  CI   R0,>3C00          "<?
+008E 3C00 
+0090 1603    80         JNE  CVBF10            N
+0092 C30C    81         MOV  R12,R12           Y, POSITIVE?
+0094 16E4    82         JNE  CVBF7             N, INSERT "<
+0096 1003    83         JMP  CVBF11            Y, INSERT BLANK
+             84  *
+0098 0280    85  CVBF10 CI   R0,>3000          "0?
+009A 3000 
+009C 1302    86         JEQ  CVBF12            Y
+009E 0200    87  CVBF11 LI   R0,>2000          N, INSERT BLANK
+00A0 2000 
+00A2 DDC0    88  CVBF12 MOVB R0,*R7+           INSERT
+00A4 10D2    89         JMP  CVBF6
+             90  *
+00A6 06A0    91  CVBF13 BL   @CVBF30
+00A8 00DC'
+00AA 10CF    92         JMP  CVBF6
+             93  *
+00AC DDC0    94  CVBF15 MOVB R0,*R7+           INSERT ".
+             95  *
+00AE 06A0    96  CVBF16 BL   @CVBFT            GET BYTE
+00B0 00EE'
+00B2 10CD    97         JMP  CVBD7A            DONE
+00B4 100A    98         JMP  CVBF20            DIGIT HOLDER
+00B6 1000    99         JMP  $+2
+00B8 0280   100         CI   R0,>3E00          ">?
+00BA 3E00 
+00BC 1604   101         JNE  CVBF18            N
+00BE C30C   102         MOV  R12,R12           Y, POSITIVE?
+00C0 1602   103         JNE  CVBF18            N
+00C2 0200   104         LI   R0,>2000          Y, OUT SPACE
+00C4 2000 
+00C6 DDC0   105  CVBF18 MOVB R0,*R7+           OUT
+00C8 10F2   106         JMP  CVBF16
+            107  *
+00CA 0604   108  CVBF20 DEC  R4                COUNT
+ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0004
+FORMAT ROUTINE - CORTEX BASIC REV 1.1
+
+00CC 8284   109         C    R4,R10            TIME FOR DIGIT?
+00CE 1103   110         JLT  CVBF21            Y
+00D0 0200   111         LI   R0,>3000          N, OUT "0
+00D2 3000 
+00D4 10F8   112         JMP  CVBF18
+            113  *
+00D6 06A0   114  CVBF21 BL   @CVBF30           OUT DIGIT
+00D8 00DC'
+00DA 10E9   115         JMP  CVBF16
+            116  *
+00DC 060A   117  CVBF30 DEC  R10               COUNT DOWN
+00DE 0705   118         SETO R5                ALLOW COMMA'S
+00E0 DDF3   119         MOVB *R3+,*R7+         INSERT DIGIT
+00E2 1604   120         JNE  CVBF31
+00E4 0607   121         DEC  R7                NO DIGIT
+00E6 0603   122         DEC  R3
+00E8 DDE0   123         MOVB @B30,*R7+         INSERT "0
+00EA 0000 
+00EC 045B   124  CVBF31 RT
+ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0005
+FORMAT ROUTINE - CORTEX BASIC REV 1.1
+
+            126  *CHECK FORMAT TYPE
+            127  *      BL @CVBFT
+            128  *         NULL
+            129  *         DIGIT HOLDER  < $ S 0 9
+            130  *         DECIMAL
+            131  *       CHAR ,
+            132  *
+00EE 04C0   133  CVBFT  CLR  R0                GET BYTE
+00F0 D038   134         MOVB *R8+,R0
+00F2 1323   135         JEQ  CVBFT3            NULL
+00F4 0280   136         CI   R0,>3C00          "<?
+00F6 3C00 
+00F8 131F   137         JEQ  CVBFT2            Y
+00FA 0280   138         CI   R0,>2400          "$?
+00FC 2400 
+00FE 131C   139         JEQ  CVBFT2            Y
+0100 0280   140         CI   R0,>5300          "S?
+0102 5300 
+0104 1319   141         JEQ  CVBFT2            Y
+0106 0280   142         CI   R0,>3000          "0?
+0108 3000 
+010A 1316   143         JEQ  CVBFT2            Y
+010C 0280   144         CI   R0,>3900          "9?
+010E 3900 
+0110 1313   145         JEQ  CVBFT2            Y
+     0114'  146  B2E    EQU  $+2
+0112 0280   147         CI   R0,>2E00          ".?
+0114 2E00 
+0116 130F   148         JEQ  CVBFT1            Y
+0118 0280   149         CI   R0,>4500          "E?
+011A 4500 
+011C 1606   150         JNE  CVBFT4            N
+011E 0200   151         LI   R0,>2000          Y, DEFAULT TO SPACE
+0120 2000 
+0122 C30C   152         MOV  R12,R12           NEGATIVE?
+0124 1302   153         JEQ  $+6               N
+0126 0200   154         LI   R0,>2D00          Y, OUT "-
+0128 2D00 
+            155  *
+012A 0280   156  CVBFT4 CI   R0,>5E00          "^?
+012C 5E00 
+012E 1602   157         JNE  CVBFT0            N
+0130 0200   158         LI   R0,>2E00          Y, REPLACE WITH ".
+0132 2E00 
+            159  *
+0134 05CB   160  CVBFT0 INCT R11
+0136 05CB   161  CVBFT1 INCT R11
+0138 05CB   162  CVBFT2 INCT R11
+013A 045B   163  CVBFT3 RT
+            164         END
+ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0006
+FORMAT ROUTINE - CORTEX BASIC REV 1.1
+
+B2A      0020R  B2E      0114'  B30      00EAR  CVBD7A   004E'  CVBF     0000D  
+CVBF1    000A'  CVBF10   0098'  CVBF11   009E'  CVBF12   00A2'  CVBF13   00A6'  
+CVBF15   00AC'  CVBF16   00AE'  CVBF18   00C6'  CVBF2    0016'  CVBF20   00CA'  
+CVBF21   00D6'  CVBF3    001E'  CVBF30   00DC'  CVBF31   00EC'  CVBF4    0024'  
+CVBF5    003C'  CVBF6    004A'  CVBF7    005E'  CVBF8    006A'  CVBF8A   0076'  
+CVBF9    008C'  CVBFR    0042R  CVBFR1   0062'  CVBFR2   0064'  CVBFT    00EE'  
+CVBFT0   0134'  CVBFT1   0136'  CVBFT2   0138'  CVBFT3   013A'  CVBFT4   012A'  
+R0       0000   R1       0001   R10      000A   R11      000B   R12      000C   
+R13      000D   R14      000E   R15      000F   R2       0002   R3       0003   
+R4       0004   R5       0005   R6       0006   R7       0007   R8       0008   
+R9       0009   
+
+0 Errors in assembly

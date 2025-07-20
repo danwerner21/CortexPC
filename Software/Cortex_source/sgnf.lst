@@ -1,0 +1,35 @@
+ASM990 2.4.6     SGNF                       Sun Jul 20 19:28:50 2025 Page 0001
+SIGN FUNCTION - CORTEX BASIC REV 1.1
+
+              2         IDT  'SGNF'
+              3  *
+              4         DEF  SGNF
+              5  *
+              6         REF  EVSFR$,FPAC2
+              7  *
+              8  *  SIGN FUNCTION
+              9  *
+0000 C032    10  SGNF   MOV  *R2+,R0           ;GET SIGN
+0002 1602    11         JNE  SGNF1
+0004 C012    12         MOV  *R2,R0            ;INTEGER, GET SIGN
+0006 1306    13         JEQ  SGNF3             ;0, RETURN 0
+0008 1503    14  SGNF1  JGT  SGNF2             ;+
+000A 0620    15         DEC  @FPAC2            ;-, RETURN -1
+000C 0000 
+000E 1002    16         JMP  SGNF3             ;GET ADR & RETURN
+             17  *
+0010 05A0    18  SGNF2  INC  @FPAC2            ;+, RETURN 1
+0012 000C'
+0014 0460    19  SGNF3  B    @EVSFR$           ;RETURN
+0016 0000 
+             20         END
+ASM990 2.4.6     SGNF                       Sun Jul 20 19:28:50 2025 Page 0002
+SIGN FUNCTION - CORTEX BASIC REV 1.1
+
+EVSFR$   0016R  FPAC2    0012R  R0       0000   R1       0001   R10      000A   
+R11      000B   R12      000C   R13      000D   R14      000E   R15      000F   
+R2       0002   R3       0003   R4       0004   R5       0005   R6       0006   
+R7       0007   R8       0008   R9       0009   SGNF     0000D  SGNF1    0008'  
+SGNF2    0010'  SGNF3    0014'  
+
+0 Errors in assembly

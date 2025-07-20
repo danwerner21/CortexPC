@@ -1,0 +1,125 @@
+ASM990 2.4.6     BITF                       Sun Jul 20 19:28:51 2025 Page 0001
+BIT ROUTINES - CORTEX BASIC REV. 1.1
+
+              2         IDT  'BITF'
+              3  *
+              4  *
+              5  * ROUTINE LIST:
+              6  *
+              7  *       BITF                   BIT FUNCTION
+              8  *       BITY                   BIT COMMAND
+              9  *
+             10         REF  EVSFR$             RELOAD R2 & EXIT TO EVALUATOR
+             11         REF  NLIN               EXIT TO MULTIPLEXOR
+             12         REF  EVERZ              EVALUATE EXPRESSION
+             13         REF  GPRM1              GET-PARAMETER ENTRY
+             14         REF  FPAC2              
+             15         REF  B4A
+             16         DXOP STORE,1            STORE FPAC
+             17         DXOP EVFIX,11           EVALUATE AND FIX
+             18         DXOP OUTFP,12           OUT FLOATING POINT #
+     2F80    19  ERROR  EQU  >2F80              XOP XX,14  (ERROR CALL)
+             20         DEF  BITY               ENTRY POINT FOR BIT STATEMENT
+             21         DEF  BITF               ENTRY POINT FOR BIT FUNCTION
+             22         DEF  C8000
+ASM990 2.4.6     BITF                       Sun Jul 20 19:28:51 2025 Page 0002
+BIT ROUTINES - CORTEX BASIC REV. 1.1
+
+             24  *       THE BIT STATEMENT ALLOWS A BASIC PROGRAM
+             25  *       TO ALTER ANY BIT WITHIN A BASIC
+             26  *       VARIABLE. THE FORM IS:
+             27  *
+             28  *       BIT[ <VAR> , <EXP1> ] = <EXP2>
+             29  *
+             30  *       WHERE:  <VAR>  = VARIABLE TO BE ALTERED
+             31  *               <EXP1> = BIT POSITION WITHIN VARIABLE
+             32  *               <EXP2> = 0 OR <>0 TO RESET OR SET
+             33  * BIT RANGES FROM 0 UPWARDS (IF -VE ASSUMES BIT 0)
+             34  *
+             35  * CALLING SEQUENCE:
+             36  *
+             37  *       B @BITY
+             38  *
+             39  *       EXIT TO NLIN
+             40  *
+             41  * EXCEPTIONS AND CONDITIONS:
+             42  *
+             43  *       EVALUATION ERRORS
+             44  *       ERROR 1 IF BRACKETS MISSING OR NO ','
+             45  *
+0000 9838    46  BITY   CB   *R8+,@B4A         ;RIGHT BRACKET?
+0002 0000 
+0004 1616    47         JNE  ERR1              ;N, ERROR
+0006 0420    48         BLWP @EVERZ            ;GET ADRRESS OF VARIABLE
+0008 0000 
+000A 0280    49         CI   R0,>3F00          ;',' FOLLOWING ?
+000C 3F00 
+000E 1611    50         JNE  ERR1              ;NO, ERROR IT
+0010 06A0    51         BL   @GPRM1            ;GET PARAMETERS
+0012 0000 
+0014 C041    52         MOV  R1,R1             ;TEST SIGN OF BIT #
+0016 1501    53         JGT  BITY0             ;+VE, LEAVE ALONE
+0018 04C1    54         CLR  R1                ;-VE, MAKE 0
+001A C001    55  BITY0  MOV  R1,R0             ;GET WORD INDEX
+001C 0931    56         SRL  R1,3
+001E A081    57         A    R1,R2             ;INDEX
+0020 0201    58         LI   R1,>8000          ;SET MASK
+0022 8000 
+     0022'   59  C8000  EQU  $-2
+0024 0B01    60         SRC  R1,0              ;POSITION MASK
+0026 4481    61         SZC  R1,*R2            ;SET BIT TO ZERO
+0028 C0C3    62         MOV  R3,R3             ;NEED 1?
+002A 1301    63         JEQ  BITY1             ;N
+002C E481    64         SOC  R1,*R2            ;Y, SET BIT TO ONE
+002E 0460    65  BITY1  B    @NLIN             ;RETURN
+0030 0000 
+             66  *
+0032 2F81    67  ERR1   DATA ERROR+1
+ASM990 2.4.6     BITF                       Sun Jul 20 19:28:51 2025 Page 0003
+BIT ROUTINES - CORTEX BASIC REV. 1.1
+
+             69  *       THE BIT FUNCTION WILL DISPLAY ANY BIT VALUE OFFSET
+             70  *       FROM A BASIC VARIABLE. THE FORM IS:-
+             71  *
+             72  *       BIT[ <EXP1> , <EXP> ]
+             73  *
+             74  *       WHERE   <EXP1> = BASIC VARIABLE
+             75  *               <EXP2> = BIT POSITION
+             76  *
+             77  * CALLING SEQUENCE:
+             78  *
+             79  *       B @BITF
+             80  *
+             81  *       EXIT TO EVSFR$
+             82  *
+0034 C041    83  BITF   MOV  R1,R1             ;TEST SIGN OF BIT #
+0036 1501    84         JGT  BITF0             ;+VE, OK
+0038 04C1    85         CLR  R1                ;-VE, MAKE 0
+003A C001    86  BITF0  MOV  R1,R0
+003C 0931    87         SRL  R1,3              ;GET WORD INDEX
+003E A081    88         A    R1,R2             ;INDEX
+0040 0201    89         LI   R1,>8000          ;GET INITIAL MASK
+0042 8000 
+0044 0B01    90         SRC  R1,0              ;SHIFT
+0046 C092    91         MOV  *R2,R2            ;GET WORD
+0048 2081    92         COC  R1,R2             ;BIT SET?
+004A 1602    93         JNE  BITF1             ;N, RETURN 0
+004C 05A0    94         INC  @FPAC2            ;Y, RETURN 1
+004E 0000 
+             95  *
+0050 0460    96  BITF1  B    @EVSFR$           ;RETURN ADR
+0052 0000 
+             97         END
+ASM990 2.4.6     BITF                       Sun Jul 20 19:28:51 2025 Page 0004
+BIT ROUTINES - CORTEX BASIC REV. 1.1
+
+B4A       0002R  BITF      0034D  BITF0     003A'  BITF1     0050'  
+BITY      0000D  BITY0     001A'  BITY1     002E'  C8000     0022D  
+ERR1      0032'  ERROR     2F80   EVERZ     0008R  EVSFR$    0052R  
+FPAC2     004ER  GPRM1     0012R  NLIN      0030R  R0        0000   
+R1        0001   R10       000A   R11       000B   R12       000C   
+R13       000D   R14       000E   R15       000F   R2        0002   
+R3        0003   R4        0004   R5        0005   R6        0006   
+R7        0007   R8        0008   R9        0009   
+
+0 Errors in assembly

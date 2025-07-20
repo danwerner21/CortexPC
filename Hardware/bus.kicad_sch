@@ -6,8 +6,8 @@
 	(paper "B")
 	(title_block
 		(title "CortexPC")
-		(date "2025-05-25")
-		(rev "V0.5")
+		(date "2025-07-13")
+		(rev "V0.9")
 	)
 	(lib_symbols
 		(symbol "Connector_Generic:Conn_02x06_Odd_Even"
@@ -1618,6 +1618,127 @@
 						)
 					)
 					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "Device:R"
+			(pin_numbers hide)
+			(pin_names
+				(offset 0)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "R"
+				(at 2.032 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "R"
+				(at 0 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at -1.778 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "R res resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "R_0_1"
+				(rectangle
+					(start -1.016 -2.54)
+					(end 1.016 2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "R_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4016,6 +4137,16 @@
 	)
 	(wire
 		(pts
+			(xy 118.11 234.95) (xy 119.38 234.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "63bcabe4-c663-4a79-b85d-6a798083782b")
+	)
+	(wire
+		(pts
 			(xy 231.14 95.25) (xy 234.95 95.25)
 		)
 		(stroke
@@ -4443,6 +4574,16 @@
 			(type default)
 		)
 		(uuid "829dd39e-eb35-4cac-8f14-4c2a93f46911")
+	)
+	(wire
+		(pts
+			(xy 127 234.95) (xy 127 236.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "82f791e6-3ed0-471b-941d-b795d8456cb1")
 	)
 	(wire
 		(pts
@@ -6049,7 +6190,7 @@
 		(at 195.58 43.18 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6070,7 +6211,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6092,7 +6233,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6113,7 +6254,7 @@
 		(at 99.06 67.31 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6133,7 +6274,7 @@
 		(at 195.58 91.44 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6148,12 +6289,34 @@
 			)
 		)
 	)
+	(global_label "CLK"
+		(shape input)
+		(at 55.88 184.15 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+			)
+			(justify right)
+		)
+		(uuid "0b462e9d-2b08-462c-8e9c-d1db6b021124")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 51.1608 184.15 0)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "B_A8"
 		(shape bidirectional)
 		(at 193.04 190.5 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6174,7 +6337,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6195,7 +6358,7 @@
 		(at 195.58 50.8 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6216,7 +6379,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6237,7 +6400,7 @@
 		(at 290.83 102.87 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6257,7 +6420,7 @@
 		(at 195.58 48.26 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6277,7 +6440,7 @@
 		(at 290.83 59.69 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6298,7 +6461,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6319,7 +6482,7 @@
 		(at 195.58 33.02 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6334,12 +6497,36 @@
 			)
 		)
 	)
+	(global_label "RESET"
+		(shape input)
+		(at 248.92 34.29 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+				(thickness 0.2032)
+				(bold yes)
+			)
+			(justify right)
+		)
+		(uuid "155fb1f6-16bb-4d99-b609-df52291a59ad")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 242.0782 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "B_D1"
 		(shape bidirectional)
 		(at 290.83 49.53 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6359,7 +6546,7 @@
 		(at 97.79 194.31 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6379,7 +6566,7 @@
 		(at 193.04 210.82 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6399,7 +6586,7 @@
 		(at 193.04 200.66 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6420,7 +6607,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6441,7 +6628,7 @@
 		(at 97.79 181.61 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6461,7 +6648,7 @@
 		(at 97.79 146.05 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6482,7 +6669,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6498,34 +6685,12 @@
 			)
 		)
 	)
-	(global_label "BUSCLK"
-		(shape input)
-		(at 153.67 78.74 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "1b93bd3e-8794-4d33-b272-dba323be89bf")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 143.9609 78.74 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "B_A0"
 		(shape bidirectional)
 		(at 97.79 212.09 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6546,7 +6711,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6568,7 +6733,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6590,7 +6755,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6611,7 +6776,7 @@
 		(at 99.06 44.45 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6631,7 +6796,7 @@
 		(at 290.83 39.37 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6646,12 +6811,60 @@
 			)
 		)
 	)
+	(global_label "RESET"
+		(shape input)
+		(at 55.88 138.43 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+				(thickness 0.2032)
+				(bold yes)
+			)
+			(justify right)
+		)
+		(uuid "20e9c2da-853f-47b2-9036-64c84215509d")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 49.0382 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "RESET"
+		(shape input)
+		(at 151.13 137.16 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+				(thickness 0.2032)
+				(bold yes)
+			)
+			(justify right)
+		)
+		(uuid "210c405f-c4b4-4af9-8228-a91ee783cced")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 144.2882 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "B_D7"
 		(shape bidirectional)
 		(at 193.04 137.16 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6671,7 +6884,7 @@
 		(at 97.79 163.83 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6691,7 +6904,7 @@
 		(at 99.06 49.53 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6712,7 +6925,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6733,7 +6946,7 @@
 		(at 97.79 196.85 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6753,7 +6966,7 @@
 		(at 193.04 177.8 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6774,7 +6987,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6795,7 +7008,7 @@
 		(at 99.06 72.39 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6815,7 +7028,7 @@
 		(at 97.79 153.67 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6835,7 +7048,7 @@
 		(at 97.79 186.69 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6855,7 +7068,7 @@
 		(at 99.06 39.37 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6876,7 +7089,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6897,7 +7110,7 @@
 		(at 99.06 90.17 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6912,13 +7125,37 @@
 			)
 		)
 	)
+	(global_label "RESET"
+		(shape input)
+		(at 153.67 33.02 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+				(thickness 0.2032)
+				(bold yes)
+			)
+			(justify right)
+		)
+		(uuid "2c59671b-84f0-49fd-b102-f5a383d6d516")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 146.8282 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "B_INT"
 		(shape output)
 		(at 119.38 185.42 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -6939,7 +7176,7 @@
 		(at 290.83 67.31 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6959,7 +7196,7 @@
 		(at 97.79 207.01 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6974,12 +7211,36 @@
 			)
 		)
 	)
+	(global_label "RESET"
+		(shape input)
+		(at 247.65 134.62 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+				(thickness 0.2032)
+				(bold yes)
+			)
+			(justify right)
+		)
+		(uuid "2e388611-a4a4-45b0-ae19-bc615b65e8bb")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 240.8082 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "B_D2"
 		(shape bidirectional)
 		(at 195.58 45.72 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -6999,7 +7260,7 @@
 		(at 195.58 99.06 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7019,7 +7280,7 @@
 		(at 193.04 172.72 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7039,7 +7300,7 @@
 		(at 99.06 85.09 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7059,7 +7320,7 @@
 		(at 289.56 180.34 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7079,7 +7340,7 @@
 		(at 195.58 101.6 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7099,7 +7360,7 @@
 		(at 99.06 102.87 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7114,34 +7375,12 @@
 			)
 		)
 	)
-	(global_label "BUSCLK"
-		(shape input)
-		(at 247.65 180.34 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "3684f019-fbc8-4915-81b9-68fa80b3feae")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 237.9409 180.34 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "B_A5"
 		(shape bidirectional)
 		(at 99.06 97.79 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7161,7 +7400,7 @@
 		(at 99.06 54.61 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7176,34 +7415,12 @@
 			)
 		)
 	)
-	(global_label "~{RES_OUT}"
-		(shape input)
-		(at 151.13 137.16 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.016 1.016)
-			)
-			(justify right)
-		)
-		(uuid "391cbd3b-d0d8-4ea9-8e6a-000d1ed16c7b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 142.6855 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "B_A7"
 		(shape bidirectional)
 		(at 99.06 92.71 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7223,7 +7440,7 @@
 		(at 289.56 182.88 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7243,7 +7460,7 @@
 		(at 193.04 154.94 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7263,7 +7480,7 @@
 		(at 193.04 149.86 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7283,7 +7500,7 @@
 		(at 195.58 58.42 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7303,7 +7520,7 @@
 		(at 289.56 162.56 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7323,7 +7540,7 @@
 		(at 99.06 62.23 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7343,7 +7560,7 @@
 		(at 290.83 62.23 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7358,35 +7575,13 @@
 			)
 		)
 	)
-	(global_label "~{RES_OUT}"
-		(shape input)
-		(at 55.88 138.43 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.016 1.016)
-			)
-			(justify right)
-		)
-		(uuid "4398b055-bd3e-4635-9ce0-86ac7d690f83")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 47.4355 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "BUSCLK"
 		(shape input)
 		(at 247.65 205.74 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -7407,7 +7602,7 @@
 		(at 289.56 190.5 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7427,7 +7622,7 @@
 		(at 290.83 44.45 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7447,7 +7642,7 @@
 		(at 193.04 162.56 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7462,34 +7657,12 @@
 			)
 		)
 	)
-	(global_label "BUSCLK"
-		(shape input)
-		(at 248.92 80.01 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "45ea1e06-847d-4bb9-882f-7ca6550954c4")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 239.2109 80.01 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "B_A8"
 		(shape bidirectional)
 		(at 289.56 187.96 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7504,34 +7677,12 @@
 			)
 		)
 	)
-	(global_label "~{RES_OUT}"
-		(shape input)
-		(at 248.92 34.29 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.016 1.016)
-			)
-			(justify right)
-		)
-		(uuid "483b227b-2e93-4b11-819f-3c4a05c8ce5b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 240.4755 34.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "B_A9"
 		(shape tri_state)
 		(at 289.56 185.42 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7551,7 +7702,7 @@
 		(at 99.06 64.77 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7571,7 +7722,7 @@
 		(at 193.04 193.04 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7591,7 +7742,7 @@
 		(at 97.79 140.97 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7611,7 +7762,7 @@
 		(at 97.79 138.43 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7631,7 +7782,7 @@
 		(at 195.58 73.66 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7651,7 +7802,7 @@
 		(at 193.04 165.1 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7671,7 +7822,7 @@
 		(at 193.04 208.28 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7692,7 +7843,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7713,7 +7864,7 @@
 		(at 99.06 95.25 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7734,7 +7885,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -7755,7 +7906,7 @@
 		(at 289.56 193.04 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7775,7 +7926,7 @@
 		(at 99.06 46.99 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7796,7 +7947,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7818,7 +7969,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -7840,7 +7991,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -7861,7 +8012,7 @@
 		(at 195.58 35.56 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7881,7 +8032,7 @@
 		(at 97.79 166.37 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7902,7 +8053,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -7923,7 +8074,7 @@
 		(at 99.06 110.49 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7938,34 +8089,12 @@
 			)
 		)
 	)
-	(global_label "~{RES_OUT}"
-		(shape input)
-		(at 57.15 36.83 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.016 1.016)
-			)
-			(justify right)
-		)
-		(uuid "61767c45-a534-443c-88bf-806204f569b5")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 48.7055 36.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "B_A4"
 		(shape bidirectional)
 		(at 99.06 100.33 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -7985,7 +8114,7 @@
 		(at 97.79 151.13 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8005,7 +8134,7 @@
 		(at 290.83 72.39 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8025,7 +8154,7 @@
 		(at 193.04 152.4 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8045,7 +8174,7 @@
 		(at 195.58 96.52 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8065,7 +8194,7 @@
 		(at 290.83 74.93 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8085,7 +8214,7 @@
 		(at 290.83 87.63 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8100,12 +8229,36 @@
 			)
 		)
 	)
+	(global_label "RESET"
+		(shape input)
+		(at 57.15 36.83 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+				(thickness 0.2032)
+				(bold yes)
+			)
+			(justify right)
+		)
+		(uuid "6ab64c3c-0b02-4d67-9ea2-61e069c96a5f")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 50.3082 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "B_A5"
 		(shape bidirectional)
 		(at 290.83 95.25 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8125,7 +8278,7 @@
 		(at 290.83 105.41 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8145,7 +8298,7 @@
 		(at 97.79 156.21 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8165,7 +8318,7 @@
 		(at 193.04 195.58 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8186,7 +8339,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -8208,7 +8361,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -8224,12 +8377,34 @@
 			)
 		)
 	)
+	(global_label "B_INT"
+		(shape output)
+		(at 118.11 234.95 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+			)
+			(justify right)
+		)
+		(uuid "72c83c4c-951e-48aa-8aaa-9634c3dbc7f5")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 110.6385 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "B_A16"
 		(shape bidirectional)
 		(at 99.06 69.85 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8249,7 +8424,7 @@
 		(at 97.79 209.55 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8269,7 +8444,7 @@
 		(at 289.56 175.26 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8289,7 +8464,7 @@
 		(at 97.79 191.77 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8310,7 +8485,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -8331,7 +8506,7 @@
 		(at 195.58 38.1 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8351,7 +8526,7 @@
 		(at 289.56 147.32 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8372,7 +8547,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -8393,7 +8568,7 @@
 		(at 290.83 46.99 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8413,7 +8588,7 @@
 		(at 193.04 198.12 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8433,7 +8608,7 @@
 		(at 290.83 97.79 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8453,7 +8628,7 @@
 		(at 290.83 34.29 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8473,7 +8648,7 @@
 		(at 193.04 203.2 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8493,7 +8668,7 @@
 		(at 97.79 201.93 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8513,7 +8688,7 @@
 		(at 289.56 139.7 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8533,7 +8708,7 @@
 		(at 290.83 52.07 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8553,7 +8728,7 @@
 		(at 195.58 68.58 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8574,7 +8749,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -8595,7 +8770,7 @@
 		(at 289.56 152.4 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8616,7 +8791,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8637,7 +8812,7 @@
 		(at 99.06 36.83 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8657,7 +8832,7 @@
 		(at 289.56 203.2 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8677,7 +8852,7 @@
 		(at 193.04 144.78 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8697,7 +8872,7 @@
 		(at 97.79 184.15 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8717,7 +8892,7 @@
 		(at 290.83 82.55 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8737,7 +8912,7 @@
 		(at 289.56 144.78 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8758,7 +8933,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -8779,7 +8954,7 @@
 		(at 289.56 198.12 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8799,7 +8974,7 @@
 		(at 195.58 93.98 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8819,7 +8994,7 @@
 		(at 193.04 205.74 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8834,13 +9009,35 @@
 			)
 		)
 	)
+	(global_label "CLK"
+		(shape input)
+		(at 247.65 180.34 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+			)
+			(justify right)
+		)
+		(uuid "8b5a36a6-305c-4607-965c-2a4ce4e6723a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 242.9308 180.34 0)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "{slash}AEN"
 		(shape input)
 		(at 97.79 161.29 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8861,7 +9058,7 @@
 		(at 290.83 41.91 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8876,12 +9073,34 @@
 			)
 		)
 	)
+	(global_label "CLK"
+		(shape input)
+		(at 151.13 182.88 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+			)
+			(justify right)
+		)
+		(uuid "8e5ee356-0c5b-434e-97f5-12e7d32f2509")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 146.4108 182.88 0)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "B_A2"
 		(shape bidirectional)
 		(at 99.06 105.41 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8902,7 +9121,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -8923,7 +9142,7 @@
 		(at 195.58 40.64 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8943,7 +9162,7 @@
 		(at 289.56 195.58 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8963,7 +9182,7 @@
 		(at 195.58 86.36 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -8984,7 +9203,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9005,7 +9224,7 @@
 		(at 195.58 63.5 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9025,7 +9244,7 @@
 		(at 193.04 139.7 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9045,7 +9264,7 @@
 		(at 195.58 104.14 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9065,7 +9284,7 @@
 		(at 99.06 74.93 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9086,7 +9305,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9107,7 +9326,7 @@
 		(at 289.56 208.28 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9128,7 +9347,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9149,7 +9368,7 @@
 		(at 290.83 92.71 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9170,7 +9389,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9191,7 +9410,7 @@
 		(at 290.83 69.85 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9211,7 +9430,7 @@
 		(at 290.83 107.95 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9231,7 +9450,7 @@
 		(at 97.79 168.91 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9252,7 +9471,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9273,7 +9492,7 @@
 		(at 290.83 80.01 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9294,7 +9513,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9315,7 +9534,7 @@
 		(at 195.58 81.28 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9335,7 +9554,7 @@
 		(at 289.56 165.1 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9355,7 +9574,7 @@
 		(at 97.79 199.39 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9375,7 +9594,7 @@
 		(at 97.79 173.99 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9395,7 +9614,7 @@
 		(at 193.04 142.24 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9415,7 +9634,7 @@
 		(at 97.79 148.59 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9435,7 +9654,7 @@
 		(at 99.06 77.47 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9455,7 +9674,7 @@
 		(at 99.06 107.95 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9475,7 +9694,7 @@
 		(at 289.56 167.64 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9495,7 +9714,7 @@
 		(at 97.79 179.07 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9515,7 +9734,7 @@
 		(at 195.58 71.12 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9535,7 +9754,7 @@
 		(at 289.56 149.86 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9555,7 +9774,7 @@
 		(at 99.06 41.91 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9570,12 +9789,34 @@
 			)
 		)
 	)
+	(global_label "CLK"
+		(shape input)
+		(at 248.92 80.01 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+			)
+			(justify right)
+		)
+		(uuid "bdc15b9a-a0a9-4dac-b16f-aa4e5346a5d7")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 244.2008 80.01 0)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "B_A16"
 		(shape bidirectional)
 		(at 97.79 171.45 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9596,7 +9837,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9612,12 +9853,34 @@
 			)
 		)
 	)
+	(global_label "CLK"
+		(shape input)
+		(at 57.15 82.55 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+			)
+			(justify right)
+		)
+		(uuid "bff78967-c7f7-4976-8184-e66b2ea23251")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 52.4308 82.55 0)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "B_A3"
 		(shape bidirectional)
 		(at 97.79 204.47 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9637,7 +9900,7 @@
 		(at 195.58 78.74 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9657,7 +9920,7 @@
 		(at 97.79 143.51 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9677,7 +9940,7 @@
 		(at 99.06 52.07 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9697,7 +9960,7 @@
 		(at 99.06 82.55 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9717,7 +9980,7 @@
 		(at 193.04 187.96 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9737,7 +10000,7 @@
 		(at 289.56 172.72 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9757,7 +10020,7 @@
 		(at 195.58 66.04 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9777,7 +10040,7 @@
 		(at 289.56 137.16 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9797,7 +10060,7 @@
 		(at 193.04 182.88 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9812,34 +10075,12 @@
 			)
 		)
 	)
-	(global_label "BUSCLK"
-		(shape input)
-		(at 151.13 182.88 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "c923db71-ec05-4e59-9652-02f86e9a43c2")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 141.4209 182.88 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "B_A7"
 		(shape bidirectional)
 		(at 290.83 90.17 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9854,34 +10095,12 @@
 			)
 		)
 	)
-	(global_label "~{RES_OUT}"
-		(shape input)
-		(at 153.67 33.02 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.016 1.016)
-			)
-			(justify right)
-		)
-		(uuid "cbd867e9-b807-479c-8758-858532317674")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 145.2255 33.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "B_A17"
 		(shape tri_state)
 		(at 193.04 167.64 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9902,7 +10121,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9923,7 +10142,7 @@
 		(at 97.79 189.23 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9944,7 +10163,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9965,7 +10184,7 @@
 		(at 193.04 147.32 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9980,12 +10199,34 @@
 			)
 		)
 	)
+	(global_label "CLK"
+		(shape input)
+		(at 153.67 78.74 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.15 1.15)
+			)
+			(justify right)
+		)
+		(uuid "d007a458-5ce7-4231-9f93-5e6b531122e0")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 148.9508 78.74 0)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "B_A17"
 		(shape tri_state)
 		(at 290.83 64.77 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10006,7 +10247,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10027,7 +10268,7 @@
 		(at 290.83 36.83 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10042,35 +10283,13 @@
 			)
 		)
 	)
-	(global_label "BUSCLK"
-		(shape input)
-		(at 55.88 184.15 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "d24dd7d7-d787-4f8d-a1b4-7ad57de331ea")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 46.1709 184.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "B_IOW"
 		(shape output)
 		(at 151.13 60.96 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10091,7 +10310,7 @@
 		(at 195.58 83.82 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10111,7 +10330,7 @@
 		(at 289.56 134.62 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10132,7 +10351,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10153,7 +10372,7 @@
 		(at 289.56 177.8 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10168,34 +10387,12 @@
 			)
 		)
 	)
-	(global_label "~{RES_OUT}"
-		(shape input)
-		(at 247.65 134.62 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.016 1.016)
-			)
-			(justify right)
-		)
-		(uuid "dafe027c-4810-4810-81d0-3bc3d8291cb4")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 239.2055 134.62 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "B_A14"
 		(shape tri_state)
 		(at 193.04 175.26 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10215,7 +10412,7 @@
 		(at 195.58 60.96 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10235,7 +10432,7 @@
 		(at 195.58 106.68 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10256,7 +10453,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10278,7 +10475,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10299,7 +10496,7 @@
 		(at 195.58 76.2 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10319,7 +10516,7 @@
 		(at 289.56 170.18 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10339,7 +10536,7 @@
 		(at 99.06 87.63 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10360,7 +10557,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10382,7 +10579,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10404,7 +10601,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10426,7 +10623,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10447,7 +10644,7 @@
 		(at 193.04 185.42 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10467,7 +10664,7 @@
 		(at 289.56 142.24 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10488,7 +10685,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10510,7 +10707,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10532,7 +10729,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10548,41 +10745,19 @@
 			)
 		)
 	)
-	(global_label "BUSCLK"
-		(shape input)
-		(at 57.15 82.55 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "edc77034-b0ea-45dd-8979-dd19b1255ec0")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 47.4409 82.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "isa_iq_1"
 		(shape input)
 		(at 57.15 41.91 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
 		(uuid "edc9a76b-ba40-4f51-8e32-ce38b6161053")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 47.1386 41.91 0)
+			(at 49.141 41.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10597,7 +10772,7 @@
 		(at 289.56 200.66 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10617,7 +10792,7 @@
 		(at 97.79 176.53 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10638,7 +10813,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10659,7 +10834,7 @@
 		(at 290.83 77.47 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10679,7 +10854,7 @@
 		(at 290.83 100.33 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10699,7 +10874,7 @@
 		(at 289.56 160.02 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10719,7 +10894,7 @@
 		(at 193.04 180.34 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10739,7 +10914,7 @@
 		(at 99.06 80.01 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10759,7 +10934,7 @@
 		(at 193.04 170.18 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10779,7 +10954,7 @@
 		(at 195.58 88.9 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10800,7 +10975,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10821,7 +10996,7 @@
 		(at 289.56 205.74 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10841,7 +11016,7 @@
 		(at 290.83 85.09 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11047,6 +11222,72 @@
 			(project "CortexPC"
 				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/00000000-0000-0000-0000-00006416c532"
 					(reference "J2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 127 236.22 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0e8712fe-88d7-43d7-8c85-786f3994212f")
+		(property "Reference" "#PWR0170"
+			(at 127 236.22 0)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 127 237.998 0)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 127 236.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 127 236.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 127 236.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4dc388a0-1212-4d1f-ad55-aecae3a66d34")
+		)
+		(instances
+			(project "CortexPC"
+				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/00000000-0000-0000-0000-00006416c532"
+					(reference "#PWR0170")
 					(unit 1)
 				)
 			)
@@ -11558,6 +11799,73 @@
 			(project "CortexPC"
 				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/00000000-0000-0000-0000-00006416c532"
 					(reference "#PWR026")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 123.19 234.95 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "1f82f757-3e65-49a4-83c7-c3332b412843")
+		(property "Reference" "R28"
+			(at 123.19 232.918 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10k"
+			(at 123.19 234.95 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Custom:STD_DDW_RESISTOR"
+			(at 123.19 236.728 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 123.19 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 123.19 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "429b1598-38f8-41e5-825b-8a044653da29")
+		)
+		(pin "1"
+			(uuid "46949475-11aa-4764-8de0-e631feca8f71")
+		)
+		(instances
+			(project "CortexPC"
+				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/00000000-0000-0000-0000-00006416c532"
+					(reference "R28")
 					(unit 1)
 				)
 			)

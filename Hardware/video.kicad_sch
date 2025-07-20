@@ -6,8 +6,8 @@
 	(paper "A4")
 	(title_block
 		(title "CortexPC")
-		(date "2025-05-25")
-		(rev "V0.5")
+		(date "2025-07-13")
+		(rev "V0.9")
 	)
 	(lib_symbols
 		(symbol "Amplifier_Audio:LM386"
@@ -2791,127 +2791,6 @@
 				)
 			)
 		)
-		(symbol "Device:R"
-			(pin_numbers hide)
-			(pin_names
-				(offset 0)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "R"
-				(at 2.032 0 90)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "R"
-				(at 0 0 90)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at -1.778 0 90)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Resistor"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "R res resistor"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "R_*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "R_0_1"
-				(rectangle
-					(start -1.016 -2.54)
-					(end 1.016 2.54)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "R_1_1"
-				(pin passive line
-					(at 0 3.81 270)
-					(length 1.27)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 0 -3.81 90)
-					(length 1.27)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "Device:R_Potentiometer_Small"
 			(pin_names
 				(offset 1.016) hide)
@@ -3666,12 +3545,6 @@
 		)
 	)
 	(junction
-		(at 179.07 104.14)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "0cccb155-491b-4b0e-9a1d-ee47c1776f79")
-	)
-	(junction
 		(at 199.39 116.84)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3688,18 +3561,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "40b49c5b-3ed7-496a-bab2-ee700e1520c9")
-	)
-	(junction
-		(at 245.11 106.68)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "5ce01ac3-35e6-494c-85a0-efd443945d64")
-	)
-	(junction
-		(at 194.31 111.76)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "66c6dc6d-1638-47e2-bda1-62194a0c7c75")
 	)
 	(junction
 		(at 52.07 125.73)
@@ -3746,6 +3607,10 @@
 		(uuid "1b217681-8c19-433a-b06c-b76dc212f294")
 	)
 	(no_connect
+		(at 83.82 121.92)
+		(uuid "2a3f0c5c-f26c-4e2d-aea6-83eb790e78e5")
+	)
+	(no_connect
 		(at 71.12 76.2)
 		(uuid "2c706ea3-ebe0-430e-b064-891dab2902a0")
 	)
@@ -3780,10 +3645,6 @@
 	(no_connect
 		(at 71.12 83.82)
 		(uuid "5917d083-a9c8-44b8-8574-b0d0302489fe")
-	)
-	(no_connect
-		(at 204.47 114.3)
-		(uuid "68d965e1-03a7-42c0-b447-bb92950e3c24")
 	)
 	(no_connect
 		(at 71.12 41.91)
@@ -3862,26 +3723,6 @@
 			(type default)
 		)
 		(uuid "003c6a4a-b7bd-47cd-bdaf-f9c709012269")
-	)
-	(wire
-		(pts
-			(xy 245.11 127) (xy 201.93 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "006af67e-b00c-431c-9f1b-1b20f36a8f44")
-	)
-	(wire
-		(pts
-			(xy 179.07 104.14) (xy 179.07 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "028d07c3-d10f-445c-b412-8a210a11926f")
 	)
 	(wire
 		(pts
@@ -4005,16 +3846,6 @@
 	)
 	(wire
 		(pts
-			(xy 245.11 114.3) (xy 245.11 115.57)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "241b3b9c-f4d2-4da7-af5d-f7c94d863e9e")
-	)
-	(wire
-		(pts
 			(xy 41.91 43.18) (xy 41.91 40.64)
 		)
 		(stroke
@@ -4072,16 +3903,6 @@
 			(type default)
 		)
 		(uuid "37969325-91d9-4285-8a8b-d7ff58668cd9")
-	)
-	(wire
-		(pts
-			(xy 245.11 106.68) (xy 265.43 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3a99d89f-f88b-4a35-991c-32591f7ff4f5")
 	)
 	(wire
 		(pts
@@ -4265,16 +4086,6 @@
 	)
 	(wire
 		(pts
-			(xy 83.82 121.92) (xy 54.61 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "62d6fd9d-d95c-4362-b8a4-bc6eb59fbe26")
-	)
-	(wire
-		(pts
 			(xy 38.1 38.1) (xy 49.53 38.1)
 		)
 		(stroke
@@ -4325,16 +4136,6 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 121.92) (xy 54.61 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "747648a5-3de9-4a9f-8864-2f7cb68476ac")
-	)
-	(wire
-		(pts
 			(xy 199.39 96.52) (xy 199.39 99.06)
 		)
 		(stroke
@@ -4342,16 +4143,6 @@
 			(type default)
 		)
 		(uuid "750f29c5-9254-4af0-8f0e-8e848383a999")
-	)
-	(wire
-		(pts
-			(xy 179.07 111.76) (xy 194.31 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "75c74410-fb4d-4430-84b1-c1e3766a1d73")
 	)
 	(wire
 		(pts
@@ -4415,7 +4206,7 @@
 	)
 	(wire
 		(pts
-			(xy 147.32 104.14) (xy 148.59 104.14)
+			(xy 147.32 104.14) (xy 158.75 104.14)
 		)
 		(stroke
 			(width 0)
@@ -4455,7 +4246,7 @@
 	)
 	(wire
 		(pts
-			(xy 240.03 106.68) (xy 245.11 106.68)
+			(xy 240.03 106.68) (xy 265.43 106.68)
 		)
 		(stroke
 			(width 0)
@@ -4515,23 +4306,13 @@
 	)
 	(wire
 		(pts
-			(xy 194.31 109.22) (xy 194.31 111.76)
+			(xy 194.31 109.22) (xy 194.31 116.84)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "a2d694a0-1089-4477-a815-d711d1172bde")
-	)
-	(wire
-		(pts
-			(xy 153.67 104.14) (xy 158.75 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a78b0939-23c0-4bec-952a-46df7b84f8ab")
 	)
 	(wire
 		(pts
@@ -4545,6 +4326,16 @@
 	)
 	(wire
 		(pts
+			(xy 204.47 127) (xy 201.93 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ae3057da-c2e1-4b53-a218-8e6739dea76c")
+	)
+	(wire
+		(pts
 			(xy 111.76 128.27) (xy 114.3 128.27)
 		)
 		(stroke
@@ -4555,13 +4346,13 @@
 	)
 	(wire
 		(pts
-			(xy 245.11 106.68) (xy 245.11 109.22)
+			(xy 204.47 114.3) (xy 204.47 116.84)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "b2875ded-f103-40ba-83b6-2bcf608765fe")
+		(uuid "b281f805-4fe3-43a9-a434-884ac7776182")
 	)
 	(wire
 		(pts
@@ -4585,7 +4376,7 @@
 	)
 	(wire
 		(pts
-			(xy 161.29 104.14) (xy 170.18 104.14)
+			(xy 161.29 104.14) (xy 194.31 104.14)
 		)
 		(stroke
 			(width 0)
@@ -4605,16 +4396,6 @@
 	)
 	(wire
 		(pts
-			(xy 179.07 104.14) (xy 194.31 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c14c1f37-277c-44aa-9b27-e693426c0065")
-	)
-	(wire
-		(pts
 			(xy 147.32 106.68) (xy 147.32 104.14)
 		)
 		(stroke
@@ -4622,26 +4403,6 @@
 			(type default)
 		)
 		(uuid "c41d7e32-c722-47fe-beeb-cca537500ddd")
-	)
-	(wire
-		(pts
-			(xy 175.26 104.14) (xy 179.07 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c95e9f68-a7c5-4cc3-9a39-eab1184ae2e6")
-	)
-	(wire
-		(pts
-			(xy 245.11 120.65) (xy 245.11 127)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c9aa5670-3518-4cf6-b986-805f170f7e9b")
 	)
 	(wire
 		(pts
@@ -4715,6 +4476,16 @@
 	)
 	(wire
 		(pts
+			(xy 204.47 121.92) (xy 204.47 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "df0bd275-accd-4bce-9564-5b1b17a93f66")
+	)
+	(wire
+		(pts
 			(xy 49.53 63.5) (xy 45.72 63.5)
 		)
 		(stroke
@@ -4755,16 +4526,6 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 111.76) (xy 54.61 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f78cd59e-7ee2-44aa-a705-591014247167")
-	)
-	(wire
-		(pts
 			(xy 120.65 36.83) (xy 123.19 36.83)
 		)
 		(stroke
@@ -4772,16 +4533,6 @@
 			(type default)
 		)
 		(uuid "f7dddf4c-610e-47b5-b82c-4e0698019278")
-	)
-	(wire
-		(pts
-			(xy 194.31 111.76) (xy 194.31 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f8d20e45-2acf-492d-9bfa-33b472874290")
 	)
 	(wire
 		(pts
@@ -4844,6 +4595,16 @@
 		)
 		(uuid "74a14bc7-d220-47b0-95ff-49fcb9ae9dc9")
 	)
+	(text "* This looks wrong, but is correct on the footprint\n"
+		(exclude_from_sim no)
+		(at 68.834 154.686 0)
+		(effects
+			(font
+				(size 1.016 1.016)
+			)
+		)
+		(uuid "8b61c286-539a-405a-ab2a-c728d47145fa")
+	)
 	(text "Note that the sound chip relies on the Video chip/emulator to generate clock.\nSound will not function without video present."
 		(exclude_from_sim no)
 		(at 130.556 133.604 0)
@@ -4870,7 +4631,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -4891,7 +4652,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -4912,7 +4673,7 @@
 		(at 123.19 46.99 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -4933,7 +4694,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -4954,7 +4715,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -4976,7 +4737,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -4993,17 +4754,17 @@
 	)
 	(global_label "CPU-D1"
 		(shape bidirectional)
-		(at 114.3 113.03 0)
+		(at 114.3 125.73 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
 		(uuid "2aef8d33-7717-4695-b00a-2405734f52f7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -128.27 -40.64 0)
+			(at -128.27 279.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5014,17 +4775,17 @@
 	)
 	(global_label "CPU-D7"
 		(shape bidirectional)
-		(at 114.3 128.27 0)
+		(at 114.3 110.49 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
 		(uuid "2d7e0e55-eac0-4982-89cf-2ed12df6220d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -128.27 -40.64 0)
+			(at -128.27 279.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5039,7 +4800,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5056,17 +4817,17 @@
 	)
 	(global_label "CPU-D2"
 		(shape bidirectional)
-		(at 114.3 115.57 0)
+		(at 114.3 123.19 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
 		(uuid "3916cc97-257e-408c-8c02-a75e3bfdfed5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -128.27 -40.64 0)
+			(at -128.27 279.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5081,7 +4842,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5103,7 +4864,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -5125,7 +4886,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5147,7 +4908,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5165,17 +4926,17 @@
 	)
 	(global_label "CPU-D3"
 		(shape bidirectional)
-		(at 114.3 118.11 0)
+		(at 114.3 120.65 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
 		(uuid "4945e420-b4e5-418b-ac57-10de909d5072")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -128.27 -40.64 0)
+			(at -128.27 279.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5190,7 +4951,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -5212,7 +4973,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5234,7 +4995,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5255,7 +5016,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5273,17 +5034,17 @@
 	)
 	(global_label "CPU-D0"
 		(shape bidirectional)
-		(at 114.3 110.49 0)
+		(at 114.3 128.27 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
 		(uuid "56716059-82e9-4f8c-91df-ef27e0bf4c4e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 125.5059 110.49 0)
+			(at 125.5059 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5299,7 +5060,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5317,17 +5078,17 @@
 	)
 	(global_label "CPU-D6"
 		(shape bidirectional)
-		(at 114.3 125.73 0)
+		(at 114.3 113.03 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
 		(uuid "61292d6a-f6fc-47fc-9701-4fec4c032815")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -128.27 -40.64 0)
+			(at -128.27 279.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5342,7 +5103,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5363,7 +5124,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5380,17 +5141,17 @@
 	)
 	(global_label "CPU-D4"
 		(shape bidirectional)
-		(at 114.3 120.65 0)
+		(at 114.3 118.11 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
 		(uuid "70f858c6-8d1d-4286-aa07-d972c9c63d90")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -128.27 -40.64 0)
+			(at -128.27 279.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5405,7 +5166,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5426,7 +5187,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -5448,7 +5209,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5470,7 +5231,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5492,7 +5253,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5513,7 +5274,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5534,7 +5295,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5551,17 +5312,17 @@
 	)
 	(global_label "CPU-D5"
 		(shape bidirectional)
-		(at 114.3 123.19 0)
+		(at 114.3 115.57 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
 		(uuid "bf89745a-4a57-44dc-8299-829244961254")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -128.27 -40.64 0)
+			(at -128.27 279.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5576,7 +5337,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5597,7 +5358,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5618,7 +5379,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -5640,7 +5401,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5662,7 +5423,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5682,7 +5443,7 @@
 		(at 46.99 74.93 180)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -5769,7 +5530,7 @@
 	)
 	(symbol
 		(lib_id "Device:C_Polarized_Small")
-		(at 245.11 111.76 180)
+		(at 204.47 119.38 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5777,7 +5538,7 @@
 		(dnp no)
 		(uuid "0abd150a-bff3-40c7-919f-762a941e85dd")
 		(property "Reference" "C58"
-			(at 240.792 109.982 90)
+			(at 209.296 117.856 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5786,7 +5547,7 @@
 			)
 		)
 		(property "Value" "10uf"
-			(at 242.57 109.728 90)
+			(at 207.264 117.348 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5795,7 +5556,7 @@
 			)
 		)
 		(property "Footprint" "Custom:STD_DDW_PCAP"
-			(at 245.11 111.76 0)
+			(at 204.47 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5804,7 +5565,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 245.11 111.76 0)
+			(at 204.47 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5813,7 +5574,7 @@
 			)
 		)
 		(property "Description" "Polarized capacitor, small symbol"
-			(at 245.11 111.76 0)
+			(at 204.47 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5897,71 +5658,6 @@
 			(project "CortexPC"
 				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/bf22aaf9-2ccd-42cb-8c74-82ad86acbf23"
 					(reference "#PWR018")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:VCC")
-		(at 54.61 111.76 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "1c9733ee-8af3-4a29-850f-3dffd79aac9d")
-		(property "Reference" "#PWR0137"
-			(at 54.61 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VCC"
-			(at 54.991 107.3658 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 54.61 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 54.61 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VCC\""
-			(at 54.61 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "e98a833d-f243-4435-b047-c21638bc06b9")
-		)
-		(instances
-			(project "CortexPC"
-				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/bf22aaf9-2ccd-42cb-8c74-82ad86acbf23"
-					(reference "#PWR0137")
 					(unit 1)
 				)
 			)
@@ -6236,74 +5932,6 @@
 			(project "CortexPC"
 				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/bf22aaf9-2ccd-42cb-8c74-82ad86acbf23"
 					(reference "C34")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Small")
-		(at 172.72 104.14 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "32797847-c7e3-441b-bbdb-8b63f3875c1c")
-		(property "Reference" "R22"
-			(at 172.72 99.06 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "470K"
-			(at 172.72 101.6 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Custom:STD_DDW_RESISTOR"
-			(at 172.72 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 172.72 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, small symbol"
-			(at 172.72 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "f1529750-2e77-4481-86e0-16ba87976afa")
-		)
-		(pin "1"
-			(uuid "7815ea67-757a-47d2-8a82-c1b86e3fbaf1")
-		)
-		(instances
-			(project "CortexPC"
-				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/bf22aaf9-2ccd-42cb-8c74-82ad86acbf23"
-					(reference "R22")
 					(unit 1)
 				)
 			)
@@ -6918,8 +6546,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_Coaxial")
-		(at 86.36 151.13 0)
-		(mirror x)
+		(at 86.36 151.13 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6927,7 +6554,7 @@
 		(dnp no)
 		(uuid "66223444-b000-470b-bcb0-4a462c4cb751")
 		(property "Reference" "J9"
-			(at 91.694 151.892 0)
+			(at 91.44 152.908 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6936,7 +6563,7 @@
 			)
 		)
 		(property "Value" "AUDIO OUT"
-			(at 99.822 154.178 0)
+			(at 99.06 150.876 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7047,76 +6674,6 @@
 			(project "CortexPC"
 				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/bf22aaf9-2ccd-42cb-8c74-82ad86acbf23"
 					(reference "#PWR016")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Small")
-		(at 245.11 118.11 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "80743f9d-f581-49b1-9572-b4935c54453e")
-		(property "Reference" "R25"
-			(at 247.65 116.8399 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "4.3K"
-			(at 247.65 119.3799 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Custom:STD_DDW_RESISTOR"
-			(at 245.11 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 245.11 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, small symbol"
-			(at 245.11 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "d1aad0a2-efa6-495f-a9fe-c4eb59ad6d14")
-		)
-		(pin "1"
-			(uuid "228f16f5-4284-408a-91cc-b32d2d560e4c")
-		)
-		(instances
-			(project "CortexPC"
-				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/bf22aaf9-2ccd-42cb-8c74-82ad86acbf23"
-					(reference "R25")
 					(unit 1)
 				)
 			)
@@ -7477,76 +7034,6 @@
 			(project "CortexPC"
 				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/bf22aaf9-2ccd-42cb-8c74-82ad86acbf23"
 					(reference "#PWR019")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 54.61 116.84 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "95cfcbcb-be5f-4ec0-93c6-061bbc56c331")
-		(property "Reference" "R10"
-			(at 56.642 115.5699 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "10K"
-			(at 56.642 118.1099 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Custom:STD_DDW_RESISTOR"
-			(at 52.832 116.84 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 54.61 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 54.61 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "969b4068-ad71-4873-b0f2-5ebcfb6962a0")
-		)
-		(pin "2"
-			(uuid "dcdd0e11-6acf-40c4-bcc5-b4e44b440915")
-		)
-		(instances
-			(project "CortexPC"
-				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/bf22aaf9-2ccd-42cb-8c74-82ad86acbf23"
-					(reference "R10")
 					(unit 1)
 				)
 			)
@@ -8043,7 +7530,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "1K"
+		(property "Value" "10K"
 			(at 140.97 107.9499 0)
 			(effects
 				(font
@@ -8098,76 +7585,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_Small")
-		(at 179.07 109.22 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "ded8d214-b76a-4d91-9056-9799af08b34d")
-		(property "Reference" "R23"
-			(at 181.61 107.9499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "22K"
-			(at 181.61 110.4899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Custom:STD_DDW_RESISTOR"
-			(at 179.07 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 179.07 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, small symbol"
-			(at 179.07 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "6299809a-55aa-4d0d-9a3c-767563f42545")
-		)
-		(pin "1"
-			(uuid "50861e71-97bc-4f60-a6bd-c64f9667e653")
-		)
-		(instances
-			(project "CortexPC"
-				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/bf22aaf9-2ccd-42cb-8c74-82ad86acbf23"
-					(reference "R23")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C_Small")
 		(at 223.52 109.22 0)
 		(unit 1)
@@ -8177,7 +7594,7 @@
 		(dnp no)
 		(uuid "ef5a7eec-a8d0-4b9e-a20d-e6c0a34770e4")
 		(property "Reference" "C56"
-			(at 221.234 102.87 0)
+			(at 216.154 110.744 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8186,7 +7603,7 @@
 			)
 		)
 		(property "Value" "0.047uf"
-			(at 220.726 105.41 0)
+			(at 213.868 108.966 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8299,75 +7716,6 @@
 			(project ""
 				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/bf22aaf9-2ccd-42cb-8c74-82ad86acbf23"
 					(reference "D5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Polarized_Small")
-		(at 151.13 104.14 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "ff038fe2-5563-4047-8146-fd2847d5d382")
-		(property "Reference" "C53"
-			(at 153.162 101.6 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1uf"
-			(at 152.654 106.934 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Custom:STD_DDW_PCAP"
-			(at 151.13 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 151.13 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Polarized capacitor, small symbol"
-			(at 151.13 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "6929faae-bf1a-41de-afd1-6e0a5984afc9")
-		)
-		(pin "1"
-			(uuid "91bd26cb-73b6-476f-a51e-352e38c7f31f")
-		)
-		(instances
-			(project "CortexPC"
-				(path "/18cdbc1e-88fb-4fa4-ad3d-e978304be174/bf22aaf9-2ccd-42cb-8c74-82ad86acbf23"
-					(reference "C53")
 					(unit 1)
 				)
 			)

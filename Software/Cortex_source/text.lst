@@ -1,0 +1,595 @@
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0001
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+              2         IDT  'TEXT'
+              3         COPY 'IODEFS.INC'
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0002
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0003
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+              4         DEF  B4A,B0D,B1B,B2E,B56,B62,CRDELY
+              5         DEF  IDRUN,MBEGN,MCRLF,MPRDY,STRTC,B00
+              6         DEF  EXT$ID,CPYST,B3C,B3A,BFA,BF1,B4C,B47
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0004
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+              7         DEF  CASRDY,CRLF1T,CRLF2T,SYSERR
+              8         DEF  ERR00T,ERR01T,ERR02T,ERR03T,ERR04T
+              9         DEF  ERR05T,ERR06T,ERR07T,ERR08T,ERR09T
+             10         DEF  ERR10T,ERR11T,ERR12T,ERR13T,ERR14T
+             11         DEF  ERR15T,ERR16T,ERR17T,ERR18T,ERR19T
+             12         DEF  ERR20T,ERR21T,ERR22T,ERR23T,ERR24T
+             13         DEF  ERR25T,ERR26T,ERR27T,ERR28T,ERR29T
+             14         DEF  ERR30T,ERR31T,ERR32T,ERR33T,ERR34T
+             15         DEF  ERR35T,ERR36T,ERR37T,ERR38T,ERR39T
+             16         DEF  ERR40T,ERR41T,ERR42T,ERR43T,ERR44T
+             17         DEF  ERR45T,ERR46T,ERR47T,ERR48T,ERR49T
+             18         DEF  FP5E5,TAPERR,AUTORN,INM1,INM2,INM3
+             19         DEF  TIMC,TMPBUF,TBEND
+             20         DEF  C0004,C4600,C4A00,B3F,B7F
+             21         DEF  BFF,B2D,B45,B31,B2A,B40,CF0,C7F,CFF80
+             22         DEF  BADTER,BADADR
+             23         DEF  BELL,SPACE5,SPACE2,BPMSG
+             24         DEF  LOGON,SPR,REGSTR,ASKBP,EXMSG,SPBP
+             25         DEF  STPMSG,SYMBLC
+             26         DEF  PROMPT,WS,EQUSGN
+             27         DEF  START,PADIT,SPACE8,PGMFND,IDTEQ
+             28  *
+             29         REF  P$EUS,P$FNS,P$GSS,P$UFT,P$IOB,CRASH$,WP10L
+             30         REF  CONFIG,PRAM,BRAM,MEMSIZ,DEVTBL,DTEND
+             31         REF  SRATE,NEWP,SETVEC,C1,IOB
+             32  *
+             33  * DECREMENTER DECREMENTED EVERY 4TH CLKOUT CYCLE RUNNING
+             34  * AT 3 MHZ
+             35  *
+0000 1D4C    36  TIMC   DATA 7500              = 10 MS FOR DECREMENTER
+             37  *
+0002 4A00    38  C4A00  DATA >4A00
+0004 4600    39  C4600  DATA >4600
+0006 0004    40  C0004  DATA 4
+     A5A5    41  IDRUN  EQU  >A5A5
+0008 A5A5    42  STRTC  DATA IDRUN             AUTO RUN CODE
+000A 0019    43  CRDELY DATA 25                250MS CR DELAY COUNT
+000C 94C2    44  EXT$ID DATA >94C2             EXTENDED CMD HEADER ID
+     000E'   45  B45    EQU  $
+000E 457A    46  FP5E5  DATA >457A,>1200,>0000  FLOATING POINT  500,000
+0014 00F0    47  CF0    DATA >00F0
+0016 007F    48  C7F    DATA >007F
+     0018'   49  BFF    EQU  $
+0018 FF80    50  CFF80  DATA >FF80
+001A         51         EVEN
+001A 47      52  B47    BYTE >47               '!'   BLUE ON CYAN COL. CODE
+001B 0D      53  PGMFND BYTE >0D,>0A
+001D 46      54         TEXT 'Found "'
+0024 00      55         BYTE 0
+             56  *
+0025 4C      57  B4C    BYTE >4C
+0026 31      58  B31    BYTE >31               '1'
+0027 1B      59  B1B    BYTE >1B               'ESC'
+0028 FA      60  BFA    BYTE >FA               =16MS FOR 9902 TIMER
+0029 3C      61  B3C    BYTE >3C               '<'
+002A 4A      62  B4A    BYTE >4A               'J'
+002B 56      63  B56    BYTE >56               'V'
+002C 62      64  B62    BYTE >62               'b'
+002D F1      65  BF1    BYTE >F1
+     0017'   66  B7F    EQU  C7F+1             CURSOR CHARACTER
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0005
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+             67  *
+     002E'   68  B0D    EQU  $
+002E 0D      69  MBEGN  BYTE >0D,>0A           ;PROMPT
+0030 43      70         TEXT 'CORTEX BASIC Rev'
+     0040'   71  B2E    EQU  $                 '.'
+0040 2E      72         TEXT '. 1.1  '
+0047 88      73         BYTE >88
+0048 20      74         TEXT ' 1982'
+004D 0D      75  MPRDY  BYTE >0D,>0A
+004F 2A      76         TEXT '*Ready'
+0055 0D      77  MCRLF  BYTE >0D,>0A
+0057 00      78  B00    BYTE 0
+             79  *
+0058 0D      80  TAPERR BYTE >0D,>0A
+005A 2A      81         TEXT '** Tape read error'
+006C 20      82  CRLF2T TEXT -' ** '
+0070 0D      83  CASRDY BYTE >0D,>0A
+0072 43      84         TEXT 'Cassette ready '
+     0081'   85  B3F    EQU  $                 '?'
+0081 3F      86         TEXT -'? (Y/N) '
+0089 0D      87  AUTORN BYTE >0D,>0A
+008B 41      88         TEXT 'Auto'
+     008F'   89  B2D    EQU  $                 '-'
+008F 2D      90         TEXT -'-Run ? (Y/N) '
+009C 0D      91  CRLF1T BYTE >0D,>0A
+     009E'   92  B2A    EQU  $
+009E 2A      93         TEXT -'** '
+00A1 3F      94  INM2   TEXT '?'
+00A2 3F      95  INM1   TEXT '? '
+00A4 00      96         BYTE 0
+     00A5'   97  B3A    EQU  $                 ':'
+00A5 3A      98  INM3   TEXT ': '
+00A7 00      99         BYTE 0
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0006
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+            101  ************************************************************
+            102  *
+            103  * MONITOR MESSAGES
+            104  *
+00A8 07     105  BELL   BYTE >07,0
+00AA        106         EVEN
+00AA 0D0A   107  PADIT  DATA >0D0A
+00AC 20     108  SPACE8 TEXT '   '           !!! MUST BE WORD ALIGNED !!!
+00AF 20     109  SPACE5 TEXT ' '
+00B0 20     110         TEXT '  '
+00B2 20     111  SPACE2 TEXT ' '
+00B3 20     112         TEXT ' '
+00B4 00     113         BYTE 0
+00B5 0D     114  BPMSG  BYTE >D,>A,7
+00B8 42     115         TEXT 'BP'
+00BA 00     116         BYTE 0
+00BB 0D     117  LOGON  BYTE >D,>A
+00BD 4D     118         TEXT 'Monitor Rev. 1.1 '
+00CE 88     119         BYTE >88
+00CF 20     120         TEXT ' 1982'
+00D4 00     121         BYTE 0
+00D5 20     122  SPR    TEXT ' R'
+     00D6'  123  REGSTR EQU  $-1
+00D7 00     124         BYTE 0
+00D8 20     125  ASKBP  TEXT ' Set BPs?'
+00E1 00     126         BYTE 0
+00E2 20     127  EXMSG  TEXT ' Execute'
+00EA 00     128         BYTE 0
+00EB 20     129  SPBP   TEXT ' BP'
+00EE 00     130         BYTE 0
+00EF 0D     131  STPMSG BYTE >D,>A
+00F1 53     132         TEXT 'SS:-'
+00F5 07     133         BYTE 7,0
+     00F7'  134  B40    EQU  $
+00F7 40     135  SYMBLC TEXT '@>'
+00F9 00     136         BYTE 0
+00FA 0D     137  PROMPT BYTE >D,>A
+00FC 5B     138         TEXT '[]'
+00FE 00     139         BYTE 0
+00FF 57     140  WS     TEXT 'WP='
+0102 00     141         BYTE 0
+0103 50     142         TEXT 'PC='
+0106 00     143         BYTE 0
+0107 53     144         TEXT 'ST'
+0109 3D     145  EQUSGN TEXT '='
+010A 00     146         BYTE 0
+010B 49     147  IDTEQ  TEXT 'IDT='
+010F 00     148         BYTE 0
+0110 49     149  BADTER TEXT -'Illegal terminator'
+0122 49     150  BADADR TEXT -'Invalid address'
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0007
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+            152  ***********************************************************
+            153  ***********************************************************
+            154  ***********************************************************
+            155  ***                                                     ***
+            156  ***                   W A R N I N G                     ***
+            157  ***                 =================                   ***
+            158  ***                                                     ***
+            159  ***  THE AREA BETWEEN 'TMPBUF' AND 'TBEND' IS USED      ***
+            160  ***  DURING NORMAL PROGRAM EXECUTION. ACCESS TO THIS    ***
+            161  ***  AREA MUST THEREFORE BE MADE WITH THE EPROM TURNED  ***
+            162  ***  ON.                                                ***
+            163  ***                                                     ***
+            164  ***********************************************************
+            165  ***********************************************************
+            166  ***********************************************************
+            167  *
+     0131'  168  TMPBUF EQU  $                 <====== START OF SCRATCH AREA
+            169  *
+0132 0000   170  PTRTBL DATA P$IOB,P$EUS,P$FNS,P$GSS,P$UFT
+            171  ************************************************************
+            172  *                                                          *
+            173  *                 SYSTEM COLDSTART                         *
+            174  *                                                          *
+            175  ************************************************************
+            176  *
+            177  *    THIS ROUTINE MUST :-
+            178  *      1.   CHECKSUM THE EPROMS TO MAKE SURE THEY ARE OK
+            179  *      2.   COPY THE EPROMS INTO RAM AND TURN THEM OFF
+            180  *      3.   RESET THE KEYBOARD INTERRUPT LATCH
+            181  *      4.   INITIALISE THE MEMORY MAPPER REGISTERS
+            182  *      5.   AUTOSIZE THE RAM
+            183  *
+            184  *
+            185  ************************************************************
+            186  *                                                          *
+            187  *      CHECKSUM THE EPROMS AND GENERATE A SYSTEM           *
+            188  *      CRASH IF THIS FAILS. THIS ALSO COPIES THE           *
+            189  *      EPROMS INTO RAM.                                    *
+            190  *                                                          *
+            191  ************************************************************
+     013C'  192  START  EQU  $                 RESET ENTRY POINT
+013C 04C1   193         CLR  R1                START FROM 0
+013E 0202   194         LI   R2,CHKWRD         POINT TO THE CHECKWORD
+0140 016E'
+0142 C002   195         MOV  R2,R0             INITIALISE CHECKSUM
+0144 C101   196  L0     MOV  R1,R4             SAVE THE COPY POINTER
+0146 0244   197         ANDI R4,>FFFE          KILL LS BIT
+0148 FFFE 
+014A 8084   198         C    R4,R2             ARE WE AT THE CHECKWORD?
+014C 1305   199         JEQ  L2                Y, DONT ADD IT IN
+014E B811   200         AB   *R1,@WP10L        ADD INTO R0 LSB
+0150 0000 
+0152 1C01   201         JOP  L1                ODD PARITY, MODIFY CHECKWORD
+0154 2801   202         XOR  R1,R0             MODIFY THE CHECKSUM
+0156 0B00   203  L1     SRC  R0,0              FRIG THE CHECKWORD
+0158 DC51   204  L2     MOVB *R1,*R1+          COPY THE ROM WORD INTO RAM
+015A 0281   205         CI   R1,>6000          DONE?
+015C 6000 
+015E 1AF2   206         JL   L0                N, LOOP
+0160 04C1   207         CLR  R1
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0008
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+            208X        ASMIF PIO
+            209X        LI   R12,2*PIO         POINT TO PARALLEL I/O
+            210         ASMELS
+0162 04CC   211         CLR  R12
+            212         ASMEND
+0164 8480   213         C    R0,*R2            DOES IT MATCH?
+0166 1304   214         JEQ  RAMST             Y, GO TURN ROM OFF <<<<<<<
+0168 1D06   215         SBO  BELLON-PIO        N, TURN THE BELL ON
+016A 0460   216         B    @CRASH$               GO DIE!!!!
+016C 0000 
+016E 1B70   217  CHKWRD DATA >1B70             REV 1.1  CHECSUM WORD
+            218  ************************************************************
+            219  *                                                          *
+            220  *      RESET THE I/O  AND TURN THE ROMS OFF                *
+            221  *                                                          *
+            222  ************************************************************
+0170 0200   223  RAMST  LI   R0,>0360               R0='RSET'
+0172 0360 
+0174 0201   224         LI   R1,>1D00+(KBDACK-PIO)  R1='SBO KBDACK-PIO'
+0176 1D01 
+0178 0202   225         LI   R2,>1D00+(ROMON-PIO)   R2='SBO ROMON-PIO'
+017A 1D05 
+017C 0203   226         LI   R3,>045B               R3='RT'
+017E 045B 
+0180 0680   227         BL   R0                TURN OFF EPROMS
+            228  ************************************************************
+            229  *                                                          *
+            230  *      NOW INITIALISE THE MAPPER & SET CONFIG FLAGS        *
+            231  *                                                          *
+            232  ************************************************************
+0182 0207   233         LI   R7,>0001          SET FOR MAPPER PRESENT
+0184 0001 
+0186 020C   234         LI   R12,MAPPER        POINT TO THE MAPPER
+0188 F100 
+018A 0708   235         SETO R8                FUDGE FOR NEXT INSTRUCTION
+018C 0588   236  SETMAP INC  R8                NEXT REGISTER
+018E CF08   237         MOV  R8,*R12+          INIT. REGISTER
+0190 06C8   238         SWPB R8                TEST JUST IT'S MSB
+0192 922C   239         CB   @-1(12),R8        WAS IT WRITTEN OK?
+0194 FFFF 
+0196 1301   240         JEQ  MAPOK             Y, LEAVE MAPPER FLAG
+0198 04C7   241         CLR  R7                N, RESET MAPPER FLAG
+019A 06C8   242  MAPOK  SWPB R8                RESTORE R8
+019C 028C   243         CI   R12,M$REGF        HAVE WE DONE WITH THE MAPPER?
+019E F11E 
+01A0 12F5   244         JLE  SETMAP            N, LOOP
+01A2 C807   245  NOPOP  MOV  R7,@CONFIG        SETUP CONFIGURATION FLAGS
+01A4 0000 
+            246  ************************************************************
+            247  *                                                          *
+            248  *                     AUTO-SIZE RAM                        *
+            249  *                                                          *
+            250  ************************************************************
+01A6 02A2   251         STWP R2                GET START OF AUTOSIZE
+01A8 0204   252         LI   R4,>AAAA          SET TEST PATTERN
+01AA AAAA 
+01AC 0205   253         LI   R5,PRAM           SET PRAM POINTER
+01AE 0000 
+01B0 0642   254  START1 DECT R2                BACKUP POINTER
+01B2 C484   255         MOV  R4,*R2            WRITE
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0009
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+01B4 8484   256         C    R4,*R2            O.K. ?
+01B6 1605   257         JNE  START6            N, END OF RAM
+01B8 04D2   258         CLR  *R2               CLEAR RAM
+01BA 0282   259         CI   R2,BRAM           DOWN TO INTERPRETER
+01BC 0000 
+01BE 1BF8   260         JH   START1            N, CONTINUE
+01C0 0642   261         DECT R2
+            262  ************************************************************
+            263  *                                                          *
+            264  *                 INITIALIZE SYSTEM POINTERS               *
+            265  *                                                          *
+            266  ************************************************************
+            267  *
+            268  *       R2=BRAM-2
+            269  *       R5=PRAM
+            270  *
+01C2 0201   271  START6 LI   R1,IOB            GET POINTER
+01C4 0000 
+01C6 0205   272         LI   R5,PTRTBL         REF THE SYSTEM PTR TABLE
+01C8 0132'
+01CA C802   273         MOV  R2,@MEMSIZ         ;SAVE MEMORY SIZE
+01CC 0000 
+01CE 0222   274         AI   R2,1024            ;RESERVE ROOM FOR HEADER BLOC
+01D0 0400 
+            275  *                                    AND USER AREA
+01D2 CC75   276         MOV  *R5+,*R1+          ;SAVE IOB
+01D4 CC75   277         MOV  *R5+,*R1+          ;SAVE EUS
+01D6 CC75   278         MOV  *R5+,*R1+          ;SAVE FNS
+01D8 CC75   279         MOV  *R5+,*R1+          ;SAVE GSS
+01DA CC55   280         MOV  *R5,*R1+           ;SAVE UFT
+01DC CC42   281         MOV  R2,*R1+            ;SAVE BUS
+01DE CC42   282         MOV  R2,*R1+            ;SAVE EORBUS
+            283  ************************************************************
+            284  *                                                          *
+            285  *      INITIALISE ALL 9902'S FOR 300 BAUD OPERATION        *
+            286  *                                                          *
+            287  ************************************************************
+01E0 0207   288         LI   R7,DEVTBL         REF. DEVICE TABLE
+01E2 0000 
+01E4 0202   289         LI   R2,>04D0          SET TO 300 BAUD
+01E6 04D0 
+            290  *
+01E8 0287   291  NXTDEV CI   R7,DTEND          DONE ALL ENTRIES
+01EA 0000 
+01EC 140E   292         JHE  SETUP             Y, SET SYSTEM POINTERS
+01EE C337   293         MOV  *R7+,R12          N,GET ENTRY
+01F0 2320   294         COC  @C1,R12           LS BIT SET?
+01F2 0000 
+01F4 16F9   295         JNE  NXTDEV            N, NOT A 9902
+01F6 024C   296         ANDI R12,>7FFE         KILL OFF LS & MS BITS
+01F8 7FFE 
+01FA 1F12   297         TB   18                IS IT INSTALLED
+01FC 1303   298         JEQ  NODEV             N, DELETE TABLE ENTRY
+01FE 06A0   299         BL   @SRATE            Y, INITIALISE IT
+0200 0000 
+0202 10F2   300         JMP  NXTDEV            DO NEXT DEVICE
+            301  *
+0204 04E7   302  NODEV  CLR  @-2(R7)           DELETE TABLE ENTRY
+0206 FFFE 
+0208 10EF   303         JMP  NXTDEV            DO NEXT DEVICE
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0010
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+            304  *
+     020A'  305  SETUP  EQU  $
+020A 020B   306         LI   R11,NEWP          SET EXIT TO 'NEW'
+020C 0000 
+020E 0460   307         B    @SETVEC           SET CRITICAL SYSTEM POINTERS
+0210 0000 
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0011
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+     0212'  309  CPYST  EQU  $
+0212 46     310  ERR00T TEXT 'FATAL '
+0218 53     311  SYSERR TEXT -'SYSTEM ERROR'
+0224 53     312  ERR01T TEXT -'Syntax Error'
+0230 55     313  ERR02T TEXT -'Unmatched delimiter'
+0243 49     314  ERR03T TEXT -'Invalid line number'
+0256 49     315  ERR04T TEXT -'Illegal variable name'
+026B 54     316  ERR05T TEXT -'Too many variables'
+027D 49     317  ERR06T TEXT -'Illegal character'
+028E 45     318  ERR07T TEXT -'Expecting operator'
+02A0 49     319  ERR08T TEXT -'Illegal function name'
+02B5 49     320  ERR09T TEXT -'Illegal function argument'
+02CE 4F     321  ERR10T TEXT -'Out of memory'
+02DB 53     322  ERR11T TEXT -'Stack overflow'
+02E9 53     323  ERR12T TEXT -'Stack underflow'
+02F8 4E     324  ERR13T TEXT -'No such line number'
+030B 45     325  ERR14T TEXT -'Expecting string variable'
+0324 49     326  ERR15T TEXT -'Invalid screen command'
+033A 45     327  ERR16T TEXT -'Expecting dimensioned variable'
+0358 53     328  ERR17T TEXT -'Subscript out of range'
+036E 54     329  ERR18T TEXT -'Too few subscripts'
+0380 54     330  ERR19T TEXT -'Too many subscripts'
+0393 45     331  ERR20T TEXT -'Expecting simple variable'
+03AC 44     332  ERR21T TEXT -'Digits out of range'
+03BF 45     333  ERR22T TEXT -'Expecting variable'
+03D1 52     334  ERR23T TEXT -'Read out of Data'
+03E1 52     335  ERR24T TEXT -'Read & Data types differ'
+03F9 53     336  ERR25T TEXT -'Square root of negative number'
+0417 4C     337  ERR26T TEXT -'Log of non-positive number'
+0431 45     338  ERR27T TEXT -'Expression too complex'
+0447 44     339  ERR28T TEXT -'Division by zero'
+0457 46     340  ERR29T TEXT -'Floating point overflow'
+046E 52     341  ERR30T TEXT -'Range error'
+0479 4D     342  ERR31T TEXT -'Missing NEXT'
+0485 4D     343  ERR32T TEXT -'Missing FOR'
+0490 45     344  ERR33T TEXT -'EXP has invalid argument'
+04A8 43     345  ERR34T TEXT -'Corrupted number'
+04B8 50     346  ERR35T TEXT -'Parameter error'
+04C7 4D     347  ERR36T TEXT -'Missing assignment operator'
+04E2 49     348  ERR37T TEXT -'Illegal delimiter'
+04F3 55     349  ERR38T TEXT -'Undefined function'
+0505 55     350  ERR39T TEXT -'Undimensioned variable'
+051B 55     351  ERR40T TEXT -'Undefined variable'
+052D 45     352  ERR41T TEXT -'Expansion eprom not found'
+0546 49     353  ERR42T TEXT -'Interrupt without trap'
+055C 49     354  ERR43T TEXT -'Invalid baud rate'
+056D 49     355  ERR44T TEXT -'Illegal opcode'
+057B 45     356  ERR45T TEXT -'Eprom verify error'
+058D 49     357  ERR46T TEXT -'Invalid device number'
+05A2 52     358  ERR47T TEXT -'Required hardware not found'
+05BD 49     359  ERR48T TEXT -'Illegal in current mode'
+     0122'  360  ERR49T EQU  BADADR
+     05D4'  361  TBEND  EQU  $                 <===  END OF SCRATCH AREA
+            362  *
+     00A3   363  TBSIZE EQU   ((TBEND-TMPBUF)-1024)
+            364X        ASMIF TBSIZE&>8000
+            365X  SPLAT !!! - SCRATCH BUFFER IS TOO SMALL
+            366         ASMEND
+            367         END
+ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0012
+TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
+
+ASKBP    00D8D  AUTORN   0089D  B00      0057D  B0D      002ED  B1B      0027D  
+B2A      009ED  B2D      008FD  B2E      0040D  B31      0026D  B3A      00A5D  
+B3C      0029D  B3F      0081D  B40      00F7D  B45      000ED  B47      001AD  
+B4A      002AD  B4C      0025D  B56      002BD  B62      002CD  B7F      0017D  
+BADADR   0122D  BADTER   0110D  BELL     00A8D  BELLON   0006   BF1      002DD  
+BFA      0028D  BFF      0018D  BPMSG    00B5D  BRAM     01BCR  BTENBL   0003   
+BUSACK   0002   BUSINT   0007   C0004    0006D  C1       01F2R  C4600    0004D  
+C4A00    0002D  C7F      0016D  CASRDY   0070D  CASS02   00C0   CF0      0014D  
+CFF80    0018D  CHKWRD   016E'  CLKLED   0000   CONFIG   01A4R  CPYST    0212D  
+CRASH$   016CR  CRDELY   000AD  CRLF1T   009CD  CRLF2T   006CD  CTBA     0700   
+CTBA1    2000   D1$DEN   0003   D1$SIZ   0002   DEVTBL   01E2R  DMAC     00E0   
+DRVSIZ   0004   DTEND    01EAR  EDATA    0208   EIA02    0040   EPADR    0210   
+EPTYPE   0201   EQUSGN   0109D  ERR00T   0212D  ERR01T   0224D  ERR02T   0230D  
+ERR03T   0243D  ERR04T   0256D  ERR05T   026BD  ERR06T   027DD  ERR07T   028ED  
+ERR08T   02A0D  ERR09T   02B5D  ERR10T   02CED  ERR11T   02DBD  ERR12T   02E9D  
+ERR13T   02F8D  ERR14T   030BD  ERR15T   0324D  ERR16T   033AD  ERR17T   0358D  
+ERR18T   036ED  ERR19T   0380D  ERR20T   0393D  ERR21T   03ACD  ERR22T   03BFD  
+ERR23T   03D1D  ERR24T   03E1D  ERR25T   03F9D  ERR26T   0417D  ERR27T   0431D  
+ERR28T   0447D  ERR29T   0457D  ERR30T   046ED  ERR31T   0479D  ERR32T   0485D  
+ERR33T   0490D  ERR34T   04A8D  ERR35T   04B8D  ERR36T   04C7D  ERR37T   04E2D  
+ERR38T   04F3D  ERR39T   0505D  ERR40T   051BD  ERR41T   052DD  ERR42T   0546D  
+ERR43T   055CD  ERR44T   056DD  ERR45T   057BD  ERR46T   058DD  ERR47T   05A2D  
+ERR48T   05BDD  ERR49T   0122D  EXMSG    00E2D  EXT$ID   000CD  FDC      F140   
+FDCINT   0004   FP5E5    000ED  IDRUN    A5A5D  IDTEQ    010BD  INM1     00A2D  
+INM2     00A1D  INM3     00A5D  IOB      01C4R  KBDACK   0001   KBDINT   0005   
+KDS      0000   KEYBRD   0008   L0       0144'  L1       0156'  L2       0158'  
+LOGON    00BBD  M$REG0   F100   M$REG1   F102   M$REG2   F104   M$REG3   F106   
+M$REG4   F108   M$REG5   F10A   M$REG6   F10C   M$REG7   F10E   M$REG8   F110   
+M$REG9   F112   M$REGA   F114   M$REGB   F116   M$REGC   F118   M$REGD   F11A   
+M$REGE   F11C   M$REGF   F11E   MAPOK    019A'  MAPPER   F100   MBEGN    002ED  
+MCRLF    0055D  MEMSIZ   01CCR  MPRDY    004DD  NEWP     020CR  NODEV    0204'  
+NOPOP    01A2'  NTBA     0400   NTBA1    1800   NXTDEV   01E8'  P$EUS    0134R  
+P$FNS    0136R  P$GSS    0138R  P$IOB    0132R  P$UFT    013AR  PADIT    00AAD  
+PGBA     0800   PGM      0205   PGMFND   001BD  PGMPUL   0206   PGTBA1   0000   
+PIO      0000   PPBUSY   0409   PPDS     0408   PPRINT   0400   PRAM     01AER  
+PRMPOP   0200   PROERR   0206   PROMPT   00FAD  PRORDY   0204   PRORST   0200   
+PTRTBL   0132'  R0       0000   R1       0001   R10      000A   R11      000B   
+R12      000C   R13      000D   R14      000E   R15      000F   R2       0002   
+R3       0003   R4       0004   R5       0005   R6       0006   R7       0007   
+R8       0008   R9       0009   RAMST    0170'  REGSTR   00D6D  ROMON    0005   
+SETMAP   018C'  SETUP    020A'  SETVEC   0210R  SNTBA    0780   SNTBA1   1B00   
+SPACE2   00B2D  SPACE5   00AFD  SPACE8   00ACD  SPBP     00EBD  SPGBA    0000   
+SPGBA1   3800   SPR      00D5D  SRATE    0200R  START    013CD  START1   01B0'  
+START6   01C2'  STPMSG   00EFD  STRTC    0008D  SYMBLC   00F7D  SYSERR   0218D  
+TAPERR   0058D  TBEND    05D4D  TBSIZE   00A3   TIMC     0000D  TMPBUF   0131D  
+V30      0207   VCCON    0204   VDP      F120   VDPINT   0006   VDPREG   F121   
+VRAM     F120   WP10L    0150R  WS       00FFD  
+
+0 Errors in assembly

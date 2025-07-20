@@ -1,0 +1,235 @@
+LNK990 2.3.2     ROM                       Sun Jul 20 19:28:52 2025 Page 0001
+
+MODULE    NO  ORIGIN  LENGTH    DATE      TIME    CREATOR   FILE
+
+START      1   0000    0278   07/20/25  19:28:47   ASM990   start.obj
+MID        2   0278    038A   07/20/25  19:28:47   ASM990   mid.obj
+DSR02      3   0602    0152   07/20/25  19:28:48   ASM990   dsr02.obj
+CENTRON    4   0754    001A   07/20/25  19:28:48   ASM990   centron.obj
+VDPDSR     5   076E    0298   07/20/25  19:28:48   ASM990   vdpdsr.obj
+MONITOR    6   0A06    0BEC   07/20/25  19:28:48   ASM990   monitor.obj
+JMP        7   15F2    001E   07/20/25  19:28:48   ASM990   jump.obj
+CASSETTE   8   1610    02A4   07/20/25  19:28:48   ASM990   cassette.obj
+ATNF       9   18B4    00DE   07/20/25  19:28:48   ASM990   atnf.obj
+VDP       10   1992    03B8   07/20/25  19:28:48   ASM990   vdp.obj
+ERROR     11   1D4A    01D4   07/20/25  19:28:48   ASM990   error.obj
+CALL      12   1F1E    002C   07/20/25  19:28:48   ASM990   call.obj
+CHRF      13   1F4A    003C   07/20/25  19:28:48   ASM990   chrf.obj
+CRUF      14   1F86    0088   07/20/25  19:28:48   ASM990   cruf.obj
+DEF       15   200E    0024   07/20/25  19:28:48   ASM990   def.obj
+DIM       16   2032    00C4   07/20/25  19:28:48   ASM990   dim.obj
+ENTER     17   20F6    0042   07/20/25  19:28:48   ASM990   enter.obj
+ESCAPE    18   2138    000E   07/20/25  19:28:48   ASM990   escape.obj
+FOR       19   2146    019A   07/20/25  19:28:48   ASM990   for.obj
+FORMAT    20   22E0    013C   07/20/25  19:28:49   ASM990   format.obj
+FUNC      21   241C    00C6   07/20/25  19:28:49   ASM990   func.obj
+GOSUB     22   24E2    00CC   07/20/25  19:28:49   ASM990   gosub.obj
+IF        23   25AE    0080   07/20/25  19:28:49   ASM990   if.obj
+INPUT     24   262E    0108   07/20/25  19:28:49   ASM990   input.obj
+IPCOM     25   2736    003C   07/20/25  19:28:49   ASM990   ipcom.obj
+LET       26   2772    0146   07/20/25  19:28:49   ASM990   let.obj
+LOGOPS    27   28B8    0050   07/20/25  19:28:49   ASM990   logops.obj
+MEMF      28   2908    0032   07/20/25  19:28:49   ASM990   memf.obj
+MOVE      29   293A    0064   07/20/25  19:28:49   ASM990   move.obj
+MWDF      30   299E    002E   07/20/25  19:28:49   ASM990   mwdf.obj
+NUMBER    31   29CC    002E   07/20/25  19:28:49   ASM990   number.obj
+ON        32   29FA    0032   07/20/25  19:28:49   ASM990   on.obj
+PRINT     33   2A2C    01D0   07/20/25  19:28:49   ASM990   print.obj
+PURGE     34   2BFC    0054   07/20/25  19:28:49   ASM990   purge.obj
+PUTB      35   2C50    004E   07/20/25  19:28:49   ASM990   putb.obj
+RANDOM    36   2C9E    0008   07/20/25  19:28:50   ASM990   random.obj
+READ      37   2CA6    00B2   07/20/25  19:28:50   ASM990   read.obj
+RENUM     38   2D58    02E0   07/20/25  19:28:50   ASM990   renum.obj
+SGNF      39   3038    0018   07/20/25  19:28:50   ASM990   sgnf.obj
+SIZE      40   3050    00BC   07/20/25  19:28:50   ASM990   size.obj
+TICF      41   310C    0030   07/20/25  19:28:50   ASM990   ticf.obj
+TIME      42   313C    009A   07/20/25  19:28:50   ASM990   time.obj
+TRACE     43   31D6    000E   07/20/25  19:28:50   ASM990   trace.obj
+UNIT      44   31E4    0036   07/20/25  19:28:50   ASM990   unit.obj
+BOOT      45   321A    0119   07/20/25  19:28:50   ASM990   boot.obj
+SFSN      46   3334    0014   07/20/25  19:28:50   ASM990   sfsn.obj
+SWAP      47   3348    0064   07/20/25  19:28:50   ASM990   swap.obj
+RELOPS    48   33AC    003C   07/20/25  19:28:50   ASM990   relops.obj
+EDIT      49   33E8    0AE6   07/20/25  19:28:50   ASM990   edit.obj
+RUN       50   3ECE    0196   07/20/25  19:28:50   ASM990   run.obj
+CVBD      51   4064    020C   07/20/25  19:28:50   ASM990   cvbd.obj
+CVDB      52   4270    01E8   07/20/25  19:28:51   ASM990   cvdb.obj
+CVGC      53   4458    005E   07/20/25  19:28:51   ASM990   cvgc.obj
+EVAL      54   44B6    056E   07/20/25  19:28:51   ASM990   eval.obj
+EXPF      55   4A24    00C8   07/20/25  19:28:51   ASM990   expf.obj
+FIX       56   4AEC    003C   07/20/25  19:28:51   ASM990   fix.obj
+FP        57   4B28    0342   07/20/25  19:28:51   ASM990   fp.obj
+BITF      58   4E6A    0054   07/20/25  19:28:51   ASM990   bitf.obj
+LNK990 2.3.2     ROM                       Sun Jul 20 19:28:52 2025 Page 0002
+
+GETLINE   59   4EBE    015E   07/20/25  19:28:51   ASM990   getline.obj
+GETP2     60   501C    001A   07/20/25  19:28:51   ASM990   getp2.obj
+GETPARM   61   5036    001E   07/20/25  19:28:51   ASM990   getparm.obj
+LOGF      62   5054    00EA   07/20/25  19:28:51   ASM990   logf.obj
+PLOT      63   513E    014E   07/20/25  19:28:51   ASM990   plot.obj
+POLY      64   528C    0068   07/20/25  19:28:51   ASM990   poly.obj
+POWF      65   52F4    0022   07/20/25  19:28:51   ASM990   powf.obj
+RNDF      66   5316    0030   07/20/25  19:28:51   ASM990   rndf.obj
+SINF      67   5346    00A0   07/20/25  19:28:51   ASM990   sinf.obj
+SQRF      68   53E6    0070   07/20/25  19:28:51   ASM990   sqrf.obj
+EXTEND    69   5456    00C4   07/20/25  19:28:52   ASM990   extend.obj
+TEXT      70   551A    05D4   07/20/25  19:28:52   ASM990   text.obj
+LAST      71   5AEE    0602   07/20/25  19:28:52   ASM990   last.obj
+
+                        D E F I N I T I O N S 
+
+ABSF    2466'   21  ADDF    4926'   54  ADRF    29C8'   30  AINC    EFC8     1  
+ANDF    33AC'   48  ASCF    2936'   28  ASKBP   55F2'   70  ASMOPC  EF5E     1  
+ASMPTR  EF16     1  ATNF    18B4'    9  AUTORN  55A3'   70  B00     5571'   70  
+B01     48BF'   54  B05     48C3'   54  B08     4F8E'   59  B0D     5548'   70  
+B1B     5541'   70  B20     4F8A'   59  B2A     55B8'   70  B2D     55A9'   70  
+B2E     555A'   70  B30     40E3'   51  B31     5540'   70  B3A     55BF'   70  
+B3C     5543'   70  B3F     559B'   70  B40     5611'   70  B43     01C8'    1  
+B45     5528'   70  B47     5534'   70  B4A     5544'   70  B4C     553F'   70  
+B56     5545'   70  B62     5546'   70  B7F     5531'   70  BADADR  563C'   70  
+BADTER  562A'   70  BASY    1F86'   14  BAUD    0164'    1  BCRU    001A'    1  
+BEGN    024A'    1  BEGN1   0252'    1  BELCNT  ED42     1  BELL    55C2'   70  
+BF1     5547'   70  BFA     5542'   70  BFF     5532'   70  BITF    4E9E'   58  
+BITMAP  EE3C     1  BITY    4E6A'   58  BLSTOR  EF14     1  BMVE    293A'   29  
+BOOTY   321A'   45  BPMSG   55CF'   70  BPT0V   EF1A     1  BPTADD  EF1E     1  
+BPTDTA  EF3E     1  BPTSET  EF1C     1  BRAM    60F0'   71  BUFEND  EE32     1  
+BUS     ED04     1  C0004   5520'   70  C000A   29F6'   31  C1      48BE'   54  
+C10     064C'    3  C2000   4F8A'   59  C4      48C0'   54  C4600   551E'   70  
+C4A00   551C'   70  C6      48C8'   54  C7F     5530'   70  C8000   4E8C'   58  
+CALL12  ED5E     1  CALLWP  ED46     1  CASRDY  558A'   70  CCNT    ED68     1  
+CCSAVE  EE94     1  CENTRO  0754'    4  CF0     552E'   70  CFF80   5532'   70  
+CKEX    44F4'   54  CLKADR  ED16     1  CLKT01  ED1C     1  CLKT02  ED1E     1  
+CLKWS   ED14     1  CLLY    1F1E'   12  CLRV    3ECE'   50  CMOF$   0015     2  
+CMON$   0014     2  CNTDWN  ED38     1  COLF    1B14'   10  COLORY  1AD8'   10  
+CONFIG  00B4'    1  COSF    5346'   67  CPYST   572C'   70  CRASH$  2008'   14  
+CRBF    1FEE'   14  CRBY    1FA6'   14  CRDELY  5524'   70  CRFF    1FC4'   14  
+CRFY    1F8C'   14  CRLF    022A'    1  CRLF1   0244'    1  CRLF1T  55B6'   70  
+CRLF2T  5586'   70  CURFLG  ED6A     1  CVBD    4070'   51  CVBF    22E0'   20  
+CVBFR   41D4'   51  CVBI    4068'   51  CVC10   4480'   53  CVCH    EFEC     1  
+CVDB20  43E4'   52  CVDIFZ  4274'   52  CVDIZ   4270'   52  CVGCN   4458'   53  
+CVGCN1  4460'   53  CVHD    EFF2     1  CVHD01  EFF3     1  CVHD12  EFFE     1  
+CVHD15  F001     1  D$LDPC  0A1E'    6  D$LDWP  0A08'    6  D$RTWP  0720'    3  
+D10     29F6'   31  D100    29EE'   31  D40     09C8'    5  DATXB   4063'   50  
+DCNT    EFCA     1  DDM     EFD4     1  DEBUG$  0AF8'    6  DEFY    200E'   15  
+DELAY$  0008     2  DEVTBL  0084'    1  DH$ARF  EFA6     1  DH$END  EFBA     1  
+DH$HCS  EFB8     1  DH$PGN  EFA8     1  DH$PLL  EFB6     1  DH$SIZ  EFB4     1  
+DH$SLT  EFB0     1  DH$VNT  EFB2     1  DIMY    2032'   16  DLC     EFD2     1  
+DLIM    EFD0     1  DMYHDR  EFA6     1  DS      ED20     1  DS1     ED26     1  
+DS2     EFDA     1  DS3     EFE0     1  DSRCNT  EDAA     1  DTEND   00A4'    1  
+E$TEMP  EFE6     1  EBP     EFF2     1  ECHOEN  0E30'    6  EDER    4F9A'   59  
+EDIT    3404'   49  EDIT1   340A'   49  EDTMP   ECF8     1  EFIX$E  1AB8'   10  
+EFLG    001C'    1  ELNM    0018'    1  ELSF    ED6C     1  EMV     3800'   49  
+ENTERY  20F6'   17  ENUM    0016'    1  EORBUS  ED06     1  EQUSGN  5623'   70  
+EREGS   EF6C     1  ERR00T  572C'   70  ERR01T  573E'   70  ERR02T  574A'   70  
+ERR03T  575D'   70  ERR04T  5770'   70  ERR05T  5785'   70  ERR06T  5797'   70  
+LNK990 2.3.2     ROM                       Sun Jul 20 19:28:52 2025 Page 0003
+
+ERR07T  57A8'   70  ERR08T  57BA'   70  ERR09T  57CF'   70  ERR10T  57E8'   70  
+ERR11T  57F5'   70  ERR12T  5803'   70  ERR13T  5812'   70  ERR14T  5825'   70  
+ERR15T  583E'   70  ERR16T  5854'   70  ERR17T  5872'   70  ERR18T  5888'   70  
+ERR19T  589A'   70  ERR20T  58AD'   70  ERR21T  58C6'   70  ERR22T  58D9'   70  
+ERR23T  58EB'   70  ERR24T  58FB'   70  ERR25T  5913'   70  ERR26T  5931'   70  
+ERR27T  594B'   70  ERR28T  5961'   70  ERR29T  5971'   70  ERR3$M  0AE8'    6  
+ERR30T  5988'   70  ERR31T  5993'   70  ERR32T  599F'   70  ERR33T  59AA'   70  
+ERR34T  59C2'   70  ERR35T  59D2'   70  ERR36T  59E1'   70  ERR37T  59FC'   70  
+ERR38T  5A0D'   70  ERR39T  5A1F'   70  ERR40T  5A35'   70  ERR41T  5A47'   70  
+ERR42T  5A60'   70  ERR43T  5A76'   70  ERR44T  5A87'   70  ERR45T  5A95'   70  
+ERR46T  5AA7'   70  ERR47T  5ABC'   70  ERR48T  5AD7'   70  ERR49T  563C'   70  
+ERRLS2  1D4A'   11  ERROR   2F80     1  ERROR2  2FA0     1  ERRS    1DAA'   11  
+ERRY    1EA4'   11  ESCFLG  0020'    1  ESCY    2138'   18  EUS     ECFC     1  
+EVAL    469A'   54  EVALS2  4692'   54  EVARZ   44F0'   54  EVENRT  30E4'   40  
+EVERZ   450A'   54  EVFX    4522'   54  EVOP3A  47DC'   54  EVSDZ   44B6'   54  
+EVSFR   466C'   54  EVSFR$  467C'   54  EVSKB   F000     1  EVSKE   F094     1  
+EXMSG   55FC'   70  EXPF    4A28'   55  EXT$ID  5526'   70  EXTNDY  549E'   69  
+EXTWP   EED4     1  F$WHO   EFD8     1  FAD     4B42'   57  FADDI   4E1A'   57  
+FBCOL   EE95     1  FCLR    4D4A'   57  FDCDON  0028'    1  FDD     4D7E'   57  
+FFLG    ED6E     1  FGM$    0012     2  FIX     4AEC'   56  FLDD    4B30'   57  
+FLOAT   4BFC'   57  FLUSH$  0013     2  FMD     4C5E'   57  FNEG    4BF2'   57  
+FNRM    4C24'   57  FNS     ECFE     1  FNSZ    000A     1  FOR2    2186'   19  
+FORY    2146'   19  FP5E5   5528'   70  FPAC    F09C     1  FPAC2   F09E     1  
+FPAC3   F09F     1  FPAC4   F0A0     1  FPWP    F09C     1  FRAF    249A'   21  
+FSCL    4E42'   57  FSD     4B38'   57  FSRD    4B28'   57  FSUBI   4E2E'   57  
+FTM$    0011     2  FUNBK   528C'   64  FUNFX   52B8'   64  FUZZ    3B00     1  
+GCLEAR  057E'    2  GETC$   000B     2  GETCR$  000C     2  GETP2   501C'   60  
+GOS1    24F6'   22  GOS2    24F0'   22  GOSB1   24E2'   22  GOSON   2518'   22  
+GOSY    2500'   22  GOTY    24FC'   22  GPRM    5036'   61  GPRM1   503C'   61  
+GPRM2   503E'   61  GRAPHY  1A84'   10  GSC     EFC4     1  GSIM    22BC'   19  
+GSS     ED00     1  GSSZ    0014     1  GTICZ   310C'   41  GTLN    4EE4'   59  
+HALTO$  025C'    1  HDRSIZ  0014     1  HFLG    0014'    1  HOUT    2BB6'   33  
+HOUT$   2BB2'   33  HTXT    2BEC'   33  IDRUN   A5A5    70  IDTEQ   5625'   70  
+IFLG    ED70     1  IFY     25AE'   23  ILLMID  ED98     1  INITFG  EF18     1  
+INM1    55BC'   70  INM2    55BB'   70  INM3    55BF'   70  INPEND  2746'   25  
+INPTR   EDA8     1  INPY    262E'   24  INT4PC  0602'    3  INTF    2440'   21  
+IOB     ECFA     1  IOSTOR  EE94     1  IREG12  EF90     1  IREG6   EF84     1  
+IREGS   EF78     1  JMPR0   15FA'    7  JMPR0A  15F2'    7  LANDF   28E6'   27  
+LCN1    3BA9'   49  LCN2    3A2C'   49  LCN3    3B14'   49  LCN4    00AC    49  
+LDCS    1C3E'   10  LDCSY   1A88'   10  LDEF    0084    49  LDPY    173A'    8  
+LENF    1F7C'   13  LETY    2772'   26  LINE    3F36'   50  LINE0   3F4A'   50  
+LINE2   3F5E'   50  LINE5   3F3C'   50  LNOTF   28F9'   27  LNSZ    0084     1  
+LNUM    EFD6     1  LNXT    0010    49  LOADER  05E0'    2  LOADPT  EDA4     1  
+LOGF    5056'   62  LOGON   55D5'   70  LOOK$   000D     2  LORF    28D4'   27  
+LST     3C0A'   49  LSTL    3C80'   49  LXORF   28DC'   27  MAGY    1BFA'   10  
+MBEGN   5548'   70  MC$LOD  171E'    8  MC$SAV  1610'    8  MCHF    1F6E'   13  
+MCRLF   556F'   70  MEMF    2924'   28  MEMSIZ  0022'    1  MEMY    2908'   28  
+MENTRY  0E56'    6  MID0    ED96     1  MIDPC   0278'    2  MODE    EFCC     1  
+MODEOK  33F6'   49  MODF    24C8'   21  MONTOP  0A06'    6  MOTORY  186E'    8  
+MOVEB   30DA'   40  MOVEBN  30EC'   40  MOVEL   30DE'   40  MOVELN  30F0'   40  
+MPRDY   5567'   70  MREG1   EF64     1  MREG13  EF7C     1  MREG14  EF7E     1  
+MREG2   EF66     1  MREG3   EF68     1  MREG6   EF6E     1  MREGS   EF62     1  
+MWDF    29B8'   30  MWDY    299E'   30  NEWP    01F4'    1  NEWP1   01F8'    1  
+NEWY    01CE'    1  NIC     0064     1  NINE    2E62'   38  NKYF    2482'   21  
+NLIN    3F30'   50  NLIN0   3F2C'   50  NOERR   0024'    1  NOEY    213E'   18  
+NOTF    33DD'   48  NRV     0004     1  NUMY    29CC'   31  NVD     EFC0     1  
+NVS     EFC2     1  NXLOC   EE96     1  NXTXB   4062'   50  NXTY    2240'   19  
+NYLOC   EE97     1  ONY     29FA'   32  ORF     33C8'   48  OUTBUF  EDE4     1  
+OUTDSR  ED9A     1  OUTL1   2736'   25  OUTR1U  30B4'   40  OVINT   ED94     1  
+P$EUS   ECF4     1  P$FNS   EC40     1  P$GSS   EBF0     1  P$IOB   EB04     1  
+LNK990 2.3.2     ROM                       Sun Jul 20 19:28:52 2025 Page 0004
+
+P$UFT   EB84     1  PADIT   55C4'   70  PC      EF7C     1  PCHTB   5AEE'   71  
+PCHTE   60EE'   71  PFIX    4B18'   56  PGMFND  5535'   70  PIXOFF  1CA8'   10  
+PIXON   1CB2'   10  PIXTST  1C9E'   10  PLC     EFCE     1  PLF     ED72     1  
+PLOT    51BE'   63  PLOTY   5142'   63  PLYX    52DE'   64  PLYXX   52D2'   64  
+POPY    259C'   22  POSF    1F4A'   13  POWF    52F4'   65  PRAM    ECF6     1  
+PRDY    021C'    1  PROMPT  5614'   70  PRTEND  2742'   25  PRTY    2AB8'   33  
+PTRS    ECFA     1  PURGY   2BFC'   34  PUTB    2C50'   35  R8STOR  ED34     1  
+RANDS   ECF6     1  RANDZ   532E'   66  RANY    2C9E'   36  RBUF    EDBC     1  
+RBUFE   EDE4     1  RDDY    2CFA'   37  RECPTR  EDAC     1  REGSTR  55F0'   70  
+RENCMP  ED0A     1  RENINC  ED12     1  RENLNE  ED0E     1  RENRET  ED0C     1  
+RENSTA  ED10     1  RENTRY  0E36'    6  RENUMS  2D78'   38  REST    3EE6'   50  
+RHENTY  0E5C'    6  RNELSE  0003    49  RNERR   0009    49  RNGOTO  0001    49  
+RNGSUB  0002    49  RNIF    0041    49  RNINP   000D    49  RNON    0040    49  
+RNREM   0004    49  RNRSTR  000F    49  RNWY    2D36'   37  RTNY    256C'   22  
+RTSTOR  ED36     1  RUNP    3EF2'   50  RUNP1   3EF4'   50  S$SM    1C1A'   10  
+SAVY    1642'    8  SENDAD  05F2'    2  SETGRA  0010     2  SETTXT  000F     2  
+SETVEC  012A'    1  SFSN    3334'   46  SGETY   1992'   10  SGNF    3038'   39  
+SGRA    052C'    2  SHAPEY  1B6A'   10  SINF    535A'   67  SIZE    3050'   40  
+SLN     ED66     1  SLT     EFBA     1  SPACE2  55CC'   70  SPACE5  55C9'   70  
+SPACE8  55C6'   70  SPBP    5605'   70  SPR     55EF'   70  SPRITY  1B9E'   10  
+SPUTY   19FC'   10  SQRF    53E6'   68  SQRI    0004     1  SRATE   01B8'    1  
+SSP     F076     1  STACNT  ED08     1  START   5656'   70  STPMSG  5609'   70  
+STPY    1E3A'   11  STPYA   1E20'   11  STRTC   5522'   70  STXT    04DA'    2  
+SUBF    494E'   54  SWAPY   3348'   47  SWPTBL  00A4'    1  SYMBLC  5611'   70  
+SYSERR  5732'   70  SYSF    241C'   21  SYSFLG  0014'    1  SYSLMT  0013     1  
+TAPERR  5572'   70  TBEND   5AEE'   70  TEMP    F094     1  TEMP2   F096     1  
+TEMP4   F098     1  TEMP6   F09A     1  TEXTY   1A7E'   10  TICF    3128'   41  
+TIMC    551A'   70  TIMY    313C'   42  TMPBUF  564B'   70  TOFY    31DE'   43  
+TONY    31D6'   43  TRAFLG  ED44     1  TY0     EFC6     1  TYP0$   0001     2  
+TYP11$  0009     2  TYPB$   0003     2  TYPBE$  000A     2  TYPC$   0002     2  
+TYPE$   0004     2  TYPEN$  0005     2  TYPS$   0006     2  TYPSN$  0007     2  
+UCCNT   275C'   25  UFT     ED02     1  UNIT    001E'    1  UNPACK  1C20'   10  
+UNPLOT  51B4'   63  UNTY    31E4'   44  UPLOTY  513E'   63  USERCS  5EE4'   71  
+V1R3L   EE5B     1  V1R4L   EE5D     1  V1R5L   EE5F     1  V1R6L   EE61     1  
+VDPDSR  0808'    5  VDPST   000B     1  VDPWP0  EE34     1  VDPWP1  EE54     1  
+VDT     EFBE     1  VMODE   0026'    1  VNT     EFBC     1  WAIT$   000E     2  
+WAITY   1B58'   10  WENTRY  0E40'    6  WHENTY  0EC8'    6  WHXETY  0EBE'    6  
+WORK11  EF0A     1  WORK5   EEFE     1  WORKS   EEF4     1  WP10L   F0DD     1  
+WP9928  EE74     1  WPR1    F0DC     1  WPR103  F0E2     1  WPR104  F0E4     1  
+WPR108  F0EC     1  WPR2    F0BC     1  WS      5619'   70  XFRPM   5456'   69  
+XLOC    EE36     1  XOPENT  0DBA'    6  XREGS   EF86     1  YLOC    EE37     1  
+YORN    187E'    8  ZZZZZ$  60EE'   71  _edata  60F0'   71  _end    60F0'   71  
+_etext  60F0'   71  
+
+
+60F0 Length of program 
+0 Errors

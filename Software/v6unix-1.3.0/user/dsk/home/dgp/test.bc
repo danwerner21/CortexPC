@@ -1,0 +1,16 @@
+scale = 20
+define e(x){
+        auto a, b, c, i, s
+        a = 1
+        b = 1
+        s = 1
+        for(i=1; 1==1; i++){
+                a = a*x
+                b = b*i
+                c = a/b
+                if(c == 0) return(s)
+                s = s+c
+        }
+}
+for(i=1; i<=10; i++) e(i)
+quit

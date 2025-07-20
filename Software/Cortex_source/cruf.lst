@@ -1,0 +1,196 @@
+ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0001
+CRU FUNCTIONS - CORTEX BASIC REV. 1.1
+
+              2         IDT 'CRUF'
+              3  *
+              4  *       BASY            ;BASE COMMAND
+              5  *       CRBY            ;CRB COMMAND
+              6  *       CRBF            ;CRB FUNCTION
+              7  *       CRFY            ;CRF COMMAND
+              8  *       CRFF            ;CRF FUNCTION
+              9  *
+             10  * THIS MODULE ALSO CONTAINS THE SYSTEM CRASH ROUTINE.
+             11  *
+             12          REF FIX         ;INTEGER FIX
+             13          REF EVSFR$      ;EXIT TO EVALUATOR WITH R2 RELOAD.
+             14          REF NLIN        ;ENTRY EXIT TO MULTIPLEXOR
+             15          REF GPRM        ;GET PARAMETER
+             16          REF FPAC2       ;FLOATING POINT ACCUMULATOR
+             17          REF BCRU        ;BASE CRU INDEX
+             18  *
+             19          DEF CRFY         ;CRF STATEMENT ENTRY POINT
+             20          DEF CRBY         ;CRB STATEMENT ENTRY POINT
+             21          DEF CRFF         ;CRF FUNCTION ENTRY POINT
+             22          DEF CRBF         ;CRB FUNCTION ENTRY POINT
+             23          DEF  BASY         ;BASE STATEMENT ENTRY POINT
+             24  *
+             25         DEF  CRASH$   <<< SYSTEM CRASH ROUTINE >>>
+             26  *
+             27          DXOP OUTINT,13          ;OUT INTEGER
+             28          DXOP EVFIX,11           ;EVALUATE AND FIX
+             29  *
+             30  ************************************************************
+             31  *                                                          *
+             32  *               SET USER CRU BASE.                         *
+             33  *                                                          *
+             34  ************************************************************
+0000 2EE0    35  BASY   EVFIX @BCRU            ;SAVE IN BCRU
+0002 0000 
+0004 101A    36         JMP  CRUXIT            ;EXIT TO NLIN
+     2F80    37  ERROR  EQU >2F80              ;XOP XX,14  (ERROR CALL)
+ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0002
+CRU FUNCTIONS - CORTEX BASIC REV. 1.1
+
+             39  ************************************************************
+             40  *                                                          *
+             41  *               MULTIPLE BIT CRU WRITE.                    *
+             42  *                                                          *
+             43  ************************************************************
+             44  *
+             45  * CALLING SEQUENCE:
+             46  *
+             47  *       B @CRFY
+             48  *
+             49  *       EXIT TO NLIN
+             50  *
+0006 06A0    51  CRFY    BL   @GPRM            GET PARAMETERS
+0008 0000 
+000A 0241    52          ANDI R1,>F            MASK COUNT
+000C 000F 
+000E 1304    53          JEQ  CRF1             0=16 BITS
+0010 0281    54          CI   R1,8             BYTE?
+0012 0008 
+0014 1501    55          JGT  CRF1             N
+0016 06C3    56          SWPB R3               Y
+             57  *
+0018 0A61    58  CRF1    SLA  R1,6             POSITION
+001A 0221    59          AI   R1,>3003         MAKE 'LDCR R3,X'
+001C 3003 
+001E 100A    60          JMP  CRBY1
+             61  ************************************************************
+             62  *                                                          *
+             63  *                 SINGLE BIT CRU WRITE.                    *
+             64  *                                                          *
+             65  ************************************************************
+             66  *
+             67  * CALLING SEQUENCE:
+             68  *
+             69  *       B @CRBY
+             70  *
+             71  *       EXIT TO NLIN
+             72  *
+             73  *
+0020 06A0    74  CRBY    BL   @GPRM            GET DISPLACEMENT
+0022 0008'
+0024 0241    75          ANDI R1,>FF           MASK
+0026 00FF 
+0028 0221    76          AI   R1,>1D00         GET SBO
+002A 1D00 
+002C C0C3    77          MOV  R3,R3            SET TO 1?
+002E 1602    78          JNE  CRBY1            N
+0030 0221    79          AI   R1,>0100         Y, CHANGE TO SBZ
+0032 0100 
+             80  *
+0034 C320    81  CRBY1   MOV  @BCRU,R12
+0036 0002'
+0038 0481    82  D$XR1   X    R1               DO CRU INSTRUCTION
+003A 0460    83  CRUXIT  B    @NLIN            RETURN
+003C 0000 
+ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0003
+CRU FUNCTIONS - CORTEX BASIC REV. 1.1
+
+             85  ************************************************************
+             86  *                                                          *
+             87  *               MULTIPLE BIT CRU READ                      *
+             88  *                                                          *
+             89  ************************************************************
+             90  *
+             91  * CALLING SEQUENCE:
+             92  *
+             93  *       B @CRFF
+             94  *
+             95  *       EXIT TO EVSFR$
+             96  *
+003E 06A0    97  CRFF   BL   @FIX              GET PARAMETER
+0040 0000 
+0042 0241    98         ANDI R1,>F             MASK
+0044 000F 
+0046 C001    99         MOV  R1,R0             SAVE
+0048 0A61   100         SLA  R1,6              POSITION
+004A 0221   101         AI   R1,>3401          MAKE 'STCR R1,X'
+004C 3401 
+004E C320   102         MOV  @BCRU,R12         GET BASE
+0050 0036'
+0052 0481   103         X    R1                DO STCR
+0054 C000   104         MOV  R0,R0             16?
+0056 1304   105         JEQ  CRFF1             Y
+0058 0280   106         CI   R0,8              N, BYTE?
+005A 0008 
+005C 1501   107         JGT  CRFF1             N
+005E 0981   108         SRL  R1,8              Y, POSITION RESULTS
+            109  *
+0060 C801   110  CRFF1  MOV  R1,@FPAC2
+0062 0000 
+            111  *  RELOAD R2 WITH FPAC & RETURN TO EVSFR
+0064 0460   112  CRFF2  B    @EVSFR$           RETURN ADR
+0066 0000 
+            113  ************************************************************
+            114  *                                                          *
+            115  *                 SINGLE BIT CRU READ                      *
+            116  *                                                          *
+            117  ************************************************************
+            118  *
+            119  * CALLING SEQUENCE:
+            120  *
+            121  *       B @CRBF
+            122  *
+            123  *       EXIT TO EVSFR$
+            124  *
+            125  *
+0068 06A0   126  CRBF   BL   @FIX              GET DISPLACEMENT
+006A 0040'
+006C 0241   127         ANDI R1,>FF            MASK
+006E 00FF 
+0070 0221   128         AI   R1,>1F00          MAKE 'TB XX'
+0072 1F00 
+0074 C320   129         MOV  @BCRU,R12         GET BASE
+0076 0050'
+0078 0481   130  EXECR1 X    R1                DO TEST
+007A 16F4   131         JNE  CRFF2             0, RT
+007C 05A0   132         INC  @FPAC2            1
+007E 0062'
+ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0004
+CRU FUNCTIONS - CORTEX BASIC REV. 1.1
+
+0080 10F1   133         JMP  CRFF2
+ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0005
+CRU FUNCTIONS - CORTEX BASIC REV. 1.1
+
+            135  ************************************************************
+            136  *                                                          *
+            137  *                SYSTEM CRASH ROUTINE                      *
+            138  *      THIS ROUTINE IS ENTERED WITH R1=0 AND IS MEANT TO   *
+            139  *      LOCKUP THE SYSTEM SUCH THAT THE ONLY WAY OUT IS     *
+            140  *      VIA RESET.                                          *
+            141  *      ENTRY POINT IS 'CRASH$'                             *
+            142  *                                                          *
+            143  ************************************************************
+0082 2860   144  CRASH$ XOR  @D$XR1,R1         BUILD 'X  R1' IN R1
+0084 0038'
+0086 0441   145         B    R1                EXECUTE IT
+            146         END
+ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0006
+CRU FUNCTIONS - CORTEX BASIC REV. 1.1
+
+BASY       0000D  BCRU       0076R  CRASH$     0082D  CRBF       0068D  
+CRBY       0020D  CRBY1      0034'  CRF1       0018'  CRFF       003ED  
+CRFF1      0060'  CRFF2      0064'  CRFY       0006D  CRUXIT     003A'  
+D$XR1      0038'  ERROR      2F80   EVSFR$     0066R  EXECR1     0078'  
+FIX        006AR  FPAC2      007ER  GPRM       0022R  NLIN       003CR  
+R0         0000   R1         0001   R10        000A   R11        000B   
+R12        000C   R13        000D   R14        000E   R15        000F   
+R2         0002   R3         0003   R4         0004   R5         0005   
+R6         0006   R7         0007   R8         0008   R9         0009   
+
+
+0 Errors in assembly

@@ -1,0 +1,12 @@
+#
+# rc - runs at boot time
+#
+echo Booting V6 Unix
+#
+# Start network process
+#
+/etc/net &
+#
+# Wait for network process to initialize
+#
+sleep 1

@@ -1,0 +1,74 @@
+ASM990 2.4.6     POWF                       Sun Jul 20 19:28:51 2025 Page 0001
+POWER FUNCTIONS - CORTEX BASIC REV. 1.1
+
+              2         IDT  'POWF'
+              3  *
+              4  * ROUTINE LIST:
+              5  *
+              6  *       POWF            ;POWER FUNCTION
+              7  *
+              8         REF  LOGF              ;LOG FUNCTION
+              9         REF  EXPF              ;EXP FUNCTION
+             10         REF  EVOP3A            ;EXIT TO EVAL
+             11         DXOP LOADF,0           ;LOAD FPAC
+             12         DXOP STORE,1           ;STORE FPAC
+             13         DXOP FMUL,4            ;MULTIPLY FPAC
+             14         DXOP FLOATF,10         ;FLOAT FPAC
+             15         REF  TEMP,TEMP6        ;TEMPORARY STORAGE
+             16         DEF  POWF
+ASM990 2.4.6     POWF                       Sun Jul 20 19:28:51 2025 Page 0002
+POWER FUNCTIONS - CORTEX BASIC REV. 1.1
+
+             18  * ABSTRACT:
+             19  *
+             20  *       RAISE (R1) TO THE (R2) POWER USING
+             21  *       LOG AND EXPONENTIAL FUNCTIONS.
+             22  *
+             23  *               R1 ^ R2 = EXP( R1 * LOG(R2))
+             24  *
+             25  * CALLING SEQUENCE:
+             26  *
+             27  *       B @POWF
+             28  *
+             29  *       IN  (R1) = ARG1
+             30  *           (R2) = ARG2
+             31  *       OUT (R2) = RESULT
+             32  *
+             33  *       EXIT TO EVOP3A
+             34  *
+             35  * EXCEPTIONS AND CONDITIONS:
+             36  *
+             37  *       PRESERVE R0
+             38  *       EXP,LOG, AND FP ERRORS
+             39  *
+             40         DEF  POWF
+             41  *
+0000 C101    42  POWF   MOV  R1,R4             ;PERSERVE R0,R1
+0002 C800    43         MOV  R0,@TEMP6
+0004 0000 
+0006 06A0    44         BL   @LOGF             ;GET LOG(R2)
+0008 0000 
+000A 2C60    45         STORE @TEMP            ;MOVE TO TEMP
+000C 0000 
+000E 2C14    46         LOADF *R4              ;GET B
+0010 2E80    47         FLOATF 0               ;FLOAT IF NECESSARY
+0012 2D20    48         FMUL @TEMP             ;MULTIPLY BY TEMP
+0014 000C'
+0016 06A0    49         BL   @EXPF             ;GET EXP(R1*LOG(R2))
+0018 0000 
+001A C020    50         MOV  @TEMP6,R0         ;RESTORE R0
+001C 0004'
+001E 0460    51         B    @EVOP3A
+0020 0000 
+             52         END
+ASM990 2.4.6     POWF                       Sun Jul 20 19:28:51 2025 Page 0003
+POWER FUNCTIONS - CORTEX BASIC REV. 1.1
+
+EVOP3A     0020R  EXPF       0018R  LOGF       0008R  POWF       0000D  
+R0         0000   R1         0001   R10        000A   R11        000B   
+R12        000C   R13        000D   R14        000E   R15        000F   
+R2         0002   R3         0003   R4         0004   R5         0005   
+R6         0006   R7         0007   R8         0008   R9         0009   
+TEMP       0014R  TEMP6      001CR  
+
+0 Errors in assembly

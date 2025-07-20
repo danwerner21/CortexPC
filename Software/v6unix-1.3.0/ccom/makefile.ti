@@ -1,0 +1,36 @@
+CFLAGS	= -O ${DEBUG}
+
+all: c0 c1
+
+install: 
+	cp c0 /lib/c0
+	cp c1 /lib/c1
+
+clean:
+	rm -f *~ *.o c0 c1
+
+c0: c00.o c01.o c02.o c03.o c04.o c05.o
+	${CC} ${CFLAGS} -o c0 c00.o c01.o c02.o c03.o c04.o c05.o
+
+c1: c10.o c11.o c12.o c13.o table.o
+	${CC} $(CFLAGS) -o c1 c10.o c11.o c12.o c13.o table.o
+
+optable: cvopt
+	./cvopt < optable > table.c
+
+cvopt: cvopt.c
+	${CC} $(CFLAGS) -o cvopt cvopt.c
+
+c00.o: c00.c c0.h
+c01.o: c01.c c0.h
+c02.o: c02.c c0.h
+c03.o: c03.c c0.h
+c04.o: c04.c c0.h
+c05.o: c05.c c0.h
+
+c10.o: c10.c c0.h
+c11.o: c11.c c0.h
+c12.o: c12.c c0.h
+c13.o: c13.c c0.h
+table.o: table.c c0.h
+	${CC} -c -o table.o table.c

@@ -77,7 +77,7 @@ The first version of Unix ported was LSX Unix (https://www.mailcom.com/lsx/), wh
 
 * The power switch circuit is FUBAR.  The chips involved (u26, U27) need to be powered from 5vsb not 5v.  Best to leave out U26 & U27 when building V0.5 and just supply 5v to the appropriate pin on the ATX connector rather than using an atx power supply.
 
-* The ISA bus is also pretty messed up on V0.5.  The reset line that goes to the slots is active low when it should be active High.  The bus clock is also driven at an inappropriate speed, and it is important to leave U25 out of the system entirely as it drives the data bus improperly.   I think for the next version I am going to use the TI PEB bus rather than ISA . . 
+* The ISA bus is also pretty messed up on V0.5.  The reset line that goes to the slots is active low when it should be active High.  The bus clock is also driven at an inappropriate speed, and it is important to leave U25 out of the system entirely as it drives the data bus improperly.  
 
 * B_INT cannot be left floating, it must be pulled low.
 
@@ -89,7 +89,6 @@ The first version of Unix ported was LSX Unix (https://www.mailcom.com/lsx/), wh
 
 * Test Keyboard
 
-* Replace Bus
 
 ## Troubleshooting
 

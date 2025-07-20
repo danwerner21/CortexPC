@@ -1,0 +1,148 @@
+ASM990 2.4.6     TIME                       Sun Jul 20 19:28:50 2025 Page 0001
+TIME STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT  'TIME'
+              3  *
+              4  * THIS MODULE CONTAINS THE ROUTINE THAT SETS UP THE
+              5  * TIME STORAGE AREA FOR BASIC AND ALSO RETURNS TO BASIC THE
+              6  * CURRENT TIME
+              7  *
+              8  *      TIME                   - OUTPUT THE TIME
+              9  *      TIME <EXP>,<EXP>,<EXP> - SET THE TIME
+             10  *      TIME <VAR>             - GET REAL TIME CLOCK IN <VAR>
+             11  *
+             12  * MODULE DEFINITIONS:
+             13  *
+             14         DEF  TIMY
+             15  *
+             16  * EXTERNAL ROUTINES:
+             17  *
+             18         REF  CKEX,EVSDZ,TYPB$,NLIN
+             19  *
+             20  * EXTERNAL DATA:
+             21  *
+             22         REF  B20,CLKADR,FPWP,IOB
+             23         REF  TIMC,BFA,B3A
+             24  *
+             25  * XOP EQUATES
+             26  *
+             27         DXOP EVFIX,11
+ASM990 2.4.6     TIME                       Sun Jul 20 19:28:50 2025 Page 0002
+TIME STATEMENT - CORTEX BASIC REV. 1.1
+
+             29  *
+             30  * TIME STATEMENT
+             31  *
+0000 0203    32  TIMY   LI   R3,CLKADR         ;GET CLOCK'S WP ADDRESS
+0002 0000 
+0004 020C    33         LI   R12,>1EE2         ;SELECT 9995'S FLAG1
+0006 1EE2 
+             34  *
+             35  * DETEMINE TYPE
+             36  *
+0008 0420    37         BLWP @EVSDZ            ;LOOK FOR STRING
+000A 0000 
+000C 1025    38         JMP  TIM5              ;" OR ' - PROBLEM
+000E 1015    39         JMP  TIM3              ;$
+0010 06A0    40         BL   @CKEX             ;LOOK FOR EXPRESSION
+0012 0000 
+0014 100B    41         JMP  TIM2              ;NONE
+             42  *
+             43  * SET REAL TIME CLOCK WITH A 40MS INTERVAL
+             44  *
+0016 0204    45  TIM0   LI   R4,3              ;ONLY 3 <EXP>S ALLOWED
+0018 0003 
+001A 0300    46         LIMI 0                 ;NO INTERRUPTS
+001C 0000 
+001E 2EF3    47  TIM0A  EVFIX *R3+             ;STORE RESULT
+0020 0280    48         CI   R0,>3F00          ;,?
+0022 3F00 
+0024 161A    49         JNE  TIMR              ;N - SET 9901 INTERVAL
+0026 0604    50         DEC  R4                ;Y - ANY MORE <EXP>S ALLOWED?
+0028 16FA    51         JNE  TIM0A             ;Y - GET NEXT
+002A 1017    52         JMP  TIMR              ;N, EXIT
+             53  *
+002C 0588    54  TIM2   INC  R8                ;INCREMENT OVER DLIM
+002E C0A0    55         MOV  @IOB,R2            ;GET IOB ADDRESS
+0030 0000 
+0032 DCA0    56         MOVB @B20,*R2+         ;OUT SPACE
+0034 0000 
+0036 0706    57         SETO R6                ;SET TO PRINT
+0038 1001    58         JMP  TIM4
+             59  *
+003A 04C6    60  TIM3   CLR  R6                ;STORE IN VARIABLE
+             61  *
+003C 0420    62  TIM4   BLWP @TIMVEC           ;GET TIME
+003E 0082'
+0040 06A0    63         BL   @TIM6             ;DO HOURS
+0042 0062'
+0044 C004    64         MOV  R4,R0
+0046 06A0    65         BL   @TIM6             ;DO MINUTES
+0048 0062'
+004A C005    66         MOV  R5,R0
+004C 06A0    67         BL   @TIM6             ;DO SECONDS
+004E 0062'
+0050 0602    68         DEC  R2                ;END STRING
+0052 7492    69         SB   *R2,*R2
+0054 C186    70         MOV  R6,R6             ;TYPE?
+0056 1301    71         JEQ  TIMR              ;N - RETURN
+             72  *
+0058 0000    73  TIM5   DATA TYPB$             ;Y - OUTPUT BUFFER
+005A 0300    74  TIMR   LIMI 15
+005C 000F 
+ASM990 2.4.6     TIME                       Sun Jul 20 19:28:50 2025 Page 0003
+TIME STATEMENT - CORTEX BASIC REV. 1.1
+
+005E 0460    75         B    @NLIN
+0060 0000 
+             76  *
+             77  * FIX R0 TO XX:
+             78  *
+0062 04C1    79  TIM6   CLR  R1                ;CLEAR COUNTER
+             80  *
+0064 0220    81  TIM7   AI   R0,-10            ;NEGATIVE
+0066 FFF6 
+0068 1102    82         JLT  TIM8              ;Y
+006A 0581    83         INC  R1                ;N, COUNT
+006C 10FB    84         JMP  TIM7
+             85  *
+006E 06C1    86  TIM8   SWPB R1
+0070 D001    87         MOVB R1,R0             ;APPEND
+0072 0220    88         AI   R0,>2F3A          ;ADD ASCII CODES
+0074 2F3A 
+0076 DC80    89         MOVB R0,*R2+           ;MOVE INTO OUTPUT STREAM
+0078 06C0    90         SWPB R0
+007A DC80    91         MOVB R0,*R2+
+007C DCA0    92         MOVB @B3A,*R2+         ;OUT ":
+007E 0000 
+0080 045B    93         RT
+             94  *
+0082 0000    95  TIMVEC DATA FPWP,TIM9
+             96  *
+0086 0300    97  TIM9   LIMI 0                 ;MASK INTRPTS
+0088 0000 
+008A 0203    98         LI   R3,CLKADR         ;GET SOURCE
+008C 0002'
+008E C773    99         MOV  *R3+,*R13         ;SET HOURS
+0090 CB73   100         MOV  *R3+,@8(R13)      ;SET MIN
+0092 0008 
+0094 CB53   101         MOV  *R3,@10(13)       ;SET SECONDS
+0096 000A 
+0098 0380   102         RTWP                   ;RETURN
+            103         END
+ASM990 2.4.6     TIME                       Sun Jul 20 19:28:50 2025 Page 0004
+TIME STATEMENT - CORTEX BASIC REV. 1.1
+
+B20       0034R  B3A       007ER  BFA       0000R  CKEX      0012R  
+CLKADR    008CR  EVSDZ     000AR  FPWP      0082R  IOB       0030R  
+NLIN      0060R  R0        0000   R1        0001   R10       000A   
+R11       000B   R12       000C   R13       000D   R14       000E   
+R15       000F   R2        0002   R3        0003   R4        0004   
+R5        0005   R6        0006   R7        0007   R8        0008   
+R9        0009   TIM0      0016'  TIM0A     001E'  TIM2      002C'  
+TIM3      003A'  TIM4      003C'  TIM5      0058'  TIM6      0062'  
+TIM7      0064'  TIM8      006E'  TIM9      0086'  TIMC      0000R  
+TIMR      005A'  TIMVEC    0082'  TIMY      0000D  TYPB$     0058R  
+
+
+0 Errors in assembly

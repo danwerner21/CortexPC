@@ -1,0 +1,25 @@
+CC=cc
+YACC=yacc
+
+CFLAGS = -O
+
+all:	ratfor
+
+ratfor:	r0.o r1.o r2.o rio.o rlook.o rlex.o y.tab.o
+	${CC} $(CFLAGS) -o ratfor r*.o y.tab.o
+
+clean:
+	rm -f ratfor *.o
+
+y.tab.c:	r.g
+	${YACC} -d r.g
+y.tab.h:	r.g
+	${YACC} -d r.g
+
+r0.o:	r.h y.tab.h r0.c
+r1.o:	r.h y.tab.h r1.c
+r2.o:	r.h y.tab.h r2.c
+rio.o:	r.h y.tab.h rio.c
+rlook.o:	r.h y.tab.h rlook.c
+rlex.o:	r.h y.tab.h rlex.c
+y.tab.o: y.tab.c

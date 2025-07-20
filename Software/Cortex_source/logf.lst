@@ -1,0 +1,174 @@
+ASM990 2.4.6     LOGF                       Sun Jul 20 19:28:51 2025 Page 0001
+LOG FUNCTION - CORTEX BASIC REV. 1.1
+
+              2          IDT 'LOGF'
+              3  *
+              4  * ROUTINE LIST:
+              5  *
+              6  *       LOGF            ;NATURAL LOG FUNCTION
+              7  *
+              8          REF FUNFX       ;FIX ARGUMENT
+              9          REF PLYX,PLYXX  ;EVALUATE POLYNOMIAL
+             10          REF GETP2       ;GET POWER OF 2
+             11         REF FPAC         ;FLOATING POINT ACCUMULATOR
+             12         REF TEMP         ;3 WRD TEMPORARY STORAGE
+             13         REF DS,DS1       ;3 WRD TEMPORARY STORAGE
+             14         REF  B40
+             15          DXOP LOADF,0    ;LOAD FPAC
+             16          DXOP STORE,1    ;STORE FPAC
+             17          DXOP FADD,2     ;ADD TO FPAC
+             18          DXOP FSUB,3     ;SUBTRACT FROM FPAC
+             19          DXOP FMUL,4     ;MULTIPLY FPAC
+             20          DXOP FDIV,5     ;DIVIDE FPAC
+             21          DXOP NORMAL,7   ;NORMALIZE FPAC
+     2F80    22  ERROR   EQU >2F80       ;XOP XX,14  (ERROR CALL)
+ASM990 2.4.6     LOGF                       Sun Jul 20 19:28:51 2025 Page 0002
+LOG FUNCTION - CORTEX BASIC REV. 1.1
+
+             24  *
+             25  *       COMPUTE THE NATURAL LOG OF (R2)
+             26  *
+             27  * CALLING SEQUENCE:
+             28  *
+             29  *       BL @LOGF
+             30  *
+             31  *       IN  (R2) = ARG
+             32  *       OUT (R2) = RESULT
+             33  *
+             34  * EXCEPTIONS AND CONDITIONS:
+             35  *
+             36  *       LOG OF NON-POSITIVE NUMBER
+             37  *
+             38  * ENTRY POINT:
+             39  *
+             40         DEF LOGF
+             41  *
+0000 2F9A    42  ERR26   DATA ERROR+26   ;LOG OF NON-POSITIVE NUMBER
+             43  *
+0002 C28B    44  LOGF    MOV R11,R10     ;SAVE RETURN
+0004 06A0    45          BL @FUNFX       ;FIX
+0006 0000 
+0008 10FB    46            JMP ERR26     ;LOG 0
+000A C0C3    47          MOV R3,R3       ;NEGATIVE?
+000C 16F9    48            JNE ERR26     ;Y, ERROR
+000E D820    49          MOVB @B40,@FPAC ;LAOD EXPONENT
+0010 0000 
+0012 0000 
+0014 0961    50          SRL R1,6        ;SWAP & X 4
+0016 0221    51          AI R1,->100     ;UNBIAS
+0018 FF00 
+001A C092    52          MOV *R2,R2      ;GET FPAC
+001C 0200    53          LI R0,>80
+001E 0080 
+0020 2080    54          COC R0,R2       ;HIGH BIT SET?
+0022 1308    55            JEQ LOGF2     ;Y
+0024 04C3    56          CLR R3          ;N, FIND POWER OF 2
+             57  *
+0026 0583    58  LOGF1   INC R3          ;COUNT
+0028 0910    59          SRL R0,1
+002A 2080    60          COC R0,R2       ;BIT SET?
+002C 16FC    61            JNE LOGF1     ;N, CONTINUE TO COUNT
+002E 6043    62          S R3,R1
+0030 06A0    63          BL @GETP2       ;GET POWER OF 2 & MULTIPLY
+0032 0000 
+             64  *
+0034 C081    65  LOGF2   MOV R1,R2
+0036 2C60    66          STORE @TEMP     ;MOVE TO TEMP
+0038 0000 
+003A 2CE0    67          FSUB @LOGC0
+003C 00AA'
+003E 0200    68          LI R0,FP1       ;GET FP1
+0040 00B8'
+0042 C060    69          MOV @FPAC,R1    ;CHECK SIGN
+0044 0012'
+0046 1504    70            JGT LOGF3
+0048 1303    71            JEQ LOGF3
+004A 0200    72          LI R0,LOGC1
+004C 00B0'
+ASM990 2.4.6     LOGF                       Sun Jul 20 19:28:51 2025 Page 0003
+LOG FUNCTION - CORTEX BASIC REV. 1.1
+
+004E 0602    73          DEC R2
+             74  *
+0050 2C20    75  LOGF3   LOADF @TEMP     ;MOVE TEMP TO FPAC
+0052 0038'
+0054 2C90    76          FADD *R0
+0056 2C60    77          STORE @DS       ;SAVE IN DS
+0058 0000 
+005A 2C20    78          LOADF @TEMP     ;RELOAD TEMP
+005C 0052'
+005E 2CD0    79          FSUB *R0
+0060 2D60    80          FDIV @DS        ;DIVIDE BY DS
+0062 0058'
+0064 2C60    81          STORE @DS       ;SAVE IN DS
+0066 0062'
+0068 06A0    82          BL @PLYXX
+006A 0000 
+006C 00B6'   83            DATA LOGC2
+006E 2C60    84          STORE @DS1      ;STORE IN DS1
+0070 0000 
+0072 06A0    85          BL @PLYX
+0074 0000 
+0076 00D0'   86            DATA LOGC3
+0078 2D60    87          FDIV @DS1       ;DIVIDE BY DS1
+007A 0070'
+007C 2D20    88          FMUL @DS        ;MULTIPLY BY DS
+007E 0066'
+0080 2C60    89          STORE @TEMP     ;STORE IN TEMP
+0082 005C'
+0084 0200    90          LI R0,>8C00
+0086 8C00 
+0088 C082    91          MOV R2,R2
+008A 1102    92            JLT LOGF4
+008C 0910    93          SRL R0,1
+008E 1002    94          JMP LOGF5
+             95  *
+0090 0502    96  LOGF4   NEG R2
+0092 0810    97          SRA R0,1
+             98  *
+0094 C042    99  LOGF5   MOV R2,R1
+0096 04C2   100          CLR R2
+0098 2C00   101          LOADF R0        ;LOAD FPAC
+009A 2DC0   102          NORMAL 0
+009C 2D20   103          FMUL @LOGC4
+009E 00E4'
+00A0 2CA0   104          FADD @TEMP
+00A2 0082'
+            105  *
+00A4 0202   106  LOGF6   LI R2,FPAC
+00A6 0044'
+00A8 045A   107          B *R10
+            108  *
+00AA 40B5   109  LOGC0   DATA >40B5,>04F3,>33FA
+00B0 4080   110  LOGC1   DATA >4080,>0000,>0000  1/2
+00B6 0003   111  LOGC2   DATA 3
+00B8 4110   112  FP1     DATA >4110,>0000,>0000
+00BE C214   113          DATA >C214,>BBC5,>DCDB
+00C4 423D   114          DATA >423D,>C2D5,>31F0
+00CA C22D   115          DATA >C22D,>165C,>4BE0
+00D0 0002   116  LOGC3   DATA 2
+00D2 C212   117          DATA >C212,>53EF,>500E
+ASM990 2.4.6     LOGF                       Sun Jul 20 19:28:51 2025 Page 0004
+LOG FUNCTION - CORTEX BASIC REV. 1.1
+
+00D8 425D   118          DATA >425D,>76C2,>314A
+00DE C25A   119          DATA >C25A,>2CB8,>97BF
+00E4 40B1   120  LOGC4   DATA >40B1,>7217,>F7D2
+00EA        121          EVEN
+            122          END
+ASM990 2.4.6     LOGF                       Sun Jul 20 19:28:51 2025 Page 0005
+LOG FUNCTION - CORTEX BASIC REV. 1.1
+
+B40        0010R  DS         007ER  DS1        007AR  ERR26      0000'  
+ERROR      2F80   FP1        00B8'  FPAC       00A6R  FUNFX      0006R  
+GETP2      0032R  LOGC0      00AA'  LOGC1      00B0'  LOGC2      00B6'  
+LOGC3      00D0'  LOGC4      00E4'  LOGF       0002D  LOGF1      0026'  
+LOGF2      0034'  LOGF3      0050'  LOGF4      0090'  LOGF5      0094'  
+LOGF6      00A4'  PLYX       0074R  PLYXX      006AR  R0         0000   
+R1         0001   R10        000A   R11        000B   R12        000C   
+R13        000D   R14        000E   R15        000F   R2         0002   
+R3         0003   R4         0004   R5         0005   R6         0006   
+R7         0007   R8         0008   R9         0009   TEMP       00A2R  
+
+
+0 Errors in assembly

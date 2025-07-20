@@ -1,0 +1,156 @@
+ASM990 2.4.6     ATNF                       Sun Jul 20 19:28:48 2025 Page 0001
+ARCTANGENT FUNCTION - CORTEX BASIC REV. 1.1
+
+              2         IDT  'ATNF'
+              3  *
+              4  *       ATNF            ;ARC-TANGENT FUNCTION
+              5  *
+              6         REF  FUNFX       ;FIX ARGUMENT
+              7         REF  PLYX,PLYXX  ;EVALUATE POLYMONIAL
+              8         REF  EVSFR$      ;EXIT TO EVALUATOR
+              9         REF  C8000
+             10         REF  FPAC        ;FLOATING POINT ACCUMULATOR
+             11         REF  TEMP        ;TEMP REGISTER
+             12         REF  DS,DS1      ;DATA STORAGE
+             13         DEF  ATNF         ;ARCTANGENT FUNCTION
+             14  *
+             15         DXOP LOADF,0    ;LOAD FPAC
+             16         DXOP STORE,1    ;STORE FPAC
+             17         DXOP FADD,2     ;ADD TO FPAC
+             18         DXOP FSUB,3     ;SUBTRACT FROM FPAC
+             19         DXOP FMUL,4     ;MULTIPLY FPAC
+             20         DXOP FDIV,5     ;DIVIDE FPAC
+             21         DXOP SCALE,6    ;SCALE FPAC
+             22         DXOP NORMAL,7   ;NORMALIZE FPAC
+             23         DXOP CLEAR,8    ;CLEAR FPAC
+             24         DXOP NEGATE,9   ;NEGATE FPAC
+             25         DXOP FLOATF,10  ;FLOAT FPAC
+ASM990 2.4.6     ATNF                       Sun Jul 20 19:28:48 2025 Page 0002
+ARCTANGENT FUNCTION - CORTEX BASIC REV. 1.1
+
+             27  *
+             28  *       COMPUTE ARC-TANGENT OF ARGUMENT (R2).
+             29  *       RESULT IS IN RADIANS.
+             30  *
+             31  * CALLING SEQUENCE:
+             32  *
+             33  *       B @ATNF
+             34  *
+             35  *       EXIT TO EVSFR$
+             36  *
+             37  *
+             38  * EXCEPTIONS AND CONDITIONS:
+             39  *
+             40  *       FLOATING POINT ERRORS
+             41  *
+0000 06A0    42  ATNF    BL   @FUNFX           FIX
+0002 0000 
+0004 1041    43          JMP  ATNF5            0
+             44  *
+0006 04C1    45  ATNF0   CLR  R1
+0008 D052    46          MOVB *R2,R1
+000A 04C4    47          CLR  R4
+000C C0A0    48          MOV  @FPAC,R2
+000E 0000 
+0010 60A0    49          S    @ATNC6,R2        <1?
+0012 009A'
+0014 1107    50          JLT  ATNF1            Y
+0016 2C60    51          STORE @TEMP           MOVE TO TEMP
+0018 0000 
+001A 2C20    52          LOADF @ATNC6          LOAD 1
+001C 009A'
+001E 2D60    53          FDIV @TEMP            GET INVERSE
+0020 0018'
+0022 0584    54          INC  R4               SET FLAG
+             55  *
+0024 2C60    56  ATNF1   STORE @TEMP           MOVE TO TEMP
+0026 0020'
+0028 2CE0    57          FSUB @ATNC0           F-C0
+002A 008C'
+002C C0A0    58          MOV  @FPAC,R2         GET SIGN
+002E 000E'
+0030 2C20    59          LOADF @TEMP           MOVE TEMP TO FPAC
+0032 0026'
+0034 C082    60          MOV R2,R2             >.268...?
+0036 110C    61          JLT ATNF2             N
+0038 2CA0    62          FADD @ATNC1           Y
+003A 0092'
+003C 2C60    63          STORE @DS             SAVE IN DS
+003E 0000 
+0040 2C20    64          LOADF @TEMP           MOVE TEMP TO FPAC
+0042 0032'
+0044 2D20    65          FMUL @ATNC1
+0046 0092'
+0048 2CE0    66          FSUB @ATNC6           SUBTRACT 1
+004A 009A'
+004C 2D60    67          FDIV @DS              F=F/DS
+004E 003E'
+             68  *
+0050 2C60    69  ATNF2  STORE @DS              STORE IN DS
+0052 004E'
+ASM990 2.4.6     ATNF                       Sun Jul 20 19:28:48 2025 Page 0003
+ARCTANGENT FUNCTION - CORTEX BASIC REV. 1.1
+
+0054 06A0    70         BL   @PLYXX            EVALUATE
+0056 0000 
+0058 0098'   71         DATA ATNC2
+005A 2C60    72         STORE @DS1             SAVE IN DS1
+005C 0000 
+005E 06A0    73         BL   @PLYX             EVALUATE
+0060 0000 
+0062 00B8'   74         DATA ATNC3
+0064 2D60    75         FDIV @DS1              DIVIDE BY DS1
+0066 005C'
+0068 2D20    76         FMUL @DS               MULTIPLY BY DS
+006A 0052'
+006C C082    77         MOV  R2,R2             WAS IT >.268...?
+006E 1102    78         JLT  ATNF3             N
+0070 2CA0    79         FADD @ATNC4            Y, ADD CONSTANT
+0072 00D2'
+             80  *
+0074 0604    81  ATNF3  DEC  R4
+0076 1602    82         JNE  ATNF4
+0078 2CA0    83         FADD @ATNC5
+007A 00D8'
+             84  *
+007C 0B13    85  ATNF4  SRC  R3,1              GET SIGN BIT
+007E 4820    86         SZC  @C8000,@FPAC
+0080 0000 
+0082 002E'
+0084 A803    87         A    R3,@FPAC          ADD SIGN
+0086 0082'
+             88  * EXIT TO EVALUATOR & RELOAD R2 WITH FPAC
+0088 0460    89  ATNF5  B   @EVSFR$
+008A 0000 
+             90  *
+008C 4044    91  ATNC0  DATA >4044,>9851,>7A7B
+0092 411B    92  ATNC1  DATA >411B,>B67A,>E858
+0098 0004    93  ATNC2  DATA 4
+009A 4110    94  ATNC6  DATA >4110,>0000,>0000
+00A0 4225    95         DATA >4225,>10EB,>4200
+00A6 42CF    96         DATA >42CF,>B153,>9710
+00AC 4316    97         DATA >4316,>CA99,>3433
+00B2 42C5    98         DATA >42C5,>33FE,>142D
+00B8 0003    99  ATNC3  DATA 3
+00BA 41C9   100         DATA >41C9,>8867,>F42A
+00C0 427D   101         DATA >427D,>9444,>406E
+00C6 4312   102         DATA >4312,>AED9,>3E72
+00CC 42C5   103         DATA >42C5,>33FE,>142D
+00D2 4086   104  ATNC4  DATA >4086,>0A91,>C16C
+00D8 C119   105  ATNC5  DATA >C119,>21FB,>5444
+            106         END
+ASM990 2.4.6     ATNF                       Sun Jul 20 19:28:48 2025 Page 0004
+ARCTANGENT FUNCTION - CORTEX BASIC REV. 1.1
+
+ATNC0      008C'  ATNC1      0092'  ATNC2      0098'  ATNC3      00B8'  
+ATNC4      00D2'  ATNC5      00D8'  ATNC6      009A'  ATNF       0000D  
+ATNF0      0006'  ATNF1      0024'  ATNF2      0050'  ATNF3      0074'  
+ATNF4      007C'  ATNF5      0088'  C8000      0080R  DS         006AR  
+DS1        0066R  EVSFR$     008AR  FPAC       0086R  FUNFX      0002R  
+PLYX       0060R  PLYXX      0056R  R0         0000   R1         0001   
+R10        000A   R11        000B   R12        000C   R13        000D   
+R14        000E   R15        000F   R2         0002   R3         0003   
+R4         0004   R5         0005   R6         0006   R7         0007   
+R8         0008   R9         0009   TEMP       0042R  
+
+0 Errors in assembly

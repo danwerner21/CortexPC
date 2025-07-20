@@ -1,0 +1,339 @@
+ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0001
+SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
+
+              2         IDT  'FUNC'
+              3         COPY 'IODEFS.INC'
+ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0002
+SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0003
+SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+              4         DEF  MODF,SYSF,ABSF,NKYF
+              5         DEF  INTF,FRAF
+              6         REF  FPAC,FPAC2,TEMP
+ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0004
+SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
+
+              7         REF  FIX,EVSFR
+              8         REF  SYSFLG,GETC$,SYSLMT
+              9         REF  C4A00,VDPST
+     2F80    10  ERROR  EQU  >2F80
+     2FA0    11  ERROR2 EQU  ERROR+>20
+             12  *
+             13  *  DEFINE FLOATING POINT XOPS FOR THIS MODULE
+             14  *
+             15         DXOP LOADF,0           ;LOAD FPAC
+             16         DXOP STORE,1           ;STORE FPAC
+             17         DXOP FADD,2            ;ADD TO FPAC
+             18         DXOP FSUB,3            ;SUBTRACT FROM FPAC
+             19         DXOP SCALE,6           ;SCALE PFAC
+             20         DXOP NORMAL,7          ;NORMALIZE FPAC
+             21         DXOP CLEAR,8           ;CLEAR FPAC
+             22         DXOP NEGATE,9          ;NEGATE FPAC
+             23         DXOP FLOATF,10         ;FLOAT FPAC
+ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0005
+SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
+
+             25  *
+             26  *      SYS FUNCTION
+             27  *
+0000 06A0    28  SYSF   BL   @FIX              GET PARAMETER
+0002 0000 
+0004 0281    29         CI   R1,VDPST          VDP STATUS CHECK ?
+0006 0000 
+0008 1604    30         JNE  SYSFA1            NO , NORMAL SYSTEM FUNCTION
+000A D060    31         MOVB @VDPREG,R1        YES , FETCH VDP STATUS
+000C F121 
+000E 0981    32         SRL  R1,8              ALIGN
+0010 1015    33         JMP  INPF1             RETURN VALUE TO CALLER
+             34  *
+0012 0281    35  SYSFA1 CI   R1,SYSLMT         VALID ?
+0014 0000 
+0016 1202    36         JLE  SYSFA2            YES , RETURN SYSTEM CONSTANT
+0018 2FA0    37         DATA ERROR2,35         NO , PARAMETER ERROR
+             38  *
+001C A041    39  SYSFA2 A    R1,R1             GET WORD INDEX
+001E C061    40         MOV  @SYSFLG(1),R1     GET VALUE
+0020 0000 
+0022 100C    41         JMP  INPF1             RETURN TO CALLER
+ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0006
+SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
+
+             43  *
+             44  * INTEGER PART FUNCTION
+             45  *
+0024 C052    46  INTF   MOV  *R2,R1            INTEGER ALREADY?
+0026 130F    47         JEQ  INPF3             Y
+0028 2C12    48         LOADF *R2              N - LOAD FPAC
+             49  *
+             50  * IF NUMBER => SCALING FACTOR  GET FLOATING PT OVERFLOW
+             51  *
+002A 0241    52         ANDI R1,>7F00          MASK OUT ALL BUT EXPONENT
+002C 7F00 
+002E 8801    53         C    R1,@C4A00         => SCALING FACTOR?
+0030 0000 
+0032 1407    54         JHE  INPF2
+0034 2DA0    55         SCALE @C4A00           N - SCALE OFF FRACTION
+0036 0030'
+0038 2DC0    56         NORMAL 0
+003A 1003    57         JMP  INPF2
+             58  *
+003C 2E00    59  INPF1  CLEAR 0                SAVE #
+003E C801    60         MOV  R1,@FPAC2
+0040 0000 
+0042 0202    61  INPF2  LI   R2,FPAC           RETURN ADDRESS
+0044 0000 
+0046 0460    62  INPF3  B    @EVSFR            RETURN
+0048 0000 
+             63  *
+             64  *ABSOLUTE FUNCTION
+             65  *
+004A 2C12    66  ABSF   LOADF *R2              ;LOAD FPAC
+004C C052    67         MOV  *R2,R1            ;CHECK SIGN
+004E 1303    68         JEQ  ABSF1             ;INTEGER
+0050 15FA    69         JGT  INPF3             ;+, RT
+0052 2E40    70         NEGATE 0               ;-, NEGATE
+0054 10F6    71         JMP  INPF2             ;RETURN
+             72  *
+0056 0760    73  ABSF1  ABS  @FPAC2            ;INTEGER, TAKE ABS
+0058 0040'
+005A 19F3    74         JNO  INPF2             ;NO OVERFLOW
+005C 0200    75         LI   R0,>4480          ;OVERFLOW, LOAD 32768 (FP)
+005E 4480 
+0060 04C2    76         CLR  R2
+0062 2C00    77         LOADF R0               ;LOAD R0,R1,R2
+0064 10EE    78         JMP  INPF2
+             79  *
+             80  *NKY FUNCTION
+             81  *
+0066 0000    82  NKYF   DATA GETC$             ;CHARACTER?
+0068 10EC    83         JMP  INPF2             ;N - RETURN 0
+006A 1000    84         NOP                    ;Y - NORMAL CHARACTER
+006C 06C0    85         SWPB R0                ;Y - ESCAPE CHARACTER
+006E 06A0    86         BL   @FIX              ;FIX ARGUMENT
+0070 0002'
+0072 C041    87         MOV  R1,R1             ;ARG=0?
+0074 1302    88         JEQ  NKYF1             ;Y, RETURN LEC
+0076 8040    89         C    R0,R1             ;N, ARG=LEC?
+0078 16E4    90         JNE  INPF2             ;N, RETURN 0
+             91  *
+007A C040    92  NKYF1  MOV  R0,R1
+007C 10DF    93         JMP  INPF1
+ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0007
+SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
+
+             94  *
+             95  *  FRACTIONAL PART FUNCTION
+             96  *
+             97  *   EXPONENT SIZE:
+             98  *     ALL FRA  40 < INT+FRA < 4A  ALL INT
+             99  *
+007E C012   100  FRAF   MOV  *R2,R0            ;INTEGER?
+0080 1603   101         JNE  FRAF2             ;N
+0082 0202   102  FRAF1  LI   R2,FPAC           ;Y, RETURN 0
+0084 0044'
+0086 045B   103         RT
+            104  *
+0088 0240   105  FRAF2  ANDI R0,>7F00          ;GET EXPONENT
+008A 7F00 
+008C 0280   106         CI   R0,>4900          ;ALL INTEGER ?
+008E 4900 
+0090 15F8   107         JGT  FRAF1             ;Y
+0092 2C12   108         LOADF *R2              ;N, LOAD FPAC
+0094 0280   109         CI   R0,>4100          ;ALL FRACTION ?
+0096 4100 
+0098 11F4   110         JLT  FRAF1             ;Y
+009A 2C60   111         STORE @TEMP            ;N, MOVE TO TEMP
+009C 0000 
+009E 2DA0   112         SCALE @C4A00           ;GET INTEGER
+00A0 0036'
+00A2 2DC0   113         NORMAL 0               ;NORMALIZE
+00A4 2E40   114         NEGATE 0               ;NEGATE
+00A6 2CA0   115         FADD  @TEMP            ;ADD NEGATED INTEGER IN FPAC
+00A8 009C'
+00AA 10EB   116         JMP  FRAF1
+ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0008
+SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
+
+            118  *
+            119  *              MOD FUNCTION
+            120  *             ==============
+            121  *
+            122  *      FORMAT :-
+            123  *           A = MOD [ ARG 1 , ARG 2 ]
+            124  *
+            125  *      THIS FUNCTION PROVIDES AN INTEGER MOD OF ARG 1
+            126  *      THE MOD # IS GIVEN BY ARG 2.
+            127  *         EG. A=MOD(9,7)   RETURNS A VALUE FOR A OF 2
+            128  *
+            129  *     *R1 CONTAINS ARG 2, *R2 CONTAINS ARG 1
+            130  *     R3,R10 ARE SPARE
+            131  *     EXIT IS VIA RT.
+            132  *
+00AC C0C1   133  MODF   MOV  R1,R3             SAVE ARG 2
+00AE 1501   134         JGT  MODF1             +VE, OK
+00B0 2F9E   135  ERR30  DATA ERROR+30          RANGE ERROR
+            136  *
+00B2 06A0   137  MODF1  BL   @FIX              FIX PARAMETER
+00B4 0070'
+00B6 C001   138         MOV  R1,R0             COPY INTO R0
+00B8 08F0   139         SRA  R0,15             FILL WITH SIGN BIT
+            140  * R0,R1 NOW CONTAINS ARG 1
+00BA 0183   141         DIVS R3                DO DIVIDE
+00BC C041   142         MOV  R1,R1             TEST SIGN BIT
+00BE 15BE   143         JGT  INPF1             +VE, OK
+00C0 13BD   144         JEQ  INPF1             0,   OK
+00C2 A043   145         A    R3,R1             -VE, ADJUST !
+00C4 10BB   146         JMP  INPF1
+            147         END
+ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0009
+SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
+
+ABSF       004AD  ABSF1      0056'  BELLON     0006   BTENBL     0003   
+BUSACK     0002   BUSINT     0007   C4A00      00A0R  CASS02     00C0   
+CLKLED     0000   CTBA       0700   CTBA1      2000   D1$DEN     0003   
+D1$SIZ     0002   DMAC       00E0   DRVSIZ     0004   EDATA      0208   
+EIA02      0040   EPADR      0210   EPTYPE     0201   ERR30      00B0'  
+ERROR      2F80   ERROR2     2FA0   EVSFR      0048R  FDC        F140   
+FDCINT     0004   FIX        00B4R  FPAC       0084R  FPAC2      0058R  
+FRAF       007ED  FRAF1      0082'  FRAF2      0088'  GETC$      0066R  
+INPF1      003C'  INPF2      0042'  INPF3      0046'  INTF       0024D  
+KBDACK     0001   KBDINT     0005   KDS        0000   KEYBRD     0008   
+M$REG0     F100   M$REG1     F102   M$REG2     F104   M$REG3     F106   
+M$REG4     F108   M$REG5     F10A   M$REG6     F10C   M$REG7     F10E   
+M$REG8     F110   M$REG9     F112   M$REGA     F114   M$REGB     F116   
+M$REGC     F118   M$REGD     F11A   M$REGE     F11C   M$REGF     F11E   
+MAPPER     F100   MODF       00ACD  MODF1      00B2'  NKYF       0066D  
+NKYF1      007A'  NTBA       0400   NTBA1      1800   PGBA       0800   
+PGM        0205   PGMPUL     0206   PGTBA1     0000   PIO        0000   
+PPBUSY     0409   PPDS       0408   PPRINT     0400   PRMPOP     0200   
+PROERR     0206   PRORDY     0204   PRORST     0200   R0         0000   
+R1         0001   R10        000A   R11        000B   R12        000C   
+R13        000D   R14        000E   R15        000F   R2         0002   
+R3         0003   R4         0004   R5         0005   R6         0006   
+R7         0007   R8         0008   R9         0009   ROMON      0005   
+SNTBA      0780   SNTBA1     1B00   SPGBA      0000   SPGBA1     3800   
+SYSF       0000D  SYSFA1     0012'  SYSFA2     001C'  SYSFLG     0020R  
+SYSLMT     0014R  TEMP       00A8R  V30        0207   VCCON      0204   
+VDP        F120   VDPINT     0006   VDPREG     F121   VDPST      0006R  
+VRAM       F120   
+
+0 Errors in assembly

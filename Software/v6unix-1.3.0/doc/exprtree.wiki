@@ -1,0 +1,126 @@
+
+<b>EXPRESSION TREES</b>
+
+<b>Introduction</b>
+
+The <i>getree()</i> routine reads in expressions one at a time. As each expression is encountered in the input stream, it builds a tree structure for that expression. The tree is built up out of nodes. The root node of the tree represents the entire expression, and leaf nodes of the tree represent operands (i.e. values).
+
+Nodes are represented by various specialized struct's, which are combined into a single union, representing the general tree node:
+<verbatim>
+union	tree {
+	struct	tnode	t;		/* an operator node */
+	struct	tname	n;		/* an automatic variable */
+	struct	xtname	x;		/* an external variable */
+	struct	tconst	c;		/* a short (int) constant */
+	struct	lconst	l;		/* a long constant */
+	struct	ftconst	f;		/* a floating (double) constant */
+	struct	fasgn	F;		/* a field assignment */
+};
+</verbatim>
+Each structure type in the union has an <i>int op</i> declaration as its first member, and this operator also serves to identify the type of structure that the node represents.
+
+Tree nodes are allocated on the heap by the <i>getree()</i> routine and are automatically discarded when the compilation of the expression is complete. The compiler routines refer to expressions and sub-expressions using a pointer to its root node, i.e. a pointer of the form <i>union tree *t</i>.
+
+<br>
+<b>Operator nodes</b>
+
+Operator nodes are relatively straightforward: the contain the operator and the operand(s), which are expression trees for the operand subexpression(s). Often these will be leaf nodes (identifiers or constants), but the tree can be arbitrarily complex.
+<verbatim>
+struct	tnode {
+	int	op;			/* operator */
+	int	type;			/* C type of result */
+	int	degree;			/* degree of complexity */
+	union	tree *tr1;		/* left operand, or unary operand */
+	union	tree *tr2;		/* right operand, or null */
+};
+</verbatim>
+
+The operator node also contains a field for the C type (int, long, pointer, etc.). The encoding used in this field is described on a separate page. The structure also contains a field to describe the <i>complexity</i> of the expression. Simply put, the more levels an expression tree has, the more complex it is, but this is an oversimplification. The calculation of complexity degree is also described on a separate page.
+
+A lot of information about the properties of operators is stored in the <i>opdope</i> array, which can be found here:
+[http://1587660.websites.xs4all.nl/cgi-bin/9995/artifact/59f56da37fb3df72bc3a73ecd72b5ef870e832af?ln=5,150|code].
+For instance, often the test <i><nowiki>if (opdope[t->op]&BINARY)</nowiki></i> is used to determine that the operator is a binary operator.
+
+Operators are always unary or binary. Operators include all the C language operators, but also compiler generated ones:
+  *  COMMA, which is a right-associative operator designed to simplify right-to-left evaluation of function arguments
+  *  prefix and postfix ++ and --, whose second operand is the increment amount, as a constant
+  *  separate relational operators for unsigned values (also used for pointer comparisons)
+  *  Type conversion operators: ITOF, FTOI, FTOL, LTOF, ITOL, LTOI
+  *   JUMP, which branches indirectly through a label expression
+  *  INIT, which compiles the value of a constant expression used as an initializer
+  *  RFORCE, which is used before a return sequence or a switch to place a value in an agreed-upon register.
+
+The ternary operator "? :" is handled by a binary node with operator QUESTION, which always has a right sub-node with operator COLON. 
+
+<br>
+<b>Identifier nodes</b>
+
+There are two types of identifier nodes. The first type is used for automatic (i.e. stack allocated) variables. Register variables also use this form. The second type is used for external names, i.e. global and static variables and functions. The definitions are:
+<verbatim>
+struct	tname {
+	int	op;			/* Always 'NAME' */
+	int	type;			/* C type */
+	char	class;			/* storage class */
+	char	regno;			/* register */
+	int	offset;			/* offset versus frame pointer */
+	int	nloc;			/* location as assigned by the c0 pass */
+};
+struct	xtname {
+	int	op;			/* always 'NAME' */
+	int	type;			/* C type */
+	char	class;			/* storage class */
+	char	regno;			/* always 0 */
+	int	offset;			/* offset versus base address */
+	char	*name;			/* pointer to name string */
+};
+</verbatim>
+The class is the storage class, either AUTO, REGISTER or EXTERN:
+  *  The AUTO class has the offset versus the base pointer (as generated in the c0 pass) in the <i>nloc</i> field. During expression optimization this is modified to the OFFS class, with the <i>offset</i> set to the <i>nloc</i> value and the <i>regno</i> set to the register number of the frame pointer (held in register <i>bp</i>, or R13 in this implementation).
+  *  The REGISTER class has the register number as allocated in the c0 pass in the <i>nloc</i> field. This is moved to the <i>regno</i> field during expression optimization.
+  *  The EXTERNAL class contains a pointer to a heap allocated name. This name is also deallocated at the end of each expression compilation. During expression optimization the <i>offset</i> field may be set to a non-zero value; this is intended to mean an offset in bytes from the identifier's base address. For example, if a is an array of char values, the expression <i><nowiki>a[5]</nowiki></i> would see the 5 stored in the <i>offset</i> field and expanded to "@_a+5" in the output file.
+ 
+
+<br>
+<b>Numeric constant nodes</b>
+
+Numeric constants are represented by 3 different node types: <i>tconst</i> for int / short values, <i>lconst</i> for long values and <i>ftconst</i> for floating point values, always represented as a double. The definitions are:
+<verbatim>
+struct	tconst {
+	int	op;			/* always 'CON' */
+	int	type;			/* C type */
+	int	value;			/* the actual constant */
+};
+
+struct	lconst {
+	int	op;			/* always 'LCON' */
+	int	type;			/* always 'LONG' */
+	long	lvalue;			/* the actual constant */
+};
+
+struct	ftconst {
+	int	op;			/* always 'FCON' */
+	int	type;			/* C type, 'FLOAT' or 'DOUBLE' */
+	int	value;			/* label number of constant */
+	double	fvalue;			/* the actual constant */
+};
+</verbatim>
+Floating point constants will be placed in the data segment. The label number for this constant is placed in the <i>value</i> member of the ftconst structure. Long and floating point constants are constructed in place, but there is a dedicated routine to construct an int constant:
+[link|code].
+
+
+<br>
+<b>Field and structure assignments<b>
+
+There is a special node type to handle assignment to bit fields and structures, <i>fasgn</i>.
+
+<verbatim>
+struct	fasgn {
+	int	op;
+	int	type;
+	int	degree;
+	union	tree *tr1;
+	union	tree *tr2;
+	int	mask;
+};
+</verbatim>
+

@@ -1,0 +1,715 @@
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
+9928 DSR - CORTEX BASIC REV. 1.1
+
+              2         IDT  'VDPDSR'
+              3         DEF  VDPDSR,D40
+              4         REF  UNPACK,SENDAD,JMPR0,B20
+              5         REF  FBCOL,STXT,B7F,XLOC,YLOC,VMODE
+              6         REF  BITMAP,WP9928,CCSAVE,TMPBUF,BELCNT
+              7         REF  CURFLG,CCNT,GCLEAR
+              8  *
+              9  *  SCREEN EQUATES
+             10  *
+     0027    11  TRHC   EQU  39                TOP RIGHT HAND CORNER
+     0000    12  TLHC   EQU  0                 TOP LEFT HAND CORNER
+     0398    13  BLHC   EQU  920               BOTTOM LEFT HAND CORNER
+     03BF    14  BRHC   EQU  959               BOTTOM RIGHT HAND CORNER
+     03C0    15  SCRSIZ EQU  BRHC-TLHC+1       SCREEN SIZE
+             16  *
+     2F80    17  ERROR  EQU  >2F80
+     2FA0    18  ERROR2 EQU  ERROR+>20
+             19  *
+             20  *        INTERNAL 9995 FLAGS USED
+             21  *
+             22  *                                   WHEN BIT IS SET
+             23  *
+     0005    24  F$SHOW EQU  5                 SHOW ALL CONTROL CHARACTERS
+     0006    25  F$ROLL EQU  6                 INHIBIT SCROLL
+             26  *
+             27         COPY 'IODEFS.INC'
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0002
+9928 DSR - CORTEX BASIC REV. 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0003
+9928 DSR - CORTEX BASIC REV. 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0004
+9928 DSR - CORTEX BASIC REV. 1.1
+
+             29  ************************************************************
+             30  *                                                          *
+             31  *                   GRAPHICS MODE                          *
+             32  *                                                          *
+             33  ************************************************************
+0000 D220    34  GMODE  MOVB @YLOC,R8          PICK UP Y LOCATION
+0002 0000 
+0004 0988    35         SRL  R8,8              PUT IN LS BYTE
+0006 0228    36         AI   R8,>0007          ALIGN WITH CHARACTER CELL
+0008 0007 
+000A 0938    37         SRL  R8,3              FORM Y CELL#
+             38  *
+000C D1E0    39         MOVB @XLOC,R7          PICK UP X LOCATION
+000E 0000 
+0010 0987    40         SRL  R7,8              PUT IN LS BYTE
+0012 0227    41         AI   R7,>0007          ALIGN WITH CHARACTER CELL
+0014 0007 
+0016 0937    42         SRL  R7,3              FORM X CELL#
+0018 0287    43         CI   R7,31             OFF RIGHT OF SCREEN ?
+001A 001F 
+001C 1202    44         JLE  GM1               N, LEAVE IT
+001E 04C7    45         CLR  R7                Y, RESET X CELL#
+0020 0588    46         INC  R8                   NEXT Y CELL
+             47  *
+0022 0288    48  GM1    CI   R8,23             OFF BOTTOM OF SCREEN ?
+0024 0017 
+0026 1201    49         JLE  GM2               N, LEAVE IT
+0028 04C8    50         CLR  R8                Y, RESET Y CELL#
+             51  *
+002A 0A58    52  GM2    SLA  R8,5              R8=32*Y CELL#
+002C A207    53         A    R7,R8             R8=X CELL# + (32*Y CELL#)
+002E 0A38    54         SLA  R8,3              R8=8*[X CELL# + (32*Y CELL#)]
+0030 0228    55  GM3    AI   R8,PGTBA1+>4000   ADD IN PGT BASE ADDRESS
+0032 4000 
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0005
+9928 DSR - CORTEX BASIC REV. 1.1
+
+             57  ************************************************************
+             58  *                                                          *
+             59  *               CHECK FOR END OF TEXT                      *
+             60  *                                                          *
+             61  ************************************************************
+             62  *
+             63  *       R8 CONTENTS :-
+             64  *
+             65  * BIT ==>     0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+             66  *
+             67  * USE ==>     0  W  0  R  R  R  R  R  C  C  C  C  C  0  0 0
+             68  *
+             69  *
+             70  *    W : VRAM WRITE BIT
+             71  *    R : ROW ADDRESS          0..23
+             72  *    C : COLUMN ADDRESS       0..31
+             73  *
+0034 0694    74  GDONE1 BL   *R4               SEND ADDRESS TO VDP
+             75  *
+0036 8289    76  GDONE  C    R9,R10            REACHED THE END OF MSG ?
+0038 1B27    77         JH   GREXIT            Y, EXIT
+003A D039    78         MOVB *R9+,R0           N, GET NEXT CHARACTER
+003C 9800    79         CB   R0,@B20           CONTROL ?
+003E 0000 
+0040 1A36    80         JL   GCNTRL            Y, HANDLE IT.
+             81  *
+0042 0420    82         BLWP @UNPACK           UNPACK THE BIT PATTERN
+0044 0000 
+0046 0201    83         LI   R1,BITMAP         POINT TO 'BITMAP'
+0048 0000 
+004A 0200    84         LI   R0,8              DO 8 BYTES
+004C 0008 
+004E C080    85         MOV  R0,R2             SAVE IT
+0050 A200    86         A    R0,R8             READY FOR NEXT CHARACTER
+             87  *
+0052 D831    88  CWRITE MOVB *R1+,@VRAM        COPY OVER BYTE
+0054 F120 
+0056 0600    89         DEC  R0                DONE ?
+0058 16FC    90         JNE  CWRITE            N, LOOP
+             91  * NOW UPDATE THE COLOUR TABLE
+005A 0228    92         AI   R8,(CTBA1-PGTBA1)-8  REF COLOUR TABLE
+005C 1FF8 
+005E 0694    93         BL   *R4               SEND ADDRESS TO VDP
+0060 D820    94  UPCTBL MOVB @FBCOL,@VRAM      WRITE THE COLOUR INFORMATION
+0062 0000 
+0064 F120 
+0066 0602    95         DEC  R2                DONE?
+0068 16FB    96         JNE  UPCTBL            N, LOOP
+006A 0228    97         AI   R8,-((CTBA1-PGTBA1)-8) Y, RESTORE CURSOR ADDRESS
+006C E008 
+006E 0694    98         BL   *R4               RELOAD VDP ADDRESS
+             99  *
+0070 0288   100  CHKBOT CI   R8,PGTBA1+(32*24*8)+>4000   OFF END OF TABLE ?
+0072 5800 
+0074 1AE0   101         JL   GDONE             N, CONTINUE
+0076 0228   102         AI   R8,-(32*24*8)     Y, BACKUP A SCREEN
+0078 E800 
+007A 10DC   103         JMP  GDONE1            AND RESEND ADDRESS
+            104  *
+            105  *      CURSOR ON/OFF CONTROL
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0006
+9928 DSR - CORTEX BASIC REV. 1.1
+
+            106  *
+007C 04E0   107  GFS    CLR  @CURFLG           ENABLE CURSOR
+007E 0000 
+0080 10DA   108         JMP  GDONE             AND CONTINUE
+            109  *
+0082 0720   110  GGS    SETO @CURFLG           DISABLE CURSOR
+0084 007E'
+0086 10D7   111         JMP  GDONE             AND CONTINUE
+            112    
+            113  ************************************************************
+            114  *                                                          *
+            115  *           EXIT FROM GRAPHICS MODE                        *
+            116  *                                                          *
+            117  ************************************************************
+0088 0248   118  GREXIT ANDI R8,>1FF8          KILL PIXEL & WRITE BITS
+008A 1FF8 
+008C 06C8   119         SWPB R8                POSITION X
+008E D808   120         MOVB R8,@XLOC          UPDATE Y
+0090 000E'
+0092 0AB8   121         SLA  R8,11             POSITION Y
+0094 D808   122         MOVB R8,@YLOC          UPDATE Y
+0096 0002'
+0098 0380   123         RTWP
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0007
+9928 DSR - CORTEX BASIC REV. 1.1
+
+            125  ************************************************************
+            126  *                                                          *
+            127  *               VDP OUTPUT ROUTINES                        *
+            128  *                                                          *
+            129  ************************************************************
+009A 0000   130  VDPDSR DATA WP9928,$+2        9928DSR ENTRY VECTOR
+009E 020C   131         LI   R12,>1EE0         REF INTERNAL FLAGS
+00A0 1EE0 
+00A2 0204   132         LI   R4,SENDAD         REF 'SENDAD'
+00A4 0000 
+00A6 C020   133         MOV  @VMODE,R0         WHAT MODE ?
+00A8 0000 
+00AA 16AA   134         JNE  GMODE             GRAPH MODE
+00AC 1030   135         JMP  TMODE             TEXT MODE
+            136  ************************************************************
+            137  *                                                          *
+            138  *              HANDLE GRAPHIC CONTROL CHARACTERS           *
+            139  *                                                          *
+            140  ************************************************************
+00AE 06A0   141  GCNTRL BL   @JMPR0            ;DO JUMP ON R0 (USES R1,R2)
+00B0 0000 
+00B2 0D     142  GJUMP  BYTE GHT-GJUMP/2,>09   HT - CURSOR RIGHT
+00B4 11     143         BYTE GBS-GJUMP/2,>08   BS - CURSOR LEFT
+00B6 1A     144         BYTE GLF-GJUMP/2,>0A   LF - CURSOR DOWN
+00B8 1D     145         BYTE GVT-GJUMP/2,>0B   VT - CURSOR UP
+00BA 22     146         BYTE GFF-GJUMP/2,>0C   FF - CLEAR SCREEN & HOME
+00BC 27     147         BYTE GCR-GJUMP/2,>0D   CR - CURSOR BEGINING OF LINE
+00BE E5     148         BYTE GFS-GJUMP/2,>1C   FS - CURSOR ON
+00C0 E8     149         BYTE GGS-GJUMP/2,>1D   GS - CURSOR OFF
+00C2 24     150         BYTE GRS-GJUMP/2,>1E   RS - CURSOR HOME
+00C4 0000   151         DATA 0
+00C6 0720   152         SETO @BELCNT           ILLEGAL, SET BELL COUNTER
+00C8 0000 
+00CA 10B5   153         JMP  GDONE             AND LOOP
+            154  ************************************************************
+            155  *                                                          *
+            156  *              CURSOR RIGHT (HT)                           *
+            157  *                                                          *
+            158  ************************************************************
+00CC 0228   159  GHT    AI   R8,8              NEXT CHARACTER
+00CE 0008 
+00D0 0694   160  GHT1   BL   *R4               POINT VDP TO IT
+00D2 10CE   161         JMP  CHKBOT            AND CHECK IT
+            162  ************************************************************
+            163  *                                                          *
+            164  *              CURSOR LEFT  (BS)                           *
+            165  *                                                          *
+            166  ************************************************************
+00D4 0228   167  GBS    AI   R8,-8             BACKUP TO PRIOR CHARACTER
+00D6 FFF8 
+00D8 0694   168  GBS1   BL   *R4               SEND IT TO VDP
+00DA 0288   169  CHKTOP CI   R8,PGTBA1+>4000   OFF TOP ?
+00DC 4000 
+00DE 14AB   170         JHE  GDONE             N, CONTINUE
+00E0 0228   171         AI   R8,(32*24*8)      Y,ADD IN A SCREEN
+00E2 1800 
+00E4 10A7   172         JMP  GDONE1            & RESEND IT
+            173  ************************************************************
+            174  *                                                          *
+            175  *              CURSOR DOWN  (LF)                           *
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0008
+9928 DSR - CORTEX BASIC REV. 1.1
+
+            176  *                                                          *
+            177  ************************************************************
+00E6 0228   178  GLF    AI   R8,8*32           DOWN A LINE
+00E8 0100 
+00EA 10F2   179         JMP  GHT1              GO UPDATE & CHECK
+            180  ************************************************************
+            181  *                                                          *
+            182  *              CURSOR UP    (VT)                           *
+            183  *                                                          *
+            184  ************************************************************
+00EC 0228   185  GVT    AI   R8,-(8*32)        UP A LINE
+00EE FF00 
+00F0 10F3   186         JMP  GBS1              GO UPDATE & CHECK
+            187  ************************************************************
+            188  *                                                          *
+            189  *              CLEAR SCREEN (FF)                           *
+            190  *               (LEAVES SPRITES !)                         *
+            191  ************************************************************
+00F2 0000   192  FGMODE DATA TMPBUF,GCLEAR     VECTOR INTO MID
+            193  *
+00F6 0420   194  GFF    BLWP @FGMODE           CLEAR GRAPHICS SCREEN
+00F8 00F2'
+            195  *   DROP THROUGH TO CURSOR HOME
+            196  ************************************************************
+            197  *                                                          *
+            198  *              CURSOR HOME  (RS)                           *
+            199  *                                                          *
+            200  ************************************************************
+00FA 0208   201  GRS    LI   R8,PGTBA1+>4000   POINT TO START OF SCREEN
+00FC 4000 
+00FE 109A   202         JMP  GDONE1            & RELOAD IT
+            203  ************************************************************
+            204  *                                                          *
+            205  *             CARRIDGE RETURN (CR)                         *
+            206  *                                                          *
+            207  ************************************************************
+0100 0248   208  GCR    ANDI R8,>FF00          THROW THE COLUMN BITS
+0102 FF00 
+0104 04E0   209         CLR  @CCNT             RESET BASIC'S COLUMN COUNTER
+0106 0000 
+0108 1095   210         JMP  GDONE1            RESEND IT TO VDP & CONTINUE
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0009
+9928 DSR - CORTEX BASIC REV. 1.1
+
+            212  ************************************************************
+            213  *                                                          *
+            214  *                   TEXT MODE                              *
+            215  *                                                          *
+            216  ************************************************************
+010A 00F2'  217  FTMODE DATA TMPBUF,STXT       VECTOR INTO MID
+     010E'  218  TMODE  EQU  $
+010E D1E0   219         MOVB @YLOC,R7          GET Y POSITION
+0110 0096'
+0112 0987   220         SRL  R7,8              POSITION IT
+0114 39E0   221         MPY  @D40,R7           R7=0,R8=40*YLOC
+0116 025A'
+0118 D1E0   222         MOVB @XLOC,R7          GET X POSITION
+011A 0090'
+011C 0987   223         SRL  R7,8              POSITION IT
+011E A207   224         A    R7,R8             R8=LINEAR CURSOR ADDRESS
+0120 0288   225         CI   R8,40*24          VALID ?
+0122 03C0 
+0124 14F2   226         JHE  FTMODE            N, GO FORCE TEXT MODE
+            227  ************************************************************
+            228  *                                                          *
+            229  *               REMOVE CURSOR                              *
+            230  *                                                          *
+            231  ************************************************************
+0126 0228   232  REMCUR AI   R8,NTBA+>4000     ADD IN TABLE START & W. BIT
+0128 4400 
+012A C020   233         MOV  @CURFLG,R0        CURSOR ENABLED?
+012C 0084'
+012E 1604   234         JNE  RVCA              N, LEAVE SCREEN ALONE
+0130 0694   235         BL   *R4               SEND ADDRESS TO VDP
+0132 D820   236         MOVB @CCSAVE,@VRAM     WRITE BACK CHARACTER THAT
+0134 0000 
+0136 F120 
+            237  *                             WAS UNDER THE CURSOR
+0138 0694   238  RVCA   BL   *R4               RESTORE VDP CURSOR ADDRESS
+            239  ************************************************************
+            240  *                                                          *
+            241  *               CHECK FOR END OF MSG                       *
+            242  *                                                          *
+            243  ************************************************************
+013A 8289   244  DONYET C    R9,R10            REACHED THE END OF MSG ?
+013C 1B3B   245         JH   PUTCUR            Y, EXIT
+013E D039   246         MOVB *R9+,R0           N, GET NEXT CHARACTER
+0140 1F05   247         TB   F$SHOW            SHOW ALL CONTROL CHARACTERS ?
+0142 1303   248         JEQ  CSHOW             Y, TREAT AS NORMAL
+0144 9800   249         CB   R0,@B20           N, CONTROL ?
+0146 003E'
+0148 1A71   250         JL   CNTRL             Y, HANDLE IT.
+            251  *
+014A D800   252  CSHOW  MOVB R0,@VRAM          N, WRITE CHARACTER
+014C F120 
+014E 0588   253         INC  R8                UPDATE CURSOR
+            254  *                             CHECK FOR OFF BOTTOM OF SCREEN
+            255  *
+0150 0288   256  OFFBOT CI   R8,NTBA+BRHC+>4000  OFF BOTTOM ?
+0152 47BF 
+0154 12F2   257         JLE  DONYET            N, CONTINUE
+0156 1F06   258         TB   F$ROLL            Y, SCROLL DISABLED ?
+0158 1603   259         JNE  DOROLL            N, GO DO IT
+015A 0228   260         AI   R8,-SCRSIZ        Y, BACKUP R8
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0010
+9928 DSR - CORTEX BASIC REV. 1.1
+
+015C FC40 
+015E 10EC   261         JMP  RVCA              AND CONTINUE
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0011
+9928 DSR - CORTEX BASIC REV. 1.1
+
+            263  *
+            264  *   SCROLL ROUTINE
+            265  *
+0160 C1C8   266  DOROLL MOV  R8,R7             SAVE CURSOR
+0162 0227   267         AI   R7,-40            RESTORE CURSOR POSITION
+0164 FFD8 
+            268  *
+0166 0208   269         LI   R8,NTBA+40        REF. START OF LINE 1
+0168 0428 
+016A 0694   270         BL   *R4               SEND IT TO VDP
+016C 04C1   271         CLR  R1                GET START OF BUFFER
+            272  *
+016E D860   273  RDSCR  MOVB @VRAM,@TMPBUF(R1) READ CHARACTER FROM VDP
+0170 F120 
+0172 010A'
+0174 0581   274         INC  R1                COUNT IT
+0176 0281   275         CI   R1,920            DONE ?
+0178 0398 
+017A 1AF9   276         JL   RDSCR             N, CONTINUE READING SCREEN
+            277  *
+017C 0208   278         LI   R8,NTBA+>4000     SET FOR WRITE TO TOP OF SCREEN
+017E 4400 
+0180 0694   279         BL   *R4               SEND IT TO VDP
+0182 04C1   280         CLR  R1                GET START OF BUFFER
+            281  *
+0184 D821   282  WRSCR  MOVB @TMPBUF(R1),@VRAM  WRITE CHARACTER TO VDP
+0186 0172'
+0188 F120 
+018A 0581   283         INC  R1                COUNT IT
+018C 0281   284         CI   R1,920            DONE ?
+018E 0398 
+0190 1AF9   285         JL   WRSCR             N, LOOP
+            286  *
+0192 0201   287         LI   R1,40             NOW FILL BOTTOM LINE WITH ' '
+0194 0028 
+0196 D820   288  WRSP   MOVB @B20,@VRAM        WRITE SPACE
+0198 0146'
+019A F120 
+019C 0601   289         DEC  R1                COUNT IT
+019E 16FB   290         JNE  WRSP              N, LOOP
+            291  *
+            292  *   NOW RESTORE THE CURSOR
+            293  *
+01A0 C207   294         MOV  R7,R8
+01A2 0694   295         BL   *R4               GIVE IT TO VDP
+01A4 10CA   296         JMP  DONYET            & CONTINUE OUTPUT
+01A6 0288   297  OFFTOP CI   R8,NTBA+>4000     OFF TOP OF SCREEN
+01A8 4400 
+01AA 14C7   298         JHE  DONYET            N, CONTINUE
+            299  *
+01AC 0228   300         AI   R8,SCRSIZ         Y, ADJUST CURSOR
+01AE 03C0 
+01B0 0694   301         BL   *R4               SEND IT TO VDP
+01B2 10C3   302  FD$JMP JMP  DONYET            & CONTINUE
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0012
+9928 DSR - CORTEX BASIC REV. 1.1
+
+            304  *
+            305  *      PUT CURSOR AND EXIT ROUTINE
+            306  *
+01B4 0228   307  PUTCUR AI   R8,->4000         PUT VDP IN READ MODE
+01B6 C000 
+01B8 0694   308         BL   *R4               SEND TO VDP
+01BA 04C3   309         CLR  R3
+01BC D0E0   310         MOVB @VRAM,R3          GET CHARACTER UNDER CURSOR
+01BE F120 
+01C0 0228   311         AI   R8,>4000          PUT BACK IN WRITE MODE
+01C2 4000 
+01C4 0694   312         BL   *R4               SEND IT
+01C6 C060   313         MOV  @CURFLG,R1        CURSOR ENABLED
+01C8 012C'
+01CA 1603   314         JNE  PUT$1             N, LEAVE SCREEN
+01CC D820   315         MOVB @B7F,@VRAM        WRITE CURSOR CHARACTER
+01CE 0000 
+01D0 F120 
+            316  *  NOW WORK OUT THE X,Y CURSOR
+01D2 0228   317  PUT$1  AI   R8,-(NTBA+>4000)  REMOVE TABLE BASE & WR. BIT
+01D4 BC00 
+01D6 04C7   318         CLR  R7                READY FOR DIVIDE
+01D8 3DE0   319         DIV  @D40,R7           DO DIVIDE
+01DA 025A'
+            320  * R7 = Y , R8 = X
+01DC 02A1   321         STWP R1                GET WP
+01DE D821   322         MOVB @1+(2*R7)(R1),@YLOC      SET YLOC
+01E0 000F 
+01E2 0110'
+01E4 D821   323         MOVB @1+(2*R8)(R1),@XLOC      SET XLOC
+01E6 0011 
+01E8 011A'
+01EA D803   324         MOVB R3,@CCSAVE        SAVE CHARACTER
+01EC 0134'
+01EE 0953   325         SRL  R3,5              R3= 8 * CHAR
+01F0 C203   326         MOV  R3,R8             SET FOR ADDRESS
+            327  * READ THE PATTERN FOR SAVED CHARACTER
+01F2 0228   328         AI   R8,PGBA           R8 = ADDRESS OF CHAR PAT.
+01F4 0800 
+01F6 0694   329         BL   *R4               SEND ADDRESS TO VDP
+01F8 0208   330         LI   R8,BITMAP         POINT TO 'BITMAP'
+01FA 0048'
+01FC C048   331         MOV  R8,R1             SAVE IT
+01FE 0207   332         LI   R7,8              DO 8 BYTES
+0200 0008 
+0202 C087   333         MOV  R7,R2             SAVE IT
+0204 DE20   334  RDPAT  MOVB @VRAM,*R8+        READ BYTE FROM VDP
+0206 F120 
+0208 0607   335         DEC  R7                COUNT IT
+020A 16FC   336         JNE  RDPAT             LOOP TILL DONE
+            337  *  WRITE INVERSE AS CHARACTER >7F BIT PATTERN
+020C 0208   338         LI   R8,PGBA+>4000+(8*>7F)  REF >7F PAT. ENTRY
+020E 4BF8 
+0210 0694   339         BL   *R4               SEND IT TO VDP
+            340  *
+0212 D031   341  WRPAT  MOVB *R1+,R0           GET PATTERN
+0214 0540   342         INV  R0                INVERT IT
+0216 D800   343         MOVB R0,@VRAM          SEND IT TO VDP
+0218 F120 
+021A 0602   344         DEC  R2                DONE ?
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0013
+9928 DSR - CORTEX BASIC REV. 1.1
+
+021C 16FA   345         JNE  WRPAT             N, LOOP
+            346  *
+021E 0380   347  DEXIT  RTWP                   Y, EXIT
+            348  *
+            349  *      CURSOR ON/OFF CONTROL
+            350  *
+0220 04E0   351  FS     CLR  @CURFLG           ENABLE CURSOR
+0222 01C8'
+0224 10C6   352         JMP  FD$JMP            AND CONTINUE
+            353  *
+0226 0720   354  GS     SETO @CURFLG           DISABLE CURSOR
+0228 0222'
+022A 10C3   355         JMP  FD$JMP            AND CONTINUE
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0014
+9928 DSR - CORTEX BASIC REV. 1.1
+
+            357  *
+            358  *       HANDLE TEXT CONTROL CHARACTERS
+            359  *
+022C 06A0   360  CNTRL  BL   @JMPR0            ;DO JUMP ON R0 (USES R1,R2)
+022E 00B0'
+0230 0D     361  CJUMP  BYTE HT-CJUMP/2,>09     HT - CURSOR RIGHT
+0232 11     362         BYTE BS-CJUMP/2,>08     BS - CURSOR LEFT
+0234 14     363         BYTE LF-CJUMP/2,>0A     LF - CURSOR DOWN
+0236 17     364         BYTE VT-CJUMP/2,>0B     VT - CURSOR UP
+0238 1A     365         BYTE FF-CJUMP/2,>0C     FF - CLEAR SCREEN & HOME
+023A 28     366         BYTE CR-CJUMP/2,>0D     CR - CURSOR BEGINING OF LINE
+023C F8     367         BYTE FS-CJUMP/2,>1C     FS - CURSOR ON
+023E FB     368         BYTE GS-CJUMP/2,>1D     GS - CURSOR OFF
+0240 24     369         BYTE RS-CJUMP/2,>1E     RS - CURSOR HOME
+0242 0000   370         DATA 0
+0244 0720   371         SETO @BELCNT           ILLEGAL, SET BELL COUNTER
+0246 00C8'
+0248 10B4   372  FDONE  JMP  FD$JMP            & TEST FOR COMPLETION
+            373  *
+            374  *     CURSOR RIGHT (HT)
+            375  *
+024A 0588   376  HT     INC  R8                ADJUST CURSOR
+024C 0694   377  UDATED BL   *R4               SEND IT TO VDP
+024E 0460   378         B    @OFFBOT           CHECK CURSOR ON SCREEN
+0250 0150'
+            379  *
+            380  *     CURSOR LEFT   (BS)
+            381  *
+0252 0608   382  BS     DEC  R8                BACKUP CURSOR
+0254 0694   383  UDATEU BL   *R4               SEND IT TO VDP
+0256 10A7   384         JMP  OFFTOP            CHECK CURSOR ON SCREEN
+            385  *
+            386  *     CURSOR DOWN  (LF)
+            387  *
+0258 0228   388  LF     AI   R8,40             DOWN A LINE
+025A 0028 
+     025A'  389  D40    EQU  $-2
+025C 10F7   390         JMP  UDATED            UPDATE & CHECK
+            391  *
+            392  *     CURSOR UP    (VT)
+            393  *
+025E 0228   394  VT     AI   R8,-40            UP A LINE
+0260 FFD8 
+0262 10F8   395         JMP  UDATEU            UPDATE & CHECK
+            396  *
+            397  *     CLEAR SCREEN (FF)
+            398  *
+0264 0208   399  FF     LI   R8,NTBA+>4000     REF TOP OF SCREEN
+0266 4400 
+0268 0694   400         BL   *R4               SEND IT TO VDP
+026A 0201   401         LI   R1,960            DO 960 CHARACTERS
+026C 03C0 
+026E D820   402  CLRSCN MOVB @B20,@VRAM        WRITE ' ' TO VDP
+0270 0198'
+0272 F120 
+0274 0601   403         DEC  R1                COUNT IT
+0276 16FB   404         JNE  CLRSCN            LOOP TILL DONE
+            405  *  FALL THROUGH TO CURSOR HOME
+            406  *
+            407  *     CURSOR HOME   (RS)
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0015
+9928 DSR - CORTEX BASIC REV. 1.1
+
+            408  *
+0278 0208   409  RS     LI   R8,NTBA+>4000     REF TOP OF SCREEN
+027A 4400 
+027C 0694   410  RS1    BL   *R4               SEND IT TO VDP
+027E 10E4   411         JMP  FDONE
+            412  *
+            413  *     CARRIAGE RETURN  (CR)
+            414  *
+0280 0228   415  CR     AI   R8,-(NTBA+>4000)  STRIP OFF TABLE BASE & WR. BIT
+0282 BC00 
+0284 04C7   416         CLR  R7                READY FOR DIV.
+0286 3DE0   417         DIV  @D40,R7           SPLIT INTO X & Y
+0288 025A'
+028A 39E0   418         MPY  @D40,R7           CALC 40 * Y
+028C 025A'
+028E 0228   419         AI   R8,NTBA+>4000     ADD BACK BASE & WRITE BIT
+0290 4400 
+0292 04E0   420         CLR  @CCNT             RESET BASIC'S COLUMN COUNTER
+0294 0106'
+0296 10F2   421         JMP  RS1               UPDATE  CURSOR LOCATION
+            422         END
+ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0016
+9928 DSR - CORTEX BASIC REV. 1.1
+
+B20      0270R  B7F      01CER  BELCNT   0246R  BELLON   0006   BITMAP   01FAR  
+BLHC     0398   BRHC     03BF   BS       0252'  BTENBL   0003   BUSACK   0002   
+BUSINT   0007   CASS02   00C0   CCNT     0294R  CCSAVE   01ECR  CHKBOT   0070'  
+CHKTOP   00DA'  CJUMP    0230'  CLKLED   0000   CLRSCN   026E'  CNTRL    022C'  
+CR       0280'  CSHOW    014A'  CTBA     0700   CTBA1    2000   CURFLG   0228R  
+CWRITE   0052'  D1$DEN   0003   D1$SIZ   0002   D40      025AD  DEXIT    021E'  
+DMAC     00E0   DONYET   013A'  DOROLL   0160'  DRVSIZ   0004   EDATA    0208   
+EIA02    0040   EPADR    0210   EPTYPE   0201   ERROR    2F80   ERROR2   2FA0   
+F$ROLL   0006   F$SHOW   0005   FBCOL    0062R  FD$JMP   01B2'  FDC      F140   
+FDCINT   0004   FDONE    0248'  FF       0264'  FGMODE   00F2'  FS       0220'  
+FTMODE   010A'  GBS      00D4'  GBS1     00D8'  GCLEAR   00F4R  GCNTRL   00AE'  
+GCR      0100'  GDONE    0036'  GDONE1   0034'  GFF      00F6'  GFS      007C'  
+GGS      0082'  GHT      00CC'  GHT1     00D0'  GJUMP    00B2'  GLF      00E6'  
+GM1      0022'  GM2      002A'  GM3      0030'  GMODE    0000'  GREXIT   0088'  
+GRS      00FA'  GS       0226'  GVT      00EC'  HT       024A'  JMPR0    022ER  
+KBDACK   0001   KBDINT   0005   KDS      0000   KEYBRD   0008   LF       0258'  
+M$REG0   F100   M$REG1   F102   M$REG2   F104   M$REG3   F106   M$REG4   F108   
+M$REG5   F10A   M$REG6   F10C   M$REG7   F10E   M$REG8   F110   M$REG9   F112   
+M$REGA   F114   M$REGB   F116   M$REGC   F118   M$REGD   F11A   M$REGE   F11C   
+M$REGF   F11E   MAPPER   F100   NTBA     0400   NTBA1    1800   OFFBOT   0150'  
+OFFTOP   01A6'  PGBA     0800   PGM      0205   PGMPUL   0206   PGTBA1   0000   
+PIO      0000   PPBUSY   0409   PPDS     0408   PPRINT   0400   PRMPOP   0200   
+PROERR   0206   PRORDY   0204   PRORST   0200   PUT$1    01D2'  PUTCUR   01B4'  
+R0       0000   R1       0001   R10      000A   R11      000B   R12      000C   
+R13      000D   R14      000E   R15      000F   R2       0002   R3       0003   
+R4       0004   R5       0005   R6       0006   R7       0007   R8       0008   
+R9       0009   RDPAT    0204'  RDSCR    016E'  REMCUR   0126'  ROMON    0005   
+RS       0278'  RS1      027C'  RVCA     0138'  SCRSIZ   03C0   SENDAD   00A4R  
+SNTBA    0780   SNTBA1   1B00   SPGBA    0000   SPGBA1   3800   STXT     010CR  
+TLHC     0000   TMODE    010E'  TMPBUF   0186R  TRHC     0027   UDATED   024C'  
+UDATEU   0254'  UNPACK   0044R  UPCTBL   0060'  V30      0207   VCCON    0204   
+VDP      F120   VDPDSR   009AD  VDPINT   0006   VDPREG   F121   VMODE    00A8R  
+VRAM     F120   VT       025E'  WP9928   009AR  WRPAT    0212'  WRSCR    0184'  
+WRSP     0196'  XLOC     01E8R  YLOC     01E2R  
+
+0 Errors in assembly

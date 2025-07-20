@@ -1,0 +1,7 @@
+all:
+
+install:
+	cp *.h /usr/include/
+	cp sys/*.h /usr/include/sys/
+
+clean:

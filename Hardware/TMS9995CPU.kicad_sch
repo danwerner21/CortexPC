@@ -6,8 +6,8 @@
 	(paper "USLedger")
 	(title_block
 		(title "CortexPC")
-		(date "2025-05-25")
-		(rev "V0.5")
+		(date "2025-07-13")
+		(rev "V0.9")
 	)
 	(lib_symbols
 		(symbol "74xx:74LS04"
@@ -9230,7 +9230,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9252,7 +9252,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9274,7 +9274,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9296,7 +9296,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9318,7 +9318,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9340,7 +9340,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9361,7 +9361,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9383,7 +9383,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9405,7 +9405,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9426,7 +9426,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9447,7 +9447,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9469,7 +9469,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9490,7 +9490,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9512,7 +9512,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9534,7 +9534,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9555,7 +9555,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9577,7 +9577,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9598,7 +9598,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9620,7 +9620,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9642,7 +9642,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9664,7 +9664,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9686,7 +9686,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9708,7 +9708,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9730,7 +9730,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9752,7 +9752,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9773,7 +9773,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9794,7 +9794,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9816,7 +9816,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9837,7 +9837,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9859,7 +9859,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9881,7 +9881,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9903,7 +9903,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9924,7 +9924,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -9945,7 +9945,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9967,7 +9967,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -9989,7 +9989,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10011,7 +10011,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10033,7 +10033,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10055,7 +10055,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10077,7 +10077,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10099,7 +10099,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10121,7 +10121,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10143,7 +10143,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10165,7 +10165,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10186,7 +10186,7 @@
 		(at 252.73 226.06 0)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10206,7 +10206,7 @@
 		(at 53.34 25.4 180)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10227,7 +10227,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10248,7 +10248,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10270,7 +10270,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10292,7 +10292,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10314,7 +10314,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10336,7 +10336,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10358,7 +10358,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10380,7 +10380,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10402,7 +10402,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10424,7 +10424,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10446,7 +10446,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10467,7 +10467,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10489,7 +10489,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10510,7 +10510,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10532,7 +10532,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10554,7 +10554,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10575,7 +10575,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10596,7 +10596,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10617,7 +10617,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10638,7 +10638,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10659,7 +10659,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10681,7 +10681,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10703,7 +10703,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10725,7 +10725,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10746,7 +10746,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.27 1.27)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10768,7 +10768,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10790,7 +10790,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10812,7 +10812,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10834,7 +10834,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10855,7 +10855,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10876,7 +10876,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10898,7 +10898,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10920,7 +10920,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10942,7 +10942,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -10964,7 +10964,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -10985,7 +10985,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11007,7 +11007,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11028,7 +11028,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11050,7 +11050,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11071,7 +11071,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11092,7 +11092,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11113,7 +11113,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11134,7 +11134,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11155,7 +11155,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11177,7 +11177,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11198,7 +11198,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11220,7 +11220,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11242,7 +11242,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11264,7 +11264,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11286,7 +11286,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11308,7 +11308,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11330,7 +11330,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11351,7 +11351,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11372,7 +11372,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11394,7 +11394,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11416,7 +11416,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11437,7 +11437,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11459,7 +11459,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11481,7 +11481,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11503,7 +11503,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11524,7 +11524,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11545,7 +11545,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11567,7 +11567,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11588,7 +11588,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11609,7 +11609,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11630,7 +11630,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11651,7 +11651,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11672,7 +11672,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11694,7 +11694,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11716,7 +11716,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11738,7 +11738,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11760,7 +11760,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11782,7 +11782,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11803,7 +11803,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11825,7 +11825,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11847,7 +11847,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11869,7 +11869,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11890,7 +11890,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11912,7 +11912,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11934,7 +11934,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11956,7 +11956,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -11977,7 +11977,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -11999,7 +11999,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -12021,7 +12021,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -12043,7 +12043,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -12065,7 +12065,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -12087,7 +12087,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -12108,7 +12108,7 @@
 		(at 140.97 63.5 180)
 		(effects
 			(font
-				(size 1.524 1.524)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -12129,7 +12129,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify right)
 		)
@@ -12150,7 +12150,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)
@@ -12171,7 +12171,7 @@
 		(fields_autoplaced yes)
 		(effects
 			(font
-				(size 1.016 1.016)
+				(size 1.15 1.15)
 			)
 			(justify left)
 		)

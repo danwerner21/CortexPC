@@ -1,0 +1,84 @@
+ASM990 2.4.6     RNDF                       Sun Jul 20 19:28:51 2025 Page 0001
+RANDOM FUNCTION - CORTEX BASIC REV. 1.1
+
+              2         IDT  'RNDF'
+              3  *
+              4  *       RANDG           ;RANDOM NUMBER GENERATOR
+              5  *       RAND            ;GET FLOATING POINT RANDOM NUMBER
+              6  *
+              7          REF FNRM              ;FIXES ARGUMENT
+              8          REF RANDS               ;RANDOM SEED
+              9          REF FPWP                ;FLOATING POINT WORKSPACE POINT
+             10  *
+             11  *       RETURNS A 16 BIT RANDOM NUMBER.  THE SEED
+             12  *       IS MAINTAINED IN RANDS AND IS UPDATED
+             13  *       ON EACH CALL.
+             14  *
+             15  * GENERATE PSEUDO RANDOM SEQUENCE OF INTEGERS
+             16  *
+             17  *       LINEAR CONGRUENTIAL SEQUENCE:
+             18  *       X[N+1] = (X[N] * A + C) MOD 2^16
+             19  *
+             20  * USE MOST SIGNIFICANT K-BITS IF <16 ARE REQUIRED
+ASM990 2.4.6     RNDF                       Sun Jul 20 19:28:51 2025 Page 0002
+RANDOM FUNCTION - CORTEX BASIC REV. 1.1
+
+             22  * CALLING SEQUENCE:
+             23  *
+             24  *       BL @RANDG
+             25  *
+             26  *       OUT R0 = 16 BIT RANDOM NUMBER
+             27  *
+             28  *
+0000 C020    29  RANDG   MOV @RANDS,R0   ;GET RANDOM SEED
+0002 0000 
+0004 C0C0    30          MOV R0,R3
+0006 0AB3    31          SLA R3,11       ;N*2^11
+0008 A0C0    32          A R0,R3         ;N*2^11+N
+000A 0A23    33          SLA R3,2
+000C A003    34          A R3,R0         ;N*2^11+5N
+000E 0220    35          AI R0,13849     ;(N*A+13849.)  MOD 2^16
+0010 3619 
+0012 C800    36          MOV R0,@RANDS   ;STORE NEW SEED
+0014 0002'
+0016 045B    37          RT
+             38  *
+             39  *
+             40  * ABSTRACT:
+             41  *
+             42  *       RETURNS A FLOATING POINT RANDOM NUMBER IN FPAC.
+             43  *       TWO 16-BIT RANDOM NUMBERS ARE USED TO GENERATE
+             44  *       THE THREE WORD FLOATING POINT NUMBER.
+             45  *
+             46  * CALLING SEQUENCE:
+             47  *
+             48  *       BLWP @RANDZ
+             49  *
+             50  *       OUT FPAC = FLOATING POINT RANDOM NUMBER
+             51  *
+             52  *       FNRM            ;NORMALIZE NUMBER
+             53          DEF RANDZ
+             54  *
+0018 0000    55  RANDZ  DATA FPWP,RAND
+             56  *
+001C 06A0    57  RAND    BL @RANDG       ;GET RANDOM #
+001E 0000'
+0020 C040    58          MOV R0,R1
+0022 06A0    59          BL @RANDG
+0024 0000'
+0026 C080    60          MOV R0,R2       ;LOAD LOW
+0028 0200    61          LI R0,>4200     ;ADD EXPONENT
+002A 4200 
+002C 0460    62          B @FNRM         ;NORMALIZE
+002E 0000 
+             63          END
+ASM990 2.4.6     RNDF                       Sun Jul 20 19:28:51 2025 Page 0003
+RANDOM FUNCTION - CORTEX BASIC REV. 1.1
+
+FNRM     002ER  FPWP     0018R  R0       0000   R1       0001   R10      000A   
+R11      000B   R12      000C   R13      000D   R14      000E   R15      000F   
+R2       0002   R3       0003   R4       0004   R5       0005   R6       0006   
+R7       0007   R8       0008   R9       0009   RAND     001C'  RANDG    0000'  
+RANDS    0014R  RANDZ    0018D  
+
+0 Errors in assembly

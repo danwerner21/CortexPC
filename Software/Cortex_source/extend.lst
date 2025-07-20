@@ -1,0 +1,345 @@
+ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0001
+EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
+
+              2         IDT  'EXTEND'
+              3  *
+              4  *  DEFINE FLOATING POINT XOPS
+              5  *
+              6         DXOP LOADF,0           LOAD FPAC
+              7         DXOP STORE,1           STORE FPAC
+              8         DXOP FADD,2            ADD TO FPAC
+              9         DXOP FSUB,3            SUBTRACT FROM FPAC
+             10         DXOP FMUL,4            MULTIPLY FPAC
+             11         DXOP FDIV,5            DIVIDE FPAC
+             12         DXOP SCALE,6           SCALE PFAC
+             13         DXOP NORMAL,7          NORMALIZE FPAC
+             14         DXOP CLEAR,8           CLEAR FPAC
+             15         DXOP NEGATE,9          NEGATE FPAC
+             16         DXOP FLOATF,10         FLOAT FPAC
+             17         DXOP EVFIX,11          EVALUATE AND FIX
+             18         DXOP OUTFP,12          OUT FLOATING POINT #
+             19         DXOP OUTINT,13         OUT INTEGER
+     2F80    20  ERROR  EQU  >2F80             XOP XX,14  (ERROR CALL)
+     2FA0    21  ERROR2 EQU  ERROR+>20
+             22  *
+             23         COPY 'IODEFS.INC'
+ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0002
+EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0003
+EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+             24         DEF  XFRPM,EXTNDY
+             25  *
+             26         REF  WPR2,EXTWP,C10,EXT$ID,LINE,CONFIG
+ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0004
+EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
+
+             27  *
+             28  *   TRANSFER PHYSICAL MEMORY
+             29  *
+             30  *     BLWP @XFRPM
+             31  *
+             32  *   IN:  R1   PAGE #
+             33  *        R2   PAGE INDEX (WORD ALIGNED)
+             34  *        R3   TRANSFER LENGTH
+             35  *        R4   LOAD POINT (WORD ALIGNED)
+             36  *
+0000 0000    37  XFRPM  DATA WPR2,$+2
+0004 C320    38         MOV  @CONFIG,R12       GET CONFIGURATION FLAG
+0006 0000 
+0008 091C    39         SRL  R12,1             MAPPER PRESENT ?
+000A 1722    40         JNC  ERR47             N, ERROR
+000C 03A0    41         CKON                   Y, ENABLE MAPPER
+000E 020C    42         LI   R12,M$REG2        POINT TO MAP REG 2
+0010 F104 
+0012 C01C    43         MOV  *R12,R0           SAVE IT
+0014 C72D    44         MOV  @2*R1(R13),*R12   SET NEW PAGE
+0016 0002 
+0018 C0AD    45         MOV  @2*R2(R13),R2     GET INDEX PAGE
+001A 0004 
+001C C0ED    46         MOV  @2*R3(R13),R3     GET # BYTES TO XFER
+001E 0006 
+0020 C12D    47         MOV  @2*R4(R13),R4     GET LOAD ADDRESS
+0022 0008 
+0024 0242    48         ANDI R2,>0FFF          ENSURE INDEX IS VALID
+0026 0FFF 
+0028 0583    49         INC  R3                FORCE TRANSFER LENGTH TO WORDS
+002A 0913    50         SRL  R3,1    
+             51  *
+002C CD22    52  XF1    MOV  @>2000(R2),*R4+   COPY THE WORD
+002E 2000 
+0030 0603    53         DEC  R3                COUNT IT
+0032 1307    54         JEQ  XF2               0, DONE
+0034 05C2    55         INCT R2                UPDATE INDEX
+0036 0282    56         CI   R2,>1000          OFF PAGE?
+0038 1000 
+003A 1AF8    57         JL   XF1               N, LOOP
+003C 04C2    58         CLR  R2                Y, RESET IT
+003E 0592    59         INC  *R2               GET NEXT PAGE
+0040 10F5    60         JMP  XF1               LOOP
+             61  *
+0042 03C0    62  XF2    CKOF                   DISABLE MAPPER
+0044 C700    63         MOV  R0,*R12           RESTORE MAP REG 2
+0046 0380    64         RTWP                   EXIT
+ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0005
+EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
+
+             66  *
+             67  *      EXTENDED COMMAND HANDLER
+             68  *
+             69  *
+             70  *      EXTENDE COMMAND WORKSPACE :-
+             71  *      IN   R8       PBC
+             72  *           R13-R15  RETURN CONTEXT
+             73  *
+             74  *      NORMAL EXIT :
+             75  *           RTWP
+             76  *
+             77  *      ERROR EXIT :
+             78  *           LI   R0,????        ERROR # (RIGHT JUSTIFIED)
+             79  *           INCT R14
+             80  *           RTWP
+             81  *
+             82  *      EXTENDED COMMAND HANDLER FORMAT
+             83  *
+             84  *           1000 *COMMAND_NAME parameters
+             85  *                 ^^^^^^^^^^^^
+             86  *      EPROM FORMAT
+             87  *
+             88  *           DATA >9C42        IDENTIFIER WORD
+             89  *           DATA LINK1        LINK TO NEXT DIR. ENTRY
+             90  *           DATA ENTRY1       ENTRY PT. OF COMMAND_1 ROUTINE
+             91  *           TEXT 'COMMAND_1'  NAME
+             92  *           BYTE 0            TERMINATOR FOR NAME
+             93  *   LINK1   DATA LINK2        LINK TO NEXT DIR. ENTRY
+             94  *           DATA ENTRY2       ENTRY PT. OF COMMAND_2 ROUTINE
+             95  *           TEXT 'CPMMAND_2'  NAME
+             96  *           BYTE 0            TERMINATOR FOR NAME
+             97  *   LINK2   DATA 0            LINK TERMINATOR !!
+             98  *
+             99  *   EXTENDED COMMAND HANDLERS ARE LOCATED ON 4K BYTE
+            100  *   BOUNDARIES STARTING FROM >010000 AND ARE MAPPED INTO
+            101  *   THE CPU ADDRESS SPACE FROM >2000 TO >3FFF. ALL EXTENDED
+            102  *   COMMAND HANDLER EPROMS MUST BE INSTALLED BETWEEN
+            103  *   >01 0000 AND >0F FFFF
+            104  *
+0048 C060   105  EXTNDY MOV  @CONFIG,R1        GET CONFIG FLAG
+004A 0006'
+004C 0911   106         SRL  R1,1              MAPPER PRESENT ?
+004E 1802   107         JOC  EXT1              Y, GO LOOK FOR HANDLER
+0050 2FA0   108  ERR47  DATA ERROR2,47         REQ. H/W NOT FOUND
+            109  *
+0054 0201   110  EXT1   LI   R1,M$REG2         POINT TO MAPPER R2 (>2000)
+0056 F104 
+0058 0206   111         LI   R6,M$REG3         POINT TO MAPPER R3 (>3000)
+005A F106 
+005C C3D1   112         MOV  *R1,R15           SAVE ITS CONTENTS
+005E C396   113         MOV  *R6,R14           SAVE ITS CONTENTS
+0060 C460   114         MOV  @C10,*R1          START FROM ADDRESS  010000 HEX
+0062 0000 
+0064 C288   115         MOV  R8,R10            SAVE PBC
+0066 03A0   116         CKON                   MAPPER ON
+            117  *
+0068 0202   118  EXT2   LI   R2,>2000          POINT TO START OF WINDOW
+006A 2000 
+006C 8832   119         C    *R2+,@EXT$ID      EXPANSION FOUND?
+006E 0000 
+ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0006
+EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
+
+0070 1620   120         JNE  EXT7              N, TRY NEXT 4K
+0072 C591   121         MOV  *R1,*R6           Y, SET UP 2ND HALF OF WINDOW
+0074 0596   122         INC  *R6
+0076 C0F2   123  EXT3   MOV  *R2+,R3           Y, GET LINK POINTER
+0078 131C   124         JEQ  EXT7              0, END OF TABLE FOR THIS ROM
+007A C132   125         MOV  *R2+,R4           GET ITS ENTRY POINT
+007C D038   126  EXT4   MOVB *R8+,R0           GET SEARCH STRING BYTE
+007E 1304   127         JEQ  EXT5              0, DONE SEARCH
+0080 9032   128         CB   *R2+,R0           MATCH ?
+0082 13FC   129         JEQ  EXT4              Y, CONTINUE
+0084 C083   130  EXT4A  MOV  R3,R2             N, PICK UP LINE
+0086 10F7   131         JMP  EXT3              AND LOOP
+0088 D012   132  EXT5   MOVB *R2,R0            SOURCE NULL, MATCH ?
+008A 16FC   133         JNE  EXT4A             N, CONTINUE SEARCH
+008C 0203   134  EXT6   LI   R3,EXTWP          MATCH, SET EXTERNAL WP
+008E 0000 
+0090 C8C8   135         MOV  R8,@2*8(R3)       COPY OVER R8
+0092 0010 
+0094 0403   136         BLWP R3                EXECUTE HANDLER
+0096 1008   137         JMP  EXT6A             <NORMAL RETURN>
+0098 0202   138         LI   R2,ERROR2         <ERROR  RETURN>
+009A 2FA0 
+009C C0D3   139         MOV  *R3,R3            PICK UP ERR #
+009E 0243   140         ANDI R3,>003F          ISOLATE ERROR CODE
+00A0 003F 
+00A2 1601   141         JNE  EXT6B             NOT 0, OK
+00A4 0703   142         SETO R3                0, MAKE ILLEGAL
+00A6 0442   143  EXT6B  B    R2                CALL THE ERROR HANDLER
+            144  *
+00A8 03C0   145  EXT6A  CKOF
+00AA C44F   146         MOV  R15,*R1           RESTORE MAPPER REGISTER
+00AC C58E   147         MOV  R14,*R6           RESTORE MAPPER REGISTER
+00AE 0460   148         B    @LINE             EXIT TO NEXT LINE
+00B0 0000 
+00B2 0591   149  EXT7   INC  *R1               MOVE TO NEXT 4K
+00B4 D0A1   150         MOVB @1(R1),R2         HAVE WE REACHED 10 0000
+00B6 0001 
+00B8 16D7   151         JNE  EXT2              N, LOOK FOR NEXT EPROM
+            152  *
+            153  *  EXPANSION NOT IMPLEMENTED - ERROR
+            154  *
+00BA 03C0   155  ERR41  CKOF                   TURN MAPPER OFF
+00BC C44F   156         MOV  R15,*R1           RESTORE MAPPER REGISTER
+00BE C58E   157         MOV  R14,*R6           RESTORE MAPPER REGISTER
+00C0 2FA0   158         DATA ERROR2,41         EXPANSION EPROM NOT FOUND
+            159         END
+ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0007
+EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
+
+BELLON     0006   BTENBL     0003   BUSACK     0002   BUSINT     0007   
+C10        0062R  CASS02     00C0   CLKLED     0000   CONFIG     004AR  
+CTBA       0700   CTBA1      2000   D1$DEN     0003   D1$SIZ     0002   
+DMAC       00E0   DRVSIZ     0004   EDATA      0208   EIA02      0040   
+EPADR      0210   EPTYPE     0201   ERR41      00BA'  ERR47      0050'  
+ERROR      2F80   ERROR2     2FA0   EXT$ID     006ER  EXT1       0054'  
+EXT2       0068'  EXT3       0076'  EXT4       007C'  EXT4A      0084'  
+EXT5       0088'  EXT6       008C'  EXT6A      00A8'  EXT6B      00A6'  
+EXT7       00B2'  EXTNDY     0048D  EXTWP      008ER  FDC        F140   
+FDCINT     0004   KBDACK     0001   KBDINT     0005   KDS        0000   
+KEYBRD     0008   LINE       00B0R  M$REG0     F100   M$REG1     F102   
+M$REG2     F104   M$REG3     F106   M$REG4     F108   M$REG5     F10A   
+M$REG6     F10C   M$REG7     F10E   M$REG8     F110   M$REG9     F112   
+M$REGA     F114   M$REGB     F116   M$REGC     F118   M$REGD     F11A   
+M$REGE     F11C   M$REGF     F11E   MAPPER     F100   NTBA       0400   
+NTBA1      1800   PGBA       0800   PGM        0205   PGMPUL     0206   
+PGTBA1     0000   PIO        0000   PPBUSY     0409   PPDS       0408   
+PPRINT     0400   PRMPOP     0200   PROERR     0206   PRORDY     0204   
+PRORST     0200   R0         0000   R1         0001   R10        000A   
+R11        000B   R12        000C   R13        000D   R14        000E   
+R15        000F   R2         0002   R3         0003   R4         0004   
+R5         0005   R6         0006   R7         0007   R8         0008   
+R9         0009   ROMON      0005   SNTBA      0780   SNTBA1     1B00   
+SPGBA      0000   SPGBA1     3800   V30        0207   VCCON      0204   
+VDP        F120   VDPINT     0006   VDPREG     F121   VRAM       F120   
+WPR2       0000R  XF1        002C'  XF2        0042'  XFRPM      0000D  
+
+
+0 Errors in assembly

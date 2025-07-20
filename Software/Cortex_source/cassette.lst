@@ -1,0 +1,732 @@
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0001
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+              2         IDT  'CASSETTE'
+              3         DEF  MC$LOD,MOTORY,MC$SAV,SAVY,LDPY,YORN
+              4         REF  DH$VNT,DH$SLT,PRDY,DMYHDR
+              5         REF  B43,CMON$,CMOF$,DH$HCS,DH$END,DH$PLL,ERR3$M
+              6         REF  UNIT,C0004,D100,CNTDWN,TYP11$,TYP0$,DELAY$
+              7         REF  MODEOK,IDRUN,AUTORN,TYPSN$,CASRDY,PLF,GETC$
+              8         REF  MODE,GTLN,IOB,BUS,GETCR$
+              9         REF  NEWP,NVD,RUNP,SLT,STRTC,TAPERR,VDT,VNT
+             10         REF  TYPS$,DH$SIZ,DH$ARF,PGMFND,CALLWP
+             11         REF  ESCFLG,EFIX$E,IDTEQ,WPR1
+             12  *
+     2F80    13  ERROR  EQU  >2F80
+     2FA0    14  ERROR2 EQU  ERROR+>20
+             15  *
+             16         DXOP EVFIX,11
+     1600    17  SYN    EQU  >1600             TAPE SYNC CHARACTER
+     0200    18  STX    EQU  >0200             TAPE START OF TEXT CHARACTER
+     0300    19  ETX    EQU  >0300             TAPE END OF TEXT CHARACTER
+             20  ************************************************************
+             21  *
+             22  *          TAPE/EPROM HEADER BLOCKS
+             23  *
+             24  *          BASIC               MACHINE CODE
+             25  *   ********************   ******************** RUN  =>A5A5
+             26  *   *  AUTO RUN FLAG   *   *  AUTO RUN FLAG   * NORUN=>5A5A
+             27  *   ********************   ********************
+             28  *   *   8 BYTE NAME    *   *   8 BYTE NAME    * NULL FILLED
+             29  *   ********************   ********************
+             30  *   *   DISP TO SLT    *   *       >0000      *
+             31  *   ********************   ********************
+             32  *   *   DISP TO VNT    *   *   LOAD ADDRESS   *
+             33  *   ********************   ********************
+             34  *   *     NVD - VDT    *   *   ENTRY POINT    * (OFFSET)
+             35  *   ********************   ********************
+             36  *   *   LOAD LENGTH    *   *   LOAD LENGTH    * (BYTES)
+             37  *   ********************   ********************
+             38  *   *     CHECKSUM     *   *     CHECKSUM     * HEADER ONLY
+             39  *   ********************   ********************
+             40  *
+             41  *DMYHDR EQU  $
+             42  *DH$ARF BSS  2            RUN/NORUN
+             43  *DH$PGN BSS  8            PROGRAM NAME
+             44  *DH$SLT BSS  2            DISP TO SLT
+             45  *DH$VNT BSS  2            DISP TO VNT
+             46  *DH$SIZ BSS  2            NVD-VDT
+             47  *DH$PLL BSS  2            LENGTH
+             48  *DH$HCS BSS  2            HEADER CHECKSUM
+             49  *HDRSIZ EQU  $-DMYHDR     HEADER BLOCK SIZE
+             50  *DH$END EQU  $            END OF DUMMY HEADER
+             51  ****************
+             52         COPY 'IODEFS.INC'
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0002
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0003
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+             53  *
+             54  *   WORKSPACE       :
+             55  *   ROUTINE(S)      :
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0004
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+             56  *   REGISTER USAGE  :
+             57  *                                              GLOBAL DATA
+             58  *           ___________________________________   LABELS
+             59  *   R0      !        SCRATCH                  !
+             60  *   R1      !        SCRATCH                  !
+             61  *   R2      !        SCRATCH                  !
+             62  *   R3      !      UNIT SAVE                  !
+             63  *   R4      !        SCRATCH                  !
+             64  *   R5      !        PTR TO DMYHDR            !
+             65  *   R6      !                                 !
+             66  *   R7      !         CHECKSUM                !
+             67  *   R8      !   POINTER TO PROG NAME          !
+             68  *   R9      !   POINTER TO PROG START         !
+             69  *   R10     !   SAVED RETURN                  !
+             70  *   R11     !        BL RETURN ADDRESS        !
+             71  *   R12     !         CASSETTE CRUBASE        !
+             72  *   R13     !          RETURN WP              !
+             73  *   R14     !          RETURN PC              !
+             74  *   R15     !          RETURN ST              !
+             75  *           -----------------------------------
+             76  *
+             77  ************************************************************
+             78  *                                                          *
+             79  * MONITOR DUMP ROUTINE -- 'D' COMMAND                      *
+             80  *                                                          *
+             81  * DUMP RAM IMAGE TO CASSETTE TAPE IN IMAGE FORMAT          *
+             82  *     R0 = START   R1=STOP    R2=ENTRY POINT               *
+             83  *                                                          *
+             84  ************************************************************
+0000 4088    85  MC$SAV SZC  R8,R2             WORD ALIGN ENTRY POINT
+             86  *
+             87  * START ADDRESS > STOP ADDRESS--ERROR
+             88  *
+0002 8040    89         C    R0,R1             START <= STOP ?
+0004 1202    90         JLE  ADDROK            YES
+0006 0460    91         B    @ERR3$M           ERROR EXIT TO MONITOR
+0008 0000 
+000A 0204    92  ADDROK LI   R4,DH$SLT         REF HDR SLT ENTRY
+000C 0000 
+000E 04F4    93         CLR  *R4+              CLEAR IT (FLAGS AS M/C)
+0010 CD00    94         MOV  R0,*R4+           SAVE LOAD ADDRESS
+0012 C240    95         MOV  R0,R9             SAVE IT FOR SAV0
+0014 CD02    96         MOV  R2,*R4+           SAVE ENTRY POINT
+0016 6040    97         S    R0,R1             GET LENGTH
+0018 C501    98         MOV  R1,*R4            SAVE LENGTH
+001A C28B    99         MOV  R11,R10           SAVE RETURN ADDRESS
+001C 0000   100         DATA TYPSN$,IDTEQ      PROMPT FOR IDT
+0020 0720   101         SETO @MODE             STOP GETLIN USING ^E
+0022 0000 
+0024 04E0   102         CLR  @ESCFLG           MAKE SURE HE CAN BOM OUT
+0026 0000 
+0028 06A0   103         BL   @GTLN             GET A LINE
+002A 0000 
+002C C220   104         MOV  @IOB,R8           GET ITS START
+002E 0000 
+0030 1016   105         JMP  SAV0              DO SAVE
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0005
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+            107  *
+            108  *
+            109  *     ENTRY POINT FOR BASIC 'SAVE' COMMAND
+            110  *
+0032 06A0   111  SAVY   BL   @MODEOK           CHECK NOT RUNNING
+0034 0000 
+0036 0201   112         LI   R1,DH$SLT         OK, REF THE SLT ENTRY
+0038 000C'
+003A 020A   113         LI   R10,PRDY          RETURN TO 'READY*'
+003C 0000 
+003E C260   114         MOV  @BUS,R9           GET BUS
+0040 0000 
+0042 C460   115         MOV  @SLT,*R1          COPY IN THE SLT
+0044 0000 
+0046 6C49   116         S    R9,*R1+           SUBTRACT BUS
+0048 C460   117         MOV  @VNT,*R1          COPY IN THE VNT
+004A 0000 
+004C 6C49   118         S    R9,*R1+           SUBTRACT BUS
+004E C460   119         MOV  @NVD,*R1          COPY IN THE NVD
+0050 0000 
+0052 6C60   120         S    @VDT,*R1+         CALCULATE NVD-VDT (VAR NAMES)
+0054 0000 
+0056 C460   121         MOV  @NVD,*R1          CALCULATE LOAD LENGTH FROM
+0058 0050'
+005A 6449   122         S    R9,*R1                  NVD-BUS
+005C 0588   123         INC  R8                SKIP THE QUOTE ON "NAME"
+            124  *
+            125  *      SET UP DUMMY HEADER
+            126  *
+005E 0201   127  SAV0   LI   R1,DMYHDR         POINT TO DUMMY HEADER
+0060 0000 
+0062 C101   128         MOV  R1,R4             SAVE FOR LATER
+0064 C141   129         MOV  R1,R5             SAVE FOR LATER
+0066 0202   130         LI   R2,IDRUN          SET FOR AUTO-RUN
+0068 0000 
+006A 001C'  131  SAV1   DATA TYPSN$,AUTORN     AUTO-RUN PROMPT
+006E 06A0   132         BL   @YORN             GET REPLY
+0070 026E'
+0072 10FB   133         JMP  SAV1              LOOP IF NOT A 'Y' OR 'N'
+0074 1001   134         JMP  SAV2              Y, R2 SET UP OK
+0076 0542   135         INV  R2                N, SET FOR NO AUTORUN
+0078 CC42   136  SAV2   MOV  R2,*R1+           STORE AUTO-RUN FLAG
+007A 0202   137         LI   R2,8              MAX OF 8 CHARACTERS
+007C 0008 
+007E D018   138  SAV3   MOVB *R8,R0            GET CHARACTER
+0080 1301   139         JEQ  SAV4              0, END OF NAME
+0082 0588   140         INC  R8                MOVE TO NEXT CHARACTER
+0084 DC40   141  SAV4   MOVB R0,*R1+           COPY NAME
+0086 0602   142         DEC  R2                LIMIT?
+0088 16FA   143         JNE  SAV3              N, LOOP
+            144  *
+            145  * NOW WORK OUT THE CHECKSUM
+            146  *
+008A 0201   147         LI   R1,DH$HCS         REF HEADER CHECKSUM WORD
+008C 0000 
+008E 04D1   148         CLR  *R1               CLEAR CHECKSUM
+0090 A474   149  SAV5   A    *R4+,*R1          ADD IN HEADER WORD
+0092 8044   150         C    R4,R1             DONE
+0094 1AFD   151         JL   SAV5              N, LOOP
+            152  *
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0006
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+            153  *      NOW DUMP TO TAPE
+            154  *
+0096 006A'  155  SAV6   DATA TYPSN$,CASRDY     CASSETTE READY PROMPT
+009A 06A0   156         BL   @YORN             GET RESPONSE
+009C 026E'
+009E 10FB   157         JMP  SAV6              NEITHER
+00A0 1001   158         JMP  SAV7              Y
+00A2 10F9   159         JMP  SAV6              N, LOOP
+            160  *
+00A4 0720   161  SAV7   SETO @PLF              FLAG AS SAVING (-VE)
+00A6 0000 
+00A8 06A0   162         BL   @SET02            GO SET UP 9902
+00AA 028E'
+00AC 0000   163         DATA CMON$             TURN TAPE MOTOR ON
+00AE C0E0   164         MOV  @UNIT,R3          SAVE UNIT FLAGS
+00B0 0000 
+00B2 C820   165         MOV  @C0004,@UNIT      SET UNIT FOR CASSETTE ONLY
+00B4 0000 
+00B6 00B0'
+00B8 C820   166         MOV  @D200,@CNTDWN     SET FOR 2 SEC. START UP
+00BA 010C'
+00BC 0000 
+00BE 0000   167  SNDSYN DATA TYP11$,SYN        SEND SYNC CHARACTER
+00C2 C020   168         MOV  @CNTDWN,R0        DONE STARTUP ?
+00C4 00BC'
+00C6 15FB   169         JGT  SNDSYN            LOOP TILL ENOUGH SENT
+00C8 00BE'  170         DATA TYP11$,STX        SEND STX
+00CC 0201   171         LI   R1,DMYHDR         POINT TO HEADER BLOCK
+00CE 0060'
+00D0 D035   172  DUMP   MOVB *R5+,R0           GET BYTE
+00D2 0000   173         DATA TYP0$             SEND IT
+00D4 0285   174         CI   R5,DH$END         DONE HEADER?
+00D6 0000 
+00D8 16FB   175         JNE  DUMP              N, LOOP
+            176  *
+            177  * NOW DUMP THE PROGRAM
+            178  *
+00DA C060   179         MOV  @DH$PLL,R1        GET LENGTH
+00DC 0000 
+00DE 04C7   180         CLR  R7                RESET CHECK COUNTER
+00E0 D039   181  DUMP1  MOVB *R9+,R0           GET BYTE
+00E2 00D2'  182         DATA TYP0$             SEND IT
+00E4 0980   183         SRL  R0,8              PUT IN LSB
+00E6 A1C0   184         A    R0,R7             ADD IN TO CHECKSUM
+00E8 0601   185         DEC  R1                DONE?
+00EA 16FA   186         JNE  DUMP1             N, LOOP
+            187  *
+00EC 00C8'  188         DATA TYP11$,ETX        SEND 'ETX' CHARACTER
+00F0 C007   189         MOV  R7,R0             GET CHECK WORD
+00F2 00E2'  190         DATA TYP0$             SEND MSB
+00F4 06C0   191         SWPB R0                POSITION LSB
+00F6 00F2'  192         DATA TYP0$             SEND LSB
+            193  *
+00F8 C820   194         MOV  @D100,@CNTDWN     SET FOR 1 SECOND DELAY
+00FA 0000 
+00FC 00C4'
+00FE 0000   195         DATA DELAY$            AND WAIT
+0100 0000   196         DATA CMOF$             TURN TAPE OFF
+0102 C803   197         MOV  R3,@UNIT          RESTORE UNIT FLAGS
+0104 00B6'
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0007
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+0106 04E0   198         CLR  @PLF              RESET PROGRAM LOAD FLAG  
+0108 00A6'
+010A 045A   199         B    *R10              AND EXIT
+            200  *
+010C 00C8   201  D200   DATA 200               TWO SECOND WAIT FOR TAPE M/C
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0008
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+            203  *
+            204  *   WORKSPACE       :
+            205  *   ROUTINE(S)      :
+            206  *   REGISTER USAGE  :
+            207  *                                              GLOBAL DATA
+            208  *           -----------------------------------   LABELS
+            209  *   R0      !          SCRATCH                !
+            210  *   R1      !                                 !
+            211  *   R2      !                                 !
+            212  *   R3      !                                 !
+            213  *   R4      !                                 !
+            214  *   R5      !       POINTER TO DMYHDR         !
+            215  *   R6      !          CHECKSUM               !
+            216  *   R7      !        AUTO-RUN FLAG            !
+            217  *   R8      !       POINTER TO NAME           !
+            218  *   R9      !                                 !
+            219  *   R10     !                                 !
+            220  *   R11     !                                 !
+            221  *   R12     !         CASSETTE CRUBASE        !
+            222  *   R13     !          RETURN WP              !
+            223  *   R14     !          RETURN PC              !
+            224  *   R15     !          RETURN ST              !
+            225  *           -----------------------------------
+            226  *
+            227  ************************************************************
+            228  *                                                          *
+            229  * MONITOR 'L' COMMAND                                      *
+            230  *                                                          *
+            231  *                                                          *
+            232  ************************************************************
+010E C28B   233  MC$LOD MOV  R11,R10           SAVE RETURN ADDRESS
+0110 0096'  234         DATA TYPSN$,IDTEQ      PROMPT FOR IDT
+0114 0720   235         SETO @MODE             STOP GTLN USING ^E
+0116 0022'
+0118 04E0   236         CLR  @ESCFLG           MAKE SURE HE CAN BOM OUT
+011A 0026'
+011C 06A0   237         BL   @GTLN             GET THE NAME
+011E 002A'
+0120 04E0   238         CLR  @MODE             RESET MODE
+0122 0116'
+0124 C220   239         MOV  @IOB,R8           POINT TO NAME
+0126 002E'
+0128 1005   240         JMP  LDPY0             AND DO LOAD
+            241  *
+            242  *      ENTRY POINT FOR BASIC 'LOAD' COMMAND
+            243  *
+012A 020A   244  LDPY   LI   R10,PRDY          EXIT TO '*READY'
+012C 003C'
+012E 06A0   245         BL   @MODEOK           ;CHECK MODE
+0130 0034'
+0132 0588   246         INC  R8                SKIP LEADING QUOTE
+0134 0110'  247  LDPY0  DATA TYPSN$,CASRDY     'CASSETTE READY' PROMPT
+0138 06A0   248         BL   @YORN             GET A RESPONSE
+013A 026E'
+013C 10FB   249         JMP  LDPY0             NEITHER
+013E 1001   250         JMP  LDPY0A            Y
+0140 10F9   251         JMP  LDPY0             N
+0142 05A0   252  LDPY0A INC  @PLF              PLF=1 NON DESTRUCTIVE ESC.
+0144 0108'
+0146 06A0   253         BL   @SET02            GO SET UP 9902
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0009
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+0148 028E'
+014A 00AC'  254         DATA CMON$             TURN MOTOR ON
+            255  *
+            256  *  LOOK FOR SOME 'SYN' CHARACTERS
+            257  *
+014C 04C7   258  NOSYN  CLR  R7                RESET 'SYN' COUNT
+014E 0000   259  FNDSYN DATA GETCR$            GET A CHARACTER
+0150 0280   260         CI   R0,STX            'STX' CHARACTER
+0152 0200 
+0154 1305   261         JEQ  SYN$1             Y, CHECK IF THIS IS OK
+0156 0280   262         CI   R0,SYN            N, IS IT A 'SYN'
+0158 1600 
+015A 16F8   263         JNE  NOSYN             N, RESET COUNTER
+015C 0587   264         INC  R7                Y, COUNT IT
+015E 10F7   265         JMP  FNDSYN            LOOK FOR SOME MORE
+            266  *
+            267  * 'STX' FOUND - IS THIS OK ?
+            268  *
+0160 0287   269  SYN$1  CI   R7,6              HAVE WE FOUND ENOUGH ?
+0162 0006 
+0164 1AF3   270         JL   NOSYN             N, KEEP LOOKING
+            271  *                             Y, IS THE NEXT WORD THE HEADER
+0166 014E'  272         DATA GETCR$            GET BYTE
+0168 D1C0   273         MOVB R0,R7             SAVE IT
+016A 0987   274         SRL  R7,8              POSITION
+016C 0166'  275         DATA GETCR$            GET 2ND BYTE
+016E D1C0   276         MOVB R0,R7             ADD IT IN
+0170 0287   277         CI   R7,IDRUN          IS IT A RUNID?
+0172 0068'
+0174 1305   278         JEQ  SYN$2             Y, FOUND HEADER
+0176 0547   279         INV  R7                N, MAYBE NOT AUTO-RUN
+0178 0287   280         CI   R7,IDRUN          IS IT OK?
+017A 0172'
+017C 16E7   281         JNE  NOSYN             N, NOT THE HEADER BLOCK
+017E 0547   282         INV  R7                Y, RESTORE ID WORD
+            283  *
+            284  *   HEADER BLOCK FOUND, R7 CONTAINS THE AUTO-RUN FLAG
+            285  *
+0180 0205   286  SYN$2  LI   R5,DMYHDR         POINT TO THE DMYHDR
+0182 00CE'
+0184 C045   287         MOV  R5,R1             SAVE IT
+0186 CD47   288         MOV  R7,*R5+           SAVE THE AUTO RUN FLAG
+0188 C085   289         MOV  R5,R2             SAVE FOR LATER
+018A 0000   290         DATA TYPS$,PGMFND      OUTPUT 'FOUND "'
+018E C108   291         MOV  R8,R4             SAVE SEARCH NAME START
+0190 016C'  292  LOAD1  DATA GETCR$            GET A CHARACTER
+0192 DD40   293         MOVB R0,*R5+           SAVE IT
+0194 1304   294         JEQ  LOAD1A            NULL, DON'T PRINT IT THEN
+0196 0285   295         CI   R5,DH$SLT         GOT NAME?
+0198 0038'
+019A 1B01   296         JH   LOAD1A            Y, SKIP
+019C 00F6'  297         DATA TYP0$             OUTPUT CHARACTER
+019E 0285   298  LOAD1A CI   R5,DH$END         DONE HEADER ?
+01A0 00D6'
+01A2 1AF6   299         JL   LOAD1             N, LOOP
+01A4 00EC'  300         DATA TYP11$,'"'*256    Y, NOW OUT CLOSING "
+            301  *
+            302  *      IS IT THE ONE WE ARE LOOKING FOR ?
+            303  *
+01A8 0200   304         LI   R0,8              MAX 8 BYTES
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0010
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+01AA 0008 
+01AC 9C94   305  LOAD1B CB   *R4,*R2+          MATCH ?
+01AE 16CE   306         JNE  NOSYN             N, LOOK FOR NEW HEADER
+01B0 DD14   307         MOVB *R4,*R4+          WAS IT A NULL
+01B2 1302   308         JEQ  LOAD1C            Y, MATCH FOUND
+01B4 0600   309         DEC  R0                DONE ?
+01B6 16FA   310         JNE  LOAD1B            N, LOOP
+            311  *
+            312  *  NOW CALCULATE THE HEADER CHECKSUM
+            313  *
+01B8 04C6   314  LOAD1C CLR  R6                RESET CHECKSUM COUNTER
+01BA A1B1   315  LOAD2  A    *R1+,R6           ADD IN WORD OF HEADER
+01BC 0281   316         CI   R1,DH$HCS         DONE?
+01BE 008C'
+01C0 1AFC   317         JL   LOAD2             N, LOOP
+01C2 8446   318         C    R6,*R1            Y, DO THEY MATCH ?
+01C4 1621   319         JNE  LDERR             N, ERROR
+            320  *
+            321  *     FIND OUT WHERE TO LOAD THE PROGRAM
+            322  *
+01C6 C120   323  LOAD3  MOV  @DH$VNT,R4        GET M/C LOAD ADDRESS
+01C8 0000 
+01CA C0E0   324         MOV  @DH$PLL,R3        GET LOAD LENGTH
+01CC 00DC'
+01CE 04C6   325         CLR  R6                RESET CHECKSUM
+01D0 C3E0   326         MOV  @DH$SLT,R15       M/C LOAD?
+01D2 0198'
+01D4 1304   327         JEQ  LOAD4             Y, R4 SET UP
+01D6 C120   328         MOV  @BUS,R4           N, GET BASIC LOAD ADDRESS
+01D8 0040'
+01DA 05A0   329         INC  @PLF              PLF=2, DESTRUCTIVE ESCAPE
+01DC 0144'
+            330  *
+            331  *      NOW LOAD THE PROGRAM
+            332  *
+01DE 0190'  333  LOAD4  DATA GETCR$            GET CHARACTER
+01E0 DD00   334         MOVB R0,*R4+           STORE IT
+01E2 0980   335         SRL  R0,8              PUT IN LSB
+01E4 A180   336         A    R0,R6             ADD INTO CHECKSUM
+01E6 0603   337         DEC  R3                DONE?
+01E8 16FA   338         JNE  LOAD4             N, LOOP
+            339  *
+01EA 01DE'  340         DATA GETCR$            Y, GET CHARACTER
+01EC 0280   341         CI   R0,ETX            'ETX' CHARACTER ?
+01EE 0300 
+01F0 1607   342         JNE  ABORT             N, ABORT
+            343  *
+            344  *      NOW READ IN CHECKSUM
+            345  *
+01F2 01EA'  346         DATA GETCR$            GET MSB CHECKSUM
+01F4 C0C0   347         MOV  R0,R3             COPY IT
+01F6 01F2'  348         DATA GETCR$            GET LSB CHECKSUM
+01F8 0980   349         SRL  R0,8              POSITION IT
+01FA A0C0   350         A    R0,R3             ADD IT
+01FC 8183   351         C    R3,R6             CHECKSUM OK?
+01FE 130A   352         JEQ  LOAD9             Y, SET POINTERS ETC
+            353  *
+            354  *  TAPE LOAD ERROR - ERROR & ABORT
+            355  *
+0200 C3CF   356  ABORT  MOV  R15,R15           M/C LOAD?
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0011
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+0202 1302   357         JEQ  LDERR             Y, JUST ERROR IT
+0204 020A   358         LI   R10,NEWP          N, DO A NEW
+0206 0000 
+            359  *
+            360  *  TAPE LOAD ERROR - ERROR & EXIT
+            361  *
+0208 0100'  362  LDERR  DATA CMOF$             TURN MOTOR OFF
+020A 0134'  363         DATA TYPSN$,TAPERR     OUT TAPE ERROR
+020E 04E0   364         CLR  @PLF              RESET PROGRAM LOAD FLAG
+0210 01DC'
+0212 045A   365         B    *R10              EXIT
+            366  *
+            367  *      SET UP VECTORS AND EXECUTE IF NEEDED
+            368  *
+0214 0208'  369  LOAD9  DATA CMOF$             TURN TAPE OFF
+0216 C3CF   370         MOV  R15,R15           M/C LOAD ?
+0218 160C   371         JNE  LOAD6             N, BASIC
+021A C3A0   372         MOV  @DH$SIZ,R14       Y, SET PC
+021C 0000 
+021E 020D   373         LI   R13,CALLWP        SET UP WP
+0220 0000 
+0222 04E0   374  LOAD8  CLR  @PLF              RESET LOADING FLAG
+0224 0210'
+0226 8820   375         C    @DH$ARF,@STRTC    AUTO-RUN?
+0228 0000 
+022A 0000 
+022C 1301   376         JEQ  LOAD7             Y, DO AUTO-RUN
+022E 045A   377         B    *R10              N, EXIT
+0230 0380   378  LOAD7  RTWP                   DO AUTO-RUN
+            379  *
+            380  *      BASIC LOAD
+            381  *      R4 POINTS AFTER END OF PGM
+            382  *
+0232 0202   383  LOAD6  LI   R2,DH$SLT         REF SLT DISP ENTRY
+0234 01D2'
+0236 C060   384         MOV  @BUS,R1           GET BUS
+0238 01D8'
+023A A481   385         A    R1,*R2            MAKE SLT ADDRESS
+023C C832   386         MOV  *R2+,@SLT         GET SLT
+023E 0044'
+0240 A481   387         A    R1,*R2            MAKE VNT ADDRESS
+0242 C832   388         MOV  *R2+,@VNT         GET VNT
+0244 004A'
+0246 C804   389         MOV  R4,@VDT           SET VDT TO FOLLOW PGM.
+0248 0054'
+024A 6832   390         S    *R2+,@VDT         ADJUST FOR VARIABLE SPACE
+024C 0248'
+024E C804   391         MOV  R4,@NVD           SET NVD
+0250 0058'
+0252 020E   392         LI   R14,RUNP          SET RUN ADDRESS
+0254 0000 
+0256 020D   393         LI   R13,WPR1          SET WORKSPACE
+0258 0000 
+025A 02CF   394         STST R15               SAVE STATUS
+025C 10E2   395         JMP  LOAD8
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0012
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+            397  *
+            398  *
+            399  *      BASIC 'MOTOR' STATEMENT
+            400  *   FORMAT
+            401  *      MOTOR <ARG>
+            402  *
+            403  *      IF ARG =  0 THEN TURN CASSETTE MOTOR OFF
+            404  *      IF ARG <> 0 THEN TURN CASSETTE MOTOR ON
+            405  *
+025E 2EC1   406  MOTORY EVFIX R1               GET ARG
+0260 C041   407         MOV  R1,R1             OFF ?
+0262 1603   408         JNE  MTRON             N, GO TURN IT ON
+0264 0214'  409         DATA CMOF$             Y, TURN IT OFF
+0266 0460   410  MOTXIT B    @EFIX$E           AND BACK TO BASIC
+0268 0000 
+026A 014A'  411  MTRON  DATA CMON$             TURN CASSETTE MOTOR ON
+026C 10FC   412         JMP  MOTXIT            AND EXIT
+            413  *
+            414  *  GET CHAR FROM KEYBOARD AND CHECK FOR Y OR N
+            415  *
+            416  *      BL @YORN
+            417  *        NEITHER Y NOR N RETURN
+            418  *        Y RETURN
+            419  *        N RETURN
+            420  *
+     026E'  421  YORN    EQU  $
+026E 0000   422          DATA GETC$      GET CHAR FROM KEYBOARD
+0270 10FE   423          JMP  YORN       NO CHAR
+0272 1001   424          JMP  YORN2      VALID CHAR
+0274 100A   425          JMP  ESCAPE     ESCAPE CHAR
+            426  *
+0276 019C'  427  YORN2   DATA TYP0$       ECHO THE CHARACTER
+0278 0280   428          CI   R0,>5900   Y?
+027A 5900 
+027C 1304   429          JEQ  YORN3
+027E 0280   430          CI   R0,>4E00   N?
+0280 4E00 
+0282 1602   431          JNE  YORN4
+0284 05CB   432          INCT R11        'N' DOUBLE SKIP
+0286 05CB   433  YORN3   INCT R11        'Y' SINGLE SKIP
+0288 045B   434  YORN4   B    *R11       RETURN
+028A 0460   435  ESCAPE  B   @PRDY        EXIT
+028C 012C'
+            436  *
+            437  *      SET UP CASSETTE 9902 FOR TAPE I/O
+            438  *
+028E 020C   439  SET02  LI   R12,2*CASS02      SET UP CRUBASE
+0290 0180 
+0292 1D1F   440         SBO  31                RESET 9902
+0294 C6DB   441         MOV  *R11,*R11         DELAY
+0296 3220   442         LDCR @B43,8            2 STOP,NO PAR,8 BITS,/3 CLOCK
+0298 0000 
+029A 1E0D   443         SBZ  13                NO TIMER
+029C 3320   444         LDCR @CBRATE,12        LOAD XMT/REC BAUD RATE
+029E 02A2'
+02A0 045B   445         RT                     EXIT
+            446  *
+02A2 04D0   447  CBRATE DATA >04D0             300 BAUD CASSETTE
+            448         END
+ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0013
+CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
+
+ABORT     0200'  ADDROK    000A'  AUTORN    006CR  B43       0298R  
+BELLON    0006   BTENBL    0003   BUS       0238R  BUSACK    0002   
+BUSINT    0007   C0004     00B4R  CALLWP    0220R  CASRDY    0136R  
+CASS02    00C0   CBRATE    02A2'  CLKLED    0000   CMOF$     0264R  
+CMON$     026AR  CNTDWN    00FCR  CTBA      0700   CTBA1     2000   
+D1$DEN    0003   D1$SIZ    0002   D100      00FAR  D200      010C'  
+DELAY$    00FER  DH$ARF    0228R  DH$END    01A0R  DH$HCS    01BER  
+DH$PLL    01CCR  DH$SIZ    021CR  DH$SLT    0234R  DH$VNT    01C8R  
+DMAC      00E0   DMYHDR    0182R  DRVSIZ    0004   DUMP      00D0'  
+DUMP1     00E0'  EDATA     0208   EFIX$E    0268R  EIA02     0040   
+EPADR     0210   EPTYPE    0201   ERR3$M    0008R  ERROR     2F80   
+ERROR2    2FA0   ESCAPE    028A'  ESCFLG    011AR  ETX       0300   
+FDC       F140   FDCINT    0004   FNDSYN    014E'  GETC$     026ER  
+GETCR$    01F6R  GTLN      011ER  IDRUN     017AR  IDTEQ     0112R  
+IOB       0126R  KBDACK    0001   KBDINT    0005   KDS       0000   
+KEYBRD    0008   LDERR     0208'  LDPY      012AD  LDPY0     0134'  
+LDPY0A    0142'  LOAD1     0190'  LOAD1A    019E'  LOAD1B    01AC'  
+LOAD1C    01B8'  LOAD2     01BA'  LOAD3     01C6'  LOAD4     01DE'  
+LOAD6     0232'  LOAD7     0230'  LOAD8     0222'  LOAD9     0214'  
+M$REG0    F100   M$REG1    F102   M$REG2    F104   M$REG3    F106   
+M$REG4    F108   M$REG5    F10A   M$REG6    F10C   M$REG7    F10E   
+M$REG8    F110   M$REG9    F112   M$REGA    F114   M$REGB    F116   
+M$REGC    F118   M$REGD    F11A   M$REGE    F11C   M$REGF    F11E   
+MAPPER    F100   MC$LOD    010ED  MC$SAV    0000D  MODE      0122R  
+MODEOK    0130R  MOTORY    025ED  MOTXIT    0266'  MTRON     026A'  
+NEWP      0206R  NOSYN     014C'  NTBA      0400   NTBA1     1800   
+NVD       0250R  PGBA      0800   PGM       0205   PGMFND    018CR  
+PGMPUL    0206   PGTBA1    0000   PIO       0000   PLF       0224R  
+PPBUSY    0409   PPDS      0408   PPRINT    0400   PRDY      028CR  
+PRMPOP    0200   PROERR    0206   PRORDY    0204   PRORST    0200   
+R0        0000   R1        0001   R10       000A   R11       000B   
+R12       000C   R13       000D   R14       000E   R15       000F   
+R2        0002   R3        0003   R4        0004   R5        0005   
+R6        0006   R7        0007   R8        0008   R9        0009   
+ROMON     0005   RUNP      0254R  SAV0      005E'  SAV1      006A'  
+SAV2      0078'  SAV3      007E'  SAV4      0084'  SAV5      0090'  
+SAV6      0096'  SAV7      00A4'  SAVY      0032D  SET02     028E'  
+SLT       023ER  SNDSYN    00BE'  SNTBA     0780   SNTBA1    1B00   
+SPGBA     0000   SPGBA1    3800   STRTC     022AR  STX       0200   
+SYN       1600   SYN$1     0160'  SYN$2     0180'  TAPERR    020CR  
+TYP0$     0276R  TYP11$    01A4R  TYPS$     018AR  TYPSN$    020AR  
+UNIT      0104R  V30       0207   VCCON     0204   VDP       F120   
+VDPINT    0006   VDPREG    F121   VDT       024CR  VNT       0244R  
+VRAM      F120   WPR1      0258R  YORN      026ED  YORN2     0276'  
+YORN3     0286'  YORN4     0288'  
+
+0 Errors in assembly

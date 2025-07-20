@@ -1,0 +1,372 @@
+ASM990 2.4.6     CVBD                       Sun Jul 20 19:28:50 2025 Page 0001
+BINARY/DECIMAL CONVERSION - CORTEX BASIC REV. 1.1
+
+              2         IDT  'CVBD'
+              3  *
+              4  *
+              5  *
+              6         DEF  CVBD,CVBI,CVBFR,B30
+              7         REF  FPAC,FPAC2
+              8         REF  CVHD,CVHD01,CVHD15,CVHD12
+              9         REF  FFLG
+             10         REF  FADDI,FSUBI
+             11         REF  CVGCN,B01,B05
+             12         REF  CVBF
+             13         REF  B2D,B2E,B31,B3A,B45
+             14  *
+             15  *  DEFINE FLOATING POINT XOPS FOR THIS MODULE
+             16  *
+             17         DXOP LOADF,0           ;LOAD FPAC
+             18         DXOP STORE,1           ;STORE FPAC
+             19         DXOP FADD,2            ;ADD TO FPAC
+             20         DXOP FSUB,3            ;SUBTRACT FROM FPAC
+             21         DXOP FMUL,4            ;MULTIPLY FPAC
+             22         DXOP FDIV,5            ;DIVIDE FPAC
+             23         DXOP SCALE,6           ;SCALE PFAC
+             24         DXOP NORMAL,7          ;NORMALIZE FPAC
+             25         DXOP CLEAR,8           ;CLEAR FPAC
+             26         DXOP NEGATE,9          ;NEGATE FPAC
+             27         DXOP FLOATF,10         ;FLOAT FPAC
+             28  *
+             29         DXOP EVFIX,11          ;EVALUATE AND FIX
+             30         DXOP OUTFP,12          ;OUT FLOATING POINT #
+             31         DXOP OUTINT,13         ;OUT INTEGER
+     2F80    32  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+     2FA0    33  ERROR2 EQU  ERROR+>20
+ASM990 2.4.6     CVBD                       Sun Jul 20 19:28:50 2025 Page 0002
+BINARY/DECIMAL CONVERSION - CORTEX BASIC REV. 1.1
+
+0000 2FA0    35  ERR34  DATA ERROR2,34         ;UNNORMALIZED #
+             36  *
+             37  *OUTPUT INTEGER
+             38  *
+0004 2E00    39  CVBI   CLEAR 0                ;CLEAR FPAC
+0006 C81B    40         MOV  *R11,@FPAC2
+0008 0000 
+000A 1008    41         JMP  CVBD0
+             42  *
+             43  *OUTPUT FLOATING POINT #
+             44  *
+000C 020A    45  CVBD   LI   R10,FPAC          ;GET FPAC ADDRESS
+000E 0000 
+0010 DEBB    46         MOVB *R11+,*R10+
+0012 DEBB    47         MOVB *R11+,*R10+
+0014 DEBB    48         MOVB *R11+,*R10+
+0016 DEBB    49         MOVB *R11+,*R10+
+0018 DEBB    50         MOVB *R11+,*R10+
+001A D69B    51         MOVB *R11,*R10
+             52  *
+001C 2E80    53  CVBD0  FLOATF 0               ;FLOAT FPAC IF NECESSARY
+001E 04CC    54         CLR  R12               ;CLEAR SIGN FLAG
+0020 0207    55         LI   R7,CVHD           ;GET HOLD ADR
+0022 0000 
+0024 7DD7    56         SB   *R7,*R7+          ;CLEAR FIRST BYTE
+0026 C060    57         MOV  @FPAC,R1          ;CHECK FOR ZERO
+0028 000E'
+002A 1106    58         JLT  CVBD1             ;NEGATIVE
+002C 1507    59         JGT  CVBD2             ;POSITIVE
+002E DDE0    60         MOVB @B30,*R7+         ;ZERO, OUT "0
+0030 007F'
+0032 020A    61         LI   R10,12            ;SET DIGIT COUNT
+0034 000C 
+0036 103B    62         JMP  CVBD12
+             63  *
+0038 2E40    64  CVBD1  NEGATE 0               ;NEGATE FPAC
+003A 070C    65         SETO R12               ;SET FLAG
+             66  *
+003C 0241    67  CVBD2  ANDI R1,>00F0          ;NORMALIZED?
+003E 00F0 
+0040 13DF    68         JEQ  ERR34             ;N
+0042 04CA    69         CLR  R10               ;CLEAR DECIMAL ADJUST COUNTER
+             70  *
+0044 D060    71  CVBD3  MOVB @FPAC,R1          GET EXPONENT
+0046 0028'
+0048 0981    72         SRL  R1,8
+004A 0208    73         LI   R8,>4A            GET EXP=4A (16^10)
+004C 004A 
+004E 6201    74         S    R1,R8
+0050 1310    75         JEQ  CVBD6             EXP=4A
+0052 1105    76         JLT  CVBD4             EXP<4A   (MUL)
+             77  *
+0054 06A0    78         BL   @CVGCN            FIX
+0056 0000 
+0058 A288    79         A    R8,R10            UPDATE DECIMAL ADJUSTOR
+005A 2D10    80         FMUL *R0               MULTIPLY
+005C 10F3    81         JMP  CVBD3
+             82  *
+005E 0508    83  CVBD4  NEG  R8                R8=-R8
+0060 06A0    84         BL   @CVGCN
+ASM990 2.4.6     CVBD                       Sun Jul 20 19:28:50 2025 Page 0003
+BINARY/DECIMAL CONVERSION - CORTEX BASIC REV. 1.1
+
+0062 0056'
+0064 6288    85         S    R8,R10            UPDATE DECIMAL ADJUSTOR
+0066 2D50    86         FDIV *R0               DIVIDE
+0068 10ED    87         JMP  CVBD3
+             88  *
+006A 06A0    89  CVBD5  BL   @FADDI            WENT NEG, ADD BACK
+006C 0000 
+006E 058A    90         INC  R10
+0070 1007    91         JMP  CVBD7
+             92  *
+0072 2C40    93  CVBD6  STORE R0               LOAD FPAC IN R0,R1,R2
+0074 0240    94         ANDI R0,>00FF          CLEAR EXPONENT
+0076 00FF 
+0078 0203    95         LI   R3,CVTB0          GET TABLE ADR
+007A 01BE'
+007C 0209    96         LI   R9,>30            "0
+007E 0030 
+     007F'   97  B30    EQU  $-1
+             98  *
+0080 C133    99  CVBD7  MOV  *R3+,R4           GET 1ST #
+0082 C173   100         MOV  *R3+,R5
+0084 C1B3   101         MOV  *R3+,R6
+0086 06A0   102         BL   @FSUBI            R0,R1,R2=R0,R1,R2-R4,R5,R6
+0088 0000 
+008A 11EF   103         JLT  CVBD5             WENT NEG, ADD BACK
+            104  *
+008C 0589   105  CVBD8  INC  R9                COUNT
+008E 06A0   106         BL   @FSUBI            ;R0,R1,R2=R0,R1,R2-R4,R5,R6
+0090 0088'
+0092 13FC   107         JEQ  CVBD8
+0094 15FB   108         JGT  CVBD8
+0096 06A0   109         BL   @FADDI            WENT NEGATIVE, ADD BACK
+0098 006C'
+009A 06C9   110         SWPB R9                READY BYTE FOR STORING
+009C DDC9   111         MOVB R9,*R7+           MOVE INTO BUFFER
+009E 0209   112         LI   R9,>2F            RELOAD R9
+00A0 002F 
+00A2 C133   113         MOV  *R3+,R4           GET NEXT CONSTANT
+00A4 C173   114         MOV  *R3+,R5
+00A6 C1B3   115         MOV  *R3+,R6
+00A8 0283   116         CI   R3,CVTB0E         DONE?
+00AA 020C'
+00AC 12EF   117         JLE  CVBD8             N
+ASM990 2.4.6     CVBD                       Sun Jul 20 19:28:50 2025 Page 0004
+BINARY/DECIMAL CONVERSION - CORTEX BASIC REV. 1.1
+
+            119  *CONVERSION DONE, ROUND AND SUPPRESS TRAILING ZERO'S
+            120  *
+            121  *       R10 = F = .001
+            122  *             E = .01
+            123  *             D = .1
+            124  *             C = 1
+            125  *             B = 10
+            126  *             A = 100
+            127  *
+00AE 7DD7   128  CVBD12 SB   *R7,*R7+          OUT NULL
+00B0 0287   129         CI   R7,CVHD15         DONE?
+00B2 0000 
+00B4 1AFC   130         JL   CVBD12            N
+            131  *
+00B6 C1ED   132         MOV  @14(13),R7        GET OUTPUT BUFFER PTR
+00B8 000E 
+00BA 0200   133         LI   R0,10             GET ROUNDING DIGIT COUNT
+00BC 000A 
+00BE C260   134         MOV  @FFLG,R9          FORMATTING?
+00C0 0000 
+00C2 160A   135         JNE  CVBFP             Y
+00C4 06A0   136         BL   @CVBFR            N, ROUND
+00C6 0170'
+00C8 060A   137         DEC  R10               NEW DIGIT
+00CA 04C4   138         CLR  R4                CLEAR TRAILING ZEROES
+            139  *
+00CC 9560   140  CVBD16 CB   @B30,*R5          "0?
+00CE 007F'
+00D0 1605   141         JNE  CVBD17            N
+00D2 D544   142         MOVB R4,*R5            Y, MAKE NULL
+00D4 0605   143         DEC  R5                BACKUP 1 DIGIT
+00D6 10FA   144         JMP  CVBD16
+            145  *
+00D8 0460   146  CVBFP  B    @CVBF             DO FORMATTING
+00DA 0000 
+            147  *
+            148  *SET SIGN AND GET INITIAL PTRS
+            149  *
+00DC C30C   150  CVBD17 MOV  R12,R12           NEGATIVE?
+00DE 1302   151         JEQ  $+6               N
+00E0 DDE0   152         MOVB @B2D,*R7+         Y, OUT "-
+00E2 0000 
+ASM990 2.4.6     CVBD                       Sun Jul 20 19:28:50 2025 Page 0005
+BINARY/DECIMAL CONVERSION - CORTEX BASIC REV. 1.1
+
+            154  *PROCESS FORMAT FREE #
+            155  *
+00E4 064A   156         DECT R10               >E11?
+00E6 1127   157         JLT  CVBD27            Y
+00E8 028A   158         CI   R10,16            N, <E05?
+00EA 0010 
+00EC 1524   159         JGT  CVBD27            Y
+00EE 022A   160         AI   R10,-11           N, "0.?
+00F0 FFF5 
+00F2 1510   161         JGT  CVBD22            Y
+00F4 130F   162         JEQ  CVBD22            Y
+            163  *
+00F6 DDF3   164  CVBD19 MOVB *R3+,*R7+         N, MOVE NUMBER
+00F8 1307   165         JEQ  CVBD20            DONE
+00FA 058A   166         INC  R10               TIME FOR ".?
+00FC 11FC   167         JLT  CVBD19            N
+00FE D013   168         MOVB *R3,R0            Y, ". NEEDED?
+0100 1315   169         JEQ  CVBD25            N, DONE
+0102 DDE0   170         MOVB @B2E,*R7+         Y, OUT ".
+0104 0000 
+0106 100F   171         JMP  CVBD24
+            172  *
+0108 0607   173  CVBD20 DEC  R7
+            174  *
+010A DDE0   175         MOVB @B30,*R7+         OUT "0 UNTIL R10=0
+010C 007F'
+010E 058A   176         INC  R10               DONE?
+0110 11FC   177         JLT  $-6               N
+0112 100C   178         JMP  CVBD25            Y
+            179  *
+0114 DDE0   180  CVBD22 MOVB @B30,*R7+         OUT "0
+0116 007F'
+0118 DDE0   181         MOVB @B2E,*R7+         OUT ".
+011A 0104'
+            182  *
+011C 060A   183  CVBD23 DEC  R10               TIME FOR DIGIT?
+011E 1103   184         JLT  CVBD24            Y
+0120 DDE0   185         MOVB @B30,*R7+         N, OUT "0
+0122 007F'
+0124 10FB   186         JMP  CVBD23
+            187  *
+0126 DDF3   188  CVBD24 MOVB *R3+,*R7+         MOVE REST OF STRING
+0128 16FE   189         JNE  $-2
+012A 0607   190         DEC  R7                BACKUP OVER NULL
+            191  *
+012C CB47   192  CVBD25 MOV  R7,@14(13)        RETURN UPDATE PTR
+012E 000E 
+0130 0380   193         RTWP DONE
+            194  *
+0132 C1C6   195  CVBD26 MOV  R6,R7             FORMATTING OVERFLOW
+0134 10FB   196         JMP  CVBD25
+ASM990 2.4.6     CVBD                       Sun Jul 20 19:28:50 2025 Page 0006
+BINARY/DECIMAL CONVERSION - CORTEX BASIC REV. 1.1
+
+            198  *EXPONENTIAL FORM
+            199  *
+0136 DDF3   200  CVBD27 MOVB *R3+,*R7+         OUT FIRST DIGIT
+0138 D113   201         MOVB *R3,R4            ANOTHER DIGIT?
+013A 1302   202         JEQ  $+6               N, NO ".
+013C DDE0   203         MOVB @B2E,*R7+         Y, ".
+013E 011A'
+            204  *
+0140 DDF3   205         MOVB *R3+,*R7+         MOVE #
+0142 16FE   206         JNE  $-2
+0144 0607   207         DEC  R7
+0146 DDE0   208         MOVB @B45,*R7+         "E
+0148 0000 
+014A 022A   209         AI   R10,-10
+014C FFF6 
+014E 050A   210         NEG  R10
+0150 1503   211         JGT  CVBD28            POSITIVE
+0152 DDE0   212         MOVB @B2D,*R7+         -, OUT "-
+0154 00E2'
+0156 050A   213         NEG  R10
+            214  *
+0158 04C9   215  CVBD28 CLR  R9                ;CLEAR UPPER PART
+015A 3E60   216         DIV  @C000A,R9         ;R9,R10/10
+015C 0204'
+015E 0229   217         AI   R9,>30            ;ADD BITS
+0160 0030 
+0162 022A   218         AI   R10,>30
+0164 0030 
+0166 06C9   219         SWPB R9                ;POSITION
+0168 06CA   220         SWPB R10
+016A DDC9   221         MOVB R9,*R7+           ;MOVE INTO STREAM
+016C DDCA   222         MOVB R10,*R7+
+016E 10DE   223         JMP  CVBD25            ;RETURN
+ASM990 2.4.6     CVBD                       Sun Jul 20 19:28:50 2025 Page 0007
+BINARY/DECIMAL CONVERSION - CORTEX BASIC REV. 1.1
+
+            225  *
+            226  *ROUND CHARACTER STRING TO R0 TH POSITION
+            227  *
+0170 0206   228  CVBFR  LI   R6,CVHD01         GET STRING ADR
+0172 0000 
+0174 D820   229         MOVB @B30,@CVHD12      FORCE 12TH DIGIT TO '0'
+0176 007F'
+0178 0000 
+017A A180   230         A    R0,R6             INDEX TO ROUNDING POSITION
+017C D000   231         MOVB R0,R0             ABLE TO ROUND?
+017E 1618   232         JNE  CVBFR3            N
+0180 C146   233         MOV  R6,R5             Y, MARK
+0182 0586   234         INC  R6
+            235  *
+0184 D0D6   236         MOVB *R6,R3            GET ROUNDING DIGIT
+0186 1314   237         JEQ  CVBFR3            DONE
+0188 D580   238         MOVB R0,*R6            SET TO NULL
+018A B0E0   239         AB   @B05,R3           ADD 5
+018C 0000 
+018E 90E0   240         CB   @B3A,R3           CARRY?
+0190 0000 
+0192 1B0E   241         JH   CVBFR3            N, DONE
+            242  *
+0194 0606   243  CVBFR1 DEC  R6                Y, HANDLE CARRY
+0196 D016   244         MOVB *R6,R0            EOS?
+0198 1308   245         JEQ  CVBFR2            Y, INSERT NEW DIGIT
+019A B5A0   246         AB   @B01,*R6          N, ADD CARRY
+019C 0000 
+019E 95A0   247         CB   @B3A,*R6          CARRY?
+01A0 0190'
+01A2 1B06   248         JH   CVBFR3            N, DONE
+01A4 D5A0   249         MOVB @B30,*R6          Y, INSERT "0
+01A6 007F'
+01A8 10F5   250         JMP  CVBFR1            CONTINUE
+            251  *
+01AA 049B   252  CVBFR2 X    *R11              NEW DIGIT, ADJUST R10
+01AC D5A0   253         MOVB @B31,*R6          INSERT "1
+01AE 0000 
+            254  *
+01B0 0203   255  CVBFR3 LI   R3,CVHD           GET INITIAL PTR
+01B2 0022'
+01B4 D1B3   256         MOVB *R3+,R6           NULL?
+01B6 1301   257         JEQ  CVBFR4            Y
+01B8 0603   258         DEC  R3                N, MOVE BACK
+01BA 046B   259  CVBFR4 B    @2(11)            RETURN
+01BC 0002 
+            260  *
+            261  *
+01BE 00E8   262  CVTB0  DATA >00E8,>D4A5,>1000
+01C4 0017   263         DATA >0017,>4876,>E800
+01CA 0002   264         DATA >0002,>540B,>E400
+01D0 0000   265         DATA >0000,>3B9A,>CA00
+01D6 0000   266         DATA >0000,>05F5,>E100
+01DC 0000   267         DATA >0000,>0098,>9680
+01E2 0000   268         DATA >0000,>000F,>4240
+01E8 0000   269         DATA >0000,>0001,>86A0
+01EE 0000   270         DATA >0000,>0000,>2710
+01F4 0000   271         DATA >0000,>0000,>03E8
+01FA 0000   272         DATA >0000,>0000,>0064
+     0204'  273  C000A  EQU  $+4
+ASM990 2.4.6     CVBD                       Sun Jul 20 19:28:50 2025 Page 0008
+BINARY/DECIMAL CONVERSION - CORTEX BASIC REV. 1.1
+
+0200 0000   274         DATA >0000,>0000,>000A
+0206 0000   275         DATA >0000,>0000,>0001
+     020C'  276  CVTB0E EQU  $
+            277         END
+ASM990 2.4.6     CVBD                       Sun Jul 20 19:28:50 2025 Page 0009
+BINARY/DECIMAL CONVERSION - CORTEX BASIC REV. 1.1
+
+B01        019CR  B05        018CR  B2D        0154R  B2E        013ER  
+B30        007FD  B31        01AER  B3A        01A0R  B45        0148R  
+C000A      0204'  CVBD       000CD  CVBD0      001C'  CVBD1      0038'  
+CVBD12     00AE'  CVBD16     00CC'  CVBD17     00DC'  CVBD19     00F6'  
+CVBD2      003C'  CVBD20     0108'  CVBD22     0114'  CVBD23     011C'  
+CVBD24     0126'  CVBD25     012C'  CVBD26     0132'  CVBD27     0136'  
+CVBD28     0158'  CVBD3      0044'  CVBD4      005E'  CVBD5      006A'  
+CVBD6      0072'  CVBD7      0080'  CVBD8      008C'  CVBF       00DAR  
+CVBFP      00D8'  CVBFR      0170D  CVBFR1     0194'  CVBFR2     01AA'  
+CVBFR3     01B0'  CVBFR4     01BA'  CVBI       0004D  CVGCN      0062R  
+CVHD       01B2R  CVHD01     0172R  CVHD12     0178R  CVHD15     00B2R  
+CVTB0      01BE'  CVTB0E     020C'  ERR34      0000'  ERROR      2F80   
+ERROR2     2FA0   FADDI      0098R  FFLG       00C0R  FPAC       0046R  
+FPAC2      0008R  FSUBI      0090R  R0         0000   R1         0001   
+R10        000A   R11        000B   R12        000C   R13        000D   
+R14        000E   R15        000F   R2         0002   R3         0003   
+R4         0004   R5         0005   R6         0006   R7         0007   
+R8         0008   R9         0009   
+
+0 Errors in assembly

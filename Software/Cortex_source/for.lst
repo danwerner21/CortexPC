@@ -1,0 +1,378 @@
+ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0001
+FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
+
+              2         IDT  'FOR'
+              3  *
+              4  *       FORY            ;FOR COMMAND
+              5  *       NXTY            ;NEXT COMMAND
+              6  *       FOR2            ;DELETE FROM FOR/NEXT STACK
+              7  *       GSIM            ;GET SIMPLE VERIABLE
+              8  *
+     2F80     9  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+     2FA0    10  ERROR2 EQU  ERROR+>20
+             11  *
+             12         REF  ADDF              ;ADD
+             13         REF  SUBF              ;SUBTRACT
+             14         REF  EVERZ             ;EVALUATE EXPRESSION
+             15         REF  NLIN,NLIN0        ;EXIT TO MULTIPLEXOR
+             16         REF  BUS               ;BEGINNING USER STORAGE
+             17         REF  EUS               ;END USER STORAGE
+             18         REF  FNS               ;FOR/NEXT STACK
+             19         REF  NVD               ;NEXT VARIABLE DEFINITION
+             20         REF  NVS               ;NEXT VARIABLE STORAGE
+             21         REF  PLC               ;PROGRAM LINE COUNTER
+             22         REF  SLT               ;STATEMENT LINE TABLE
+             23         REF  VDT               ;VARIABLE DEFINITION TABLE
+             24         REF  VNT               ;VARIABLE NAME TABLE
+             25         REF  B56
+             26         REF  NXTXB             ;NEXT COMMAND BYTE
+             27         DEF  FORY,FOR2
+             28         DEF  NXTY
+             29         DEF  GSIM
+             30  *
+     0004    31  NRV    EQU  4                 ;NUMBER OF RESERVED WORDS
+ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0002
+FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
+
+             33  *       EXECUTE FOR COMMAND.  WHEN A FOR
+             34  *       STATEMENT IS EXECUTED, THE FOR/NEXT
+             35  *       STACK (FNS) IS SEARCHED FOR A ZERO
+             36  *       ENTRY.  DURING THE SEARCH, IF
+             37  *       AN IDENTICAL ENTRY IS FOUND, IT IS
+             38  *       DELETED AND THE STACK IS ROLLED DOWN.
+             39  *
+             40  *       A PRE-TEST IS MADE TO SEE IF THE
+             41  *       CONDITION IS MET IN WHICH CASE, THE
+             42  *       FOR COMMAND WILL SEARCH FOR A MATCHING
+             43  *       NEXT.
+             44  *
+             45  *       THE FOR/NEXT STACK FORMAT IS:
+             46  *
+             47  *       !    '    '    '    '    '    '    '    '    !
+             48  *         VAR -----STEP----- ------TO------ PBC  PLC
+             49  *
+             50  *       VAR = 0 INDICATES EMPTY SLOT
+             51  *
+             52  * CALLING SEQUENCE:
+             53  *
+             54  *       B @FORY
+             55  *
+             56  *       EXIT TO NLIN
+             57  * EXCEPTIONS AND CONDITIONS:
+             58  *
+             59  *       FOR W/O NEXT, STACK OVERFLOW
+             60  *       EVALUATION ERRORS
+             61  *       STORAGE OVERFLOW, ILLEGAL DELIMITER
+             62  *       EXPECTING SIMPLE VARIABLE
+ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0003
+FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
+
+0000 06A0    64  FORY   BL   @GSIM             ;GET SIMPLE VARIABLE
+0002 0176'
+0004 C0D4    65         MOV  *R4,R3            ;DEFINED?
+0006 160A    66         JNE  FOR0              ;Y
+0008 C0E0    67         MOV  @NVS,R3           ;N, DEFINE
+000A 0000 
+000C 0223    68         AI   R3,-6
+000E FFFA 
+0010 8803    69         C    R3,@NVD           ;OK?
+0012 0000 
+0014 1A6F    70         JL   FORE10            ;N
+0016 C503    71         MOV  R3,*R4            ;Y, DEFINE
+0018 C803    72         MOV  R3,@NVS           ;UPDATE NVS
+001A 000A'
+             73  *
+001C C120    74  FOR0   MOV  @FNS,R4           ;GET F/N STACK ADR
+001E 0000 
+0020 9838    75         CB   *R8+,@B56         ;=?
+0022 0000 
+0024 1663    76         JNE  FORE36            ;N, PROBLEM
+             77  *
+0026 C014    78  FOR1   MOV  *R4,R0            ;DONE?
+0028 1314    79         JEQ  FOR4              ;Y
+002A 8001    80         C    R1,R0             ;N, SAME VARIABLE?
+002C 1306    81         JEQ  FOR1A             ;Y
+002E 0224    82         AI   R4,18             ;N, MOVE TO NEXT
+0030 0012 
+0032 8804    83         C    R4,@EUS           ;ANYMORE?
+0034 0000 
+0036 1AF7    84         JL   FOR1              ;Y
+0038 2F8B    85         DATA ERROR+11          ;N, STACK OVERFLOW
+             86  *
+003A 06A0    87  FOR1A  BL   @FOR2             ;DELETE
+003C 0040'
+003E 10F3    88         JMP  FOR1
+             89  *
+0040 C144    90  FOR2   MOV  R4,R5             ;DELETE FROM STACK
+0042 C004    91         MOV  R4,R0
+0044 0220    92         AI   R0,18
+0046 0012 
+             93  *
+0048 CD70    94  FOR3   MOV  *R0+,*R5+         ;MOVE UP
+004A 8800    95         C    R0,@EUS           ;DONE?
+004C 0034'
+004E 12FC    96         JLE  FOR3              ;N
+0050 045B    97         B    *R11              ;Y
+ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0004
+FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
+
+0052 CD01    99  FOR4   MOV  R1,*R4+           ;INSERT VAR NAME
+0054 0420   100         BLWP @EVERZ            ;GET INITIAL VALUE
+0056 0000 
+0058 0280   101         CI   R0,>3800          ;TO?
+005A 3800 
+005C 1649   102         JNE  FORE37            ;N, ERROR
+005E C183   103         MOV  R3,R6             ;SAVE FOR PRE-TEST
+0060 CCF2   104         MOV  *R2+,*R3+         ;MOVE IN INITIAL VALUE
+0062 CCF2   105         MOV  *R2+,*R3+
+0064 C4D2   106         MOV  *R2,*R3
+            107  *
+0066 04F4   108         CLR  *R4+              ;SET DEFAULT STEP TO 1
+0068 04D4   109         CLR  *R4
+006A 05B4   110         INC  *R4+
+006C 04F4   111         CLR  *R4+
+            112  *
+006E 0420   113         BLWP @EVERZ            ;GET 'TO' VALUE
+0070 0056'
+0072 C1C4   114         MOV  R4,R7             ;SAVE FOR PRE-TEST
+0074 CD32   115         MOV  *R2+,*R4+         ;MOVE IN TERMINATING VALUE
+0076 CD32   116         MOV  *R2+,*R4+
+0078 CD12   117         MOV  *R2,*R4+
+007A 04C5   118         CLR  R5                ;SET DEFAULT SIGN
+007C 0280   119         CI   R0,>3A00          ;'STEP'?
+007E 3A00 
+0080 160C   120         JNE  FOR6              ;N
+0082 0420   121         BLWP @EVERZ            ;Y, GET STEP
+0084 0070'
+0086 C044   122         MOV  R4,R1
+0088 0221   123         AI   R1,-12            ;MOVE BACK TO STEP
+008A FFF4 
+008C C152   124         MOV  *R2,R5            ;GET DIRECTION
+008E 1602   125         JNE  $+6               ;FP
+0090 C162   126         MOV  @2(2),R5          ;INTEGER
+0092 0002 
+            127  *
+0094 CC72   128         MOV  *R2+,*R1+         ;MOVE INTO STEP
+0096 CC72   129         MOV  *R2+,*R1+
+0098 C452   130         MOV  *R2,*R1
+            131  *
+009A C508   132  FOR6   MOV  R8,*R4            ;MOVE IN PBC,PLC
+009C 0634   133         DEC  *R4+              ;BACKUP OVER DLIM
+009E C520   134         MOV  @PLC,*R4
+00A0 0000 
+            135  *
+00A2 C086   136         MOV  R6,R2             ;DO PRE-TEST
+00A4 C047   137         MOV  R7,R1
+00A6 06A0   138         BL   @SUBF             ;R2=R2-R1  (VAR-TERM)
+00A8 0000 
+00AA C072   139         MOV  *R2+,R1           ;LOOK AT RESULT, INTEGER?
+00AC 1602   140         JNE  $+6               ;N
+00AE C052   141         MOV  *R2,R1            ;Y
+00B0 131B   142         JEQ  FOR9              ;= IMPLIES NOT DONE
+            143  *
+00B2 2845   144         XOR  R5,R1             ;'EXCLUSIVE OR' SIGNS
+00B4 1119   145         JLT  FOR9              ;- INPLIES LOOP NOT COMPLETE
+ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0005
+FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
+
+00B6 C164   147  FOR7   MOV  @-16(4),R5        ;LOOK FOR NEXT
+00B8 FFF0 
+00BA 04E4   148         CLR  @-16(4)           ;CLEAR FROM STACK
+00BC FFF0 
+00BE C1A0   149         MOV  @PLC,R6           ;GET PLC
+00C0 00A0'
+            150  *
+00C2 0226   151  FOR8   AI   R6,-4
+00C4 FFFC 
+00C6 8806   152         C    R6,@SLT           ;ANY MORE STATEMENTS?
+00C8 0000 
+00CA 1A15   153         JL   ERR31             ;N
+00CC C216   154         MOV  *R6,R8            ;GET PBC
+00CE A220   155         A    @BUS,R8           ;GET ABSOLUTE ADDRESS
+00D0 0000 
+00D2 9838   156         CB   *R8+,@NXTXB       ;NEXT?
+00D4 0000 
+00D6 16F5   157         JNE  FOR8              ;N
+00D8 06A0   158         BL   @GSIM             ;Y, GET SIMPLE VARIABLE
+00DA 0176'
+00DC 8141   159         C    R1,R5             ;SAME?
+00DE 16F1   160         JNE  FOR8              ;N, CONTINUE
+00E0 C806   161         MOV  R6,@PLC           ;Y, UPDATE PLC
+00E2 00C0'
+00E4 0460   162         B    @NLIN0
+00E6 0000 
+            163  *
+            164  *FOR9    EQU DIM8
+00E8 0460   165  FOR9   B    @NLIN
+00EA 0000 
+            166  *
+00EC 2FA0   167  FORE36 DATA ERROR2,36         ;MISSING "=
+            168  *
+00F0 2FA0   169  FORE37 DATA ERROR2,37         ;ILLEGAL DELIMITER
+            170  *
+00F4 2F8A   171  FORE10 DATA ERROR+10          ;STORAGE OVERFLOW
+            172  *
+00F6 2F9F   173  ERR31  DATA ERROR+31          ;FOR W/O NEXT
+            174  *
+00F8 2F94   175  ERR20  DATA ERROR+20          ;EXPECTING SIMPLE VARIABLE
+ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0006
+FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
+
+            177  *       PROCESS THE FOOT OF A FOR/NEXT LOOP.
+            178  *
+            179  *       NEXT SEARCHS THE FOR/NEXT STACK (FNS)
+            180  *       FOR A MATCHING SIMPLE VARIABLE.  THE
+            181  *       STEP IS ADDED TO THE VARIABLE AND
+            182  *       A COMPLETION CHECK IS MADE.  IF LESS
+            183  *       THAN OR EQUAL, IT LOOPS BACK.  OTHERWISE,
+            184  *       THE STACK VARIBLE IS SET TO ZERO,
+            185  *       AND PROGRAM EXECUTION CONTINUES AFTER
+            186  *       THE NEXT STATEMENT.
+            187  *
+            188  * CALLING SEQUENCE:
+            189  *
+            190  *       B @NXTY
+            191  *
+            192  *       EXIT TO NLIN
+            193  *
+            194  * EXCEPTIONS AND CONDITIONS:
+            195  *
+            196  *       EVALUATION ERRORS
+            197  *       NEXT W/O FOR
+            198  *
+ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0007
+FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
+
+00FA 06A0   200  NXTY   BL   @GSIM             ;GET SIMPLE VARIABLE
+00FC 0176'
+00FE C194   201         MOV  *R4,R6            ;GET ADR
+0100 1309   202         JEQ  ERR32             ;NOT DEFINED
+0102 C120   203         MOV  @FNS,R4           ;GET F/N STACK ADR
+0104 001E'
+            204  *
+0106 8D01   205  NXT1   C    R1,*R4+           ;SAME?
+0108 1307   206         JEQ  NXT2              ;Y
+010A 0224   207         AI   R4,16             ;N, MOVE TO NEXT
+010C 0010 
+010E 8804   208         C    R4,@EUS           ;MORE?
+0110 004C'
+0112 1AF9   209         JL   NXT1              ;Y
+            210  *
+0114 2FA0   211  ERR32  DATA ERROR+>20         ;NEXT W/O FOR
+0116 0020   212         DATA 32
+            213  *
+            214  *   (R4) = STEP 6 BYTE STORAGE AREA
+            215  *   (R6) = VARIABLE STORAGE 6 BYTE
+            216  *  6(R4) = 'TO' VALUE 6 BYTE STORAGE AREA
+            217  *
+0118 C084   218  NXT2   MOV  R4,R2             SAVE PTR TO STEP
+011A C172   219         MOV  *R2+,R5           STEP INTEGER ?
+011C 160F   220         JNE  NXT2C             N, DO FP
+011E C152   221         MOV  *R2,R5            Y, GET SIGN
+0120 C2C6   222         MOV  R6,R11            SAVE PTR TO VARIABLE
+0122 C07B   223         MOV  *R11+,R1          INTEGER VARIABLE?
+0124 160B   224         JNE  NXT2C             N, DO FP
+0126 C064   225         MOV  @6(R4),R1         Y, LIMIT INTEGER?
+0128 0006 
+012A 1608   226         JNE  NXT2C             N, DO FP
+            227  *
+            228  * EVERYTHING INTEGER
+            229  *
+012C C05B   230         MOV  *R11,R1           GET VARIABLE
+012E A052   231         A    *R2,R1            R1= VAR + STEP
+0130 1901   232         JNO  SPLAT1            OK
+0132 1004   233         JMP  NXT2C             OVERFLOW, DO FP
+0134 C6C1   234  SPLAT1 MOV  R1,*R11           UPDATE VARIABLE
+0136 6064   235         S    @6+2(R4),R1       R1= VAR - TO
+0138 0008 
+013A 1010   236         JMP  NXT2A             MAYBE
+            237  *
+            238  *     FP  FOR/NEXT LOOP
+            239  *
+013C C046   240  NXT2C  MOV  R6,R1             ;READY R2,R1
+013E C084   241         MOV  R4,R2
+0140 06A0   242         BL   @ADDF             ;ADD STEP
+0142 0000 
+0144 C042   243         MOV  R2,R1             ;MOVE IN NEW VARIABLE
+0146 CDB1   244         MOV  *R1+,*R6+
+0148 CDB1   245         MOV  *R1+,*R6+
+014A C591   246         MOV  *R1,*R6
+014C C044   247         MOV  R4,R1
+014E 0221   248         AI   R1,6              ;MOVE TO 'TO'
+0150 0006 
+0152 06A0   249         BL   @SUBF             ;R2=R2-R1  (VAR-TO)
+0154 00A8'
+0156 C072   250         MOV  *R2+,R1           ;LOOK AT RESULT, INTEGER?
+ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0008
+FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
+
+0158 1602   251         JNE  $+6               ;N
+015A C052   252         MOV  *R2,R1            ;Y
+015C 1305   253  NXT2A  JEQ  NXT3              ;0, NOT DONE
+            254  *
+015E 2845   255         XOR  R5,R1             ;EXCLUSIVE OR WITH STEP
+0160 1103   256         JLT  NXT3              ;NOT DONE
+0162 04E4   257         CLR  @-2(4)            ;DONE, SET TOP OF STACK
+0164 FFFE 
+0166 1005   258         JMP  NXT3A
+            259  *
+0168 C224   260  NXT3   MOV  @12(R4),R8        ;LOOP NOT COMPLETE
+016A 000C 
+016C C824   261         MOV  @14(R4),@PLC      ;RESTORE PBC & PLC
+016E 000E 
+0170 00E2'
+0172 0460   262  NXT3A  B    @NLIN0
+0174 00E6'
+ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0009
+FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
+
+            264  *       GSIM WILL GET NEXT ITEM AND CHECK TO
+            265  *       SEE IF IT IS A SIMPLE VARIABLE.
+            266  *
+            267  * CALLING SEQUENCE:
+            268  *
+            269  *       BL @GSIM
+            270  *
+            271  *       OUT (R4) = VARIABLE DEFINITION
+            272  *
+            273  * EXCEPTIONS AND CONDITIONS:
+            274  *
+            275  *       EXPECTING SIMPLE VARIABLE
+            276  *
+0176 04C0   277  GSIM   CLR  R0                ;GET VARIABLE
+0178 D038   278         MOVB *R8+,R0
+017A 0280   279         CI   R0,NRV*>100+>7000
+017C 7400 
+017E 1ABC   280         JL   ERR20             ;N, EXPECTING SIMPLE VARIABLE
+0180 C120   281         MOV  @VNT,R4           ;GET SYMBOL TABLE ADR
+0182 0000 
+0184 0970   282         SRL  R0,7              ;GET INDEX
+0186 A100   283         A    R0,R4
+0188 C064   284         MOV  @->70*2(4),R1
+018A FF20 
+018C 11B5   285         JLT  ERR20             ;DIMENSIONED, ERROR
+018E C120   286         MOV  @VDT,R4
+0190 0000 
+0192 A100   287         A    R0,R4
+0194 0224   288         AI   R4,->70*2
+0196 FF20 
+0198 045B   289         RT
+            290         END
+ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0010
+FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
+
+ADDF     0142R  B56      0022R  BUS      00D0R  ERR20    00F8'  ERR31    00F6'  
+ERR32    0114'  ERROR    2F80   ERROR2   2FA0   EUS      0110R  EVERZ    0084R  
+FNS      0104R  FOR0     001C'  FOR1     0026'  FOR1A    003A'  FOR2     0040D  
+FOR3     0048'  FOR4     0052'  FOR6     009A'  FOR7     00B6'  FOR8     00C2'  
+FOR9     00E8'  FORE10   00F4'  FORE36   00EC'  FORE37   00F0'  FORY     0000D  
+GSIM     0176D  NLIN     00EAR  NLIN0    0174R  NRV      0004   NVD      0012R  
+NVS      001AR  NXT1     0106'  NXT2     0118'  NXT2A    015C'  NXT2C    013C'  
+NXT3     0168'  NXT3A    0172'  NXTXB    00D4R  NXTY     00FAD  PLC      0170R  
+R0       0000   R1       0001   R10      000A   R11      000B   R12      000C   
+R13      000D   R14      000E   R15      000F   R2       0002   R3       0003   
+R4       0004   R5       0005   R6       0006   R7       0007   R8       0008   
+R9       0009   SLT      00C8R  SPLAT1   0134'  SUBF     0154R  VDT      0190R  
+VNT      0182R  
+
+0 Errors in assembly

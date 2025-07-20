@@ -1,0 +1,21 @@
+all:
+	(cd awk; make -f makefile.ti)
+	(cd bin; make -f makefile.ti)
+	(cd etc; make -f makefile.ti)
+	(cd lex; make -f makefile.ti)
+	(cd make; make -f makefile.ti)
+	(cd nroff; make -f makefile.ti)
+	(cd ratfor; make -f makefile.ti)
+	(cd tp; make -f makefile.ti)
+#	(cd yacc; make -f makefile.ti)
+
+clean:
+	(cd awk; make -f makefile.ti clean)
+	(cd bin; make -f makefile.ti clean)
+	(cd etc; make -f makefile.ti clean)
+	(cd lex; make -f makefile.ti clean)
+	(cd make; make -f makefile.ti clean)
+	(cd nroff; make -f makefile.ti clean)
+	(cd ratfor; make -f makefile.ti clean)
+	(cd tp; make -f makefile.ti clean)
+	(cd yacc; make -f makefile.ti clean)

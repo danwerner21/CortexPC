@@ -1,0 +1,180 @@
+.th STTY 1 
+.sh NAME
+stty \- set terminal options
+.sh SYNOPSIS
+.bd stty
+[ option ... ]
+.sh DESCRIPTION
+.it stty
+sets certain I/O options on the current output terminal.
+With no argument, it reports the current settings of the options.
+The option strings are
+selected from the following set:
+.s3
+.lp +6 5
+.bd even 
+allow even parity
+.s3
+.lp +6 5
+.bd \-even 
+disallow even parity
+.s3
+.lp +6 5
+.bd odd 
+allow odd parity
+.s3
+.lp +6 5
+.br
+.bd \-odd 
+disallow odd parity
+.s3
+.lp +6 5
+.bd raw 
+raw mode input
+(no erase, kill, interrupt, quit, EOT; parity bit passed back)
+.s3
+.lp +6 5
+.br
+.bd \-raw 
+negate raw mode
+.s3
+.lp +6 5
+.bd cooked 
+same as `\-raw'
+.s3
+.lp +6 5
+.bd cbreak
+make each character available to
+.it read (2)
+as received; no erase and kill
+.s3
+.lp +6 5
+.bd \-cbreak
+make characters available to 
+.it read
+only when newline is received
+.s3
+.lp +6 5
+.bd \-nl 
+allow carriage return for new-line,
+and output CR-LF for carriage return or new-line
+.s3
+.lp +6 5
+.bd nl 
+accept only new-line to end lines
+.s3
+.lp +6 5
+.bd echo 
+echo back every character typed
+.s3
+.lp +6 5
+.bd \-echo 
+do not echo characters
+.s3
+.lp +6 5
+.bd lcase 
+map upper case to lower case
+.s3
+.lp +6 5
+.bd \-lcase 
+do not map case
+.s3
+.lp +6 5
+.bd \-tabs 
+replace tabs by spaces when printing
+.s3
+.lp +6 5
+.bd tabs 
+preserve tabs
+.s3
+.lp +6 5
+.bd ek 
+reset erase and kill characters back to normal # and @
+.s3
+.lp +6 5
+.it erase  \ c\fR
+set erase character to
+.it c .
+.it C
+can be of the form 
+.it `^X'
+which is interpreted as a `control X'.
+.s3
+.lp +6 5
+.it kill  \ c\fR
+set kill character to
+.it c .
+.it `^X'
+works here also.
+.s3
+.lp +6 5
+.bd  cr0 cr1 cr2 cr3
+.br
+select style of delay for carriage return (see
+.it ioctl (2))
+.s3
+.lp +6 5
+.bd  nl0 nl1 nl2 nl3
+.br
+select style of delay for linefeed 
+.s3
+.lp +6 5
+.bd  tab0 tab1 tab2 tab3
+.br
+select style of delay for tab 
+.s3
+.lp +6 5
+.bd  ff0 ff1
+select style of delay for form feed 
+.s3
+.lp +6 5
+.bd bs0 bs1
+select style of delay for backspace
+.s3
+.lp +6 5
+.bd tty33 
+set all modes suitable for the
+Teletype Corporation Model 33 terminal.
+.s3
+.lp +6 5
+.bd tty37 
+set all modes suitable for the
+Teletype Corporation Model 37 terminal.
+.s3
+.lp +6 5
+.bd vt05 
+set all modes suitable for Digital Equipment Corp. VT05 terminal
+.s3
+.lp +6 5
+.bd tn300 
+set all modes suitable for a General Electric TermiNet 300
+.s3
+.lp +6 5
+.bd ti700 
+set all modes suitable for Texas Instruments 700 series terminal
+.s3
+.lp +6 5
+.bd tek 
+set all modes suitable for Tektronix 4014 terminal
+.s3
+.lp +6 5
+.bd hup 
+hang up dataphone on last close.
+.s3
+.lp +6 5
+.bd \-hup 
+do not hang up dataphone on last close.
+.s3
+.lp +6 5
+.bd 0 
+hang up phone line immediately
+.s3
+.lp +6 5
+.bd  "50 75 110 134 150 200 300 600 1200 1800 2400 4800 9600 19200 exta extb"
+.br
+Set terminal baud rate to the number given, if possible.
+(These are the speeds supported by the TMS9902 and CI403 interfaces).
+.i0
+.dt
+.sh "SEE ALSO"
+ioctl(2), tabs(1)

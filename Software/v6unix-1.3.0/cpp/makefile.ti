@@ -1,0 +1,22 @@
+CFLAGS	= -O ${DEBUG}
+YACC = yacc
+CC = cc
+
+all: cpp
+
+install: cpp
+	cp cpp /bin/cpp
+
+clean:
+	rm -f *.o cpp 
+
+cpp: cpp.o cpy.o
+	$(CC) $(CFLAGS) -o cpp cpp.o cpy.o
+
+cpy.c: cpy.y
+	${YACC} cpy.y
+	cp y.tab.c cpy.c
+	rm y.tab.c
+
+cpp.o: cpp.c
+cpy.o: cpy.c yylex.c

@@ -1,0 +1,130 @@
+ASM990 2.4.6     LOGOPS                     Sun Jul 20 19:28:49 2025 Page 0001
+LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
+
+              2          IDT  'LOGOPS'
+              3  *
+              4  *       LNOTF           ;LOGICAL NOT
+              5  *       LORF            ;LOGICAL OR
+              6  *       LXORF           ;LOGICAL EXCLUSIVE OR
+              7  *       LANDF           ;LOGICAL AND
+              8  *
+              9          REF FIX         ;FIX ARGUMENT
+             10          REF EVOP3A      ;EXIT ENTRY TO EVALUATOR
+             11          REF FPAC,FPAC2  ;FLOATING POINT ACCUMULATOR
+             12          DXOP CLEAR,8    ;CLEAR FPAC
+ASM990 2.4.6     LOGOPS                     Sun Jul 20 19:28:49 2025 Page 0002
+LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
+
+             14  *
+             15  *       PERFORM LOGICAL OPERATIONS OF
+             16  *
+             17  *       LOR     = LOGICAL 'OR'
+             18  *       LNOT    = LOGICAL 'NOT'
+             19  *       LXOR    = LOGICAL EXCLUSIVE 'OR'
+             20  *       LAND    = LOGICAL 'AND'
+             21  *
+             22  * CALLING SEQUENCE:
+             23  *
+             24  *       B @LNOTF
+             25  *       B @LORF
+             26  *       B @LXORF
+             27  *       B @LANDF
+             28  *
+             29  *       IN  (R1) = ARG1
+             30  *           (R2) = ARG2
+             31  *       OUT (R2) = RESULT (1 OR 0)
+             32  *       EXIT TO EVOP3A
+             33  *
+ASM990 2.4.6     LOGOPS                     Sun Jul 20 19:28:49 2025 Page 0003
+LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
+
+             35  *
+             36  *LOGICAL OPERATERS
+             37  *
+             38  *       R1 = XXI R4,..
+             39  *       R2 = DATA
+             40  *       R3 = B *R10
+             41  *
+0000 C28B    42  LFIX    MOV R11,R10
+0002 2E00    43          CLEAR 0
+0004 C101    44          MOV R1,R4
+0006 06A0    45          BL @FIX
+0008 0000 
+000A C084    46          MOV R4,R2
+000C C101    47          MOV R1,R4       ;STORE OBJECT
+000E 06A0    48          BL @FIX
+0010 0008'
+0012 C081    49          MOV R1,R2
+0014 C07A    50          MOV *R10+,R1
+0016 0203    51          LI R3,>045A     ;B *R10
+0018 045A 
+001A 0441    52          B R1
+             53  *
+             54  * ENTRY POINT:
+             55  *
+             56          DEF LORF
+             57  *
+001C 06A0    58  LORF    BL @LFIX
+001E 0000'
+0020 0264    59            DATA >0264    ;ORI R4,..
+0022 1008    60          JMP LANDF1
+             61  *
+             62  * ENTRY POINT:
+             63  *
+             64          DEF LXORF
+             65  *
+0024 06A0    66  LXORF   BL @LFIX
+0026 0000'
+0028 045A    67            DATA >045A    ;B *R10
+002A 2902    68          XOR R2,R4
+002C 1003    69          JMP LANDF1
+             70  *
+             71  * ENTRY POINT:
+             72  *
+             73          DEF LANDF
+             74  *
+002E 06A0    75  LANDF   BL @LFIX
+0030 0000'
+0032 0244    76            DATA >0244    ;ANDI R4,..
+             77  *
+0034 C804    78  LANDF1  MOV R4,@FPAC2
+0036 0000 
+             79  *
+0038 0202    80  LANDF2  LI R2,FPAC
+003A 0000 
+003C 0460    81          B @EVOP3A
+003E 0000 
+             82  *
+             83  * ENTRY POINT:
+             84  *
+             85          DEF LNOTF
+ASM990 2.4.6     LOGOPS                     Sun Jul 20 19:28:49 2025 Page 0004
+LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
+
+             86  *
+             87  *LOGICAL NOT
+             88  *
+0040 2E00    89  LNOT    CLEAR 0         ;CLEAR FPAC
+0042 C081    90          MOV R1,R2
+0044 06A0    91          BL @FIX
+0046 0010'
+0048 0541    92          INV R1
+004A C801    93          MOV R1,@FPAC2
+004C 0036'
+004E 10F4    94          JMP LANDF2
+             95  *
+     0041'   96  LNOTF   EQU LNOT+1
+             97         END
+ASM990 2.4.6     LOGOPS                     Sun Jul 20 19:28:49 2025 Page 0005
+LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
+
+EVOP3A    003ER  FIX       0046R  FPAC      003AR  FPAC2     004CR  
+LANDF     002ED  LANDF1    0034'  LANDF2    0038'  LFIX      0000'  
+LNOT      0040'  LNOTF     0041D  LORF      001CD  LXORF     0024D  
+R0        0000   R1        0001   R10       000A   R11       000B   
+R12       000C   R13       000D   R14       000E   R15       000F   
+R2        0002   R3        0003   R4        0004   R5        0005   
+R6        0006   R7        0007   R8        0008   R9        0009   
+
+
+0 Errors in assembly

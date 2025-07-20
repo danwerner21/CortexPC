@@ -1,0 +1,348 @@
+ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0001
+PRINT STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT 'PRINT'
+              3         DEF PRTY,HOUT,HOUT$,HTXT
+              4         REF B20,B3F,XLOC,YLOC,B4C,B40
+              5         REF BMVE,CCNT,FFLG,VMODE,TYP0$,TYP11$
+              6         REF CVDIZ,EVERZ,EVSDZ
+              7         REF CURFLG,LNSZ,MODE,IOB
+              8         REF OUTL1,PRTEND,JMPR0A
+              9         DXOP EVFIX,11
+             10         DXOP OUTFP,12
+             11  *
+     2F80    12  ERROR  EQU  >2F80
+     2FA0    13  ERROR2 EQU  ERROR+>20
+             14  *
+             15  *    PRINT @
+             16  *
+0000 0420    17  PRTAT  BLWP @EVSDZ            ;LOOK FOR STRING
+0002 0000 
+0004 1028    18         JMP  SCRNQ             ;"
+0006 1027    19         JMP  SCRNQ             ;$
+0008 9838    20         CB   *R8+,@B4C         ;(?
+000A 0000 
+000C 163E    21         JNE  ERR15             ;N
+000E 2EC3    22         EVFIX R3               ;EVALUATE X
+0010 2EC1    23         EVFIX R1               ;EVALUATE Y
+0012 0280    24         CI   R0,>4D00          ;)?
+0014 4D00 
+0016 1639    25         JNE  ERR15             ;N, ERROR
+0018 0281    26         CI   R1,23             ;VALID Y?
+001A 0017 
+001C 1B36    27         JH   ERR15             ;N
+001E 0283    28         CI   R3,39             ;VALID X?
+0020 0027 
+0022 1B33    29         JH   ERR15             ;N
+0024 C2A0    30         MOV  @VMODE,R10        ;TEXT MODE?
+0026 0000 
+0028 1305    31         JEQ  UCL0              ;Y, EVERYTHING OK
+002A 0283    32         CI   R3,31             ;N, CHECK VALID X
+002C 001F 
+002E 1B2D    33         JH   ERR15             ;N
+0030 0A31    34         SLA  R1,3              ;OK, FORM Y PIXEL CURSOR
+0032 0A33    35         SLA  R3,3              ;    FORM X PIXEL CURSOR
+0034 06C1    36  UCL0   SWPB R1                ;PUT IN MSB
+0036 06C3    37         SWPB R3                ;PUT IN MSB
+             38  *
+             39  *  UPDATE CURSOR LOCATION
+             40  *
+0038 C020    41         MOV  @CURFLG,R0        ;GET CURSOR FLAG
+003A 0000 
+003C 1602    42         JNE  UCL1              ;OFF, LEAVE IT
+003E 0000    43         DATA TYP11$,>1D00      ;ON, TURN IT OFF THEN
+0042 D803    44  UCL1   MOVB R3,@XLOC          ;UPDATE X
+0044 0000 
+0046 D801    45         MOVB R1,@YLOC          ;UPDATE Y
+0048 0000 
+004A C800    46         MOV  R0,@CURFLG        ;RESTORE CURSOR FLAG
+004C 003A'
+004E 1627    47         JNE  PRT2              ;WAS OFF, LEAVE IT
+0050 003E'   48         DATA TYP11$,>1C00      ;WAS ON, PUT IT BACK ON
+0054 1024    49         JMP  PRT2              ;CONTINUE PRINTING
+             50  *
+ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0002
+PRINT STATEMENT - CORTEX BASIC REV. 1.1
+
+             51  *   SCREEN COMMANDS IN A STRING
+             52  *
+0056 C0C7    53  SCRNQ  MOV  R7,R3             ;SAVE IOB POINTER
+0058 C1C2    54         MOV  R2,R7             ;SET FOR CONVERSION
+             55  *
+005A 0201    56  SCRNQ1 LI   R1,1              ;DEFAULT TO 1
+005C 0001 
+005E 0420    57         BLWP @CVDIZ            SEE IF THERE IS A NUMBER
+0060 0000 
+0062 1013    58         JMP  ERR15             FP - ERROR
+0064 0587    59         INC  R7                NO NUMBER, INC OVER DELIMITER
+0066 C141    60         MOV  R1,R5
+             61  *
+0068 D000    62         MOVB R0,R0             DONE ?
+006A 130C    63         JEQ  SCRNQ5            Y, EXIT
+006C 0202    64         LI   R2,SCRNQ6         GET TABLE ADDRESS
+006E 01B0'
+0070 C132    65  SCRNQ2 MOV  *R2+,R4           GET CODE
+0072 130B    66         JEQ  ERR15             0, NOT FOUND - ERROR
+0074 9100    67         CB   R0,R4             FOUND ?
+0076 16FC    68         JNE  SCRNQ2            N, LOOP
+0078 06C4    69         SWPB R4                Y, POSITION IT
+007A D004    70  SCRNQ3 MOVB R4,R0             GET BYTE
+007C 0000    71         DATA TYP0$             OUTPUT IT
+007E 0605    72         DEC  R5                DONE?
+0080 16FC    73         JNE  SCRNQ3            N, LOOP
+0082 10EB    74         JMP  SCRNQ1            Y, CONTINUE CMD STRING
+             75  *
+0084 0608    76  SCRNQ5 DEC  R8                BACKUP OVER DELIMITER
+0086 C1C3    77         MOV  R3,R7             RESTORE IOB POINTER
+0088 100A    78         JMP  PRT2              ;CONTINUE PRINTING
+008A 2F8F    79  ERR15  DATA ERROR+15          ;INVALID SCREEN COMMAND
+ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0003
+PRINT STATEMENT - CORTEX BASIC REV. 1.1
+
+             81  *
+             82  *PRINT COMMAND
+             83  *
+008C 020E    84  PRTY    LI R14,LNSZ     ;GET LINE SIZE
+008E 0000 
+0090 C020    85          MOV @MODE,R0 ;LOOK AT MODE
+0092 0000 
+0094 1601    86            JNE PRT0      ;RUN
+0096 093E    87          SRL R14,3       ;IDLE, LOAD COMMA SIZE
+             88  *
+0098 C1E0    89  PRT0   MOV @IOB,R7      ;SET R7  (WSBC)
+009A 0000 
+             90  *
+009C 070F    91  PRT1    SETO R15        ;SET FOR CRLF
+             92  *
+009E 058F    93  PRT2    INC R15
+00A0 06A0    94          BL @JMPR0A      ;SWITCH BOARD
+00A2 0000 
+00A4 18      95  PRTTB     BYTE PRTE-PRTTB/2,>00   ;NULL
+00A6 18      96            BYTE PRTE-PRTTB/2,>3C   ;::
+00A8 18      97            BYTE PRTE-PRTTB/2,>47   ;!
+00AA 1A      98            BYTE PRTF-PRTTB/2,>3E   ;#
+00AC 49      99            BYTE PRTC-PRTTB/2,>3F   ;,
+00AE 51     100            BYTE PRTSC-PRTTB/2,>40  ;;
+00B0 58     101            BYTE PRTAB-PRTTB/2,>39  ;TAB
+00B2 AE     102            BYTE PRTAT-PRTTB/2,>3D  ;@
+00B4 0000   103            DATA 0
+00B6 0608   104          DEC R8          ;TRY STRINGS
+00B8 0420   105          BLWP @EVSDZ
+00BA 0002'
+00BC 102D   106            JMP PRTQ      ;"
+00BE 102C   107            JMP PRTQ      ;$
+00C0 0420   108          BLWP @EVERZ     ;NEITHER, TRY NUMBER
+00C2 0000 
+00C4 C120   109          MOV @FFLG,R4 ;FORMATTING?
+00C6 0000 
+00C8 1602   110            JNE $+6       ;Y, IGNOR SPACE
+00CA DDE0   111          MOVB @B20,*R7+  ;N, OUT SPACE
+00CC 0000 
+00CE 2F12   112          OUTFP *R2       ;OUTPUT #
+            113  *
+00D0 0608   114  PRT4    DEC R8          ;BACKUP TO DELIMITER
+00D2 10E4   115          JMP PRT1
+            116  *
+00D4 0460   117  PRTE   B @PRTEND         ;END PRINT
+00D6 0000 
+ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0004
+PRINT STATEMENT - CORTEX BASIC REV. 1.1
+
+            119  *PRINT FORMATTING
+            120  *
+00D8 0420   121  PRTF    BLWP @EVSDZ     ;EVALUATE STRING
+00DA 00BA'
+00DC 101A   122            JMP PRTF1     ;"
+00DE 1019   123            JMP PRTF1     ;$
+00E0 0202   124          LI R2,5         ;MAYBE HEX
+00E2 0005 
+00E4 9818   125          CB *R8,@B3F     ;#,?
+00E6 0000 
+00E8 1603   126            JNE PRTH1     ;N
+00EA 0588   127          INC R8
+00EC 2EC1   128          EVFIX R1        ;Y, GET #
+00EE 1007   129          JMP PRTH2
+            130  *
+00F0 9818   131  PRTH1   CB *R8,@B40     ;#,?
+00F2 0000 
+00F4 1608   132            JNE PRTH3     ;N
+00F6 0588   133          INC R8
+00F8 2EC1   134          EVFIX R1        ;Y, GET #
+00FA 0642   135          DECT R2
+00FC 0A81   136          SLA R1,8        ;LEFT JUSTIFY
+            137  *
+00FE 06A0   138  PRTH2   BL @HOUTE       ;OUT #
+0100 01A4'
+0102 0607   139          DEC R7          ;BACKUP ON "H
+0104 10E5   140          JMP PRT4
+            141  *
+0106 2EC1   142  PRTH3   EVFIX R1        ;FORMAT FREE
+0108 DDE0   143          MOVB @B20,*R7+  ;OUT SPACE
+010A 00CC'
+010C 06A0   144          BL @HOUT        ;OUT #
+010E 018A'
+0110 10DF   145          JMP PRT4
+            146  *
+0112 C802   147  PRTF1   MOV R2,@FFLG    ;SET FLAG
+0114 00C6'
+0116 10DC   148          JMP PRT4
+            149  *
+0118 C14E   150  PRTQ    MOV R14,R5      ;GET NUMBER OF BYTES AVAILABLE
+011A A160   151          A @IOB,R5
+011C 009A'
+011E 6147   152          S R7,R5
+0120 06A0   153          BL @BMVE        ;MOVE INTO OUTPUT STRING
+0122 0000 
+0124 1005   154            JMP PRTQ1     ;OK
+0126 06A0   155          BL @OUTL1       ;LIST LINE
+0128 0000 
+012A A803   156          A R3,@CCNT      ;UPDATE BACKSPACES
+012C 0000 
+012E 10F4   157          JMP PRTQ
+            158  *
+0130 A803   159  PRTQ1   A R3,@CCNT      ;UPDATE COLUMN COUNT
+0132 012C'
+0134 10CD   160          JMP PRT4
+            161  *
+            162  *COMMA
+            163  *
+0136 06A0   164  PRTC    BL @PRTCK       ;GET CURRENT # OF BYTES
+0138 017A'
+ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0005
+PRINT STATEMENT - CORTEX BASIC REV. 1.1
+
+013A 0240   165          ANDI R0,>7      ;MOD 8
+013C 0007 
+013E 0220   166          AI R0,-8        ;GET -# OF BLANKS
+0140 FFF8 
+0142 06A0   167          BL @PRTSP       ;OUT SPACES
+0144 0170'
+            168  *
+            169  *SEMI-COLON OPERATER
+            170  *
+0146 06A0   171  PRTSC   BL @PRTCK       ;CHECK BUFFER OVERFLOW
+0148 017A'
+014A 600E   172          S R14,R0        ;EXCEEDED?
+014C 11A8   173            JLT PRT2      ;N
+014E 06A0   174          BL @OUTL1       ;Y, PRINT LINE
+0150 0128'
+0152 10A5   175          JMP PRT2
+ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0006
+PRINT STATEMENT - CORTEX BASIC REV. 1.1
+
+            177  *TAB FUNCTION
+            178  *
+0154 2EC1   179  PRTAB   EVFIX R1        ;GET TAB
+0156 0608   180          DEC R8          ;BACKUP OVER DELIMITER
+0158 0241   181          ANDI R1,>7F     ;LIMIT TABS TO 127
+015A 007F 
+015C 06A0   182          BL @PRTCK       ;GET CURRENT CHARACTER POSITION
+015E 017A'
+0160 6001   183          S R1,R0         ;NEED SPACES?
+0162 159D   184            JGT PRT2      ;N, PAST POINT
+0164 C060   185          MOV  @MODE,R1     ;CHECK MODE
+0166 0092'
+0168 139A   186          JEQ  PRT2             ;KEYBOARD MODE, IGNORE
+016A 06A0   187          BL @PRTSP       ;Y, OUT SPACES
+016C 0170'
+016E 1097   188          JMP PRT2
+            189  *
+            190  *OUT -R0 SPACES
+            191  *
+0170 0580   192  PRTSP   INC R0          ;DONE?
+0172 1508   193            JGT PRTCK1    ;Y
+0174 DDE0   194          MOVB @B20,*R7+  ;N, OUT SPACE
+0176 010A'
+0178 10FB   195          JMP PRTSP
+            196  *
+017A C020   197  PRTCK   MOV @CCNT,R0 ;GET LINE SIZE
+017C 0132'
+017E A007   198          A R7,R0
+0180 6020   199          S @IOB,R0        ;GET CURRENT CHARACTER POSITION
+0182 011C'
+0184 045B   200  PRTCK1  RT
+ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0007
+PRINT STATEMENT - CORTEX BASIC REV. 1.1
+
+            202  *PRINT HEX
+            203  *
+0186 0700   204  HOUT$   SETO R0         ;SET ZERO FLAG
+0188 1001   205         JMP HOUT$1
+018A 04C0   206  HOUT    CLR R0          ;RESET ZERO FLAG
+018C DDE0   207  HOUT$1  MOVB @HTXT,*R7+ ;OUT "0
+018E 01C0'
+0190 0202   208          LI R2,4         ;DO 4 DIGITS
+0192 0004 
+            209  *
+0194 C101   210  HOUT1   MOV R1,R4
+0196 0A41   211          SLA R1,4        ;ISOLATE DIGIT
+0198 09C4   212          SRL R4,12
+019A 1602   213            JNE HOUT2     ;NON-ZERO
+019C C000   214          MOV R0,R0       ;FLAG SET?
+019E 1303   215            JEQ HOUT3     ;N
+01A0 DDE4   216  HOUT2   MOVB @HTXT(4),*R7+
+01A2 01C0'
+            217  *
+01A4 0700   218  HOUTE   SETO R0         ;SET FLAG
+            219  *
+01A6 0602   220  HOUT3   DEC R2          ;DONE?
+01A8 15F5   221            JGT HOUT1     ;N
+01AA DDE0   222          MOVB @B48,*R7+  ;Y, OUT "H
+01AC 01BC'
+01AE 045B   223          RT
+            224  *
+01B0        225         EVEN
+01B0 55     226  SCRNQ6 BYTE 'U',>0B           UP
+01B2 44     227         BYTE 'D',>0A           DOWN
+01B4 4C     228         BYTE 'L',>08           LEFT
+01B6 52     229         BYTE 'R',>09           RIGHT
+01B8 42     230         BYTE 'B',>0D           BEGINNING
+01BA 43     231         BYTE 'C',>0C           CLEAR SCREEN
+01BC 48     232  B48    BYTE 'H',>1E           HOME
+01BE 0000   233         DATA 0
+            234  *
+01C0 30     235  HTXT    TEXT '0123456789ABCDEF'
+01C1 31   
+01C2 32   
+01C3 33   
+01C4 34   
+01C5 35   
+01C6 36   
+01C7 37   
+01C8 38   
+01C9 39   
+01CA 41   
+01CB 42   
+01CC 43   
+01CD 44   
+01CE 45   
+01CF 46   
+            236  *B40     BYTE >40
+            237  *B48     BYTE >48
+01D0        238          EVEN
+            239         END
+ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0008
+PRINT STATEMENT - CORTEX BASIC REV. 1.1
+
+B20       0176R  B3F       00E6R  B40       00F2R  B48       01BC'  
+B4C       000AR  BMVE      0122R  CCNT      017CR  CURFLG    004CR  
+CVDIZ     0060R  ERR15     008A'  ERROR     2F80   ERROR2    2FA0   
+EVERZ     00C2R  EVSDZ     00DAR  FFLG      0114R  HOUT      018AD  
+HOUT$     0186D  HOUT$1    018C'  HOUT1     0194'  HOUT2     01A0'  
+HOUT3     01A6'  HOUTE     01A4'  HTXT      01C0D  IOB       0182R  
+JMPR0A    00A2R  LNSZ      008ER  MODE      0166R  OUTL1     0150R  
+PRT0      0098'  PRT1      009C'  PRT2      009E'  PRT4      00D0'  
+PRTAB     0154'  PRTAT     0000'  PRTC      0136'  PRTCK     017A'  
+PRTCK1    0184'  PRTE      00D4'  PRTEND    00D6R  PRTF      00D8'  
+PRTF1     0112'  PRTH1     00F0'  PRTH2     00FE'  PRTH3     0106'  
+PRTQ      0118'  PRTQ1     0130'  PRTSC     0146'  PRTSP     0170'  
+PRTTB     00A4'  PRTY      008CD  R0        0000   R1        0001   
+R10       000A   R11       000B   R12       000C   R13       000D   
+R14       000E   R15       000F   R2        0002   R3        0003   
+R4        0004   R5        0005   R6        0006   R7        0007   
+R8        0008   R9        0009   SCRNQ     0056'  SCRNQ1    005A'  
+SCRNQ2    0070'  SCRNQ3    007A'  SCRNQ5    0084'  SCRNQ6    01B0'  
+TYP0$     007CR  TYP11$    0050R  UCL0      0034'  UCL1      0042'  
+VMODE     0026R  XLOC      0044R  YLOC      0048R  
+
+0 Errors in assembly

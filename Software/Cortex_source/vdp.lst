@@ -1,0 +1,1047 @@
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0001
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+              2         IDT  'VDP'
+              3  *
+              4  *  NOTE :
+              5  *      ACCESSES TO THE VDP NOT REQUIRING VRAM ACCESS
+              6  *      MUST BE AT LEAST 3uS APART, ACCESSES REQUIRING
+              7  *      VRAM ACCESS MUST BE AT LEAST 8uS APART.
+              8  *
+              9         DEF  UNPACK,LDCS,PIXON,PIXOFF,COLF
+             10         DEF  PIXTST,TEXTY,GRAPHY,WAITY,LDCSY
+             11         DEF  S$SM,MAGY,COLORY,SHAPEY,SPRITY
+             12         DEF  EFIX$E,SPUTY,SGETY
+             13         REF  XLOC,VDPWP0,VDPWP1,BITMAP,C2000
+             14         REF  WAIT$,DELAY$,CNTDWN,CKEX,FPAC3
+             15         REF  FPAC2,NLIN0,FBCOL
+             16         REF  EVSFR$,SETTXT,SETGRA,SENDAD,LOADER
+             17         REF  FGM$,VMODE,USERCS,PCHTB
+             18         REF  FIX,EVARZ
+             19  *
+             20         DXOP EVFIX,11
+     2F80    21  ERROR  EQU  >2F80
+     2FA0    22  ERROR2 EQU  ERROR+>20
+             23         COPY 'IODEFS.INC'
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0002
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0003
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0004
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+             25  *
+             26  *              SGET STATEMENT
+             27  *             ================
+             28  *
+             29  *      FORMAT :-
+             30  *           SGET  ARG1 , ARG 2
+             31  *
+             32  *      TEXT MODE :-
+             33  *      THE VARIABLE SPECIFIED BY ARG 2 IS GIVEN THE ASCII
+             34  *      VALUE OF THE CHARACTER AT THE LINEAR CURSOR ADDRESS
+             35  *      SPECIFIED BY ARG1.
+             36  *
+             37  *      GRAPHIC MODE :-
+             38  *      THE SHAPE SPECIFIED BY ARG 2 IS SET TO THE PATTERN
+             39  *      AT THE LINEAR CURSOR ADDRESS SPECIFIED BY ARG1.
+             40  *
+0000 2EC1    41  SGETY  EVFIX R1          GET ARG 1
+0002 C020    42         MOV  @VMODE,R0    TEXT MODE?
+0004 0000 
+0006 1612    43         JNE  GGET         N, DO GRAPHIC 'SGET'
+             44  *
+0008 0281    45         CI   R1,40*24     VALID CURSOR ADDRESS ?
+000A 03C0 
+000C 146E    46         JHE  ERR15A       N, ERROR
+000E 0420    47         BLWP @EVARZ       GET VARIABLE ADDRESS IN R2
+0010 0000 
+0012 C3C8    48         MOV  R8,R15       SAVE PBC
+0014 C201    49         MOV  R1,R8        GET CURSOR ADDRESS IN R8
+0016 0228    50         AI   R8,NTBA      ADD IN NAME TABLE START
+0018 0400 
+001A 06A0    51         BL   @SENDAD      POINT VDP AT IT
+001C 0000 
+001E 04F2    52         CLR  *R2+         CLEAR 1ST WORD OF VAR
+0020 04F2    53         CLR  *R2+         CLEAR 2ND WORD OF VAR
+0022 04D2    54         CLR  *R2          CLEAR 3RD WORD OF VAR
+0024 D8A0    55         MOVB @VRAM,@-1(R2) READ CHARACTER CODE INTO VARIABLE
+0026 F120 
+0028 FFFF 
+002A 105D    56         JMP  PUTXIT       EXIT
+             57  *
+002C 0281    58  GGET   CI   R1,32*24     VALID CURSOR ADDRESS ?
+002E 0300 
+0030 145C    59         JHE  ERR15A       N, ERROR
+0032 2EC2    60         EVFIX R2          Y, GET ARG 2
+0034 C3C8    61         MOV  R8,R15       SAVE PBC
+0036 C201    62         MOV  R1,R8        SET UP R8
+0038 0A38    63         SLA  R8,3         FORM TABLE INDEX
+             64X        ASMIF PGTBA1
+             65X        AI   R8,PGTBA1    ADD IN PGT BASE IF NEEDED
+             66         ASMEND
+003A 06A0    67         BL   @SENDAD
+003C 001C'
+003E 0203    68         LI   R3,BITMAP    REF BITMAP
+0040 0000 
+0042 C103    69         MOV  R3,R4        SAVE FOR LATER
+0044 0700    70         SETO R0           DO 8 BYTES  (SLOWLY)
+0046 DCE0    71  GREAD  MOVB @VRAM,*R3+   READ BYTE
+0048 F120 
+004A C618    72         MOV  *R8,*R8      <<< SLOW THE BLOODY THING DOWN >>>
+004C 0A20    73         SLA  R0,2         DONE?
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0005
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+004E 16FB    74         JNE  GREAD        N, LOOP
+             75  *
+0050 C202    76         MOV  R2,R8        GET SHAPE #
+0052 0A38    77         SLA  R8,3         GET TABLE INDEX
+0054 0228    78         AI   R8,SPGBA1+>4000   ADD IN TABLE BASE
+0056 7800 
+0058 06A0    79         BL   @SENDAD      POINT VDP AT IT
+005A 003C'
+005C 0700    80         SETO R0           DO 8 BYTES  (SLOWLY)
+005E D834    81  GWRIT  MOVB *R4+,@VRAM   WRITE BYTE
+0060 F120 
+0062 C618    82         MOV  *R8,*R8      <<< SLOW THE BLOODY THING DOWN >>>
+0064 0A20    83         SLA  R0,2         DONE?
+0066 16FB    84         JNE  GWRIT        N, LOOP
+0068 103E    85         JMP  PUTXIT       Y, EXIT
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0006
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+             87  *
+             88  *              SPUT STATEMENT
+             89  *             ================
+             90  *
+             91  *      FORMAT :-
+             92  *           SPUT  ARG1 , ARG 2
+             93  *
+             94  *      TEXT MODE :-
+             95  *      THE CHARACTER AT THE LINEAR CURSOR ADDRESS
+             96  *      SPECIFIED BY ARG1 IS SET TO THE ASCII CHARACTER
+             97  *      GIVEN BY ARG2.
+             98  *
+             99  *      GRAPHIC MODE :-
+            100  *      THE CHARACTER AT THE LINEAR CURSOR ADDRESS
+            101  *      SPECIFIED BY ARG1 IS SET TO THE SHAPE SPECIFIED
+            102  *      BY ARG2.
+            103  *
+006A 2EC1   104  SPUTY  EVFIX R1          GET ARG 1
+006C 2EC2   105         EVFIX R2          GET ARG 2
+006E D082   106         MOVB R2,R2        ARG 2 VALID ?  0..255
+0070 163C   107         JNE  ERR15A       N, ERROR IT
+0072 C3C8   108         MOV  R8,R15       SAVE PBC
+0074 C020   109         MOV  @VMODE,R0    TEXT MODE ?
+0076 0004'
+0078 160C   110         JNE  GPUT         N, DO GRAPHICS 'SPUT'
+            111  *
+007A 0281   112         CI   R1,24*40     VALID CURSOR ADDRESS ?
+007C 03C0 
+007E 1435   113         JHE  ERR15A       N, ERROR
+0080 C201   114         MOV  R1,R8        Y, SET UP R8
+0082 0228   115         AI   R8,NTBA+>4000   ADD TABLE START
+0084 4400 
+0086 06A0   116         BL   @SENDAD      GIVE IT TO VDP
+0088 005A'
+008A 06C2   117         SWPB R2           POSITION CHARACTER
+008C D802   118         MOVB R2,@VRAM     WRITE IT TO VRAM
+008E F120 
+0090 102A   119         JMP  PUTXIT       EXIT
+            120  *
+0092 0281   121  GPUT   CI   R1,24*32     VALID CURSOR ADDRESS ?
+0094 0300 
+0096 1429   122         JHE  ERR15A       N, ERROR
+0098 C202   123         MOV  R2,R8        GET SHAPE #
+009A 0A38   124         SLA  R8,3         FORM INDEX INTO SPRITE PAT. GEN TBL
+009C 0228   125         AI   R8,SPGBA1    ADD IN TABLE START
+009E 3800 
+00A0 06A0   126         BL   @SENDAD      POINT VDP AT IT
+00A2 0088'
+00A4 0208   127         LI   R8,8         READ 8 BYTES
+00A6 0008 
+00A8 C0C8   128         MOV  R8,R3        SAVE FOR LATER
+00AA 0200   129         LI   R0,BITMAP    INTO 'BITMAP'
+00AC 0040'
+00AE C100   130         MOV  R0,R4        SAVE FOR LATER
+00B0 DC20   131  RSHAPE MOVB @VRAM,*R0+   READ SHAPE BYTE
+00B2 F120 
+00B4 C618   132         MOV  *R8,*R8      <<< SLOW THE BLOODY THINH DOWN >>>
+00B6 0608   133         DEC  R8           DONE?
+00B8 16FB   134         JNE  RSHAPE       N, LOOP
+            135  *
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0007
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+00BA C201   136         MOV  R1,R8        GET CURSOR ADDRESS IN R8
+00BC 0A38   137         SLA  R8,3         FORM INDEX INTO PGT
+00BE 0228   138         AI   R8,PGTBA1+>4000 ADD IN TABLE START
+00C0 4000 
+00C2 06A0   139         BL   @SENDAD      GIVE IT TO VDP
+00C4 00A2'
+00C6 C618   140  WSHAPE MOV  *R8,*R8      <<< SLOW THE BLOODY THING DOWN >>>
+00C8 D834   141         MOVB *R4+,@VRAM   WRITE SHAPE TO VRAM
+00CA F120 
+00CC 0603   142         DEC  R3           DONE ?
+00CE 16FB   143         JNE  WSHAPE       N, LOOP
+            144  *
+00D0 0228   145         AI   R8,(CTBA1-PGTBA1) POINT TO COLOUR TABLE ENTRY
+00D2 2000 
+00D4 06A0   146         BL   @SENDAD      POINT VDP AT IT
+00D6 00C4'
+00D8 0705   147         SETO R5           8 LOOPS THE HARD WAY
+00DA D820   148  WCOLOR MOVB @FBCOL,@VRAM WRITE FCOL/BCOL TO IT
+00DC 0000 
+00DE F120 
+00E0 C618   149         MOV  *R8,*R8      <<< SLOW THE BLOODY THING DOWN >>>
+00E2 0A25   150         SLA  R5,2         DONE ?   (SLOWLY !!)
+00E4 16FA   151         JNE  WCOLOR       N, LOOP
+00E6 C20F   152  PUTXIT MOV  R15,R8       RESTORE PBC
+00E8 101E   153         JMP  FNLIN0       AND EXIT
+            154  *
+00EA 1065   155  ERR15A JMP  ERR15        "DISP TOO BIG"
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0008
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+            157  *
+            158  *  CODE FOR BASIC COMMANDS "TEXT" AND "GRAPH"
+            159  *
+            160  *   WORKSPACE       :    WPR1
+            161  *   ROUTINE(S)      :    LOADER,TEXTY,GRAPHY
+            162  *   REGISTER USAGE  :
+            163  *                                              GLOBAL DATA
+            164  *           ___________________________________   LABELS
+            165  *   R0      !                                 !
+            166  *   R1      !                                 !
+            167  *   R2      !                                 !
+            168  *   R3      !                                 !
+            169  *   R4      !                                 !
+            170  *   R5      !                                 !
+            171  *   R6      !                                 !
+            172  *   R7      !                                 !
+            173  *   R8      !         VRAM ADDRESS            !
+            174  *   R9      !                                 !
+            175  *   R10     !        PBC  STORE               !
+            176  *   R11     !        BL RETURN ADDRESS        !
+            177  *   R12     !    SAVED BL RETURN ADDRESS      !
+            178  *   R13     !          RETURN WP              !
+            179  *   R14     !          RETURN PC              !
+            180  *   R15     !          RETURN ST              !
+            181  *           -----------------------------------
+            182  *
+            183  *
+            184  * THIS ROUTINE SETS THE VDP INTO TEXT MODE AND
+            185  * LOADS THE CHARACTER SET. A CLEAR SCREEN IS THEN
+            186  * PERFORMED AND THE X & Y COUNTERS RESET.
+            187  *
+            188  *
+00EC 0000   189  TEXTY  DATA SETTXT            SET TEXT MODE
+00EE 0460   190  TGEXIT B    @NLIN0            NEXT LINE
+00F0 0000 
+            191  *
+            192  *      THIS ROUTINE SETS UP THE VDP FOR GRAPHICS II MODE,
+            193  *      THE PNT AND PGT ARE INITIALIZED. THE X & Y COUNTERS
+            194  *      ARE RESET.
+            195  *
+00F2 0000   196  GRAPHY DATA SETGRA            SET GRAPHIC 2 MODE
+00F4 10FC   197         JMP  TGEXIT
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0009
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+            199  *
+            200  *             CHAR STATEMENT
+            201  *            ================
+            202  *
+            203  *      FORMAT :
+            204  *           CHAR EXP1,EXP2,EXP3,EXP4
+            205  *      OR
+            206  *           CHAR
+            207  *
+            208  *      THIS STATEMENT RE-DEFINES A CHARACTER.
+            209  *           EXP1 - CHARACTER NUMBER   0..255
+            210  *           EXP2 - FIRST 16 BITS OF DEFINITION
+            211  *           EXP3 - SECOND 16 BITS OF DEFINITION
+            212  *           EXP4 - THIRD 16 BITS OF DEFINITION
+            213  *
+            214  *      IF THE STATEMENT IS ENTERED WITHOUT PARAMETERS
+            215  *      THEN THE CHARACTERS 0..127 ARE RE-LOADED WITH
+            216  *      THEIR INITIAL PATTERNS.
+            217  *
+00F6 06A0   218  LDCSY  BL   @CKEX             EXPRESSIONS ?
+00F8 0000 
+00FA 1017   219         JMP  RELOAD            N, RELOAD CHARACTERS 0..127
+00FC 2EC5   220         EVFIX R5               Y, GET CHARACTER #
+00FE 0285   221         CI   R5,255            VALID CHARACTER ?
+0100 00FF 
+0102 1B5B   222         JH   ERR35             N, ERROR IT
+0104 0204   223         LI   R4,3              DO 3 PARAMETERS
+0106 0003 
+0108 02A6   224         STWP R6
+010A 05C6   225         INCT R6                AND SAVE IN R1-R3
+            226  *
+010C 0280   227  GETBIT CI   R0,>3F00          ',' ?
+010E 3F00 
+0110 1656   228         JNE  ERR37             N, ERROR IT
+0112 2EF6   229         EVFIX *R6+             GET BIT PATTERN
+0114 0604   230         DEC  R4                COUNT IT
+0116 16FA   231         JNE  GETBIT
+            232  *
+0118 3960   233         MPY  @C0006,R5         FORM INDEX INTO TABLE
+011A 02EE'
+011C 0226   234         AI   R6,PCHTB          ADD IN TABLE START
+011E 0000 
+0120 CD81   235         MOV  R1,*R6+           UPDATE TABLE ENTRY
+0122 CD82   236         MOV  R2,*R6+
+0124 CD83   237         MOV  R3,*R6+
+     0126'  238  EFIX$E EQU  $            <<< EXIT FOR AN EVFIX ROUTINE >>>
+0126 0608   239  FNLIN0 DEC  R8                BACKUP TO DELIM
+0128 10E2   240         JMP  TGEXIT            EXIT
+            241  *
+            242  *   RELOAD CHARACTERS 0..USERCS
+            243  *
+     012A'  244  RELOAD EQU  $
+            245X        ASMIF PIO
+            246X        LI   R12,2*PIO
+            247         ASMELS
+012A 04CC   248         CLR  R12
+            249         ASMEND
+012C 0201   250         LI   R1,PCHTB          POINT TO START OF C. SET
+012E 011E'
+            251  *
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0010
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+0130 0300   252  COPY   LIMI 0                 CLOSE INTERRUPT WINDOW
+0132 0000 
+0134 1E05   253         SBZ  ROMON-PIO         TURN ON ROM
+0136 CC51   254         MOV  *R1,*R1+          COPY IT
+0138 1D05   255         SBO  ROMON-PIO         TURN ROM OFF
+013A 0300   256         LIMI 15                OPEN WINDOW FOR INTERRUPTS
+013C 000F 
+013E 0281   257         CI   R1,USERCS         UPTO USER CHARACTER SET ?
+0140 0000 
+0142 1AF6   258         JL   COPY              N, CONTINUE COPY
+0144 10D4   259         JMP  TGEXIT            EXIT
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0011
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+            261  *
+            262  *              COLOUR STATEMENT
+            263  *             ==================
+            264  *
+            265  *      FORMAT :-
+            266  *           COLOUR ARG1<, ARG 2 >
+            267  *
+            268  *      THE FOREGROUND COLOUR IS SET TO ARG1,
+            269  *      THE BACKGROUND COLOUR IS SET TO ARG2 IF IT IS
+            270  *      PRESENT, IF NOT THE CURRENT BACKGROUND COLOUR
+            271  *      IS USED. IF THE STATEMENT IS ISSUED WITHOUT
+            272  *      PARAMETERS A DEFAULT OF 4,7 IS USED
+            273  *
+0146 06A0   274  COLORY BL   @CKEX             EXPRESSION?
+0148 00F8'
+014A 1017   275         JMP  SET47             N, DEFAULT TO 4,7
+014C D060   276         MOVB @FBCOL,R1         GET CURRENT COLOURS
+014E 00DC'
+0150 06C1   277         SWPB R1                PUT IT IN LSB
+0152 2EC2   278         EVFIX R2               GET FOREGROUND COLOUR
+0154 0280   279         CI   R0,>3F00          ',' FOLLOWING ?
+0156 3F00 
+0158 1601   280         JNE  COLR1             N, USE DEFAULT BGND. COLOUR
+015A 2EC1   281         EVFIX R1               Y, GET BACKGROUND
+015C 0B41   282  COLR1  SRC  R1,4              MS NIBBLE =  BACKGROUND
+015E D081   283         MOVB R1,R2             PUT IT IN R2
+0160 0B42   284         SRC  R2,4              POSITION FOREGROUND
+0162 D802   285  COLR2  MOVB R2,@FBCOL         R2 MSB = FCOL/BCOL
+0164 014E'
+0166 C060   286         MOV  @VMODE,R1         WHAT MODE AM I IN ?
+0168 0076'
+016A 16DD   287         JNE  FNLIN0            GRAPHIC, ALL DONE THEN
+016C D802   288         MOVB R2,@SFBCLR        TEXT, PUT IN CALL BLOCK
+016E 0174'
+0170 06A0   289         BL   @LOADER           CALL VDP LOADER
+0172 0000 
+0174 00     290  SFBCLR BYTE >00,>80+R7        LOAD R7 WITH FCOL/BCOL
+0176 0000   291         DATA 0
+0178 10D6   292         JMP  FNLIN0            EXIT
+            293  *
+017A 0202   294  SET47  LI   R2,>4700          SET COLOUR 4,7
+017C 4700 
+017E 0588   295         INC  R8                ADJUST R8
+0180 10F0   296         JMP  COLR2             & EXIT
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0012
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+            298  *
+            299  *              COL FUNCTION
+            300  *             ==============
+            301  *
+            302  *      FORMAT :-
+            303  *           A = COL [ ARG 1 , ARG 2 ]
+            304  *
+            305  *      COL RETURNS THE COLOUR OF THE SPECIFIED PIXEL.
+            306  *      TESTING AN OFF SCREEN PIXEL RETURNS -1.
+            307  *         ARG 1 FORMS THE HORIZONTAL ORDINATE
+            308  *         ARG 2 FORMS THE VERTICAL ORDINATE
+            309  *
+            310  *     R1 CONTAINS ARG 2, *R2 CONTAINS ARG 1
+            311  *     R3 IS SPARE
+            312  *     EXIT IS OT EVSFR$
+            313  *
+0182 0000   314  COLF   DATA FGM$              FORCE TO GRAPHIC
+0184 C0E0   315         MOV  @XLOC,R3          SAVE CURRENT X,Y
+0186 0000 
+0188 C281   316         MOV  R1,R10            COPY
+018A 06A0   317         BL   @FIX              FIX
+018C 0000 
+018E 028A   318         CI   R10,192           'Y' VALID ?
+0190 00C0 
+0192 140E   319         JHE  BADXY             N, RETURN INVALID COLOUR
+0194 0281   320         CI   R1,256            'X' VALID ?
+0196 0100 
+0198 140B   321         JHE  BADXY             N, RETURN INVALID COLOUR
+019A 06C1   322         SWPB R1                PUT 'X' IN MSB
+019C D281   323         MOVB R1,R10            R10 MSB = X , LSB = Y
+019E C80A   324         MOV  R10,@XLOC         SET CURSOR LOCATION
+01A0 0186'
+01A2 0420   325         BLWP @PIXTST           GET PIXEL COLOUR IN FPAC3
+01A4 030C'
+01A6 0000   326         DATA FPAC3
+01A8 C803   327         MOV  R3,@XLOC          RESTORE CURSOR
+01AA 01A0'
+01AC 0460   328  COLXIT B    @EVSFR$           EXIT
+01AE 0000 
+01B0 0720   329  BADXY  SETO @FPAC2            RETURN COLOUR = -1
+01B2 0000 
+01B4 10FB   330         JMP  COLXIT
+            331  *
+01B6 2F8F   332  ERR15  DATA ERROR+15          ILLEGAL SCREEN COMMAND
+01B8 2F9E   333  ERR30  DATA ERROR+30          RANGE ERROR
+01BA 2FA0   334  ERR35  DATA ERROR2,35         PARAMETER ERROR
+01BE 2FA0   335  ERR37  DATA ERROR2,37         ILLEGAL DELIMETER
+01C2 2FA0   336  ERR48  DATA ERROR2,48         WRONG MODE !
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0013
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+            338  ************************************************************
+            339  *                                                          *
+            340  *               WAIT STATEMENT                             *
+            341  *                                                          *
+            342  *     FORMAT :-                                            *
+            343  *        WAIT  <ARG1>                                      *
+            344  *                                                          *
+            345  *                                                          *
+            346  *    IF ARG 1 IS PRESENT THEN IT IS USED AS A DELAY        *
+            347  *           COUNT AND THE ROUTINE WAITS FOR ARG 1 *10 MS   *
+            348  *           BEFORE RETURNING TO THE USER.                  *
+            349  *    IF ARG 1 IS NOT PRESENT THEN THE ROUTINE WAITS FOR    *
+            350  *           OUTPUT COMPLETION.                             *
+            351  *                                                          *
+            352  ************************************************************
+01C6 06A0   353  WAITY  BL   @CKEX             EXPRESSION ?
+01C8 0148'
+01CA 1004   354         JMP  WAITO             N, WAIT OUTPUT COMPLETION
+01CC 2EE0   355         EVFIX @CNTDWN          Y, SET DELAY COUNT
+01CE 0000 
+01D0 0000   356         DATA DELAY$            WAIT FOR IT
+01D2 10A9   357         JMP  FNLIN0            THEN EXIT
+            358  *
+01D4 0000   359  WAITO  DATA WAIT$             WAIT OUTPUT COMPLETION
+01D6 108B   360         JMP  TGEXIT            EXIT
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0014
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+            362  *
+            363  *              SHAPE  STATEMENT
+            364  *             ==================
+            365  *
+            366  *      FORMAT :-
+            367  *           SHAPE SHAPE No.,WORD1,WORD2,WORD3,WORD4
+            368  *
+            369  *      THE SPRITE PATTERN REFERENCED BY THE SHAPE #
+            370  *      IS SET TO THE BIT PATTERN AS DEFINED BY THE
+            371  *      ARGUMENTS WORD1 TO WORD4.
+            372  *
+01D8 0182'  373  SHAPEY DATA FGM$              FORCE GRAPHIC MODE
+01DA 2EC1   374         EVFIX R1               N, GET SHAPE #
+01DC D041   375         MOVB R1,R1             VALID?
+01DE 16EB   376         JNE  ERR15             N, ERROR IT
+01E0 0A31   377         SLA  R1,3              R1=8* SHAPE#
+01E2 0221   378         AI   R1,SPGBA1+>4000   POINT TO ITS STORAGE IN VRAM
+01E4 7800 
+01E6 C088   379         MOV  R8,R2             SAVE PBC
+01E8 C201   380         MOV  R1,R8             SET R8 FOR SENDAD
+01EA 06A0   381         BL   @SENDAD           SEND ADDRESS TO VDP
+01EC 00D6'
+01EE C202   382         MOV  R2,R8             RESTORE PBC
+01F0 0203   383         LI   R3,4              DO 4 WORDS
+01F2 0004 
+            384  *
+01F4 0280   385  GETPAT CI   R0,>3F00          ',' ?
+01F6 3F00 
+01F8 16E2   386         JNE  ERR37             N, ERROR
+01FA 2EC1   387         EVFIX R1               Y, GET NEXT WORD
+01FC D801   388         MOVB R1,@VRAM          WRITE MSB
+01FE F120 
+0200 06C1   389         SWPB R1                POSITION LSB
+0202 D801   390         MOVB R1,@VRAM          SEND IT
+0204 F120 
+0206 0603   391         DEC  R3                DONE?
+0208 16F5   392         JNE  GETPAT            N, LOOP
+020A 108D   393  FNLIN  JMP  FNLIN0            Y, EXIT TO NLIN0
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0015
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+            395  *
+            396  *              SPRITE STATEMENT
+            397  *             ==================
+            398  *
+            399  *      FORMAT :-
+            400  *           SPRITE PLANE,X,Y<,SHAPE#,COLOUR>
+            401  *
+            402  *      THE SPRITE ON THE SPECIFIED PLANE IS POSITIONED
+            403  *      AT X,Y. IF NO OTHER ARGUMENTS FOLLOW IT IS ASSUMED
+            404  *      THAT THE SPRITE CURRENTLY ON THAT PLANE IS TO BE
+            405  *      MOVED. IF OTHER ARGUMENTS ARE PRESENT THESE SPECIFY
+            406  *      THE NEW SHAPE # AND ITS COLOUR.
+            407  *
+020C 01D8'  408  SPRITY DATA FGM$              FORCE GRAPHIC MODE
+020E 2ECF   409         EVFIX R15              Y, GET PLANE #
+0210 C388   410         MOV  R8,R14            SAVE PBC
+0212 028F   411         CI   R15,31            VALID ?
+0214 001F 
+0216 1BCF   412         JH   ERR15             N, ERROR IT
+0218 0A2F   413         SLA  R15,2             R15=4* PLANE#
+021A 022F   414         AI   R15,SNTBA1+2      REF ENTRY (LAST 2 BYTES ONLY)
+021C 1B02 
+021E C20F   415         MOV  R15,R8            SET R8 FOR SENDAD
+0220 06A0   416         BL   @SENDAD           SEND ADDRESS TO VDP
+0222 01EC'
+0224 C618   417         MOV  *R8,*R8      <<< SLOW THE BLOODY THING DOWN >>>
+0226 D0A0   418         MOVB @VRAM,R2          GET SPRITE #
+0228 F120 
+022A 06C2   419         SWPB R2
+022C 0228   420         AI   R8,>4000-2        REF START OF ENTRY (WRITE)
+022E 3FFE 
+0230 D0A0   421         MOVB @VRAM,R2          GET COLOUR
+0232 F120 
+            422  * R2 = COLOUR,SPRITE#
+0234 C618   423         MOV  *R8,*R8      <<< SLOW THE BLOODY THING DOWN >>>
+0236 06A0   424         BL   @SENDAD           POINT VDP AT IT
+0238 0222'
+023A C20E   425         MOV  R14,R8            RESTORE PBC
+023C 2EC1   426         EVFIX R1               GET X
+023E 2EC3   427         EVFIX R3               GET Y
+0240 06C3   428         SWPB R3                POSITION Y
+0242 D043   429         MOVB R3,R1             FORM R1=X,Y
+0244 0280   430         CI   R0,>3F00          ',' FOLLOWING ?
+0246 3F00 
+0248 1604   431         JNE  PUTSAT            N, UPDATE ENTRY
+            432  *
+024A 2EC2   433         EVFIX R2               Y, GET SPRITE #
+024C 2EC3   434         EVFIX R3               GET COLOUR
+024E 06C3   435         SWPB R3                N, POSITION IT
+0250 D083   436         MOVB R3,R2             FORM R2=COLOUR,SPRITE#
+0252 06C2   437  PUTSAT SWPB R2                POSITION COLOUR & SPRITE #
+            438  *
+            439  *            +-------------+
+            440  *    R1   =  |      Y      |    MSB
+            441  *            +-------------+
+            442  *            |      X      |    LSB
+            443  *            +-------------+
+            444  *    R2   =  |  SPRITE #   |    MSB
+            445  *            +-------------+
+            446  *            |   COLOUR    |    LSB
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0016
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+            447  *            +-------------+
+            448  *
+0254 02A3   449         STWP R3                GET WP
+0256 05C3   450         INCT R3                POINT TO R1
+0258 0204   451         LI   R4,4              DO 4 BYTES
+025A 0004 
+            452  *
+025C D833   453  WRTIT  MOVB *R3+,@VRAM        WRITE IT BACK TO VRAM
+025E F120 
+0260 C618   454         MOV  *R8,*R8      <<< SLOW THE BLOODY THING DOWN >>>
+0262 0604   455         DEC  R4                DONE ?
+0264 16FB   456         JNE  WRTIT             N, LOOP
+0266 10D1   457         JMP  FNLIN             Y, EXIT
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0017
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+            459  *
+            460  *              MAG STATEMENT
+            461  *             ===============
+            462  *
+            463  *      FORMAT :-
+            464  *           MAG   SPRITE MAG,SPRITE SIZE
+            465  *
+0268 020C'  466  MAGY   DATA FGM$              FORCE GRAPHIC MODE
+026A 2EC2   467         EVFIX R2               GET SPRITE MAG
+026C 2EC1   468         EVFIX R1               GET SPRITE SIZE
+026E 0203   469         LI   R3,>00C0          DEFAULT TO SIZE=0,MAG=0
+0270 00C0 
+0272 C041   470         MOV  R1,R1             BIG SPRITES ?
+0274 1301   471         JEQ  MAGY1             N, LEAVE R3
+0276 05C3   472         INCT R3                Y, SET BIT
+0278 C082   473  MAGY1  MOV  R2,R2             MAG THEM ?
+027A 1301   474         JEQ  MAGY2             N, LEAVE R3
+027C 0583   475         INC  R3                Y, SET BIT
+027E 06C3   476  MAGY2  SWPB R3                POSITION BYTE
+0280 D803   477         MOVB R3,@S$SM          SET UP LOADER TABLE
+0282 0288'
+0284 06A0   478         BL   @LOADER           RE-ENABLE DISPLAY
+0286 0172'
+0288 C0     479  S$SM   BYTE >C0,>80+R1        RELOAD VDP R1
+028A 0000   480         DATA 0
+028C 10BE   481         JMP  FNLIN             EXIT
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0018
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+            483  *      THESE ROUTINES UNPACK ENTRIES FROM THE
+            484  *      CHARACTER GENERATOR TABLE AND EITHER LOAD THEM
+            485  *      INTO THE VDP OR SAVE THEM IN A 8 BYTE STORAGE
+            486  *      AREA CALLED 'BITMAP'. LDCS ALSO SETS UP THE PNT
+            487  *
+            488  * CALLING SEQUENCE:
+            489  *      BLWP @UNPACK
+            490  *
+            491  * IN : R0   MSB=CHARACTER CODE TO BE UNPACKED
+            492  * OUT:      BIT PATTERN IN 'BITMAP'
+            493  *
+            494  *
+            495  * CALLING SEQUENCE:
+            496  *      BLWP @LDCS
+            497  * OUT:  CHARACTERS WRITTEN TO PGT
+            498  *       PNT INITIALIZED
+            499  *
+            500  *   WORKSPACE       :    VDPWP1
+            501  *   ROUTINE(S)      :    UNPACK,LDCS
+            502  *   REGISTER USAGE  :
+            503  *                                              GLOBAL DATA
+            504  *           ___________________________________   LABELS
+            505  *   R0      !                                 !
+            506  *   R1      !                                 !
+            507  *   R2      !                                 !
+            508  *   R3      !         BIT COUNTER             !
+            509  *   R4      !            ADDER                !
+            510  *   R5      !  2     UNPACKED DATA            !
+            511  *   R6      !         PACKED DATA             !
+            512  *   R7      !       COMPARE BIT MASK          !
+            513  *   R8      !      VRAM/STORAGE ADDRESS       !
+            514  *   R9      !      STORAGE INCREMENT          !
+            515  *   R10     !         BYTE COUNT              !
+            516  *   R11     !        BL RETURN ADDRESS        !
+            517  *   R12     !        TABLE POINTER            !
+            518  *   R13     !          RETURN WP              !
+            519  *   R14     !          RETURN PC              !
+            520  *   R15     !          RETURN ST              !
+            521  *           -----------------------------------
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0019
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+028E 0000   523  UNPACK DATA VDPWP1,$+2
+0292 0208   524         LI   R8,BITMAP         STORE IN 'BITMAP'
+0294 00AC'
+0296 0209   525         LI   R9,1              STORAGE INCREMENT = 1
+0298 0001 
+029A C2DD   526         MOV  *R13,R11          CHARACTER # FROM CALLERS R0
+029C 098B   527         SRL  R11,8             PUT IN LSB
+029E 3AE0   528         MPY  @C0006,R11        CALCULATE INDEX INTO TABLE
+02A0 02EE'
+02A2 022C   529         AI   R12,PCHTB         ADD IN TABLE START
+02A4 012E'
+02A6 020A   530         LI   R10,8             UNPACK 8 BYTES WORTH
+02A8 0008 
+02AA 101A   531         JMP  MOD0              UNPACK
+            532  *
+02AC 028E'  533  LDCS   DATA VDPWP1,$+2
+            534  * WRITE PATTERN NAMES TO PNT
+02B0 0208   535         LI   R8,NTBA+>4000     REFERENCE PNT
+02B2 4400 
+02B4 06A0   536         BL   @SENDAD           SEND ADDRESS TO VDP
+02B6 0238'
+02B8 0709   537         SETO R9                RESET COUNT
+02BA 0589   538  LDCS1  INC  R9                NEXT NAME
+02BC 06C9   539         SWPB R9                POSITION LSB
+02BE D809   540         MOVB R9,@VRAM          WRITE IT
+02C0 F120 
+02C2 06C9   541         SWPB R9                RESTORE R9
+02C4 0289   542         CI   R9,40*24          PNT FULL?
+02C6 03C0 
+02C8 1AF8   543         JL   LDCS1             N, LOOP
+            544  * WRITE CHARACTER SET TO PGT
+02CA 0208   545         LI   R8,PGBA+>4000     REFERENCE PGT
+02CC 4800 
+02CE 06A0   546         BL   @SENDAD           SEND ADDRESS TO VDP
+02D0 02B6'
+02D2 0208   547         LI   R8,VRAM           STORE IN VRAM
+02D4 F120 
+02D6 04C9   548         CLR  R9                STORAGE INCREMENT = 0
+02D8 020C   549         LI   R12,PCHTB         START AT BEGINNING OF TABLE
+02DA 02A4'
+02DC 020A   550         LI   R10,256*8         CALCULATE UNPACKED SIZE
+02DE 0800 
+            551  *
+            552  *  FALL THROUGH TO 'MOD0'
+            553  *
+            554  *
+            555  * UNPACK CHARACTER GENERATOR TABLE
+            556  *
+02E0 0207   557  MOD0   LI   R7,>0101          SET SHIFT MASK
+02E2 0101 
+02E4 0706   558         SETO R6                INIT. HOLDING REGISTER
+02E6 04C5   559  MOD1   CLR  R5                INIT. DATA REGISTER
+02E8 0204   560         LI   R4,>0001          INIT. ADDER
+02EA 0001 
+02EC 0203   561         LI   R3,6              DO 6 BITS
+02EE 0006 
+     02EE'  562  C0006  EQU  $-2
+02F0 0B14   563  MOD2   SRC  R4,1              POSITION ADDER
+02F2 0B17   564         SRC  R7,1              POSITION MASK, NEW BYTE?
+02F4 1701   565         JNC  MOD3              N, SKIP
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0020
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+02F6 D1BC   566         MOVB *R12+,R6          Y, GET NEW BYTE
+02F8 2187   567  MOD3   COC  R7,R6             HAVE WE A '1' HERE ?
+02FA 1601   568         JNE  MOD4              N, VALUE OK
+02FC B144   569         AB   R4,R5             Y, ADD IN ADDER
+02FE 0603   570  MOD4   DEC  R3                COUNT BIT
+0300 15F7   571         JGT  MOD2              LOOP TILL 6 BITS DONE
+0302 D605   572         MOVB R5,*R8            STORE UNPACKED BYTE
+0304 A209   573         A    R9,R8             UPDATE STORAGE POINTER
+0306 060A   574         DEC  R10               COUNT BYTE
+0308 15EE   575         JGT  MOD1              LOOP TILL ALL BYTES DONE
+030A 0380   576         RTWP                   DONE, RETURN TO CALLER
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0021
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+            578  *      THIS ROUTINE SETS,RESETS OR TESTS A SPECIFIED
+            579  *      PIXEL,DEPENDING ON ENTRY POINT. IF REFERENCE IS MADE
+            580  *      TO A PIXEL OFF SCREEN THEN AN IMMEDIATE RETURN IS
+            581  *      MADE.
+            582  *
+            583  * CALLING SEQUENCE:
+            584  *      BLWP @PIXOFF           RESET PIXEL
+            585  *           OR
+            586  *      BLWP @PIXON            SET PIXEL
+            587  *           OR
+            588  *      BLWP @PIXTST           TEST PIXEL
+            589  *      DATA <BYTE REPLY ADDRESS>
+            590  *
+            591  * IN : XLOC = X CO-ORDINATE
+            592  *      YLOC = Y CO-ORDINATE
+            593  *      FBCOL= FGND./BGND. COLOURS
+            594  *
+            595  * OUT  ST2  = BIT STATUS (PIXTST ONLY)
+            596  *
+            597  *   WORKSPACE       :    VDPWP0
+            598  *   ROUTINE(S)      :    PIXON,PIXOFF,SENDAD
+            599  *   REGISTER USAGE  :
+            600  *                                              GLOBAL DATA
+            601  *           ___________________________________   LABELS
+            602  *   R0      ! TMP. STORAGE  !  SHIFT COUNT    !
+            603  *   R1      !     X-LOC     !    Y-LOC        !  XLOC,YLOC
+            604  *   R2      !                                 !
+            605  *   R3      !                                 !
+            606  *   R4      !      **** RESERVED ****         !  BITMAP 0,1
+            607  *   R5      !      **** RESERVED ****         !         2,3
+            608  *   R6      !      **** RESERVED ****         !         4,5
+            609  *   R7      !      **** RESERVED ****         !         6,7
+            610  *   R8      !  Y ORDINATE / VRAM ADDRESS      !
+            611  *   R9      !  X ORDINATE / BIT MASK          !
+            612  *   R10     !        CELL DOT ROW             !
+            613  *   R11     !        BL RETURN ADDRESS        !
+            614  *   R12     !   SOCB/SZCB/COC INSTRUCTION     !
+            615  *   R13     !          RETURN WP              !
+            616  *   R14     !          RETURN PC              !
+            617  *   R15     !          RETURN ST              !
+            618  *           -----------------------------------
+            619  *
+030C 0000   620  PIXTST DATA VDPWP0,$+2
+0310 020C   621         LI   R12,>2009         R12='COC R9,R0'
+0312 2009 
+     0312'  622  TMASK  EQU  $-2
+0314 1009   623         JMP  PIX1
+            624  *
+0316 030C'  625  PIXOFF DATA VDPWP0,$+2
+031A 020C   626         LI   R12,>5009         R12='SZCB R9,R0'
+031C 5009 
+     031C'  627  RMASK  EQU  $-2
+031E 1004   628         JMP  PIX1
+            629  *
+0320 0316'  630  PIXON  DATA VDPWP0,$+2
+0324 020C   631         LI   R12,>F009         R12='SOCB R9,R0'
+0326 F009 
+            632  *
+0328 D241   633  PIX1   MOVB R1,R9             GET X ORDINATE
+032A 0989   634         SRL  R9,8              POSITION IT
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0022
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+032C C201   635         MOV  R1,R8             GET CO-ORDINATES
+            636  *  CALCULATE 32 x CELL ROW
+032E 0A28   637         SLA  R8,2
+0330 0248   638         ANDI R8,>03E0
+0332 03E0 
+            639  * CHECK TO SEE IF Y-ORDINATE IS LEGAL (X MUST BE!!)
+0334 0288   640         CI   R8,192*4          VALID?
+0336 0300 
+0338 142C   641         JHE  NBUMP             N, EXIT
+            642  *
+033A C281   643         MOV  R1,R10            GET CO-ORDINATES
+033C 024A   644         ANDI R10,>0007         CALCULATE CELL DOT ROW
+033E 0007 
+            645  *  CALCULATE CELL DOT COLUMN, KEEP AS SHIFT COUNT IN R0
+0340 C009   646         MOV  R9,R0
+0342 0240   647         ANDI R0,>0007
+0344 0007 
+            648  *
+0346 0939   649         SRL  R9,3              CALCULATE CELL COLUMN
+            650  *  CALCULATE CELL # ( =CELL COLUMN+[32xCELL ROW] )
+0348 A209   651         A    R9,R8
+034A 0A38   652         SLA  R8,3              FORM PGT INDEX
+034C A20A   653         A    R10,R8            REFERENCE REQUIRED ROW
+            654  *
+            655  *  IF THE PGT IS NOT LOCATED AT 0 THEN THIS NEEDS TO BE
+            656  *  ADDED TO R8 !!!
+            657X        ASMIF PGTBA1
+            658X        AI   R8,PGTBA1         ADD IN PGT BASE ADDRESS
+            659         ASMEND
+            660  *
+034E 06A0   661         BL   @SENDAD           SEND ADDRESS TO VDP
+0350 02D0'
+0352 04C9   662         CLR  R9                READY MASK REGISTER
+0354 0220   663         AI   R0,MASKTB         ADD IN MASK TABLE BASE
+0356 03B0'
+0358 D250   664         MOVB *R0,R9            FETCH MASK
+035A D020   665         MOVB @VRAM,R0          GET CURRENT VRAM DATA
+035C F120 
+035E 0268   666         ORI  R8,>4000          SET WRITE BIT IN ADDRESS
+0360 4000 
+0362 06A0   667         BL   @SENDAD           SEND ADDRESS TO VDP
+0364 0350'
+0366 048C   668         X    R12               SET/RESET/TEST BIT
+0368 02C9   669         STST R9                SAVE STATUS
+036A 880C   670         C    R12,@TMASK        TEST ?
+036C 0312'
+036E 1612   671         JNE  WVRAM             N, UPDATE VRAM
+            672  *
+            673  *  TEST BIT EXIT ROUTINE
+            674  *
+0370 0248   675         ANDI R8,>BFFF          SET READ BIT IN ADDRESS
+0372 BFFF 
+0374 0228   676         AI   R8,CTBA1-PGTBA1   GET ADDRESS OF PCT ENTRY
+0376 2000 
+0378 06A0   677         BL   @SENDAD           SEND ADDRESS TO VDP
+037A 0364'
+037C 8F3C   678         C    *R12+,*R12+       DUMMY DELAY FOR VDP
+037E D220   679         MOVB @FBCOL,R8         GET COLOUR TABLE ENTRY
+0380 0164'
+0382 2260   680         COC  @C2000,R9         Y, 'EQ' SET?
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0023
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+0384 0000 
+0386 1601   681         JNE  BITOFF            N, BIT IS BACKGROUND
+0388 0948   682         SRL  R8,4              Y, POSITION FGND COLOUR
+038A 0248   683  BITOFF ANDI R8,>0F00          ISOLATE COLOUR
+038C 0F00 
+038E C27E   684         MOV  *R14+,R9          PICK UP STORAGE ADDRESS
+0390 D648   685         MOVB R8,*R9            SAVE COLOUR
+0392 0380   686  NBUMP  RTWP                   RETURN
+            687  *
+            688  *  SET/RESET EXIT ROUTINE
+            689  *
+0394 D800   690  WVRAM  MOVB R0,@VRAM          WRITE UPDATED VRAM DATA
+0396 F120 
+0398 880C   691         C    R12,@RMASK        RESET PIXEL ?
+039A 031C'
+039C 13FA   692         JEQ  NBUMP             Y, LEAVE COLOUR TABLE
+            693  *  NOW UPDATE COLOUR TABLE ENTRY
+039E 0228   694         AI   R8,CTBA1-PGTBA1   GET ADDRESS OF PCT ENTRY
+03A0 2000 
+03A2 06A0   695         BL   @SENDAD           SEND ADDRESS TO VDP
+03A4 037A'
+03A6 8F3C   696         C    *R12+,*R12+       DUMMY DELAY FOR VDP
+03A8 D820   697         MOVB @FBCOL,@VRAM      UPDATE COLOUR ENTRY
+03AA 0380'
+03AC F120 
+03AE 0380   698         RTWP                   EXIT
+            699  *
+            700  *   BIT MASK TABLE
+            701  *
+            702  *  PIXEL -   0 1   2 3   4 5   6 7
+03B0 8040   703  MASKTB DATA >8040,>2010,>0804,>0201
+            704         END
+ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0024
+VDP ROUTINES - CORTEX BASIC REV. 1.1
+
+BADXY     01B0'  BELLON    0006   BITMAP    0294R  BITOFF    038A'  
+BTENBL    0003   BUSACK    0002   BUSINT    0007   C0006     02EE'  
+C2000     0384R  CASS02    00C0   CKEX      01C8R  CLKLED    0000   
+CNTDWN    01CER  COLF      0182D  COLORY    0146D  COLR1     015C'  
+COLR2     0162'  COLXIT    01AC'  COPY      0130'  CTBA      0700   
+CTBA1     2000   D1$DEN    0003   D1$SIZ    0002   DELAY$    01D0R  
+DMAC      00E0   DRVSIZ    0004   EDATA     0208   EFIX$E    0126D  
+EIA02     0040   EPADR     0210   EPTYPE    0201   ERR15     01B6'  
+ERR15A    00EA'  ERR30     01B8'  ERR35     01BA'  ERR37     01BE'  
+ERR48     01C2'  ERROR     2F80   ERROR2    2FA0   EVARZ     0010R  
+EVSFR$    01AER  FBCOL     03AAR  FDC       F140   FDCINT    0004   
+FGM$      0268R  FIX       018CR  FNLIN     020A'  FNLIN0    0126'  
+FPAC2     01B2R  FPAC3     01A6R  GETBIT    010C'  GETPAT    01F4'  
+GGET      002C'  GPUT      0092'  GRAPHY    00F2D  GREAD     0046'  
+GWRIT     005E'  KBDACK    0001   KBDINT    0005   KDS       0000   
+KEYBRD    0008   LDCS      02ACD  LDCS1     02BA'  LDCSY     00F6D  
+LOADER    0286R  M$REG0    F100   M$REG1    F102   M$REG2    F104   
+M$REG3    F106   M$REG4    F108   M$REG5    F10A   M$REG6    F10C   
+M$REG7    F10E   M$REG8    F110   M$REG9    F112   M$REGA    F114   
+M$REGB    F116   M$REGC    F118   M$REGD    F11A   M$REGE    F11C   
+M$REGF    F11E   MAGY      0268D  MAGY1     0278'  MAGY2     027E'  
+MAPPER    F100   MASKTB    03B0'  MOD0      02E0'  MOD1      02E6'  
+MOD2      02F0'  MOD3      02F8'  MOD4      02FE'  NBUMP     0392'  
+NLIN0     00F0R  NTBA      0400   NTBA1     1800   PCHTB     02DAR  
+PGBA      0800   PGM       0205   PGMPUL    0206   PGTBA1    0000   
+PIO       0000   PIX1      0328'  PIXOFF    0316D  PIXON     0320D  
+PIXTST    030CD  PPBUSY    0409   PPDS      0408   PPRINT    0400   
+PRMPOP    0200   PROERR    0206   PRORDY    0204   PRORST    0200   
+PUTSAT    0252'  PUTXIT    00E6'  R0        0000   R1        0001   
+R10       000A   R11       000B   R12       000C   R13       000D   
+R14       000E   R15       000F   R2        0002   R3        0003   
+R4        0004   R5        0005   R6        0006   R7        0007   
+R8        0008   R9        0009   RELOAD    012A'  RMASK     031C'  
+ROMON     0005   RSHAPE    00B0'  S$SM      0288D  SENDAD    03A4R  
+SET47     017A'  SETGRA    00F2R  SETTXT    00ECR  SFBCLR    0174'  
+SGETY     0000D  SHAPEY    01D8D  SNTBA     0780   SNTBA1    1B00   
+SPGBA     0000   SPGBA1    3800   SPRITY    020CD  SPUTY     006AD  
+TEXTY     00ECD  TGEXIT    00EE'  TMASK     0312'  UNPACK    028ED  
+USERCS    0140R  V30       0207   VCCON     0204   VDP       F120   
+VDPINT    0006   VDPREG    F121   VDPWP0    0320R  VDPWP1    02ACR  
+VMODE     0168R  VRAM      F120   WAIT$     01D4R  WAITO     01D4'  
+WAITY     01C6D  WCOLOR    00DA'  WRTIT     025C'  WSHAPE    00C6'  
+WVRAM     0394'  XLOC      01AAR  
+
+0 Errors in assembly

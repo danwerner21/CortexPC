@@ -1,0 +1,98 @@
+ASM990 2.4.6     MOVE                       Sun Jul 20 19:28:49 2025 Page 0001
+MOVE ROUTINES - CORTEX BASIC REV. 1.1
+
+              2          IDT  'MOVE'
+              3  *
+              4  *       BMVE            ;BYTE MOVE
+              5  *
+              6  *       MOVE BYTES FROM (R2) TO (R7) WATCHING FOR
+              7  *       BACKSPACES AND HEX CHARACTERS IN
+              8  *       ANGLE BRACKETS.  ALSO WATCH FOR
+              9  *       BUFFER OVERFLOW.
+             10  *
+             11  * CALLING SEQUENCE:
+             12  *
+             13  *       BL @BMVE
+             14  *         MOVE OK
+             15  *       OVERFLOW
+             16  *
+             17  *       IN  R2 = SOURCE
+             18  *           R5 = MAX COUNT
+             19  *           R7 = DESTINATION
+             20  *       OUT R3 = -(# OF <10>)*2
+             21  *
+             22         DEF BMVE
+             23         REF  IOB,B08,B3C
+             24  *
+0000 04C3    25  BMVE    CLR R3          ;RESET BS COUNT
+             26  *
+0002 D5F2    27  BMVE0   MOVB *R2+,*R7   ;MOVE BYTE
+0004 130D    28            JEQ BMVE2     ;DONE
+0006 9817    29          CB *R7,@B3C     ;"<?
+0008 0000 
+000A 130B    30            JEQ BMVE3     ;Y
+000C 0587    31  BMVE1   INC R7          ;N
+000E C2A0    32          MOV @IOB,R10     ;GET IOB
+0010 0000 
+0012 060A    33          DEC R10         ;BACKUP TO LAST BYTE
+0014 8287    34          C R7,R10        ;ABOUT TO STORE IN LAST BYTE?
+0016 1303    35            JEQ BMVE6     ;Y, QUIT
+0018 0605    36          DEC R5          ;MORE ROOM?
+001A 15F3    37            JGT BMVE0     ;Y
+001C 05CB    38          INCT R11        ;N, RETURN 2(11)
+             39  *
+001E 75D7    40  BMVE6   SB *R7,*R7      ;MARK
+             41  *
+0020 045B    42  BMVE2  B    *R11
+             43  *
+0022 04C1    44  BMVE3   CLR R1          ;BUILD # IN R1
+0024 C282    45          MOV R2,R10      ;SAVE R2
+             46  *
+0026 04C0    47  BMVE4   CLR R0
+0028 D03A    48          MOVB *R10+,R0   ;GET NEXT CHARACTER
+002A 0220    49          AI R0,->3000
+002C D000 
+002E 110E    50            JLT GHEX2
+0030 0280    51          CI R0,>0900
+0032 0900 
+0034 1208    52            JLE GHEX1
+0036 0220    53          AI R0,->0700
+0038 F900 
+003A 0280    54          CI R0,>0A00
+003C 0A00 
+003E 1106    55            JLT GHEX2
+ASM990 2.4.6     MOVE                       Sun Jul 20 19:28:49 2025 Page 0002
+MOVE ROUTINES - CORTEX BASIC REV. 1.1
+
+0040 0280    56          CI R0,>0F00
+0042 0F00 
+0044 1B03    57            JH GHEX2
+0046 0A41    58  GHEX1   SLA R1,4        ;SHIFT R1
+0048 B040    59          AB R0,R1        ;ADD NEW DIGIT
+004A 10ED    60          JMP BMVE4
+             61  *
+     004C'   62  GHEX2   EQU $
+004C 0280    63  BMVE5   CI R0,>3E00->3700       ;">?
+004E 0700 
+0050 16DD    64            JNE BMVE1     ;N, DISREGUARD #
+0052 D041    65         MOVB R1,R1        ;ARE WE GOING TO MOVE IN A NULL?
+0054 13DB    66         JEQ  BMVE1        Y, IGNORE
+0056 C08A    67          MOV R10,R2      ;Y, SET R2
+0058 D5C1    68          MOVB R1,*R7     ;MOVE INTO STRING
+005A 9801    69          CB R1,@B08      ;BS?
+005C 0000 
+005E 16D6    70            JNE BMVE1     ;N
+0060 0643    71          DECT R3         ;Y, COUNT
+0062 10D4    72          JMP BMVE1
+             73         END
+ASM990 2.4.6     MOVE                       Sun Jul 20 19:28:49 2025 Page 0003
+MOVE ROUTINES - CORTEX BASIC REV. 1.1
+
+B08      005CR  B3C      0008R  BMVE     0000D  BMVE0    0002'  BMVE1    000C'  
+BMVE2    0020'  BMVE3    0022'  BMVE4    0026'  BMVE5    004C'  BMVE6    001E'  
+GHEX1    0046'  GHEX2    004C'  IOB      0010R  R0       0000   R1       0001   
+R10      000A   R11      000B   R12      000C   R13      000D   R14      000E   
+R15      000F   R2       0002   R3       0003   R4       0004   R5       0005   
+R6       0006   R7       0007   R8       0008   R9       0009   
+
+0 Errors in assembly

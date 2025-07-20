@@ -1,0 +1,62 @@
+ASM990 2.4.6     ENTER                      Sun Jul 20 19:28:48 2025 Page 0001
+ENTER STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT  'ENTER'
+              3  *
+              4  * 
+              5  *
+              6         REF  EDIT,EVSDZ,LNSZ,IOB,LINE,C1,ESCFLG
+              7         REF  PLC,SLN,SFSN
+              8         DEF  ENTERY
+              9  *
+     2F80    10  ERROR  EQU  >2F80
+     2FA0    11  ERROR2 EQU  ERROR+>20
+             12  *
+0000 0420    13  ENTERY BLWP @EVSDZ            ;LOOK FOR STRING
+0002 0000 
+0004 1002    14         JMP  ENT1              ; " OR $
+0006 1001    15         JMP  ENT1
+0008 2F8E    16         DATA ERROR+14          ;EXPECTING STRING VARIABLE
+             17  *
+000A C1E0    18  ENT1   MOV  @IOB,R7           ;GET I/O BUFFER START
+000C 0000 
+000E 0205    19         LI   R5,LNSZ           ;GET MAX. SIZE
+0010 0000 
+             20  *
+0012 DDF2    21  ENT2   MOVB *R2+,*R7+         ;COPY BYTE OVER
+0014 1304    22         JEQ  ENT3              ;NULL, END OF STRING
+0016 0605    23         DEC  R5                ;CHARACTER, STILL ROOM?
+0018 16FC    24         JNE  ENT2              ;Y, CONTINUE COPY
+001A 2FA0    25         DATA ERROR2,35         ;N, PARAMETER ERROR
+             26  *
+001E C160    27  ENT3   MOV  @PLC,R5           ;GET CURRENT PLC
+0020 0000 
+0022 C825    28         MOV  @-2(R5),@SLN      ;SAVE CURRENT LINE #
+0024 FFFE 
+0026 0000 
+0028 06A0    29         BL   @EDIT             ;EDIT I/O BUFFER
+002A 0000 
+002C 4820    30         SZC  @C1,@ESCFLG       ;REMOVE NOESC
+002E 0000 
+0030 0000 
+0032 C060    31         MOV  @SLN,R1           ;GET BACK MY LINE #
+0034 0026'
+0036 06A0    32         BL   @SFSN             ;GO FIND IT
+0038 0000 
+003A C808    33         MOV  R8,@PLC           ;SAVE MY NEW PLC
+003C 0020'
+003E 0460    34         B    @LINE             ;CONTINUE EXECUTION
+0040 0000 
+             35         END
+ASM990 2.4.6     ENTER                      Sun Jul 20 19:28:48 2025 Page 0002
+ENTER STATEMENT - CORTEX BASIC REV. 1.1
+
+C1       002ER  EDIT     002AR  ENT1     000A'  ENT2     0012'  ENT3     001E'  
+ENTERY   0000D  ERROR    2F80   ERROR2   2FA0   ESCFLG   0030R  EVSDZ    0002R  
+IOB      000CR  LINE     0040R  LNSZ     0010R  PLC      003CR  R0       0000   
+R1       0001   R10      000A   R11      000B   R12      000C   R13      000D   
+R14      000E   R15      000F   R2       0002   R3       0003   R4       0004   
+R5       0005   R6       0006   R7       0007   R8       0008   R9       0009   
+SFSN     0038R  SLN      0034R  
+
+0 Errors in assembly

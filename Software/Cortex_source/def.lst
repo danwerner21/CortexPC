@@ -1,0 +1,64 @@
+ASM990 2.4.6     DEF                        Sun Jul 20 19:28:48 2025 Page 0001
+DEF STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT  'DEF'
+              3  *
+              4  *       DEFY            ;DEF COMMAND
+              5  *
+              6         REF  LINE              ;MULTIPLEXOR
+              7         REF  UFT               ;USER FUNCTION TABLE
+              8         REF  MODE              ;MODE FLAG
+              9         REF  B56
+             10         DEF  DEFY
+             11  * ABSTRACT:
+             12  *
+             13  *       PLACE THE USER FUNCTION PROGRAM-
+             14  *       BYTE-COUNTER AND NUMBER OF ARGUMENTS
+             15  *       IN USER-FUNCTION-TABLE (UFT) THUS
+             16  *       DEFINING THE FUNCTION.
+             17  *
+             18  * CALLING SEQUENCE:
+             19  *
+             20  *       B @DEFY
+ASM990 2.4.6     DEF                        Sun Jul 20 19:28:48 2025 Page 0002
+DEF STATEMENT - CORTEX BASIC REV. 1.1
+
+             22  *
+             23  *DEF COMMAND
+             24  *
+             25  *USER FUNCTION TABLE:
+             26  *
+             27  *       PBC
+             28  *       # OF ARGUMENTS
+             29  *       ...
+             30  *
+0000 C020    31  DEFY   MOV  @MODE,R0          ;RUNNING?
+0002 0000 
+0004 130D    32         JEQ  DEF2              ;N, DON'T DEFINE
+0006 04C0    33         CLR  R0
+0008 D038    34         MOVB *R8+,R0           ;GET TYPE
+000A 0701    35         SETO R1                ;START COUNT
+             36  *
+000C 0581    37  DEF1   INC  R1                ;COUNT ARGUMENTS
+000E 9838    38         CB   *R8+,@B56         ;=?
+0010 0000 
+0012 16FC    39         JNE  DEF1              ;N
+0014 C0E0    40         MOV  @UFT,R3           ;Y, DEFINE FUNCTION
+0016 0000 
+0018 0960    41         SRL  R0,6              ;GET INDEX
+001A A0C0    42         A    R0,R3             ;INDEX
+001C CCC8    43         MOV  R8,*R3+           ;SAVE ADR
+001E C4C1    44         MOV  R1,*R3            ;SAVE COUNT
+0020 0460    45  DEF2   B    @LINE             ;GOTO NEXT LINE
+0022 0000 
+             46         END
+ASM990 2.4.6     DEF                        Sun Jul 20 19:28:48 2025 Page 0003
+DEF STATEMENT - CORTEX BASIC REV. 1.1
+
+B56      0010R  DEF1     000C'  DEF2     0020'  DEFY     0000D  LINE     0022R  
+MODE     0002R  R0       0000   R1       0001   R10      000A   R11      000B   
+R12      000C   R13      000D   R14      000E   R15      000F   R2       0002   
+R3       0003   R4       0004   R5       0005   R6       0006   R7       0007   
+R8       0008   R9       0009   UFT      0016R  
+
+0 Errors in assembly

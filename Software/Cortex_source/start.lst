@@ -1,0 +1,1031 @@
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0001
+START MODULE - CORTEX BASIC REV. 1.1
+
+              2         IDT  'START'
+              3  *
+              4  *      CORTEX BASIC REVISION 1.1
+              5  *
+              6         COPY 'IODEFS.INC'
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0002
+START MODULE - CORTEX BASIC REV. 1.1
+
+              2C *
+              3C *  THIS MODULE IS INCLUDED IN SOURCE MODULES
+              4C *  BY USING A 'COPY' DIRECTIVE.
+              5C *
+              6C *
+              7C ***************
+              8C *
+              9C *  CRU DEFINITIONS
+             10C *
+             11C ***************
+     0000    12C PIO    EQU  >0000             PARALLEL I/O
+             13C *  PARALLEL I/O - READ BITS
+     0000    14C KDS    EQU  PIO+0             KEYBOARD DATA STROBE
+             15C *      EQU  PIO+1             UNUSED
+     0002    16C D1$SIZ EQU  PIO+2             DS01 SIZE (1=8",0=5.25")
+     0003    17C D1$DEN EQU  PIO+3             DS01 DENSITY (0=SD,1=DD)
+     0004    18C FDCINT EQU  PIO+4             FDC INTERRUPT-
+     0005    19C KBDINT EQU  PIO+5             KBD INTERRUPT-
+     0006    20C VDPINT EQU  PIO+6             VDP INTERRUPT-
+     0007    21C BUSINT EQU  PIO+7             BUS INTERRUPT-
+     0008    22C KEYBRD EQU  PIO+8             KEYBOARD  DATA (8 BITS)
+             23C *  PARALLEL I/O - WRITE BITS
+     0000    24C CLKLED EQU  PIO+0             CLOCK LED
+     0001    25C KBDACK EQU  PIO+1             KEYBOARD ACKNOLEDGE-
+     0002    26C BUSACK EQU  PIO+2             BUS INTERRUPT RESET-
+     0003    27C BTENBL EQU  PIO+3             BUS TIMEOUT FLAG ENABLE
+     0004    28C DRVSIZ EQU  PIO+4             DRIVE SIZE (1=8",0=5.25")
+     0005    29C ROMON  EQU  PIO+5             0=ROM ON,1=ROM OFF
+     0006    30C BELLON EQU  PIO+6             BELL ENABLE BIT
+             31C *      EQU  PIO+7             UNUSED
+             32C *
+             33C *      EQU  >0020             UNUSED
+     0040    34C EIA02  EQU  >0040             PRINTER HARDWARE BASE ADDRESS
+             35C *      EQU  >0060             UNUSED
+             36C *      EQU  >0080             UNUSED
+             37C *      EQU  >00A0             UNUSED
+     00C0    38C CASS02 EQU  >00C0             CASSETTE HARDWARE BASE ADDRESS
+     00E0    39C DMAC   EQU  >00E0             DMAC HARDWARE BASE ADDRESS
+             40C *
+             41C *  RESERVED OFF-BOARD CRU LOCATIONS
+     0200    42C PRMPOP EQU  >200              PROM PROGRAMMER BOARD
+             43C * READ BITS
+             44C *      EQU  PRMPOP+0
+             45C *      EQU  PRMPOP+1
+             46C *      EQU  PRMPOP+2
+             47C *      EQU  PRMPOP+3
+     0204    48C PRORDY EQU  PRMPOP+4
+     0205    49C PGM    EQU  PRMPOP+5
+     0206    50C PGMPUL EQU  PRMPOP+6          * TEST
+     0207    51C V30    EQU  PRMPOP+7
+     0208    52C EDATA  EQU  PRMPOP+8
+             53C * WRITE BITS
+     0200    54C PRORST EQU  PRMPOP+0
+     0201    55C EPTYPE EQU  PRMPOP+1
+     0204    56C VCCON  EQU  PRMPOP+4
+             57C *PGM   EQU  PRMPOP+5
+     0206    58C PROERR EQU  PRMPOP+6
+             59C *      EQU  PRMPOP+7
+             60C *EDATA EQU  PRMPOP+8
+     0210    61C EPADR  EQU  PRMPOP+16
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0003
+START MODULE - CORTEX BASIC REV. 1.1
+
+             62C *
+             63C *   CENTRONICS PARALLEL PRINTER PORT
+             64C *
+             65C *  BIT      0    1    2    3    4    5    6    7    8    9
+             66C *  READ                                                 BUSY
+             67C *  WRITE   D7   D6   D5   D4   D3   D2   D1   D0   DS
+             68C *            (LSB)                           (MSB)
+             69C *
+     0400    70C PPRINT EQU  >400
+             71C *                                            +--+
+     0408    72C PPDS   EQU  PPRINT+8          DATA STROBE ___|  |__________   
+             73C *
+             74C *                                             +----------+
+     0409    75C PPBUSY EQU  PPRINT+9          BUSY        ____|          |__
+             76C *
+             77C ***************
+             78C *
+             79C *  MEMORY MAPPED I/O DEFINITIONS
+             80C *
+             81C ***************
+     F100    82C MAPPER EQU  >F100             MEMORY MAPPER LOCATION
+     F100    83C M$REG0 EQU  MAPPER+0          MAPPER REGISTERS 0..15
+     F102    84C M$REG1 EQU  MAPPER+2
+     F104    85C M$REG2 EQU  MAPPER+4
+     F106    86C M$REG3 EQU  MAPPER+6
+     F108    87C M$REG4 EQU  MAPPER+8
+     F10A    88C M$REG5 EQU  MAPPER+10
+     F10C    89C M$REG6 EQU  MAPPER+12
+     F10E    90C M$REG7 EQU  MAPPER+14
+     F110    91C M$REG8 EQU  MAPPER+16
+     F112    92C M$REG9 EQU  MAPPER+18
+     F114    93C M$REGA EQU  MAPPER+20
+     F116    94C M$REGB EQU  MAPPER+22
+     F118    95C M$REGC EQU  MAPPER+24
+     F11A    96C M$REGD EQU  MAPPER+26
+     F11C    97C M$REGE EQU  MAPPER+28
+     F11E    98C M$REGF EQU  MAPPER+30
+             99C *
+     F120   100C VDP    EQU  >F120
+     F120   101C VRAM   EQU  VDP+0             VDP VRAM ACCESS ADDRESS
+     F121   102C VDPREG EQU  VDP+1             VDP REGISTER ACCESS ADDRESS
+            103C *
+            104C * TEXT / GRAPHICS 1 MODE STORAGE
+     0400   105C NTBA   EQU  >400              NAME TABLE
+     0700   106C CTBA   EQU  >700              COLOUR TABLE
+     0800   107C PGBA   EQU  >800              PATTERN GENERATOR TABLE
+     0780   108C SNTBA  EQU  >780              SPRITE NAME TABLE
+     0000   109C SPGBA  EQU  >000              SPRITE PATTERN GENERATOR TBL.
+            110C * GRAPHICS 2 MODE STORAGE
+     1800   111C NTBA1  EQU  >1800             NAME TABLE
+     2000   112C CTBA1  EQU  >2000             COLOUR TABLE
+     0000   113C PGTBA1 EQU  >0000             PATTERN GENERATOR TABLE
+     1B00   114C SNTBA1 EQU  >1B00             SPRITE NAME TABLE
+     3800   115C SPGBA1 EQU  >3800             SPRITE PATTERN GENERATOR TBL.
+            116C *
+     F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
+            118C *
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0004
+START MODULE - CORTEX BASIC REV. 1.1
+
+              8         DEF  BEGN1,NRV,LNSZ,NIC,BUFEND,RBUF,RBUFE,OUTBUF
+              9         DEF  EXTWP,CONFIG,PRAM,MEMSIZ,SRATE,SETVEC
+             10         DEF  B43,NEWP1,FUZZ,FNSZ,GSSZ,MID0,OVINT,ILLMID
+             11         DEF  WP10L,SQRI,RANDS,CALLWP,CALL12,SYSFLG
+             12         DEF  DMYHDR,DH$ARF,DH$PGN,DH$SLT,DH$VNT,DH$SIZ
+             13         DEF  NOERR,DTEND,DH$END,DH$PLL,DH$HCS,HDRSIZ
+             14         DEF  E$TEMP,BELCNT,CLKWS,CLKADR,CLKT01,CLKT02
+             15         DEF  NEWP,DS,DS1,DS2,DS3,TRAFLG,CNTDWN
+             16         DEF  SWPTBL,WPR1,WPR103,WPR104,WPR108
+             17         DEF  BEGN,TY0,IOB,EUS,FNS,GSS,EVSKE,EDTMP
+             18         DEF  CCSAVE,UFT,BUS,EORBUS,SLT,EVSKB,EBP,SSP
+             19         DEF  RENSTA,RENINC,VNT,VDT,NVD,NVS
+             20         DEF  CURFLG,UNIT,DCNT,MODE,PLC,DLIM,DLC,DDM
+             21         DEF  LNUM,SLN,CCNT,EFLG,ENUM,ELNM,ELSF
+             22         DEF  FFLG,HFLG,IFLG,PLF,BCRU,BAUD,R8STOR,SYSLMT
+             23         DEF  GSC,AINC,RENCMP,FPAC3,FPAC4,FPWP
+             24         DEF  TEMP,TEMP2,TEMP4,TEMP6,FPAC,FPAC2
+             25         DEF  F$WHO,CVCH,CVHD,CVHD01,CVHD12,CVHD15
+             26         DEF  WPR2,WPR1,PTRS,NEWY,PRDY,DSRCNT,RTSTOR
+             27         DEF  CRLF,CRLF1,OUTDSR,ERROR2,ERROR
+             28         DEF  RECPTR,INPTR,RENLNE,RENRET,STACNT,IOSTOR
+             29         DEF  DEVTBL,VDPWP0,XLOC,YLOC,NXLOC,NYLOC,FBCOL,VMODE
+             30         DEF  BITMAP,VDPWP1,V1R5L,V1R6L,ESCFLG,VDPST,FDCDON
+             31         DEF  V1R3L,V1R4L,LOADPT,WP9928,ASMPTR
+             32         DEF  WORKS,WORK5,WORK11
+             33         DEF  INITFG,BPT0V,BPTSET,BPTADD
+             34         DEF  BPTDTA,ASMOPC,MREGS,MREG1,MREG2,MREG3,MREG6
+             35         DEF  MREG13,MREG14,EREGS,IREGS,PC,IREG6,IREG12
+             36         DEF  P$EUS,P$FNS,P$GSS,P$UFT,P$IOB,XREGS
+             37         DEF  HALTO$,BLSTOR
+             38  *
+             39         REF  CMOF$,VDPDSR,SETTXT
+             40         REF  CENTRO
+             41         REF  GETC$,TIMC,MIDPC,INT4PC,C1
+             42         REF  FLDD,FSRD,FAD,FSD,FMD,FDD,FSCL,FNRM
+             43         REF  FCLR,FNEG,FLOAT,EVFX,CVBD,CVBI,ERRS
+             44         REF  CKEX,CLRV,EDIT,GTLN,NLIN
+             45         REF  TYPE$,D$LDWP,D$LDPC,MONTOP
+             46         REF  MBEGN,MPRDY,MCRLF,B62
+             47         REF  LOOK$,B47,FP5E5,FIX,EVERZ,START
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0005
+START MODULE - CORTEX BASIC REV. 1.1
+
+             49  *
+             50  *
+             51  * ALLOCATION ADDRESSES
+             52  *
+     F000    53  ERAM   EQU  >F000             END OF RAM
+     0000    54  BROM   EQU  >0000             BEGINNING OF ROM
+     ECF6    55  PRAM   EQU  >ECF6             BEGINING OF PERMANENT RAM
+             56  *
+             57  * SYSTEM EQUATES
+             58  *
+     0004    59  NRV    EQU  4                 NUMBER OF RESERVED VARIABLES
+     0084    60  LNSZ   EQU  132               I/O BUFFER SIZE
+     0064    61  NIC    EQU  LNSZ-32           NUMBER ON INPUT CHARACTERS
+     3B00    62  FUZZ   EQU  >3B00             APPROXIMATELY 1E-7
+     000A    63  FNSZ   EQU  10                NEXTED FOR/NEXT STACK SIZE
+     0014    64  GSSZ   EQU  20                NEXTED GOSUB STACK SIZE
+     0004    65  SQRI   EQU  4                 # OF SQR NEWTON ITERATIONS
+             66  *
+     ECF4    67  P$EUS  EQU  PRAM-2
+     EC40    68  P$FNS  EQU  P$EUS-(FNSZ*18)
+     EBF0    69  P$GSS  EQU  P$FNS-(GSSZ*4)
+     EB84    70  P$UFT  EQU  P$GSS-(26*4)-4
+     EB04    71  P$IOB  EQU  P$UFT-LNSZ+4
+             72  *
+             73  * DEFINE FLOATING POINT XOPS
+             74  *
+             75         DXOP LOADF,0           LOAD FPAC
+             76         DXOP STORE,1           STORE FPAC
+             77         DXOP FADD,2            ADD TO FPAC
+             78         DXOP FSUB,3            SUBTRACT FROM FPAC
+             79         DXOP FMUL,4            MULTIPLY FPAC
+             80         DXOP FDIV,5            DIVIDE FPAC
+             81         DXOP SCALE,6           SCALE FPAC
+             82         DXOP NORMAL,7          NORMALIZE FPAC
+             83         DXOP CLEAR,8           CLEAR FPAC
+             84         DXOP NEGATE,9          NEGATE FPAC
+             85         DXOP FLOATF,10         FLOAT FPAC
+             86         DXOP EVFIX,11          EVALUATE AND FIX
+             87         DXOP OUTFP,12          OUT FLOATING POINT #
+             88         DXOP OUTINT,13         OUT INTEGER
+     2F80    89  ERROR  EQU  >2F80             XOP XX,14  (ERROR CALL)
+     2FA0    90  ERROR2 EQU  ERROR+>20
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0006
+START MODULE - CORTEX BASIC REV. 1.1
+
+             92  *
+             93  *       RAM
+             94  *
+ECF6         95          DORG PRAM
+             96  *
+             97  * RANDON NUMBER GENERATOR SEED
+             98  *
+ECF6 0000    99  RANDS  DATA 0                 RANDOM SEED
+            100  **** ABOVE RAM IS CLEARED ON RUN ******
+ECF8 0000   101  EDTMP  DATA 0
+            102  *
+            103  * SYSTEM POINTERS
+            104  *
+     ECFA   105  PTRS   EQU  $                 SYSTEM POINTERS
+ECFA 0000   106  IOB    DATA 0                 I/O BUFFER
+ECFC 0000   107  EUS    DATA 0                 END-USER-STORAGE
+ECFE 0000   108  FNS    DATA 0                 FOR/NEXT STACK
+ED00 0000   109  GSS    DATA 0                 GOSUB STACK
+ED02 0000   110  UFT    DATA 0                 USER FUNCTION TABLE
+ED04 0000   111  BUS    DATA 0                 BEGINNING OF USER STORAGE
+ED06 0000   112  EORBUS DATA 0                 END OF RAM - BEGINNING OF USER
+ED08 0000   113  STACNT DATA 0                 STATEMENT INDENT COUNTER
+ED0A 0000   114  RENCMP DATA 0                 COMPRESSION LIMIT
+ED0C 0000   115  RENRET DATA 0                 RENUMBER TMP. STORAGE
+ED0E 0000   116  RENLNE DATA 0                 RENUMBER CURRENT LINE #
+ED10 0000   117  RENSTA DATA 0                 RENUMBER START LINE #
+ED12 0000   118  RENINC DATA 0                 RENUMBER INCREMENT
+            119  *
+            120  * CLOCK INTERRUPT REGISTERS
+            121  *
+ED14 0000   122  CLKWS  DATA 0                 FINE COUNTER
+ED16 0000   123  CLKADR DATA 0                 HOURS
+ED18 0000   124         DATA 0                 MINUTES
+ED1A 0000   125         DATA 0                 SECONDS
+ED1C 0000   126  CLKT01 DATA 0                 TIC COUNTER
+ED1E 0000   127  CLKT02 DATA 0                 TIC COUNTER
+ED20 0000   128  DS     DATA 0,0,0             TEMPORARY DATA STORAGE
+ED26 0000   129  DS1    DATA 0,0,0
+ED2C 0000   130         DATA 0,0,0,0           R12,R13,R14,R15
+ED34 0000   131  R8STOR DATA 0                 STORE FOR R8 DURING ENTER
+ED36 0000   132  RTSTOR DATA 0                 TEMP. STORE FOR R11
+     ED24   133  INT1WP EQU  $-20
+ED38 0000   134  CNTDWN DATA 0                 R11 - DELAY COUNTER
+ED3A 0000   135  TRAP1  DATA 0                 R12 - BLWP VECTOR POINTER
+ED3C 0000   136         DATA 0,0,0             R13-15 CONTEXT
+ED42 0000   137  BELCNT DATA 0                 BELL COUNTER
+ED44 0000   138  TRAFLG DATA 0                 TRACE FLAG
+ED46        139  CALLWP BSS  16*2              CALL WORKSPACE
+     ED5E   140  CALL12 EQU  CALLWP+24         CALL WORKSPACE R12
+ED66 0000   141  SLN    DATA 0                 SAVED LINE NUMBER
+ED68 0000   142  CCNT   DATA 0                 COLUMN COUNTER
+ED6A 0000   143  CURFLG DATA 0                 CURSOR FLAG 0=ON,-1=OFF
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0007
+START MODULE - CORTEX BASIC REV. 1.1
+
+            145  *
+ED6C 0000   146  ELSF   DATA 0                 ELSE FLAG
+ED6E 0000   147  FFLG   DATA 0                 FORMATTING FLAG
+ED70 0000   148  IFLG   DATA 0                 INPUT FLAG
+ED72 0000   149  PLF    DATA 0                 PROGRAM LOAD FLAG
+ED74        150  MIDWP  BSS  16*2              MID HANDLER WORKSPACE
+ED94 0000   151  OVINT  DATA 0                 A.O. INTERRUPT HANDLER
+ED96 0000   152  MID0   DATA 0                 MID OPCODE 0 HANDLER
+ED98 0000   153  ILLMID DATA 0                 ILLEGAL MID HANDLER
+ED9A 0000   154  OUTDSR DATA 0                 OUTPUT PRE-PROCESSOR
+     ED9C   155  INT4WP EQU  $                 LEVEL 4 INTERRUPT WORKSPACE
+ED9C 0000   156         DATA 0,0,0,0           R0-R3
+EDA4 0000   157  LOADPT DATA 0                 R4
+EDA6 0000   158         DATA 0                 R5
+EDA8 0000   159  INPTR  DATA 0                 R6
+EDAA 0000   160  DSRCNT DATA 0                 R7
+EDAC 0000   161  RECPTR DATA 0                 R8
+EDAE 0000   162  TRAP4  DATA 0                 R9
+EDB0 0000   163         DATA 0,0,0,0,0,0       R10-15
+EDBC        164  RBUF   BSS  40                RECEIVE BUFFER
+     EDE4   165  RBUFE  EQU  $
+EDE4        166  OUTBUF BSS  80                OUTPUT BUFFER
+     EE32   167  BUFEND EQU  $-2
+            168  *
+            169  *  WORKSPACES FOR VDP ROUTINES
+            170  *
+EE34        171         EVEN
+EE34 0000   172  VDPWP0 DATA 0                 R0
+EE36 00     173  XLOC   BYTE 0                 R1 MSB
+EE37 00     174  YLOC   BYTE 0                 R1 LSB
+EE38 0000   175         DATA 0,0               R2-R3
+EE3C 00     176  BITMAP BYTE 0,0,0,0,0,0,0,0   R4-R7
+EE44 0000   177         DATA 0,0,0,0,0,0,0,0   R8-R15
+            178  ********
+EE54        179         EVEN
+EE54        180  VDPWP1 BSS  16*2              R0-R15
+     EE5B   181  V1R3L  EQU  VDPWP1+7          LSB OF R3
+     EE5D   182  V1R4L  EQU  VDPWP1+9          LSB OF R4
+     EE5F   183  V1R5L  EQU  VDPWP1+11         LSB OF R5
+     EE61   184  V1R6L  EQU  VDPWP1+13         LSB OF R6
+            185  ********
+EE74        186         EVEN
+EE74        187  WP9928 BSS  16*2              9928 DSR WORKSPACE
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0008
+START MODULE - CORTEX BASIC REV. 1.1
+
+            189  * I/O LOCAL STORAGE AREA
+EE94        190         EVEN
+     EE94   191  IOSTOR EQU  $
+EE94 00     192  CCSAVE BYTE 0                 DEVICE 1    CURSOR CHR. SAVE
+EE95 00     193  FBCOL  BYTE 0                 DEVICE 1    FGND/BGND COLOUR
+EE96 00     194  NXLOC  BYTE 0                 DEVICE 1    NEW X ORDINATE
+EE97 00     195  NYLOC  BYTE 0                 DEVICE 1    NEW Y ORDINATE
+EE98 0000   196         DATA 0,0               DEVICE 2    UNLD PTR, CR COUNT
+EE9C 0000   197         DATA 0,0               DEVICE 3    UNLD PTR, CR COUNT
+EEA0 0000   198         DATA 0,0               DEVICE 4    CENTRONICS PRINTER
+EEA4 0000   199         DATA 0,0               DEVICE 5
+EEA8 0000   200         DATA 0,0               DEVICE 6
+EEAC 0000   201         DATA 0,0               DEVICE 7
+EEB0 0000   202         DATA 0,0               DEVICE 8
+EEB4 0000   203         DATA 0,0               DEVICE 9
+EEB8 0000   204         DATA 0,0               DEVICE 10
+EEBC 0000   205         DATA 0,0               DEVICE 11
+EEC0 0000   206         DATA 0,0               DEVICE 12
+EEC4 0000   207         DATA 0,0               DEVICE 13
+EEC8 0000   208         DATA 0,0               DEVICE 14
+EECC 0000   209         DATA 0,0               DEVICE 15
+EED0 0000   210         DATA 0,0               DEVICE 16
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0009
+START MODULE - CORTEX BASIC REV. 1.1
+
+            212  *
+            213  *      EXTENDED COMMAND WORKSPACE
+            214  *
+EED4        215  EXTWP  BSS  16*2
+            216  *
+            217  * LOBUG WORKSPACE DEFINITION
+            218  *
+EEF4        219         EVEN
+     EEF4   220  WORKS  EQU  $                 ASMBLR WORKSPACE
+     EEFE   221  WORK5  EQU  WORKS+10
+     EF0A   222  WORK11 EQU  WORKS+22
+     EF14   223  BLSTOR EQU  WORKS+32          GETLINE RETURN STORAGE
+     EF16   224  ASMPTR EQU  BLSTOR+2          ASSEMBLER INPUT BUFFER PTR
+     EF18   225  INITFG EQU  ASMPTR+2          INITIALIZED FLAG
+     EF1A   226  BPT0V  EQU  INITFG+2          USER VECTORS FOR BPT ZERO
+     EF1C   227  BPTSET EQU  BPT0V+2           BREAKPOINTS ARE SET FLAG
+     EF1E   228  BPTADD EQU  BPTSET+2          BREAKPOINT ADDRESS STORE
+     EF3E   229  BPTDTA EQU  BPTADD+32         BREAKPOINT DATA STORE
+     EF5E   230  ASMOPC EQU  BPTDTA+32         4 BYTES
+     EF62   231  MREGS  EQU  ASMOPC+4          MAIN REGISTERS
+     EF64   232  MREG1  EQU  MREGS+2
+     EF66   233  MREG2  EQU  MREGS+4
+     EF68   234  MREG3  EQU  MREGS+6
+     EF6E   235  MREG6  EQU  MREGS+12
+     EF7C   236  MREG13 EQU  MREGS+26
+     EF7E   237  MREG14 EQU  MREGS+28
+     EF6C   238  EREGS  EQU  MREGS+10          ECHO REGISTERS (R11-R15 ONLY)
+     EF78   239  IREGS  EQU  EREGS+12          R/W REGISTERS (R10-R15 ONLY)
+     EF7C   240  PC     EQU  EREGS+16          ASMBLR PC STORAGE
+     EF84   241  IREG6  EQU  IREGS+12
+     EF90   242  IREG12 EQU  IREGS+24
+     EF86   243  XREGS  EQU  IREGS+14          HEX I/O, MESSAGE
+EFA6        244         DORG XREGS+32
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0010
+START MODULE - CORTEX BASIC REV. 1.1
+
+            246  ************************************************************
+            247  *
+            248  *          TAPE/EPROM HEADER BLOCKS
+            249  *
+            250  *          BASIC               MACHINE CODE
+            251  *   ********************   ******************** RUN  =>A5A5
+            252  *   *  AUTO RUN FLAG   *   *  AUTO RUN FLAG   * NORUN=>5A5A
+            253  *   ********************   ********************
+            254  *   *   8 BYTE NAME    *   *   8 BYTE NAME    * NULL FILLED
+            255  *   ********************   ********************
+            256  *   *   DISP TO SLT    *   *       >0000      *
+            257  *   ********************   ********************
+            258  *   *   DISP TO VNT    *   *   LOAD ADDRESS   *
+            259  *   ********************   ********************
+            260  *   *     NVD - VDT    *   *   ENTRY POINT    * (OFFSET)
+            261  *   ********************   ********************
+            262  *   *   LOAD LENGTH    *   *   LOAD LENGTH    * (BYTES)
+            263  *   ********************   ********************
+            264  *   *     CHECKSUM     *   *     CHECKSUM     * HEADER ONLY
+            265  *   ********************   ********************
+            266  *
+     EFA6   267  DMYHDR EQU  $
+EFA6        268  DH$ARF BSS  2            RUN/NORUN
+EFA8        269  DH$PGN BSS  8            PROGRAM NAME
+EFB0        270  DH$SLT BSS  2            DISP TO SLT
+EFB2        271  DH$VNT BSS  2            DISP TO VNT
+EFB4        272  DH$SIZ BSS  2            NVD-VDT
+EFB6        273  DH$PLL BSS  2            LENGTH
+EFB8        274  DH$HCS BSS  2            HEADER CHECKSUM
+     0014   275  HDRSIZ EQU  $-DMYHDR     HEADER BLOCK SIZE
+     EFBA   276  DH$END EQU  $            END OF DUMMY HEADER
+            277  ****************
+EFBA 0000   278  SLT    DATA 0                 STATEMENT LOCATION TABLE
+EFBC 0000   279  VNT    DATA 0                 VARIABLE DEFINITION TABLE
+EFBE 0000   280  VDT    DATA 0                 NEXT VARIABLE DEFINITION
+EFC0 0000   281  NVD    DATA 0                 NEXT VARIABLE POINTER
+EFC2 0000   282  NVS    DATA 0                 NEXT VARIABLE STORAGE
+EFC4 0000   283  GSC    DATA 0                 GOSUB STACK COUNTER
+EFC6 0000   284  TY0    DATA 0                 OUTPUT CHARACTER BUFFER
+EFC8 0000   285  AINC   DATA 0                 AUTO-INCREMENT
+EFCA 0000   286  DCNT   DATA 0                 INDENT COUNTER
+EFCC 0000   287  MODE   DATA 0                 MODE SWITCH
+EFCE 0000   288  PLC    DATA 0                 PROGRAM LINE COUNTER
+EFD0 0000   289  DLIM   DATA 0                 DELIMITER
+EFD2 0000   290  DLC    DATA 0                 DATA LINE COUNTER
+EFD4 0000   291  DDM    DATA 0                 DATA DELIMITER PTR
+EFD6 0000   292  LNUM   DATA 0                 LAST ENTERED LINE #
+EFD8 0000   293  F$WHO  DATA 0                 0=BASIC, -1= MONITOR
+            294  *
+EFDA 0000   295  DS2    DATA 0,0,0             TEMP FP STORAGE
+EFE0 0000   296  DS3    DATA 0,0,0             TEMP FP STORAGE
+EFE6 0000   297  E$TEMP DATA 0,0,0             EVALUATOR TEMP STORAGE
+            298  *
+            299  * STACKS FOR EDIT,LIST, AND EVAL
+            300  *
+EFEC 0000   301  CVCH   DATA 0,0,0
+     EFF2   302  CVHD   EQU  $
+     EFF3   303  CVHD01 EQU  CVHD+1
+     EFFE   304  CVHD12 EQU  CVHD+12
+     F001   305  CVHD15 EQU  CVHD+15
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0011
+START MODULE - CORTEX BASIC REV. 1.1
+
+     F000   306  EVSKB  EQU  $+14              BEGINNING OF STACK
+EFF2        307  EBP    BSS  132               EDIT BUFFER
+F076        308  SSP    BSS  30                SUBSCRIPT STACK
+     F094   309  EVSKE  EQU  $                 END STACK
+            310  *
+            311  * FLOATING POINT WORKSPACE AND TEMPORARY STORAGE
+            312  *
+F094 0000   313  TEMP   DATA 0
+F096 0000   314  TEMP2  DATA 0
+F098 0000   315  TEMP4  DATA 0
+F09A 0000   316  TEMP6  DATA 0
+F09C 0000   317  FPAC   DATA 0                 FP ACCUMULATER
+     F09F   318  FPAC3  EQU  $+1
+F09E 0000   319  FPAC2  DATA 0
+F0A0 0000   320  FPAC4  DATA 0
+F0A2        321         BSS  13*2
+     F09C   322  FPWP   EQU  FPAC              FLOATING POINT WORKSPACE
+            323  *
+            324  * 2ND LEVEL REGISTERS
+            325  *
+F0BC        326  WPR2   BSS  16*2              EVAL, TRIG, CONV REGISTERS
+            327  *
+            328  * 1ST LEVEL REGISTERS - RESET WORKSPACE ALSO
+            329  *
+     F0DD   330  WP10L  EQU  $+1               R0 LSB REFERENCE
+F0DC 0000   331  WPR1   DATA 0,0,0             R0 - R2
+F0E2 0000   332  WPR103 DATA 0                 R3
+F0E4 0000   333  WPR104 DATA 0                 R4
+F0E6 0000   334         DATA 0,0,0             R5 - R7
+F0EC 0000   335  WPR108 DATA 0                 R8
+F0EE 0000   336  WPR109 DATA 0                 R9 (POINTER REGISTER)
+F0F0 0000   337         DATA 0,0,0,0,0,0       R10 - R15
+     F0FC   338  ENDRAM EQU  $
+            339  *
+            340  * CHECK THAT ENDRAM IS OK
+            341  *
+            342X        ASMIF (>F0FC-ENDRAM)&>8000
+            343X   SPLAT !!! - RUN OUT OF INTERNAL RAM
+            344         ASMEND
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0012
+START MODULE - CORTEX BASIC REV. 1.1
+
+0000        346         RORG BROM
+            347  *
+            348  * INTERRUPT VECTOR TABLE
+            349  *
+0000 F0DC   350  IV0    DATA WPR1,START
+0004 ED24   351  IV1    DATA INT1WP,INT1PC
+0008 ED74   352  IV2    DATA MIDWP,MIDPC
+000C ED14   353  IV3    DATA CLKWS,CLKI
+0010 ED9C   354  IV4    DATA INT4WP,INT4PC
+            355  *
+            356  *      USER READABLE SYSTEM FLAGS
+            357  *
+     0014'  358  SYSFLG EQU  $          *** SYSTEM FLAG AREA ***
+0014 0000   359  HFLG   DATA 0          HELP FLAG            SYS(0)
+0016 0000   360  ENUM   DATA 0          LAST ERROR NUMBER    SYS(1)
+0018 0000   361  ELNM   DATA 0          LAST ERROR LINE #    SYS(2)
+001A 0000   362  BCRU   DATA 0          CRU BASE ADDRESS     SYS(3)
+001C 0000   363  EFLG   DATA 0          ERROR FLAG           SYS(4)
+001E 0000   364  UNIT   DATA 0          UNIT FLAG            SYS(5)
+0020 0000   365  ESCFLG DATA 0          ESCAPE DISABLE FLAG  SYS(6)
+0022 0000   366  MEMSIZ DATA 0          AUTO-SIZE LOW LIMIT  SYS(7)
+0024 0000   367  NOERR  DATA 0          EDIT ERR ENABLE FLG  SYS(8)
+0026 0000   368  VMODE  DATA 0          MODE 0=TEXT,-1=GRAPH SYS(9)
+0028 0000   369  FDCDON DATA 0          FDC INTERRUPT FLAG   SYS(10)
+002A FFFF   370         DATA -1         DUMMY
+     000B   371  VDPST  EQU  11         VDP STATUS FLAG      SYS(11)
+002C 024A'  372         DATA BEGN       BASIC ENTRY POINT    SYS(12)
+002E ED3A   373         DATA TRAP1      INT1   BLWP VECTOR   SYS(13)
+0030 EDAE   374         DATA TRAP4      INT4   BLWP VECTOR   SYS(14)
+0032 ED96   375         DATA MID0       MID 0  BLWP VECTOR   SYS(15)
+0034 ED94   376         DATA OVINT      AO     BLWP VECTOR   SYS(16)
+0036 ED98   377         DATA ILLMID     ILLMID BLWP VECTOR   SYS(17)
+0038 ED9A   378         DATA OUTDSR     OUTPUT BLWP VECTOR   SYS(18)
+003A EF1A   379         DATA BPT0V      BP0    BL   VECTOR   SYS(19)
+     0013   380  SYSLMT EQU  19         MAX SYSTEM LIMIT
+            381  *
+003C FFFF   382         DATA -1,-1
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0013
+START MODULE - CORTEX BASIC REV. 1.1
+
+            384  *
+            385  * XOP VECTOR TABLE
+            386  *
+0040 F09C   387         DATA FPWP,FLDD         XOP XX,0  LOAD FPAC
+0044 F09C   388         DATA FPWP,FSRD         XOP XX,1  STORE FPAC
+0048 F09C   389         DATA FPWP,FAD          XOP XX,2  ADD TO FPAC
+004C F09C   390         DATA FPWP,FSD          XOP XX,3  SUBTRACT FROM FPAC
+0050 F09C   391         DATA FPWP,FMD          XOP XX,4  MULTIPLY FPAC
+0054 F09C   392         DATA FPWP,FDD          XOP XX,5  DIVIDE FPAC
+0058 F09C   393         DATA FPWP,FSCL         XOP XX,6  SCALE FPAC
+005C F09C   394         DATA FPWP,FNRM         XOP XX,7  NORMALIZE
+0060 F09C   395         DATA FPWP,FCLR         XOP XX,8  CLEAR
+0064 F09C   396         DATA FPWP,FNEG         XOP XX,9  NEGATE
+0068 F09C   397         DATA FPWP,FLOAT        XOP XX,10 FLOAT FPAC
+006C F0BC   398         DATA WPR2,EVFX         XOP XX,11 EVALUATE AND FIX
+0070 F0BC   399         DATA WPR2,CVBD         XOP XX,11 OUT FP #
+0074 F0BC   400         DATA WPR2,CVBI         XOP XX,13 OUT INTEGER #
+0078 F0DC   401  D$WPR1 DATA WPR1,ERRS         USER ERROR
+007C FFFF   402         DATA -1,-1
+0080 0460   403  MONITR B    @MONTOP           ENTRY TO MONITOR
+0082 0000 
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0014
+START MODULE - CORTEX BASIC REV. 1.1
+
+            405  *
+            406  *      DEVICE TABLE:-
+            407  *
+            408  *  1,  IF THE ENTRY IS 0 THEN THE DEVICE IS NOT PRESENT.
+            409  *  2,  IF THE LS BIT OF THE ENTRY IS A '0' THEN
+            410  *           THE ENTRY IS THE ADDRESS OF THE TRANSFER
+            411  *           VECTOR FOR THE SERVICE ROUTINE.
+            412  *  3,  IF THE LS BIT OF THE ENTRY IS A '1' THEN
+            413  *           THE DEVICE IS A 9902, BITS 1-14 FORM THE
+            414  *           R12 CONTENTS FOR THE SERVICE ROUTINE AND
+            415  *           A CR DELAY WILL BE ADDED IF THE MSB IS A '1'
+            416  *
+0084 0000   417  DEVTBL DATA VDPDSR            1-VDP
+0086 0081   418         DATA (2*EIA02)+>0001   2-EIA 9902, NO CR DELAY
+0088 0181   419         DATA (2*CASS02)+>0001  3-CASS. 9902, NO CR DELAY
+008A 0000   420         DATA CENTRO            4-CENTRONICS PRINTER
+008C 0000   421         DATA 0                 5-UNUSED DEVICE
+008E 0000   422         DATA 0                 6-UNUSED DEVICE
+0090 0000   423         DATA 0                 7-UNUSED DEVICE
+0092 0000   424         DATA 0                 8-UNUSED DEVICE
+0094 0000   425         DATA 0                 9-UNUSED DEVICE
+0096 0000   426         DATA 0                 10-UNUSED DEVICE
+0098 0000   427         DATA 0                 11-UNUSED DEVICE
+009A 0000   428         DATA 0                 12-UNUSED DEVICE
+009C 0000   429         DATA 0                 13-UNUSED DEVICE
+009E 0000   430         DATA 0                 14-UNUSED DEVICE
+00A0 0000   431         DATA 0                 15-UNUSED DEVICE
+00A2 0000   432         DATA 0                 16-UNUSED DEVICE
+     00A4'  433  DTEND  EQU  $
+            434  *
+            435  *      COLOUR SWAP TABLE
+            436  *
+00A4 0001   437  SWPTBL DATA >0001
+00A6 0203   438         DATA >0203
+00A8 0405   439         DATA >0405
+00AA 0607   440         DATA >0607
+00AC 0809   441         DATA >0809
+00AE 0A0B   442         DATA >0A0B
+00B0 0C0D   443         DATA >0C0D
+00B2 0E0F   444         DATA >0E0F
+            445  *
+            446  *               SYSTEM CONFIGURATION FLAGS
+            447  *              ============================
+            448  *
+            449  *      X X X X   X X X X   X X X X   X X X X
+            450  *                                    ^ ^ ^ ^
+            451  *                                      ! ! !- MAPPER FITTED
+            452  *                                      ! !--- PROG.  FITTED
+            453  *                                      !----- FLOPPY FITTED
+            454  *
+00B4 0000   455  CONFIG DATA >0000             DEFAULT TO MINIMUM SYSTEM
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0015
+START MODULE - CORTEX BASIC REV. 1.1
+
+            457  * CLOCK INTERRUPT ROUTINE
+            458  *
+            459  *      R0=FINE COUNTER
+            460  *      R1=HOURS
+            461  *      R2=MINUTES
+            462  *      R3=SECONDS
+            463  *      R4-R5=TOTAL TIC COUNTS
+            464  *
+     00B6'  465  CLKI   EQU  $
+00B6 020C   466         LI   R12,>1EE0         REF ONCHIP DECREMENTER
+00B8 1EE0 
+00BA 1D01   467         SBO  1                 RE-ENABLE CLOCK INTERRUPT
+00BC 0620   468         DEC  @CNTDWN           COUNTDOWN
+00BE ED38 
+00C0 C320   469         MOV  @BELCNT,R12       GET BELL COUNTER
+00C2 ED42 
+00C4 091C   470         SRL  R12,1             COUNT
+00C6 C80C   471         MOV  R12,@BELCNT       RESTORE IT
+00C8 ED42 
+            472X        ASMIF CLKLED
+            473X        LI   R12,2*CLKLED      POINT TO CLOCK LED
+            474         ASMELS
+00CA 04CC   475         CLR  R12
+            476         ASMEND
+            477  *  TEST SHIFT FROM A COUPLE OF LINES AGO
+00CC 1702   478         JNC  NOBELL            NOT IN USE, LEAVE BELL ALONE
+00CE 1D06   479         SBO  BELLON-CLKLED     IN USE, TURN BELL ON
+00D0 1001   480         JMP  DOTIC
+00D2 1E06   481  NOBELL SBZ  BELLON-CLKLED     BELL OFF
+00D4 1E00   482  DOTIC  SBZ  CLKLED-CLKLED     LED ON
+00D6 0280   483         CI   R0,100/2          TIME FOR LED OFF?
+00D8 0032 
+00DA 1A01   484         JL   DOTIC1            N, LEAVE IT ON
+00DC 1D00   485         SBO  CLKLED-CLKLED     Y, TURN IT OFF
+00DE 0585   486  DOTIC1 INC  R5                COUNT TICS
+            487  *
+            488  * IF R5 = 0 THEN LEAST SIG WORD OF TIC COUNTER HAS
+            489  * 'OVERFLOWED'  - UPDATE R4
+            490  *
+00E0 1601   491         JNE  $+4
+00E2 0584   492         INC  R4
+00E4 0280   493         CI   R0,99             100 TICS?
+00E6 0063 
+00E8 1402   494         JHE  CLKI1             Y, 1 SECOND
+00EA 0580   495         INC  R0                N, COUNT
+00EC 1010   496         JMP  CLKI2             EXIT
+            497  *
+            498  * 100 TICKS HAVE OCCURED - UPDATE REAL TIME CLOCK
+            499  *
+00EE 04C0   500  CLKI1  CLR  R0                CLEAR FINE COUNTER
+00F0 0583   501         INC  R3                COUNT SECONDS
+00F2 0283   502         CI   R3,60             <60?
+00F4 003C 
+00F6 110B   503         JLT  CLKI2             Y, RETURN
+00F8 04C3   504         CLR  R3                N
+00FA 0582   505         INC  R2                INCREMENT MINUTE
+00FC 0282   506         CI   R2,60             <60?
+00FE 003C 
+0100 1106   507         JLT  CLKI2             Y, RETURN
+0102 04C2   508         CLR  R2                N,
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0016
+START MODULE - CORTEX BASIC REV. 1.1
+
+0104 0581   509         INC  R1                INCREMENT HOUR
+0106 0281   510         CI   R1,24             <24 HOURS?
+0108 0018 
+010A 1101   511         JLT  CLKI2             Y, RETURN
+010C 04C1   512         CLR  R1                N
+     010E'  513  CLKI2  EQU  $
+010E 0380   514         RTWP
+0110 1000   515         NOP
+0112 0380   516         RTWP
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0017
+START MODULE - CORTEX BASIC REV. 1.1
+
+            518  ************************************************************
+            519  *                                                          *
+            520  *           LEVEL 1 INTERRUPT SERVICE ROUTINE              *
+            521  *                                                          *
+            522  ************************************************************
+0114 C30C   523  INT1PC MOV  R12,R12           TRAP SET UP?
+0116 1302   524         JEQ  BUSTIM            N, ERROR
+0118 041C   525         BLWP *R12              Y, TAKE TRAP
+011A 0380   526         RTWP
+            527  *
+011C 1F07   528  BUSTIM TB   BUSINT-0          WAS IT A BUS TIMEOUT ?
+011E 1303   529         JEQ  ERR42             N, ERROR THEN
+0120 1E03   530         SBZ  BTENBL-0          Y, RESET IT
+0122 1D03   531         SBO  BTENBL-0
+0124 0380   532         RTWP                   AND EXIT
+0126 2FA0   533  ERR42  DATA ERROR2,42         INTERRUPT W/O TRAP
+            534  ************************************************************
+            535  *                                                          *
+            536  * SET LOAD VECTORS AND CRITICAL SYSTEM POINTERS            *
+            537  *                                                          *
+            538  ************************************************************
+            539  *
+            540  *    THIS ROUTINE MUST :-
+            541  *      1.   RESET THE RECEIVE BUFFER POINTERS
+            542  *      2.   SET THE UNIT FLAG TO >0001
+            543  *      3.   SETUP AND START THE DECREMENTER
+            544  *      4.   SETUP THE NMI VECTORS FOR WARMSTART
+            545  *      5.   RESET THE ON-CHIP FLAG REGISTER
+            546  *      6.   SET THE VDP UP FOR TEXT MODE
+            547  *      7.   ENABLE ALL INTERRUPTS
+            548  *
+     012A'  549  SETVEC EQU  $
+012A 0000   550         DATA CMOF$             TURN CASSETTE OFF & FLUSH BUF.
+012C 0201   551         LI   R1,>FFFA          ;POINT TO DECREMENTER
+012E FFFA 
+0130 C820   552         MOV  @C1,@UNIT         ;SET UNIT 1
+0132 0000 
+0134 001E'
+0136 020C   553         LI   R12,>1EE0         ;POINT TO FLAGS
+0138 1EE0 
+013A CC60   554         MOV  @TIMC,*R1+        ;LOAD DECREMENTER
+013C 0000 
+013E CC60   555         MOV  @D$LDWP,*R1+      ;SET UP LOAD WP
+0140 0000 
+0142 CC60   556         MOV  @D$LDPC,*R1+      ;SET UP LOAD PC
+0144 0000 
+0146 3001   557         LDCR R1,0              ;CONFIG DECREMENTER &CLR FLAGS
+0148 1D01   558         SBO  1                 ;ENABLE DECREMENTER
+014A D820   559         MOVB @B47,@FBCOL       ;FCOL=BLUE,BCOL=CYAN
+014C 0000 
+014E EE95 
+0150 0000   560         DATA SETTXT            ;SET TEXT MODE
+0152 04E0   561         CLR  @CURFLG           ;CURSOR ON
+0154 ED6A 
+0156 045B   562         RT                     ;EXIT
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0018
+START MODULE - CORTEX BASIC REV. 1.1
+
+            564  ************************************************************
+            565  *                                                          *
+            566  *                 BAUD COMMAND                             *
+            567  *                                                          *
+            568  ************************************************************
+0158 2FA0   569  ERR43  DATA ERROR2,43         INVALID BAUD RATE
+015C 2FA0   570  ERR37  DATA ERROR2,37         INVALID DELIMITER
+0160 2FA0   571  ERR46  DATA ERROR2,46         INVALID DEVICE #
+            572  *
+0164 2EC1   573  BAUD   EVFIX R1               GET DEVICE #
+0166 0601   574         DEC  R1                DEVICE #  1..16
+0168 0281   575         CI   R1,15             VALID?
+016A 000F 
+016C 1BF9   576         JH   ERR46             N, ERROR IT
+016E A041   577         A    R1,R1             Y, MAKE TABLE INDEX
+0170 C321   578         MOV  @DEVTBL(1),R12    GET DEVICE ENTRY
+0172 0084'
+0174 2320   579         COC  @C1,R12           IS IT A 9902?
+0176 0132'
+0178 16F3   580         JNE  ERR46             N, ERROR IT
+017A 024C   581         ANDI R12,>7FFE         ISOLATE CRUBASE
+017C 7FFE 
+017E 0280   582         CI   R0,>3F00          ',' FOLLOWING ?
+0180 3F00 
+0182 16EC   583         JNE  ERR37             N, ERROR IT
+0184 0420   584         BLWP @EVERZ            Y, GET BAUD RATE
+0186 0000 
+0188 2C12   585         LOADF *R2              EVAL STACK ==> FPAC
+018A 2E80   586         FLOATF 0               FORCE FLOATING POINT IF REQ.
+018C 2C60   587         STORE @DS1             SAVE IT
+018E ED26 
+0190 2C20   588         LOADF @FP5E5           FPAC = 5E+5
+0192 0000 
+0194 2D60   589         FDIV @DS1              CALC (5E+5/RATE)
+0196 ED26 
+0198 0202   590         LI   R2,FPAC           POINT TO FPAC
+019A F09C 
+019C 06A0   591         BL   @FIX              TRY TO FIX IT
+019E 0000 
+01A0 04C2   592         CLR  R2                SET FOR NO PRE-DIVIDE
+01A2 0203   593         LI   R3,1024
+01A4 0400 
+01A6 80C1   594         C    R1,R3             IN RANGE ?
+01A8 1A04   595         JL   BAUD1             Y, LEAVE IT
+01AA C083   596         MOV  R3,R2             N, SET PRE-DIVIDE
+01AC 0931   597         SRL  R1,3              ADJUST REGISTER VALUE
+01AE 80C1   598         C    R1,R3             NOW VALID?
+01B0 14D3   599         JHE  ERR43             N, ERROR IT
+01B2 A081   600  BAUD1  A    R1,R2             ADD IN PRE-DIVIDE
+01B4 020B   601         LI   R11,NLIN          SET RETURN ADDRESS TO NLIN
+01B6 0000 
+            602  *
+01B8 1D1F   603  SRATE  SBO  31                RESET 9902
+01BA C6DB   604         MOV  *R11,*R11         DELAY
+01BC 3220   605         LDCR @B62,8            2 STOP,EV PAR,7 BITS,/3 CLOCK
+01BE 0000 
+01C0 1E0D   606         SBZ  13                NO TIMER
+01C2 3302   607         LDCR R2,12             LOAD XMT/REC BAUD RATE
+01C4 1D12   608         SBO  18                ENABLE REC. INTERRUPTS
+01C6 045B   609         RT                     EXIT
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0019
+START MODULE - CORTEX BASIC REV. 1.1
+
+01C8 4300   610  B43    DATA >4300
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0020
+START MODULE - CORTEX BASIC REV. 1.1
+
+            612  ************************************************************
+            613  *                                                          *
+            614  *                   NEW STATEMENT                          *
+            615  *                                                          *
+            616  ************************************************************
+01CA 2FA0   617  ERR49  DATA ERROR2,49         ;ILLEGAL MEMORY ADDRESS
+01CE C060   618  NEWY   MOV  @EORBUS,R1        ;GET DEFAULT MEMORY SIZE
+01D0 ED06 
+01D2 06A0   619         BL   @CKEX             ;EXPRESSION ?
+01D4 0000 
+01D6 100A   620         JMP  NEWY1             ;N, TAKE DEFAULT
+01D8 2EC2   621         EVFIX R2               ;Y, GET NEW LIMIT
+01DA 0222   622         AI   R2,HDRSIZ         ;ALLOW ROOM FOR HEADER BLOCK
+01DC 0014 
+01DE 8802   623         C    R2,@IOB           ;IN SYSTEM RAM ?
+01E0 ECFA 
+01E2 14F3   624         JHE  ERR49             ;Y, ILLEGAL MEMORY ADDRESS
+01E4 8802   625         C    R2,@MEMSIZ        ;BELOW MEMSIZ ???
+01E6 0022'
+01E8 1AF0   626         JL   ERR49             ;Y, ILLEGAL MEMORY ADDRESS
+01EA C042   627         MOV  R2,R1             ;N, SET R1
+01EC C801   628  NEWY1  MOV  R1,@EORBUS        ;SET NEW EORBUS
+01EE ED06 
+01F0 C801   629         MOV  R1,@BUS           ;SAVE NEW BUS
+01F2 ED04 
+            630  *
+            631  * NEW
+            632  *
+01F4 020B   633  NEWP   LI   R11,BEGN1         ;LOAD CONTINUATION ADDRESS
+01F6 0252'
+            634  *                                ( FOR BL @CLRV )
+     01F8'  635  NEWP1  EQU  $                 ;AUTO-RUN ENTRY POINT
+01F8 C060   636         MOV  @BUS,R1           ;GET BEGINNING USER STORAGE
+01FA ED04 
+01FC C801   637         MOV  R1,@SLT           ;SET STATEMENT LOCATION TABLE
+01FE EFBA 
+0200 04F1   638         CLR  *R1+              ;LEAVE NULL
+0202 C801   639         MOV  R1,@VNT           ;SET VARIABLE DEFINITION TABLE
+0204 EFBC 
+0206 C0C1   640         MOV  R1,R3
+0208 0223   641         AI   R3,NRV*2          ;SKIP RESERVED WORDS
+020A 0008 
+020C C803   642         MOV  R3,@VDT           ;SET NEXT VARIABLE DEFINITION
+020E EFBE 
+0210 0223   643         AI   R3,NRV*2
+0212 0008 
+0214 C803   644         MOV  R3,@NVD           ;SET NEXT VARIABLE POINTER
+0216 EFC0 
+0218 0460   645         B    @CLRV             ;CLEAR *R1 TO EUS
+021A 0000 
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0021
+START MODULE - CORTEX BASIC REV. 1.1
+
+            647  ************************************************************
+            648  *                                                          *
+            649  *               KEYBOARD MODE ROUTINE                      *
+            650  *                                                          *
+            651  ************************************************************
+021C 0201   652  PRDY   LI   R1,MPRDY          ;GET MESSAGE
+021E 0000 
+            653  *
+0220 04E0   654  PRDY1  CLR  @AINC             ;CLEAR AUTO-INC FLAG
+0222 EFC8 
+0224 04E0   655         CLR  @TRAFLG           ;TRACE OFF
+0226 ED44 
+0228 1002   656         JMP  CRLF0
+            657  *
+022A 0201   658  CRLF   LI   R1,MCRLF          ;OUT CRLF
+022C 0000 
+            659  *
+022E 04E0   660  CRLF0  CLR  @MODE             ;SET MODE TO IDLE
+0230 EFCC 
+0232 04E0   661         CLR  @ESCFLG           ;ENABLE ESCAPE
+0234 0020'
+0236 04E0   662         CLR  @F$WHO            ;FLAG IN BASIC
+0238 EFD8 
+023A 0000   663         DATA TYPE$             ;OUT STRING R1
+023C 04E0   664         CLR  @PLF              ;CLEAR PROGRAM LOAD
+023E ED72 
+0240 06A0   665         BL   @GTLN             ;GET INPUT LINE
+0242 0000 
+0244 06A0   666  CRLF1  BL   @EDIT             ;EDIT STATEMENT
+0246 0000 
+0248 10F0   667         JMP  CRLF
+            668  ************************************************************
+            669  *                                                          *
+            670  *                SYSTEM WARM START                         *
+            671  *               ===================                        *
+            672  *                                                          *
+            673  *      SET CRITICAL SYSTEM POINTERS AND RE-ENTER THE       *
+            674  *      INTERPRETER.                                        *
+            675  *                                                          *
+            676  ************************************************************
+024A 02E0   677  BEGN   LWPI WPR1              ;GET RIGHT WORKSPACE
+024C F0DC 
+024E 06A0   678         BL   @SETVEC           ;RE-INITIALIZE
+0250 012A'
+0252 02E0   679  BEGN1  LWPI WPR1              ;MAKE SURE WORKSPACE OK
+0254 F0DC 
+0256 0201   680         LI   R1,MBEGN          ;GET MESSAGE
+0258 0000 
+025A 10E2   681         JMP  PRDY1
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0022
+START MODULE - CORTEX BASIC REV. 1.1
+
+            683  ************************************************************
+            684  *                                                          *
+            685  *                HALT OUTPUT CHECK ROUTINE                 *
+            686  *               ===========================                *
+            687  *                                                          *
+            688  *      USE THE SPACE BAR TO HALT AND THEN SINGLE STEP      *
+            689  *      THE OUTPUT.                                         *
+            690  *                                                          *
+            691  ************************************************************
+025C F0BC   692  HALTO$ DATA WPR2,HALT1
+            693  *
+0260 0000   694  HALT1  DATA GETC$             CHARACTER?
+0262 0380   695         RTWP                   N, EXIT
+0264 1000   696         NOP                    Y, NORMAL CHARACTER
+0266 0280   697         CI   R0,>2000          SPACE?
+0268 2000 
+026A 1605   698         JNE  EXIT              N, EXIT
+026C 0000   699  WAITK  DATA LOOK$             Y, ANOTHER KEY?
+026E 10FE   700         JMP  WAITK             LOOP
+0270 0280   701         CI   R0,>2000          Y, SPACE?
+0272 2000 
+0274 16F5   702         JNE  HALT1             N, READ IT THEN
+0276 0380   703  EXIT   RTWP                   Y, LEAVE IT FOR NEXT TIME
+            704         END
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0023
+START MODULE - CORTEX BASIC REV. 1.1
+
+AINC       EFC8D  ASMOPC     EF5ED  ASMPTR     EF16D  B43        01C8D  
+B47        014CR  B62        01BER  BAUD       0164D  BAUD1      01B2'  
+BCRU       001AD  BEGN       024AD  BEGN1      0252D  BELCNT     ED42D  
+BELLON     0006   BITMAP     EE3CD  BLSTOR     EF14D  BPT0V      EF1AD  
+BPTADD     EF1ED  BPTDTA     EF3ED  BPTSET     EF1CD  BROM       0000   
+BTENBL     0003   BUFEND     EE32D  BUS        ED04D  BUSACK     0002   
+BUSINT     0007   BUSTIM     011C'  C1         0176R  CALL12     ED5ED  
+CALLWP     ED46D  CASS02     00C0   CCNT       ED68D  CCSAVE     EE94D  
+CENTRO     008AR  CKEX       01D4R  CLKADR     ED16D  CLKI       00B6'  
+CLKI1      00EE'  CLKI2      010E'  CLKLED     0000   CLKT01     ED1CD  
+CLKT02     ED1ED  CLKWS      ED14D  CLRV       021AR  CMOF$      012AR  
+CNTDWN     ED38D  CONFIG     00B4D  CRLF       022AD  CRLF0      022E'  
+CRLF1      0244D  CTBA       0700   CTBA1      2000   CURFLG     ED6AD  
+CVBD       0072R  CVBI       0076R  CVCH       EFECD  CVHD       EFF2D  
+CVHD01     EFF3D  CVHD12     EFFED  CVHD15     F001D  D$LDPC     0144R  
+D$LDWP     0140R  D$WPR1     0078'  D1$DEN     0003   D1$SIZ     0002   
+DCNT       EFCAD  DDM        EFD4D  DEVTBL     0084D  DH$ARF     EFA6D  
+DH$END     EFBAD  DH$HCS     EFB8D  DH$PGN     EFA8D  DH$PLL     EFB6D  
+DH$SIZ     EFB4D  DH$SLT     EFB0D  DH$VNT     EFB2D  DLC        EFD2D  
+DLIM       EFD0D  DMAC       00E0   DMYHDR     EFA6D  DOTIC      00D4'  
+DOTIC1     00DE'  DRVSIZ     0004   DS         ED20D  DS1        ED26D  
+DS2        EFDAD  DS3        EFE0D  DSRCNT     EDAAD  DTEND      00A4D  
+E$TEMP     EFE6D  EBP        EFF2D  EDATA      0208   EDIT       0246R  
+EDTMP      ECF8D  EFLG       001CD  EIA02      0040   ELNM       0018D  
+ELSF       ED6CD  ENDRAM     F0FC   ENUM       0016D  EORBUS     ED06D  
+EPADR      0210   EPTYPE     0201   ERAM       F000   EREGS      EF6CD  
+ERR37      015C'  ERR42      0126'  ERR43      0158'  ERR46      0160'  
+ERR49      01CA'  ERROR      2F80D  ERROR2     2FA0D  ERRS       007AR  
+ESCFLG     0020D  EUS        ECFCD  EVERZ      0186R  EVFX       006ER  
+EVSKB      F000D  EVSKE      F094D  EXIT       0276'  EXTWP      EED4D  
+F$WHO      EFD8D  FAD        004AR  FBCOL      EE95D  FCLR       0062R  
+FDC        F140   FDCDON     0028D  FDCINT     0004   FDD        0056R  
+FFLG       ED6ED  FIX        019ER  FLDD       0042R  FLOAT      006AR  
+FMD        0052R  FNEG       0066R  FNRM       005ER  FNS        ECFED  
+FNSZ       000AD  FP5E5      0192R  FPAC       F09CD  FPAC2      F09ED  
+FPAC3      F09FD  FPAC4      F0A0D  FPWP       F09CD  FSCL       005AR  
+FSD        004ER  FSRD       0046R  FUZZ       3B00D  GETC$      0260R  
+GSC        EFC4D  GSS        ED00D  GSSZ       0014D  GTLN       0242R  
+HALT1      0260'  HALTO$     025CD  HDRSIZ     0014D  HFLG       0014D  
+IFLG       ED70D  ILLMID     ED98D  INITFG     EF18D  INPTR      EDA8D  
+INT1PC     0114'  INT1WP     ED24   INT4PC     0012R  INT4WP     ED9C   
+IOB        ECFAD  IOSTOR     EE94D  IREG12     EF90D  IREG6      EF84D  
+IREGS      EF78D  IV0        0000'  IV1        0004'  IV2        0008'  
+IV3        000C'  IV4        0010'  KBDACK     0001   KBDINT     0005   
+KDS        0000   KEYBRD     0008   LNSZ       0084D  LNUM       EFD6D  
+LOADPT     EDA4D  LOOK$      026CR  M$REG0     F100   M$REG1     F102   
+M$REG2     F104   M$REG3     F106   M$REG4     F108   M$REG5     F10A   
+M$REG6     F10C   M$REG7     F10E   M$REG8     F110   M$REG9     F112   
+M$REGA     F114   M$REGB     F116   M$REGC     F118   M$REGD     F11A   
+M$REGE     F11C   M$REGF     F11E   MAPPER     F100   MBEGN      0258R  
+MCRLF      022CR  MEMSIZ     0022D  MID0       ED96D  MIDPC      000AR  
+MIDWP      ED74   MODE       EFCCD  MONITR     0080'  MONTOP     0082R  
+MPRDY      021ER  MREG1      EF64D  MREG13     EF7CD  MREG14     EF7ED  
+MREG2      EF66D  MREG3      EF68D  MREG6      EF6ED  MREGS      EF62D  
+NEWP       01F4D  NEWP1      01F8D  NEWY       01CED  NEWY1      01EC'  
+NIC        0064D  NLIN       01B6R  NOBELL     00D2'  NOERR      0024D  
+NRV        0004D  NTBA       0400   NTBA1      1800   NVD        EFC0D  
+NVS        EFC2D  NXLOC      EE96D  NYLOC      EE97D  OUTBUF     EDE4D  
+OUTDSR     ED9AD  OVINT      ED94D  P$EUS      ECF4D  P$FNS      EC40D  
+P$GSS      EBF0D  P$IOB      EB04D  P$UFT      EB84D  PC         EF7CD  
+ASM990 2.4.6     START                      Sun Jul 20 19:28:47 2025 Page 0024
+START MODULE - CORTEX BASIC REV. 1.1
+
+PGBA       0800   PGM        0205   PGMPUL     0206   PGTBA1     0000   
+PIO        0000   PLC        EFCED  PLF        ED72D  PPBUSY     0409   
+PPDS       0408   PPRINT     0400   PRAM       ECF6D  PRDY       021CD  
+PRDY1      0220'  PRMPOP     0200   PROERR     0206   PRORDY     0204   
+PRORST     0200   PTRS       ECFAD  R0         0000   R1         0001   
+R10        000A   R11        000B   R12        000C   R13        000D   
+R14        000E   R15        000F   R2         0002   R3         0003   
+R4         0004   R5         0005   R6         0006   R7         0007   
+R8         0008   R8STOR     ED34D  R9         0009   RANDS      ECF6D  
+RBUF       EDBCD  RBUFE      EDE4D  RECPTR     EDACD  RENCMP     ED0AD  
+RENINC     ED12D  RENLNE     ED0ED  RENRET     ED0CD  RENSTA     ED10D  
+ROMON      0005   RTSTOR     ED36D  SETTXT     0150R  SETVEC     012AD  
+SLN        ED66D  SLT        EFBAD  SNTBA      0780   SNTBA1     1B00   
+SPGBA      0000   SPGBA1     3800   SQRI       0004D  SRATE      01B8D  
+SSP        F076D  STACNT     ED08D  START      0002R  SWPTBL     00A4D  
+SYSFLG     0014D  SYSLMT     0013D  TEMP       F094D  TEMP2      F096D  
+TEMP4      F098D  TEMP6      F09AD  TIMC       013CR  TRAFLG     ED44D  
+TRAP1      ED3A   TRAP4      EDAE   TY0        EFC6D  TYPE$      023AR  
+UFT        ED02D  UNIT       001ED  V1R3L      EE5BD  V1R4L      EE5DD  
+V1R5L      EE5FD  V1R6L      EE61D  V30        0207   VCCON      0204   
+VDP        F120   VDPDSR     0084R  VDPINT     0006   VDPREG     F121   
+VDPST      000BD  VDPWP0     EE34D  VDPWP1     EE54D  VDT        EFBED  
+VMODE      0026D  VNT        EFBCD  VRAM       F120   WAITK      026C'  
+WORK11     EF0AD  WORK5      EEFED  WORKS      EEF4D  WP10L      F0DDD  
+WP9928     EE74D  WPR1       F0DCD  WPR103     F0E2D  WPR104     F0E4D  
+WPR108     F0ECD  WPR109     F0EE   WPR2       F0BCD  XLOC       EE36D  
+XREGS      EF86D  YLOC       EE37D  
+
+0 Errors in assembly

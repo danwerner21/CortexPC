@@ -1,0 +1,248 @@
+ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0001
+INPUT STATEMENT - CORTEX BASIC REV. 1.1
+
+              2         IDT  'INPUT'
+              3  *
+              4  *       INPY            ;INPUT ROUTINE
+              5  *
+              6          REF INPEND      ;QUIT INPUT
+              7          REF OUTL1       ;OUT LINE
+              8          REF CVDIFZ      ;CONVERT DECIMAL TO INTEGER/FP
+              9          REF EVARZ       ;EVALUATE VARIABLE
+             10          REF EVSDZ       ;EVALUATE STRING
+             11          REF GOSB1       ;GOSUB ENTRY
+             12          REF BMVE        ;BYTE MOVE
+             13          REF JMPR0A      ;BYTE MULTIPLEXOR JUMP
+             14          REF PUTB        ;PUT BYTE IN BUFFER
+             15          REF GETCR$      ;GET CHARACTER
+             16          REF TYP0$       ;ECHO R0
+             17          REF FFLG        ;FORMATTING FLAG
+             18          REF HFLG        ;HELP FLAG
+             19          REF IFLG        ;INPUT FLAG
+             20         REF NIC,LNSZ      ;IO BUFFER SIZE
+             21         REF  IOB          ;I/O BUFFER
+             22         REF  INM1,INM2,INM3    PROMPTS
+             23          DEF INPY
+             24  *
+             25          DXOP STORE,1    ;STORE FPAC
+             26          DXOP EVFIX,11   ;EVALUATE AND FIX
+ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0002
+INPUT STATEMENT - CORTEX BASIC REV. 1.1
+
+             28  *
+             29  *       EXECUTE THE INPUT COMMAND
+             30  *
+             31  * CALLING SEQUENCE:
+             32  *
+             33  *       B @INPY
+             34  *
+             35  *       EXIT TO INPEND, GOSB1
+             36  *
+             37  *       R7 = OBC
+             38  *       R8 = PBC
+             39  *       R15 = CR/LF FLAG
+             40  *
+0000 04E0    41  INPY    CLR @HFLG       ;CLEAR HELP FLAG
+0002 0000 
+0004 04E0    42          CLR @IFLG       ;CLEAR INPUT FLAG
+0006 0000 
+0008 1003    43          JMP INP1
+             44  *
+             45  *HELP QUERY SETUP
+             46  *
+000A 2EE0    47  INPQM   EVFIX @HFLG     ;GET LINE #
+000C 0002'
+             48  *
+000E 0608    49  INP0    DEC R8          ;BACKUP TO DELIMITER
+             50  *
+0010 070F    51  INP1    SETO R15        ;SET FOR CR
+             52  *
+0012 058F    53  INPSC   INC R15         ;SET FOR NO CRLF
+0014 06A0    54          BL @JMPR0A      ;SWITCH BOARD
+0016 0000 
+0018 4E      55  INPTB     BYTE INPE-INPTB/2,>00   ;NULL
+001A 4E      56            BYTE INPE-INPTB/2,>3C   ;::
+001C 4E      57            BYTE INPE-INPTB/2,>47   ;!
+001E FC      58            BYTE INP1-INPTB/2,>3F   ;,
+0020 FD      59            BYTE INPSC-INPTB/2,>40  ;;
+0022 31      60            BYTE INPFM-INPTB/2,>3E  ;#
+0024 F9      61            BYTE INPQM-INPTB/2,>41  ;?
+0026 2F      62            BYTE INPFL-INPTB/2,>42  ;%
+0028 0000    63            DATA 0
+002A 0608    64          DEC R8          ;NONE OF ABOVE, TRY STRING
+002C 0420    65          BLWP @EVSDZ
+002E 0000 
+0030 1027    66            JMP INPQ      ;STRING
+0032 1033    67            JMP INPD      ;$VAR
+0034 0420    68          BLWP @EVARZ     ;NEITHER, TRY VARIABLE
+0036 0000 
+0038 C182    69          MOV R2,R6       ;SAVE
+003A 0202    70          LI R2,INM1      ;'? '
+003C 0000 
+             71  *
+003E 06A0    72  INP3    BL @INPP        ;PROMPT AND GET STRING
+0040 00B8'
+0042 0420    73          BLWP @CVDIFZ    ;CONVERT
+0044 0000 
+0046 100C    74            JMP INP4      ;FP
+0048 04C1    75            CLR R1        ;NO NUMBER
+004A 1000    76            NOP
+004C C000    77          MOV R0,R0       ;CHECK DELIMITER
+004E 160C    78            JNE INP5      ;PROBLEM
+ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0003
+INPUT STATEMENT - CORTEX BASIC REV. 1.1
+
+0050 04F6    79          CLR *R6+        ;INTEGER
+0052 CD81    80          MOV R1,*R6+
+0054 04F6    81          CLR *R6+
+0056 04E0    82  INP3A   CLR  @IFLG      CLEAR % FLAG (EXACT # OF CHARS)
+0058 0006'
+005A 04E0    83          CLR  @FFLG      CLEAR NUMBER OF CHARS FLAG
+005C 0000 
+005E 10D7    84          JMP INP0        ;LOOK AT DELIMITER
+ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0004
+INPUT STATEMENT - CORTEX BASIC REV. 1.1
+
+             86  *GET NUMERIC INPUT
+             87  *
+0060 C000    88  INP4    MOV R0,R0       ;EOL?
+0062 1602    89            JNE INP5      ;N, PROBLEM
+0064 2C56    90          STORE *R6       ;MOVE NUMBER
+0066 10F7    91          JMP INP3A
+             92  *
+             93  *ERROR IN NUMERIC INPUT
+             94  *
+0068 0202    95  INP5    LI R2,INM2      ;OUT '?? '
+006A 0000 
+006C C060    96          MOV @HFLG,R1 ;HELP WANTED?
+006E 000C'
+0070 13E6    97            JEQ INP3      ;N
+0072 0700    98          SETO R0         ;YES, RETURN -1
+0074 1041    99          JMP INPP6
+            100  *
+            101  *% FORMATTING
+            102  *
+0076 0720   103  INPFL   SETO @IFLG   ;SET FLAG
+0078 0058'
+            104  *
+            105  *# FORMATTING
+            106  *
+007A 2EE0   107  INPFM   EVFIX @FFLG  ;GET FLAG
+007C 005C'
+007E 10C7   108          JMP INP0
+            109  *
+            110  *OUT LITERAL
+            111  *
+0080 020B   112  INPQ    LI R11,INP0     ;GET RETURN ADR
+0082 000E'
+            113  *
+            114  *OUT STRING
+            115  *       R2 = STRING ADR
+            116  *
+0084 C34B   117  OUTL    MOV R11,R13     ;SAVE RETURN
+0086 C1E0   118          MOV @IOB,R7      ;SET R7 (WSBC)
+0088 0000 
+008A 0205   119          LI R5,LNSZ      ;GET MAX
+008C 0000 
+008E 06A0   120          BL @BMVE        ;MOVE TO OUTPUT BUFFER
+0090 0000 
+0092 1000   121            NOP
+0094 C2CD   122          MOV R13,R11
+0096 0460   123          B @OUTL1
+0098 0000 
+ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0005
+INPUT STATEMENT - CORTEX BASIC REV. 1.1
+
+            125  *GET STRING
+            126  *
+009A C182   127  INPD    MOV R2,R6       ;SAVE ADR
+009C 0202   128          LI R2,INM3      ;GET ': '
+009E 0000 
+00A0 06A0   129          BL @INPP        ;PROMPT AND GET CHARACTERS
+00A2 00B8'
+00A4 C087   130          MOV R7,R2       ;SET FOR MOVE
+00A6 C1C6   131          MOV R6,R7
+00A8 0205   132          LI R5,NIC       ;MAXIMUM OF EIGHTY CHARACTERS
+00AA 0000 
+00AC 06A0   133          BL @BMVE        ;MOVE INTO VARIABLE
+00AE 0090'
+00B0 10D2   134         JMP  INP3A     ;OK
+00B2 10D1   135         JMP  INP3A     ;OK
+            136  *
+            137  *END INPUT LINE
+            138  *
+00B4 0460   139  INPE    B @INPEND
+00B6 0000 
+ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0006
+INPUT STATEMENT - CORTEX BASIC REV. 1.1
+
+            141  *PROMPT AND GET CHARACTERS
+            142  *
+00B8 C38B   143  INPP    MOV R11,R14     ;SAVE RETURN
+00BA C3CF   144          MOV R15,R15     ;SUPPRESS PROMPT?
+00BC 1602   145            JNE INPP1     ;Y
+00BE 06A0   146          BL @OUTL        ;N, LIST
+00C0 0084'
+            147  *
+00C2 C1E0   148  INPP1   MOV @IOB,R7      ;GET IOB  (WSBC)
+00C4 0088'
+00C6 C120   149          MOV @FFLG,R4 ;GET INPUT COUNTER
+00C8 007C'
+00CA 1602   150            JNE INPP2     ;OK
+00CC 0204   151          LI R4,>80       ;SET MAX      ??????????????????????
+00CE 0080 
+            152  *
+00D0 0000   153  INPP2   DATA GETCR$     ;GET CHARACTER
+00D2 06A0   154          BL @PUTB        ;STORE
+00D4 0000 
+00D6 1005   155            JMP INPP3     ;CR
+00D8 100B   156            JMP INPP4     ;CONTROL CHARACTER
+00DA 0000   157         DATA TYP0$       ;ECHO
+00DC 0604   158          DEC R4          ;MORE CHARACTERS?
+00DE 16F8   159            JNE INPP2     ;Y
+00E0 1003   160          JMP INPP5       ;N
+            161  *
+00E2 C020   162  INPP3   MOV  @IFLG,R0 EXACT NUMBER REQUIRED?
+00E4 0078'
+00E6 16F4   163          JNE  INPP2      Y - CONTINUE
+            164  *
+00E8 75D7   165  INPP5   SB *R7,*R7      ;TERMINATE
+00EA C1E0   166          MOV @IOB,R7      ;RESET BYTE COUNTERS  (WSBC)
+00EC 00C4'
+00EE 045E   167          B *R14          ;RETURN
+            168  *
+00F0 C060   169  INPP4   MOV @HFLG,R1 ;HELP WANTED?
+00F2 006E'
+00F4 13ED   170            JEQ INPP2     ;N, CONTINUE
+00F6 06C0   171          SWPB R0         ;Y
+            172  *
+00F8 C800   173  INPP6   MOV R0,@HFLG ;SAVE CONTROL CHARACTER
+00FA 00F2'
+00FC 04E0   174          CLR @FFLG    ;CLEAR FORMATTING
+00FE 00C8'
+0100 04E0   175          CLR  @IFLG  CLEAR % FLAG
+0102 00E4'
+0104 0460   176          B @GOSB1        ;DO SYSTEM GOSUB
+0106 0000 
+            177  *
+            178         END
+ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0007
+INPUT STATEMENT - CORTEX BASIC REV. 1.1
+
+BMVE      00AER  CVDIFZ    0044R  EVARZ     0036R  EVSDZ     002ER  
+FFLG      00FER  GETCR$    00D0R  GOSB1     0106R  HFLG      00FAR  
+IFLG      0102R  INM1      003CR  INM2      006AR  INM3      009ER  
+INP0      000E'  INP1      0010'  INP3      003E'  INP3A     0056'  
+INP4      0060'  INP5      0068'  INPD      009A'  INPE      00B4'  
+INPEND    00B6R  INPFL     0076'  INPFM     007A'  INPP      00B8'  
+INPP1     00C2'  INPP2     00D0'  INPP3     00E2'  INPP4     00F0'  
+INPP5     00E8'  INPP6     00F8'  INPQ      0080'  INPQM     000A'  
+INPSC     0012'  INPTB     0018'  INPY      0000D  IOB       00ECR  
+JMPR0A    0016R  LNSZ      008CR  NIC       00AAR  OUTL      0084'  
+OUTL1     0098R  PUTB      00D4R  R0        0000   R1        0001   
+R10       000A   R11       000B   R12       000C   R13       000D   
+R14       000E   R15       000F   R2        0002   R3        0003   
+R4        0004   R5        0005   R6        0006   R7        0007   
+R8        0008   R9        0009   TYP0$     00DAR  
+
+0 Errors in assembly

@@ -1,0 +1,166 @@
+ASM990 2.4.6     POLY                       Sun Jul 20 19:28:51 2025 Page 0001
+POLYNOMIAL ROUTINES - CORTEX BASIC REV. 1.1
+
+              2         IDT  'POLY'
+              3  *
+              4  * ROUTINE LIST:
+              5  *
+              6  *       FUNBK           ;BREAK FPAC INTO INTEGER & FRACTION
+              7  *       FUNFX           ;FIX FPAC INTO EXPONENT AND ABSOLUTE VA
+              8  *       PLYX            ;EVALUATE P(X) WITH X IN TEMP
+              9  *       PLYXX           ;EVALUATE P(X*X) WITH X IN FPAC
+             10  *
+             11         DXOP LOADF,0           ;LOAD FPAC
+             12         DXOP STORE,1           ;STORE FPAC
+             13         DXOP FADD,2            ;ADD TO FPAC
+             14         DXOP FSUB,3            ;SUBTRACT FROM FPAC
+             15         DXOP FMUL,4            ;MULTIPLY FPAC
+             16         DXOP FDIV,5            ;DIVIDE FPAC
+             17         DXOP SCALE,6           ;SCALE FPAC
+             18         DXOP NORMAL,7          ;NORMALIZE FPAC
+             19         DXOP CLEAR,8           ;CLEAR FPAC
+             20         DXOP NEGATE,9          ;NEGATE FPAC
+             21         DXOP FLOATF,10         ;FLOAT FPAC
+     2F80    22  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+             23  *
+             24         REF  FPAC,FPAC4        ;FLOATING POINT ACCUMULATOR
+             25         REF  TEMP              ;3 WRD TEMPORARY STORAGE
+             26         REF  C4A00             ;>4A00
+             27         DEF  FUNBK,FUNFX
+             28         DEF  PLYX,PLYXX
+ASM990 2.4.6     POLY                       Sun Jul 20 19:28:51 2025 Page 0002
+POLYNOMIAL ROUTINES - CORTEX BASIC REV. 1.1
+
+             30  * ABSTRACT:
+             31  *
+             32  *       BREAK FPAC INTO INTEGER IN R1 AND
+             33  *       LEAVE FRACTIONAL PART IN FPAC.
+             34  *
+             35  * CALLING SEQUENCE:
+             36  *
+             37  *       BL @FUNBK
+             38  *
+             39  *       IN FPAC = #
+             40  *       OUT  R1 = INTEGER PART
+             41  *          FPAC = FRACTIONAL PART
+             42  *
+             43  * EXCEPTIONS AND CONDITIONS:
+             44  *
+             45  *       ERROR 30 = FIX ERROR
+             46  *
+0000 C060    47  FUNBK  MOV  @FPAC,R1          GET HIGH WORD
+0002 0000 
+0004 A041    48         A    R1,R1             REMOVE SIGN
+0006 0281    49         CI   R1,>8900          TOO BIG?
+0008 8900 
+000A 1B0F    50         JH   ERR30             Y, ERROR
+000C 2C60    51         STORE @TEMP            ;N, MOVE TO TEMP
+000E 0000 
+0010 2DA0    52         SCALE @C4A00           ;SCALE
+0012 0000 
+0014 C060    53         MOV  @FPAC4,R1         LOAD LOW
+0016 0000 
+0018 C0A0    54         MOV  @FPAC,R2          <0?
+001A 0002'
+001C 1501    55         JGT  FUNBK1            N
+001E 0501    56         NEG  R1                Y, GET 2'S COMPLEMENT
+             57  *
+0020 2DC0    58  FUNBK1 NORMAL 0               NORMALIZE
+0022 2E40    59         NEGATE 0               NEGATE
+0024 2CA0    60         FADD @TEMP             ADD TEMP TO FPAC
+0026 000E'
+0028 045B    61         B    *R11              RETURN
+             62  *
+002A 2F9E    63  ERR30  DATA ERROR+30
+ASM990 2.4.6     POLY                       Sun Jul 20 19:28:51 2025 Page 0003
+POLYNOMIAL ROUTINES - CORTEX BASIC REV. 1.1
+
+             65  * ABSTRACT:
+             66  *
+             67  *       FIX FPAC INTO EXPONENT IN R1, SIGN BIT
+             68  *       IN R3, AND ABSOLUTE VALUE IN FPAC
+             69  *
+             70  * CALLING SEQUENCE:
+             71  *
+             72  *       BL @FUNFX
+             73  *
+             74  *       IN  R2 = #
+             75  *       OUT R1 = EXPONENT
+             76  *         (R2) = ABS(FPAC)
+             77  *           R3 = SIGN BIT
+             78  *
+002C 2C12    79  FUNFX  LOADF *R2              ;LOAD FPAC
+002E 2E80    80         FLOATF 0               ;FLOAT IF NECESSARY
+0030 0202    81         LI   R2,FPAC           GET ADR
+0032 001A'
+0034 C0D2    82         MOV  *R2,R3            GET SIGN
+0036 1306    83         JEQ  FUNFX2            ZERO
+0038 09F3    84         SRL  R3,15             GET SIGN BIT
+003A 1301    85         JEQ  FUNFX1            + OR 0
+003C 2E40    86         NEGATE 0               -, NEGATE
+             87  *
+003E 05CB    88  FUNFX1 INCT R11               RETURN @2(11)
+0040 04C1    89         CLR  R1
+0042 D052    90         MOVB *R2,R1            GET EXPONENT
+0044 045B    91  FUNFX2 RT
+ASM990 2.4.6     POLY                       Sun Jul 20 19:28:51 2025 Page 0004
+POLYNOMIAL ROUTINES - CORTEX BASIC REV. 1.1
+
+             93  * ABSTRACT:
+             94  *
+             95  *       EVALUATE POLYNOMIAL P(X) OR P(X*X) WITH
+             96  *       X IN TEMP OR FPAC RESPECTIVELY.  THE
+             97  *       POLYNOMIAL IS GIVEN BY:
+             98  *
+             99  *               (R0) = N,C1,C2,...,CN
+            100  *
+            101  *       WHERE   N = # OF COEFFICIENTS
+            102  *               C = COEFFICIENTS
+            103  *
+            104  * CALLING SEQUENCE:
+            105  *
+            106  *       BL @PLYXX
+            107  *       BL @PLYX
+            108  *
+            109  *       IN (R0) = N,C1,C2,...,CN
+            110  *       OUT FPAC = RESULT
+            111  *
+            112  * EXCEPTIONS AND CONDITIONS:  (NONE)
+            113  *
+            114  *EVALUATE P(X*X) WITH X IN FPAC
+            115  *
+0046 2C60   116  PLYXX  STORE @TEMP            MOVE X TO TEMP
+0048 0026'
+004A 2D20   117         FMUL @TEMP             FPAC=FPAC*FPAC
+004C 0048'
+004E 2C60   118         STORE @TEMP            MOVE X*X INTO TEMP
+0050 004C'
+            119  *
+            120  *EVALUATE P(X) WITH X IN TEMP
+            121  *
+0052 C03B   122  PLYX   MOV  *R11+,R0          GET CONSTANTS ADR
+0054 C070   123         MOV  *R0+,R1           GET COUNT
+0056 2C10   124         LOADF *R0              LOAD 1ST CONSTANT
+            125  *
+0058 2D20   126  PLYXA  FMUL @TEMP             FPAC=FPAC*TEMP
+005A 0050'
+005C 0220   127         AI   R0,6              MOVE TO NEXT CONSTANT
+005E 0006 
+0060 2C90   128         FADD *R0               ADD
+0062 0601   129         DEC  R1                DONE?
+0064 16F9   130         JNE  PLYXA             N
+0066 045B   131         B    *R11              Y
+            132         END
+ASM990 2.4.6     POLY                       Sun Jul 20 19:28:51 2025 Page 0005
+POLYNOMIAL ROUTINES - CORTEX BASIC REV. 1.1
+
+C4A00      0012R  ERR30      002A'  ERROR      2F80   FPAC       0032R  
+FPAC4      0016R  FUNBK      0000D  FUNBK1     0020'  FUNFX      002CD  
+FUNFX1     003E'  FUNFX2     0044'  PLYX       0052D  PLYXA      0058'  
+PLYXX      0046D  R0         0000   R1         0001   R10        000A   
+R11        000B   R12        000C   R13        000D   R14        000E   
+R15        000F   R2         0002   R3         0003   R4         0004   
+R5         0005   R6         0006   R7         0007   R8         0008   
+R9         0009   TEMP       005AR  
+
+0 Errors in assembly

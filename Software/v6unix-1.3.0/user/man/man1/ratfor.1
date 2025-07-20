@@ -1,0 +1,91 @@
+.th RATFOR 1
+.sh NAME
+ratfor \- rational Fortran dialect
+.sh SYNOPSIS
+.bd ratfor
+[ option ... ]
+[ filename ... ]
+.sh DESCRIPTION
+.it Ratfor
+converts a rational dialect of Fortran into ordinary irrational Fortran.
+.it Ratfor
+provides control flow constructs essentially identical to those in C:
+.sp 1
+.in +7
+.ti -7
+statement grouping:
+.nf
+{ statement; statement; statement }
+.sp 1
+.ti -7
+decision-making:
+if (condition) statement [ else statement ]
+.br
+switch (integer value) {
+	case integer:	statement
+	...
+	[ default: ]	statement
+}
+.sp 1
+.ti -7
+loops:
+while (condition) statement
+for (expression; condition; expression) statement
+do limits statement
+repeat statement [ until (condition) ]
+break [n]
+next [n]
+.sp 1
+.ti -7
+and some syntactic sugar to make programs easier to read and write:
+.sp 1
+.ti -7
+free form input:
+multiple statements/line; automatic continuation
+.sp 1
+.ti -7
+comments:
+# this is a comment
+.sp 1
+.ti -7
+translation of relationals:
+>, >=, etc., become .GT., .GE., etc.
+.sp 1
+.ti -7
+return (expression)
+returns expression to caller from function
+.sp 1
+.ti -7
+define:
+define name replacement
+.sp 1
+.ti -7
+include:
+include filename
+.sp 1
+.in -7
+.fi
+The option
+.bd \-h
+causes quoted strings to be turned into
+27H constructs.
+.bd \-C
+copies comments to the output, and attempts
+to format it neatly.
+Normally, continuation lines are marked with a &
+in column 1;
+the option
+.bd \-6x
+makes the continuation character
+.bd x
+and places it in column 6.
+.sp 1
+.it Ratfor
+is best used with
+.it f77 (1).
+.sh "SEE ALSO"
+f77(1)
+.br
+B. W. Kernighan and P. J. Plauger,
+.it "Software Tools" ,
+Addison-Wesley, 1976.

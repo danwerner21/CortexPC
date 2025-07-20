@@ -1,0 +1,72 @@
+.th LEX 1 
+.sh NAME
+lex \- generator of lexical analysis programs
+.sh SYNOPSIS
+.bd lex
+[
+.bd \-tvfn
+] [ file ] ...
+.sh DESCRIPTION
+.it Lex
+generates programs to be used in simple lexical analyis of text.
+The input
+.it files
+(standard input default)
+contain regular expressions
+to be searched for, and actions written in C to be executed when
+expressions are found.
+.pp
+A C source program, `lex.yy.c' is generated, to be compiled thus:
+.sp
+.ti +5
+cc lex.yy.c \-ll
+.sp
+This program, when run, copies unrecognized portions of
+the input to the output,
+and executes the associated
+C action for each regular expression that is recognized.
+.pp
+The following 
+.it lex
+program converts upper case to lower,
+removes blanks at the end of lines,
+and replaces multiple blanks by single blanks.
+.sp ""
+.nf
+.ta \w'[A\-Z] 'u
+%%
+[A\-Z]	putchar(yytext[0]+\'a\'\-\'A\');
+[ ]+$
+[ ]+	putchar(\' \');
+.fi
+.sp
+The options have the following meanings.
+.sp
+.in +5
+.ti -3
+.bd \-t
+Place the result on the standard output instead of in file
+`lex.yy.c'.
+.pp
+.ti -3
+.bd \-v
+Print a one-line summary of statistics of the generated analyzer.
+.pp
+.ti -3
+.bd \-n
+Opposite of
+.bd \-v ;
+.bd \-n
+is default.
+.pp
+.ti -3
+.bd \-f
+`Faster' compilation: don't bother to pack
+the resulting tables; limited to small programs.
+.in -5
+.sh "SEE ALSO"
+yacc(1)
+.br
+M. E. Lesk and E. Schmidt,
+.it LEX
+\- Lexical Analyzer Generator

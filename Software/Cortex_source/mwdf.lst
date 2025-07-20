@@ -1,0 +1,91 @@
+ASM990 2.4.6     MWDF                       Sun Jul 20 19:28:49 2025 Page 0001
+MWD & ADR ROUTINES - CORTEX BASIC REV. 1.1
+
+              2          IDT  'MWDF'
+              3          DEF  MWDY,MWDF,ADRF
+              4  *
+              5  *       MWDY             MWD COMMAND
+              6  *       MWDF             MWD FUNCTION
+              7  *       ADRF             ADR FUNCTION
+              8  *
+              9          REF EVERZ       ;EVALUATE EXPRESSION
+             10          REF PFIX        ;FIX 16 BIT NUMBER
+             11          REF GPRM2       ;GET PARAMETERS
+             12          REF NLIN        ;EXIT ENTRY TO MULTIPLEXOR
+             13          REF EVSFR$      ;EXIT ENTRY TO EVALUATOR, LOAD R2 WITH 
+             14          REF FPAC,FPAC2  ;FLOATING POINT ACCUMULATOR
+             15          REF B4A         ;>4A
+             16  *
+             17          DXOP STORE,1    ;STORE FPAC
+             18          DXOP CLEAR,8    ;CLEAR FPAC
+             19          DXOP EVFIX,11   ;EVALUATE AND FIX
+             20          DXOP OUTFP,12   ;OUT FLOATING POINT #
+     2F80    21  ERROR   EQU >2F80       ;XOP XX,14  (ERROR CALL)
+ASM990 2.4.6     MWDF                       Sun Jul 20 19:28:49 2025 Page 0002
+MWD & ADR ROUTINES - CORTEX BASIC REV. 1.1
+
+             23  *       THE MWD COMMAND ALLOWS PBASIC TO ALTER
+             24  *       A WORD OF MEMORY WHILE THE MEM FUNCTION
+             25  *       ALLOWS PBASIC TO READ A WORD OF
+             26  *       MEMORY.
+             27  *
+             28  * CALLING SEQUENCE:
+             29  *
+             30  *       B @MWDY
+             31  *       EXIT TO NLIN
+             32  *
+             33  *       B @MWDF
+             34  *       IN  (R2) = ADDRESS
+             35  *       OUT (R2) = RESULT
+             36  *       EXIT TO EVSFR$
+             37  *
+             38  * EXCEPTIONS AND CONDITIONS:
+             39  *
+             40  *       EVALUATION ERRORS
+             41  *       SYNTAX ERROR
+             42  *
+0000 9838    43  MWDY    CB *R8+,@B4A    ;LEFT BRACKET?
+0002 0000 
+0004 1609    44            JNE ERR1      ;N, ERROR
+0006 0420    45          BLWP @EVERZ     ;GET ADDRESS
+0008 0000 
+000A 06A0    46          BL @PFIX        ;GET INTEGER
+000C 0000 
+000E 06A0    47          BL @GPRM2       ;CHECK PARAMETERS
+0010 0000 
+0012 C443    48          MOV  R3,*R1     ;STORE BYTE IN MEMORY
+0014 0460    49          B @NLIN
+0016 0000 
+             50  *
+0018 2F81    51  ERR1    DATA ERROR+1
+             52  *
+             53  * READ MEMORY
+             54  *
+001A 06A0    55  MWDF    BL @PFIX         ;GET PARAMETER
+001C 000C'
+001E C051    56          MOV  *R1,R1      ;GET BYTE
+0020 2E00    57          CLEAR 0          ;CLEAR FPAC
+0022 C801    58  MWDF1   MOV R1,@FPAC2    ;SAVE
+0024 0000 
+0026 0460    59         B    @EVSFR$      ;RELOAD R2 & EXIT TO EVAL
+0028 0000 
+             60  *
+             61  * ADR - RETURN THE ADDRESS OF THE SPECIFIED VARIABLE/ARRAY
+             62  *       ELEMENT.  APPEARS IN THIS MODULE TO SAVE MEMORY.
+             63  *
+002A C042    64  ADRF    MOV  R2,R1    ARGUMENT'S ADDRESS IN R2
+002C 10FA    65          JMP  MWDF1
+             66          END
+ASM990 2.4.6     MWDF                       Sun Jul 20 19:28:49 2025 Page 0003
+MWD & ADR ROUTINES - CORTEX BASIC REV. 1.1
+
+ADRF      002AD  B4A       0002R  ERR1      0018'  ERROR     2F80   
+EVERZ     0008R  EVSFR$    0028R  FPAC      0000R  FPAC2     0024R  
+GPRM2     0010R  MWDF      001AD  MWDF1     0022'  MWDY      0000D  
+NLIN      0016R  PFIX      001CR  R0        0000   R1        0001   
+R10       000A   R11       000B   R12       000C   R13       000D   
+R14       000E   R15       000F   R2        0002   R3        0003   
+R4        0004   R5        0005   R6        0006   R7        0007   
+R8        0008   R9        0009   
+
+0 Errors in assembly

@@ -1,0 +1,71 @@
+CC	= cc
+AS	= as
+LD	= ld
+NM	= nm
+SIZE	= size
+
+MODEL	= TI990
+CONSOLE	= TTYEIA
+TTYOBJ	= drv_ttyeia.o
+
+OBJS990 = low.o mch.o mmu_990.o drv_990.o dsk_990.o drv_mt.o drv_prt.o \
+	drv_vdt911.o v911io.o drv_tty403.o
+UV6OBJS = alloc.o bio.o clock.o conf.o tty.o fio.o iget.o \
+	mem.o nami.o pipe.o prf.o rdwri.o sig.o slp.o subr.o sys1.o sys2.o \
+	sys3.o sys4.o sysent.o sysnet.o trap.o main.o malloc.o
+
+.c.o:
+	${CC} -c ${DEBUG} -DKERNEL -D${MODEL} -D${CONSOLE} -O -o $@ $<
+.s.o:
+	${AS} -u -o $@ ${MODEL}-${CONSOLE}.cfg hdr.s $<
+
+all: unix strip
+
+unix: ${OBJS990} ${TTYOBJ} ${UV6OBJS}
+	${LD} -a 0x0000 -x -o unix ${OBJS990} ${TTYOBJ} ${UV6OBJS}
+
+strip: unix
+	${NM} -ng unix >unix.map
+	ls -l unix
+	${SIZE} unix
+
+clean:
+	rm -f ${OBJS990} ${TTYOBJ} ${UV6OBJS} unix *.lst *.map
+
+alloc.o: alloc.c param.h systm.h filsys.h conf.h buf.h inode.h user.h
+bio.o: bio.c param.h user.h buf.h conf.h systm.h proc.h
+conf.o: conf.c conf.h
+drv_tty403.o: drv_tty403.c param.h conf.h tty.h buf.h user.h
+drv_tty9902.o: drv_tty9902.c param.h conf.h tty.h buf.h user.h
+drv_ttyeia.o: drv_ttyeia.c param.h conf.h tty.h buf.h user.h
+drv_vdt911.o: drv_vdt911.c param.h conf.h tty.h buf.h user.h
+dsk.o: dsk.c param.h buf.h user.h
+dsk_990.o: dsk_990.c param.h buf.h user.h
+drv_mt.o: drv_mt.c param.h conf.h buf.h user.h
+drv_prt.o: drv_prt.c param.h conf.h tty.h buf.h user.h
+fio.o: fio.c param.h user.h filsys.h file.h conf.h inode.h reg.h
+iget.o: iget.c param.h systm.h user.h inode.h filsys.h buf.h
+malloc.o: malloc.c param.h proc.h systm.h
+mem.o: mem.c param.h user.h conf.h mmu.h
+nami.o: nami.c param.h inode.h user.h systm.h buf.h
+pipe.o: pipe.c param.h systm.h user.h inode.h file.h reg.h
+prf.o: prf.c param.h buf.h conf.h
+rdwri.o: rdwri.c param.h inode.h user.h buf.h conf.h systm.h
+sig.o: sig.c param.h systm.h user.h proc.h inode.h reg.h
+slp.o: slp.c param.h user.h proc.h systm.h file.h inode.h buf.h
+subr.o: subr.c param.h conf.h inode.h user.h buf.h systm.h
+sys1.o: sys1.c param.h systm.h user.h proc.h buf.h reg.h inode.h file.h
+sys2.o: sys2.c param.h systm.h user.h reg.h file.h inode.h
+sys3.o: sys3.c param.h systm.h reg.h buf.h filsys.h user.h inode.h file.h conf.h
+sys4.o: sys4.c param.h user.h reg.h inode.h systm.h proc.h file.h
+sysent.o: sysent.c param.h systm.h
+sysnet.o: sysnet.c param.h user.h reg.h inode.h systm.h proc.h file.h sysnet.h
+trap.o: trap.c param.h systm.h user.h reg.h
+tty.o: tty.c param.h user.h tty.h
+
+low.o: low.s
+mch.o: mch.s
+
+drv_990.o: drv_990.s
+mmu_990.o: mmu_990.s
+v911io.o: v911io.s

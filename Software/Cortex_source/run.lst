@@ -1,0 +1,370 @@
+ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0001
+RUN COMMAND - CORTEX BASIC REV 1.1
+
+              2         IDT  'RUN'
+              3  *
+              4  * THIS MODULE CAUSES THE STORED BASIC PROGRAM TO BE
+              5  * INTERPRETED. ON ENTRY IT CAUSES THE USER VARIABLE
+              6  * SPACE TO BE CLEARED.
+              7  *
+              8  * A LIST OF ALL BASIC STATEMENT ENTRY POINTS IS MAINTAINED
+              9  * IN THIS MODULE.
+             10  *
+             11  * ALSO CONTAINED ARE THE ROUTINES: CLRV (CLEAR USER VARIABLE
+             12  * SPACE), REST (RESET THE DLC AND DDM SYSTEM POINTERS) AND
+             13  * THE BASIC STATEMENT HANDLER 'ELSE'.
+             14  *
+             15         DEF  LINE,LINE0,LINE2,LINE5
+             16         DEF  NLIN,NLIN0,RUNP,RUNP1,CLRV,REST
+             17         DEF  NXTXB,DATXB
+             18         REF  B2E,PLF,ESCFLG,POPY,ENTERY
+             19         REF  MAGY,LST,BAUD,GOTY
+             20         REF  EXTNDY
+             21         REF  SLN,RENUMS,BASY,BITY,CLLY,CRBY
+             22         REF  SGETY,SPUTY,CRFY,DEFY,DIMY
+             23         REF  SPRITY,SHAPEY,ERRY,ESCY,FORY
+             24         REF  BOOTY,GOSY,IFY,INPY,LDPY
+             25         REF  SWAPY,LETY,MEMY,NEWY,NOEY
+             26         REF  NXTY,ONY,PRTY
+             27         REF  RANY,RDDY,RNWY,RTNY
+             28         REF  SAVY,STPY,TIMY,UNTY
+             29         REF  MOTORY,RANDS
+             30         REF  NUMY,PLOTY,UPLOTY,COLORY
+             31         REF  GRAPHY,TEXTY,WAITY,LDCSY
+             32         REF  CRLF,TYPC$,STPYA,MWDY
+             33         REF  NVS,GSS,VNT,VDT,DDM,DLC,GSC
+             34         REF  BUS,DLIM,MODE,PLC,SLT,ELSF
+             35         REF  PURGY,STACNT,IOB,R8STOR,TRAFLG
+             36         REF  TOFY,TONY,TYPBE$,MOVEB,MOVEL
+             37         REF  F$WHO
+             38  *
+             39  * XOP EQUATES
+             40  *
+     2F80    41  ERROR  EQU  >2F80
+     2FA0    42  ERROR2 EQU  ERROR+>20
+             43         DXOP OUTINT,13
+ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0002
+RUN COMMAND - CORTEX BASIC REV 1.1
+
+             45  *
+             46  * CLRV - CLEAR R1 THRU EUS
+             47  *
+0000 C820    48  CLRV   MOV  @IOB,@NVS         ;SET NVS TO IOB POINTER
+0002 0000 
+0004 0000 
+0006 C820    49         MOV  @GSS,@GSC         ;RESET GOSUB STACK
+0008 0000 
+000A 0000 
+000C 04F1    50         CLR  *R1+              ;CLEAR MEMORY
+000E 0281    51         CI   R1,RANDS          ;REACHED EUS YET?
+0010 0000 
+0012 1AFC    52         JL   $-6               ;N - BACK FOR NEXT WORD
+0014 04E0    53         CLR  @R8STOR           ;CLEAR ENTER'S R8 STORE
+0016 0000 
+             54  *
+             55  * REST - RESET DATA PTR
+             56  *
+0018 C820    57  REST   MOV  @VNT,@DLC         ;RESET DLC TO VNT
+001A 0000 
+001C 0000 
+001E 04E0    58         CLR  @DDM              ;ZERO DDM
+0020 0000 
+0022 045B    59         RT
+ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0003
+RUN COMMAND - CORTEX BASIC REV 1.1
+
+             61  *
+             62  * RUN STATEMENT
+             63  *
+0024 0000    64  RUNP   DATA TYPC$             ;OUT CRLF
+             65  *
+0026 0720    66  RUNP1  SETO @MODE             ;SET MODE TO RUN
+0028 0000 
+002A 04E0    67         CLR  @ESCFLG           ;ENABLE ESCAPE
+002C 0000 
+002E 04E0    68         CLR  @PLF              ;FLAG AS NOT LOAD/SAVE
+0030 0000 
+0032 C820    69         MOV  @VNT,@PLC         ;SET PLC TO START
+0034 001A'
+0036 0000 
+0038 C060    70         MOV  @VDT,R1           ;CLEAR VDT THRU EUS
+003A 0000 
+003C 06A0    71         BL   @CLRV
+003E 0000'
+0040 1013    72         JMP  LINE
+             73  *
+             74  * MULTIPLEXOR
+             75  *
+0042 0280    76  NLIN1  CI   R0,>3C00          ;':' ?
+0044 3C00 
+0046 1603    77         JNE  NLIN1A            ;N, TRY OTHER DELIMITERS
+0048 05A0    78         INC  @STACNT           ;Y, COUNT
+004A 0000 
+004C 1021    79         JMP  LINE2             ;GET REST OF LINE
+004E 0280    80  NLIN1A CI   R0,>3B00          ;'THEN' ?
+0050 3B00 
+0052 131E    81         JEQ  LINE2             ;Y, GET REST OF LINE
+0054 0280    82         CI   R0,>4700          ;'!' ?
+0056 4700 
+0058 1307    83         JEQ  LINE              ;Y, NEW LINE
+             84  *
+005A 2FA0    85  ERR37  DATA ERROR2,37         ;N - ILLEGAL DELIMITER
+             86  *
+             87  * NEXT LINE OR ":
+             88  *
+005E D838    89  NLIN0  MOVB *R8+,@DLIM        ;SAVE & SKIP DELIMITER
+0060 0000 
+             90  *
+0062 C020    91  NLIN   MOV  @DLIM,R0          ;LOOK AT DELIMITER
+0064 0060'
+0066 16ED    92         JNE  NLIN1             ;NOT EOL, CHECK IT
+             93  *
+             94  * NEXT LINE
+             95  *
+0068 C020    96  LINE   MOV  @MODE,R0          ;LOOK AT MODE
+006A 0028'
+006C 133F    97         JEQ  LINE3             ;IDLE - THEN FINISHED
+     006E'   98  LINE5  EQU  $
+006E C220    99         MOV  @PLC,R8           ;GET PROGRAM LINE COUNTER
+0070 0036'
+0072 0228   100         AI   R8,-4             ;MOVE TO NEXT LINE
+0074 FFFC 
+0076 8808   101         C    R8,@SLT           ;ANY MORE STATEMENTS?
+0078 0000 
+007A 1A3A   102         JL   LINE4             ;N
+007C C808   103  LINE0  MOV  R8,@PLC           ;Y - UPDATE PLC
+ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0004
+RUN COMMAND - CORTEX BASIC REV 1.1
+
+007E 0070'
+0080 C828   104         MOV  @-2(R8),@SLN      ;SAVE LINE #
+0082 FFFE 
+0084 0000 
+0086 C218   105         MOV  *R8,R8            ;GET PBC
+0088 A220   106         A    @BUS,R8           ;GET POINTER TO BOL
+008A 0000 
+008C 04E0   107         CLR  @STACNT           ;ZERO STATEMENT COUNTER
+008E 004A'
+            108  *
+0090 04E0   109  LINE2  CLR  @F$WHO            ;FLAG IN BASIC
+0092 0000 
+0094 04C2   110  NOTO   CLR  R2
+0096 D0B8   111         MOVB *R8+,R2           ;GET STATEMENT CODE
+0098 0972   112         SRL  R2,7              ;GET INDEX
+009A 0282   113         CI   R2,2*MAXSTA       ;VALID ?
+009C 0096 
+009E 1B24   114         JH   SYSERR            ;N, ERROR !!!
+00A0 C262   115         MOV  @MXLST-2(2),R9    ;Y, GET STATEMENTS ENTRY PT
+00A2 00FC'
+00A4 1321   116         JEQ  SYSERR            ;'0' SYSTEM ERROR
+            117  *
+00A6 C2E0   118         MOV  @TRAFLG,R11       ;IN TRACE ?
+00A8 0000 
+00AA 131D   119         JEQ  NOTRC             ;N, DONT OUT TRACE INFO
+00AC C2E0   120         MOV  @MODE,R11         ;Y, IDLE?
+00AE 006A'
+00B0 131A   121         JEQ  NOTRC             ;Y, DONT BOTHER THEN
+            122  *
+            123  *  OUT TRACE INFORMATION IN THE FORM '  {line No.}  '
+            124  *
+00B2 06A0   125         BL   @MOVEB            ;GET IOB & ENTER TEXT
+00B4 0000 
+00B6 20     126         TEXT ' Statement No. '
+00B7 53   
+00B8 74   
+00B9 61   
+00BA 74   
+00BB 65   
+00BC 6D   
+00BD 65   
+00BE 6E   
+00BF 74   
+00C0 20   
+00C1 4E   
+00C2 6F   
+00C3 2E   
+00C4 20   
+00C5 00     127         BYTE 0
+00C6 C2E0   128         MOV  @PLC,R11          GET PLC
+00C8 007E'
+00CA 2F6B   129         OUTINT @-2(R11)        OUT LINE #
+00CC FFFE 
+00CE C2E0   130         MOV  @STACNT,R11       GET STATEMENT INDENT COUNT
+00D0 008E'
+00D2 1303   131         JEQ  OTRC1             0, LEAVE LINE No.
+00D4 DDE0   132         MOVB @B2E,*R7+         OUT '.'
+00D6 0000 
+00D8 2F4B   133         OUTINT R11             OUT INDENT COUNT
+00DA 06A0   134  OTRC1  BL   @MOVEL            ADD IN REST OF TEXT
+ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0005
+RUN COMMAND - CORTEX BASIC REV 1.1
+
+00DC 0000 
+00DE 20     135         TEXT '   '
+00DF 20   
+00E0 20   
+00E1 00     136         BYTE 0
+00E2 0000   137         DATA TYPBE$            OUT I/O BUFFER
+00E4 0024'  138         DATA TYPC$             OUT CRLF
+            139  *
+            140  *      !!!!! WARNING !!!!!
+            141  *
+            142  *    R2 MUST STILL CONTAIN 2*PCODE
+            143  *
+00E6 0459   144  NOTRC  B    *R9               ;GOTO STATEMENT HANDLER
+            145  *
+00E8 2FA0   146  SYSERR DATA ERROR2,-1         ;SYSTEM ERROR
+            147  *
+            148  * ONLY HAD 1 LINE TO EXECUTE - ORIGINALLY ENTERED VIA EDIT
+            149  *
+00EC 0460   150  LINE3  B    @CRLF
+00EE 0000 
+            151  *
+            152  *     FINISHED PROGRAM
+            153  *
+00F0 0460   154  LINE4  B    @STPY             ;ESCAPE
+00F2 0000 
+ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0006
+RUN COMMAND - CORTEX BASIC REV 1.1
+
+            156  *
+            157  * ELSE STATEMENT
+            158  *
+00F4 C020   159  ELSY   MOV  @ELSF,R0          ;CHECK ELSE FLAG
+00F6 0000 
+00F8 16CB   160         JNE  LINE2             ;SET - CONTINUE TO EXECUTE
+00FA 10B6   161         JMP  LINE              ;RESET - IGNORE LINE
+ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0007
+RUN COMMAND - CORTEX BASIC REV 1.1
+
+            163  *
+            164  * RUN TABLE
+            165  *
+00FC 00F2'  166         DATA STPY                            00 TRAP NULLS
+00FE 0000   167  MXLST  DATA GOTY              GOTO          01
+0100 0000   168         DATA GOSY              GOSUB         02
+0102 00F4'  169         DATA ELSY              ELSE          03
+0104 0068'  170         DATA LINE              REM           04
+0106 0000   171         DATA FORY              FOR           05
+0108 0000   172         DATA LETY              (LET)         06
+010A 0068'  173         DATA LINE              DATA          07
+     0007   174  DATB   EQU  $-MXLST/2
+010C 0000   175         DATA NXTY              NEXT          08
+     0008   176  NXTB   EQU  $-MXLST/2
+010E 0000   177         DATA ERRY              ERROR         09
+0110 0000   178         DATA PRTY              PRINT         0A
+0112 0000   179         DATA CLLY              CALL          0B
+0114 0000   180         DATA LDPY              LOAD          0C
+0116 0000   181         DATA INPY              INPUT         0D
+0118 0000   182         DATA RDDY              READ          0E
+011A 0000   183         DATA RNWY              RESTOR        0F
+011C 0000   184         DATA RTNY              RETURN        10
+011E 0000   185         DATA STPYA             STOP          11
+0120 0000   186         DATA UNTY              UNIT          12
+0122 0000   187         DATA TIMY              TIME          13
+0124 0000   188         DATA SAVY              SAVE          14
+0126 0000   189         DATA BASY              BASE          15
+0128 0000   190         DATA ESCY              ESCAPE        16
+012A 0000   191         DATA NOEY              NOESC         17
+012C 0000   192         DATA RANY              RANDOM        18
+012E 0000   193         DATA BAUD              BAUD          19
+0130 0000   194         DATA ENTERY            ENTER         1A
+0132 0000   195         DATA PLOTY             PLOT          1B
+0134 0000   196         DATA UPLOTY            UNPLOT        1C
+0136 0000   197         DATA COLORY            COLOUR        1D
+0138 0000   198         DATA PURGY             PURGE         1E
+013A 0000   199         DATA GRAPHY            GRAPH         1F
+013C 0000   200         DATA TEXTY             TEXT          20
+013E 0000   201         DATA WAITY             WAIT          21
+0140 0000   202         DATA LDCSY             CHAR          22
+0142 0000   203         DATA NUMY              NUMBER        23
+0144 0000   204         DATA LST               LIST          24
+0146 0000   205         DATA RENUMS            RENUM         25
+0148 0000   206         DATA SPRITY            SPRITE        26
+014A 0000   207         DATA SHAPEY            SHAPE         27
+014C 0000   208         DATA SPUTY             SPUT          28
+014E 0000   209         DATA SGETY             SGET          29
+0150 0000   210         DATA BOOTY             BOOT          2A
+0152 0000   211         DATA SWAPY             SWAP          2B
+0154 0000   212         DATA >0000                           2C
+0156 0000   213         DATA MOTORY            MOTOR         2D
+0158 0000   214         DATA >0000                           2E
+015A 0000   215         DATA >0000                           2F
+015C 0000   216         DATA >0000                           30
+015E 0000   217         DATA >0000                           31
+0160 0000   218         DATA >0000                           32
+0162 0000   219         DATA >0000                           33
+0164 0000   220         DATA >0000                           34
+0166 0000   221         DATA >0000                           35
+0168 0000   222         DATA >0000                           36
+ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0008
+RUN COMMAND - CORTEX BASIC REV 1.1
+
+016A 0000   223         DATA >0000                           36
+016C 0000   224         DATA >0000                           38
+016E 0000   225         DATA MAGY              MAG           39
+0170 0000   226         DATA TOFY              TOF           3A
+0172 0000   227         DATA TONY              TON           3B
+0174 0000   228         DATA POPY              POP           3C
+0176 0000   229         DATA DIMY              DIM           3D
+0178 0108'  230         DATA LETY              LET           3E
+017A 0110'  231         DATA PRTY              (;)           3F
+017C 0000   232         DATA ONY               ON            40
+017E 0000   233         DATA IFY               IF            41
+0180 0000   234         DATA DEFY              DEF           42
+0182 0000   235         DATA NEWY              NEW           43
+0184 00FC'  236         DATA STPY              END           44
+0186 017A'  237         DATA PRTY              (?)           45
+0188 0000   238         DATA EXTNDY            (*) (EXTEND)  46
+018A 0000   239         DATA BITY              BIT(          47
+018C 0000   240         DATA CRBY              CRB(          48
+018E 0000   241         DATA CRFY              CRF(          49
+0190 0000   242         DATA MEMY              MEM(          4A
+0192 0000   243         DATA MWDY              MWD(          4B
+            244  *
+     0194'  245  LASTSM EQU  $
+     004B   246  MAXSTA EQU  $-MXLST/2         MAX. STATEMENT CODE
+            247  *
+            248  * INTERNAL DATA
+            249  *
+0194 08     250  NXTXB  BYTE NXTB
+0195 07     251  DATXB  BYTE DATB
+            252         END
+ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0009
+RUN COMMAND - CORTEX BASIC REV 1.1
+
+B2E        00D6R  BASY       0126R  BAUD       012ER  BITY       018AR  
+BOOTY      0150R  BUS        008AR  CLLY       0112R  CLRV       0000D  
+COLORY     0136R  CRBY       018CR  CRFY       018ER  CRLF       00EER  
+DATB       0007   DATXB      0195D  DDM        0020R  DEFY       0180R  
+DIMY       0176R  DLC        001CR  DLIM       0064R  ELSF       00F6R  
+ELSY       00F4'  ENTERY     0130R  ERR37      005A'  ERROR      2F80   
+ERROR2     2FA0   ERRY       010ER  ESCFLG     002CR  ESCY       0128R  
+EXTNDY     0188R  F$WHO      0092R  FORY       0106R  GOSY       0100R  
+GOTY       00FER  GRAPHY     013AR  GSC        000AR  GSS        0008R  
+IFY        017ER  INPY       0116R  IOB        0002R  LASTSM     0194'  
+LDCSY      0140R  LDPY       0114R  LETY       0178R  LINE       0068D  
+LINE0      007CD  LINE2      0090D  LINE3      00EC'  LINE4      00F0'  
+LINE5      006ED  LST        0144R  MAGY       016ER  MAXSTA     004B   
+MEMY       0190R  MODE       00AER  MOTORY     0156R  MOVEB      00B4R  
+MOVEL      00DCR  MWDY       0192R  MXLST      00FE'  NEWY       0182R  
+NLIN       0062D  NLIN0      005ED  NLIN1      0042'  NLIN1A     004E'  
+NOEY       012AR  NOTO       0094'  NOTRC      00E6'  NUMY       0142R  
+NVS        0004R  NXTB       0008   NXTXB      0194D  NXTY       010CR  
+ONY        017CR  OTRC1      00DA'  PLC        00C8R  PLF        0030R  
+PLOTY      0132R  POPY       0174R  PRTY       0186R  PURGY      0138R  
+R0         0000   R1         0001   R10        000A   R11        000B   
+R12        000C   R13        000D   R14        000E   R15        000F   
+R2         0002   R3         0003   R4         0004   R5         0005   
+R6         0006   R7         0007   R8         0008   R8STOR     0016R  
+R9         0009   RANDS      0010R  RANY       012CR  RDDY       0118R  
+RENUMS     0146R  REST       0018D  RNWY       011AR  RTNY       011CR  
+RUNP       0024D  RUNP1      0026D  SAVY       0124R  SGETY      014ER  
+SHAPEY     014AR  SLN        0084R  SLT        0078R  SPRITY     0148R  
+SPUTY      014CR  STACNT     00D0R  STPY       0184R  STPYA      011ER  
+SWAPY      0152R  SYSERR     00E8'  TEXTY      013CR  TIMY       0122R  
+TOFY       0170R  TONY       0172R  TRAFLG     00A8R  TYPBE$     00E2R  
+TYPC$      00E4R  UNTY       0120R  UPLOTY     0134R  VDT        003AR  
+VNT        0034R  WAITY      013ER  
+
+0 Errors in assembly

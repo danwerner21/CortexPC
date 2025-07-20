@@ -1,0 +1,427 @@
+ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0001
+DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
+
+              2         IDT  'CVDB'
+              3  *
+              4  *       CVDIZ   ;CONVERT DECIMAL TO BINARY INTEGER
+              5  *       CVDIFZ  ;CONVERT DECIMAL TO FLOATING POINT
+              6  *       CVDB20  ;GET NEXT DIGIT
+              7  *
+              8         REF  CVGCN1            ;GET FLOATING POINT CONSTANT
+              9         REF  CVCH              ;CONVERSION HOLDING AREA
+             10         REF  WPR2              ;SECONDARY WORKSPACE
+             11         REF  CVC10             ;FLOATING POINT CONSTANTS
+             12         REF  FPAC              FLOATING POINT ACCUMULATOR
+             13         REF  B20               ;SPACE CHARACTER
+             14         REF  C000A
+             15  *
+             16         DEF  CVDIZ,CVDIFZ      ENTRY POINTS
+             17         DEF  CVDB20
+             18  *
+             19         DXOP LOADF,0           ;LOAD FPAC
+             20         DXOP STORE,1           ;STORE FPAC
+             21         DXOP FADD,2            ;ADD TO FPAC
+             22         DXOP FSUB,3            ;SUBTRACT FROM FPAC
+             23         DXOP FMUL,4            ;MULTIPLY FPAC
+             24         DXOP FDIV,5            ;DIVIDE FPAC
+             25         DXOP SCALE,6           ;SCALE FPAC
+             26         DXOP NORMAL,7          ;NORMALIZE FPAC
+             27         DXOP CLEAR,8           ;CLEAR FPAC
+             28         DXOP NEGATE,9          ;NEGATE FPAC
+             29         DXOP FLOATF,10         ;FLOAT FPAC
+     2F80    30  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
+     2FA0    31  ERROR2 EQU  ERROR+>20
+ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0002
+DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
+
+             33  *       CVDIZ AND CVDIFZ CONVERT A STRING OF
+             34  *       ASCII DECIMAL DIGITS TO A BINARY NUMBER.
+             35  *       CVDIZ IS CALLED IF ONLY AN INTEGER WILL
+             36  *       BE ACCEPTED.  CVDIFZ IS CALLED IF A
+             37  *       FLOATING POINT NUMBER CAN BE ALLOWED.
+             38  *       CVDI IS FIRST EXECUTED TO GET AN
+             39  *       INTEGER.  IF IT FAILS, THEN A RETURN
+             40  *       IS MADE OR CVDIFZ IS EXECUTED DEPENDING
+             41  *       ON WHICH ROUTINE WAS INITIALLY CALLED.
+             42  *
+             43  *
+             44  * CALLING SEQUENCE:
+             45  *
+             46  *       BLWP @CVDIZ
+             47  *         OR
+             48  *       BLWP @CVDIFZ
+             49  *
+             50  *      IN - R7 =PTR
+             51  *
+             52  *      OUT -    R0 = DELIMITER
+             53  *               R1 = 16-BIT 2'S COMPLEMENT INTEGER
+             54  *               FPAC = FLOATING POINT NUMBER
+             55  *               R7 = NEW PTR
+             56  *
+             57  *      NORMAL EXIT - RTWP
+             58  *      ERROR EXIT
+ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0003
+DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
+
+             60  * CONVERT DECIMAL TO INTEGER
+             61  *       BLWP @CVDIZ
+             62  *         16-BIT OVERFLOW - FP # IN FPAC
+             63  *         NO NUMBER
+             64  *         (HEX ON CVDIF)
+             65  *         NUMBER
+             66  *
+             67  *  IN   R7 = PTR
+             68  *  OUT  R0 = DELIMITER
+             69  *       R1 = 16-BIT 2'S COMPLEMENT INTEGER
+             70  *       R7 = NEW PTR
+             71  *
+0000 0000    72  CVDIZ  DATA WPR2,CVDI
+0004 0000'   73  CVDIFZ DATA WPR2,CVDIF
+             74  *
+0008 04C8    75  CVDI   CLR  R8                GET INTEGER ONLY
+000A 1001    76         JMP  $+4
+000C 0708    77  CVDIF  SETO R8                ALLOW EXPONENT
+             78  *
+000E C1ED    79         MOV  @14(13),R7        GET PTR
+0010 000E 
+0012 04C2    80         CLR  R2                CLEAR RESULT
+0014 04C4    81         CLR  R4                CLEAR SIGN FLAG
+0016 06A0    82         BL   @CVDB25           LOOK FOR SIGN
+0018 0194'
+001A 103A    83         JMP  CVDI4             NO NUMBER, RETURN
+001C 0704    84         SETO R4                NEGATIVE
+001E C187    85         MOV  R7,R6
+             86  *
+0020 D036    87  CVDIH1 MOVB *R6+,R0
+0022 0980    88         SRL  R0,8              ;POSITION
+0024 0220    89         AI   R0,->30
+0026 FFD0 
+0028 1114    90         JLT  CVDIH4            ;NOT HEX
+002A 0280    91         CI   R0,>09
+002C 0009 
+002E 1208    92         JLE  CVDIH2            ;HEX 0-9
+0030 0220    93         AI   R0,->07
+0032 FFF9 
+0034 0280    94         CI   R0,>0A
+0036 000A 
+0038 110C    95         JLT  CVDIH4            ;NOT HEX
+003A 0280    96         CI   R0,>0F
+003C 000F 
+003E 1B03    97         JH   CVDIH3            ;NOT HEX, "H MAYBE?
+             98  *
+0040 0A42    99  CVDIH2 SLA  R2,4              ;ADD NEW HEX DIGIT
+0042 A080   100         A    R0,R2
+0044 10ED   101         JMP  CVDIH1
+            102  *
+0046 0220   103  CVDIH3 AI   R0,->11           ;"H?
+0048 FFEF 
+004A 1603   104         JNE  CVDIH4            ;N
+004C D036   105         MOVB *R6+,R0           ;Y, GET DELIMITER
+004E C1C6   106         MOV  R6,R7             ;UPDATE R7
+0050 1017   107         JMP  CVDI3A
+            108  *
+0052 04C2   109  CVDIH4 CLR  R2                ;NOT HEX, CLEAR R2
+            110  *
+0054 06A0   111  CVDI1  BL   @CVDB20           GET DIGIT
+ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0004
+DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
+
+0056 0174'
+0058 100A   112         JMP  CVDI2             N
+005A C042   113         MOV  R2,R1             SET FOR MULTIPLICATION
+005C 3860   114         MPY  @C000A,R1         R1,R2=R1*10
+005E 0000 
+0060 C041   115         MOV  R1,R1             OVERFLOW?
+0062 161B   116         JNE  CVDB              Y
+0064 C082   117         MOV  R2,R2             OVERFLOW?
+0066 1119   118         JLT  CVDB              ;Y
+0068 A080   119         A    R0,R2             ADD NEW DIGIT, OVERFLOW?
+006A 1117   120         JLT  CVDB              Y, OVERFLOW
+006C 10F3   121         JMP  CVDI1             LOOP
+            122  *
+006E 0280   123  CVDI2  CI   R0,>2E00          ".?
+0070 2E00 
+0072 1311   124         JEQ  CVDI5             Y
+0074 0280   125         CI   R0,>4500          "E?
+0076 4500 
+0078 130E   126         JEQ  CVDI5             Y - SEE IF LEGAL
+            127  *
+007A C208   128  CVDI3  MOV  R8,R8             ;SKIP HEX RETURN?
+007C 1301   129         JEQ  CVDI3A            ;Y
+007E 05CE   130         INCT R14               ;N
+            131  *
+0080 C104   132  CVDI3A MOV  R4,R4             N, NEGATIVE?
+0082 1301   133         JEQ  $+4               N
+0084 0502   134         NEG  R2                Y, NEGATE
+0086 CB42   135         MOV  R2,@2(13)         RETURN NUMBER IN R1
+0088 0002 
+008A CB47   136         MOV  R7,@14(13)        RETURN PTR IN R7
+008C 000E 
+008E 05CE   137         INCT R14               RETURN 4(14)
+0090 05CE   138  CVDI4  INCT R14               RETURN 2(14) - NO NUMBER
+0092 C740   139         MOV  R0,*R13           RETURN DELIMITER IN R0
+0094 0380   140         RTWP RETURN            0(14) - OVERFLOW
+            141  *
+0096 C208   142  CVDI5  MOV  R8,R8             EXPONENT ALLOWED?
+0098 13F3   143         JEQ  CVDI3A            N
+            144  *
+            145  * FALL THRU TO CVDB
+ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0005
+DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
+
+            147  * CONVERT DECIMAL TO FP
+            148  *       BLWP @CVDBZ
+            149  *         NUMBER
+            150  *       NO NUMBER
+            151  *
+            152  *  IN   R7 = STRING ADDRESS
+            153  *  OUT  R0 = DELIMITER
+            154  *       R7 = NEW PTR
+            155  *       FPAC = NUMBER
+            156  *
+009A 2E00   157  CVDB   CLEAR 0                CLEAR FPAC
+009C C1ED   158         MOV  @14(13),R7        GET STRING ADR
+009E 000E 
+00A0 0702   159         SETO R2                SET DECIMAL FLAG
+00A2 04C6   160         CLR  R6                DECIMAL ADJUSTMENT=0
+            161  *
+00A4 04CC   162         CLR  R12               CLEAR SIGN FLAG
+00A6 04C4   163         CLR  R4                CLEAR SIGNIFICANT DIGITS COUNT
+00A8 06A0   164         BL   @CVDB25           PROCESS SIGN
+00AA 0194'
+00AC 10F1   165         JMP  CVDI4             NO NUMBER
+00AE 070C   166         SETO R12               NEG, SET TO -1
+            167  *
+00B0 06A0   168  CVDB1  BL   @CVDB20           GET CHARACTER
+00B2 0174'
+00B4 1017   169         JMP  CVDB4             NOT NUMBER
+00B6 C082   170         MOV  R2,R2             AFTER DECIMAL?
+00B8 1101   171         JLT  $+4               N
+00BA 0586   172         INC  R6                Y, COUNT
+00BC C000   173         MOV  R0,R0             '0'?
+00BE 1602   174         JNE  CVDB1A
+00C0 C104   175         MOV  R4,R4             Y - LEADING '0'?
+00C2 13F6   176         JEQ  CVDB1
+00C4 0584   177  CVDB1A INC  R4                Y - INCREMENT SIG DIGITS COUNT
+00C6 0284   178         CI   R4,11             11 SIG DIGITS?
+00C8 000B 
+00CA 1201   179         JLE  CVDB1C
+00CC 04C0   180         CLR  R0                Y - SET DIGIT TO 0
+00CE 2D20   181  CVDB1C FMUL @CVC10            ;OK, FPAC=FPAC*10
+00D0 0000 
+00D2 0A40   182         SLA  R0,4              00X0
+00D4 13ED   183         JEQ  CVDB1             IGNOR IF ZERO
+00D6 0220   184         AI   R0,>4100          41X0 (FP # NOW)
+00D8 4100 
+00DA C800   185         MOV  R0,@CVCH          SAVE
+00DC 0000 
+00DE 2CA0   186         FADD @CVCH             ADD NEW DIGIT
+00E0 00DC'
+00E2 10E6   187         JMP  CVDB1
+            188  *
+00E4 0280   189  CVDB4  CI   R0,>2E00          ".?
+00E6 2E00 
+00E8 1606   190         JNE  CVDB5             N
+00EA C082   191         MOV  R2,R2             Y - FIRST PERIOD?
+00EC 1319   192         JEQ  CVDB10            N - END CONVERSION
+00EE C208   193         MOV  R8,R8             EXPONENT ALLOWED?
+00F0 1317   194         JEQ  CVDB10            N - FINISH
+00F2 04C2   195         CLR  R2                Y, SET FLAG
+00F4 10DD   196         JMP  CVDB1
+            197  *
+ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0006
+DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
+
+00F6 0280   198  CVDB5  CI   R0,>4500          "E?
+00F8 4500 
+00FA 1612   199         JNE  CVDB10            N
+00FC 0205   200         LI   R5,>0501          Y, (NEG R1)
+00FE 0501 
+0100 06A0   201         BL   @CVDB25           CHECK FOR SIGN
+0102 0194'
+0104 10C5   202         JMP  CVDI4             PROBLEM, RETURN NO NUMBER
+0106 0AC5   203         SLA  R5,12             NEG, LOAD NOOP (1000)
+0108 04C1   204         CLR  R1
+            205  *
+010A 06A0   206  CVDB6  BL   @CVDB20           GET DIGIT
+010C 0174'
+010E 1006   207         JMP  CVDB7             NO DIGIT, DONE
+0110 C0C1   208         MOV  R1,R3
+0112 38E0   209         MPY  @C000A,R3         X 10
+0114 005E'
+0116 A100   210         A    R0,R4             ADD NEW DIGIT
+0118 C044   211         MOV  R4,R1             RESTORE R1
+011A 10F7   212         JMP  CVDB6             LOOP AGAIN
+            213  *
+011C 0485   214  CVDB7  X    R5                DO EXPONENT CHANGE
+011E A181   215         A    R1,R6             ADD EXPONENT ADJUSTOR
+            216  *
+0120 C740   217  CVDB10 MOV  R0,*R13           DONE, RETURN DELIMITER
+0122 CB47   218         MOV  R7,@14(13)        RETURN NEW PTR
+0124 000E 
+            219  *
+0126 C206   220  CVDB11 MOV  R6,R8             CHECK ADJUSTMENT
+0128 1106   221         JLT  CVDB12            DO ADJUSTMENT NECESSARY
+012A 130B   222         JEQ  CVDB13            "       "       "
+012C 06A0   223         BL   @CVGCN1           GET CONSTANT
+012E 0000 
+0130 6188   224         S    R8,R6
+0132 2D50   225         FDIV *R0               DIVIDE BY 10^R6
+0134 10F8   226         JMP  CVDB11
+            227  *
+0136 0508   228  CVDB12 NEG  R8
+0138 06A0   229         BL   @CVGCN1           GET CONSTANT
+013A 012E'
+013C A188   230         A    R8,R6
+013E 2D10   231         FMUL *R0               MULTIPLY BY 10^R6
+0140 10F2   232         JMP  CVDB11
+            233  *
+0142 C30C   234  CVDB13 MOV  R12,R12           CHECK FOR NEGATIVE #
+0144 1312   235         JEQ  CVDB14            POSITIVE
+0146 2E40   236         NEGATE 0
+            237  *
+            238  * NOTE: -32768 IS EVALUATED AS +32768 (HAS TO GO TO FLOATING
+            239  * POINT FORMAT) AND THEN NEGATED.  IF FPAC CORRESPONDS TO
+            240  * >C480 >0000 >0000 THEN SET IT TO >0000 >8000 >0000
+            241  *
+0148 020C   242         LI   R12,FPAC          REF FPAC
+014A 0000 
+014C C0CC   243         MOV  R12,R3
+014E 0206   244         LI   R6,CC480          REF -32768 (IN FL PT FORMAT)
+0150 016C'
+0152 8DBC   245         C    *R12+,*R6+        1ST WORD SAME?
+0154 160A   246         JNE  CVDB14
+0156 8DBC   247         C    *R12+,*R6+        Y - 2ND WORD SAME?
+ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0007
+DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
+
+0158 1608   248         JNE  CVDB14
+015A 8D9C   249         C    *R12,*R6+         Y - 3RD WORD SAME?
+015C 1606   250         JNE  CVDB14
+015E 04F3   251         CLR  *R3+              Y - CLEAR 1ST WORD
+0160 CCD6   252         MOV  *R6,*R3+          2ND WORD TO >8000
+0162 C096   253         MOV  *R6,R2            R2=RESULT REGISTER FOR CVDI
+0164 04D3   254         CLR  *R3               CLEAR 3RD WORD
+0166 04C4   255         CLR  R4                CLEAR NEGATE FLAG
+0168 1088   256         JMP  CVDI3
+016A 0380   257  CVDB14 RTWP
+            258  *
+016C C480   259  CC480  DATA >C480,0,0
+0172 8000   260         DATA >8000
+ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0008
+DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
+
+            262  * CVDB20:-  GETS THE NEXT DIGIT IF THERE
+            263  *           IS ONE.  LEADING BLANKS ARE SKIPPED.
+            264  *           IF THE NEXT CHARACTER IS A NON-DIGIT
+            265  *           THEN RETURN IS MADE TO THE FIRST
+            266  *           INSTRUCTION FOLLOWING THE CALL.  IF
+            267  *           THE NEXT CHARACTER IS A DIGIT, A
+            268  *           RETURN IS TAKEN TO THE SECOND
+            269  *           INSTRUCTION FOLLOWING THE CALL.
+            270  *
+            271  * CALLING SEQUENCE:
+            272  *
+            273  *       BL @CVDB20
+            274  *
+            275  *       IN -    R7 = POINTER
+            276  *       OUT -   R0 = CHARACTER
+            277  *
+            278  *       NORMAL EXIT - RETURN + 1 ON DIGIT
+            279  *                       RETURN ON NON-DIGIT
+            280  *
+0174 04C0   281  CVDB20 CLR  R0                GET DIGIT
+0176 D037   282         MOVB *R7+,R0           GET NEXT CHARACTER
+0178 130C   283         JEQ  CVDB22            EOL
+017A 0280   284         CI   R0,>2000          BLANK?
+017C 2000 
+017E 13FA   285         JEQ  CVDB20            Y
+0180 0280   286         CI   R0,>3000          <"0?
+0182 3000 
+0184 1A06   287         JL   CVDB22            Y
+0186 0280   288         CI   R0,>3900          >"9?
+0188 3900 
+018A 1B03   289         JH   CVDB22            Y
+018C 0A40   290         SLA  R0,4
+018E 09C0   291         SRL  R0,12             RIGHT JUSTIFY CHARACTER
+0190 05CB   292         INCT R11
+0192 045B   293  CVDB22 RT   RETURN
+ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0009
+DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
+
+            295  * PROCESS SIGN
+            296  *       BL @CVDB25
+            297  *         NO NUMBER
+            298  *         -NUMBER
+            299  *       NUMBER OR +NUMBER
+            300  *
+0194 9837   301  CVDB25 CB   *R7+,@B20         SPACE?
+0196 0000 
+0198 13FD   302         JEQ  CVDB25            ?
+019A 0607   303         DEC  R7                BACKUP
+019C C047   304         MOV  R7,R1             MARK
+019E C28B   305         MOV  R11,R10
+01A0 06A0   306         BL   @CVDB20           GET NUMBER
+01A2 0174'
+01A4 1004   307         JMP  CVDB28            NO NUMBER
+01A6 05CA   308  CVDB26 INCT R10               NUMBER, RETURN 4(10)
+01A8 05CA   309         INCT R10               -NUMBER, RETURN 2(10)
+01AA C1C1   310  CVDB27 MOV  R1,R7             RESTORE R7
+01AC 045A   311         B    *R10              RETURN
+            312  *
+01AE 0280   313  CVDB28 CI   R0,>2B00          "+?
+01B0 2B00 
+01B2 1307   314         JEQ  CVDB29            Y
+01B4 0280   315         CI   R0,>2D00          N, "-?
+01B6 2D00 
+01B8 1307   316         JEQ  CVDB30            Y
+01BA 0280   317         CI   R0,>2E00          ".?
+01BC 2E00 
+01BE 16F5   318         JNE  CVDB27            N, NO NUMBER
+01C0 0607   319         DEC  R7                Y, BACKUP OVER PERIOD
+            320  *
+01C2 06A0   321  CVDB29 BL   @CVDB31           PROCESS POSITIVE NUMBER
+01C4 01CE'
+01C6 10EF   322         JMP  CVDB26            OK
+            323  *
+01C8 06A0   324  CVDB30 BL   @CVDB31           PROCESS NEGATIVE NUMBER
+01CA 01CE'
+01CC 10ED   325         JMP  CVDB26+2          OK
+            326  *
+01CE C0CB   327  CVDB31 MOV  R11,R3            SAVE RETURN
+01D0 C047   328         MOV  R7,R1             MARK
+01D2 06A0   329         BL   @CVDB20           DIGIT?
+01D4 0174'
+01D6 1001   330         JMP  CVDB32            N, LOOK FOR PERIOD
+01D8 0453   331         B    *R3               Y, NUMBER
+            332  *
+01DA 0280   333  CVDB32 CI   R0,>2E00          ".?
+01DC 2E00 
+01DE 16E5   334         JNE  CVDB27            N, NO NUMBER
+01E0 06A0   335         BL   @CVDB20           Y, LOOK FOR DIGIT
+01E2 0174'
+01E4 10E2   336         JMP  CVDB27            NO NUMBER
+01E6 0453   337         B    *R3               NUMBER OK
+            338  *
+            339         END
+ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0010
+DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
+
+B20        0196R  C000A      0114R  CC480      016C'  CVC10      00D0R  
+CVCH       00E0R  CVDB       009A'  CVDB1      00B0'  CVDB10     0120'  
+CVDB11     0126'  CVDB12     0136'  CVDB13     0142'  CVDB14     016A'  
+CVDB1A     00C4'  CVDB1C     00CE'  CVDB20     0174D  CVDB22     0192'  
+CVDB25     0194'  CVDB26     01A6'  CVDB27     01AA'  CVDB28     01AE'  
+CVDB29     01C2'  CVDB30     01C8'  CVDB31     01CE'  CVDB32     01DA'  
+CVDB4      00E4'  CVDB5      00F6'  CVDB6      010A'  CVDB7      011C'  
+CVDI       0008'  CVDI1      0054'  CVDI2      006E'  CVDI3      007A'  
+CVDI3A     0080'  CVDI4      0090'  CVDI5      0096'  CVDIF      000C'  
+CVDIFZ     0004D  CVDIH1     0020'  CVDIH2     0040'  CVDIH3     0046'  
+CVDIH4     0052'  CVDIZ      0000D  CVGCN1     013AR  ERROR      2F80   
+ERROR2     2FA0   FPAC       014AR  R0         0000   R1         0001   
+R10        000A   R11        000B   R12        000C   R13        000D   
+R14        000E   R15        000F   R2         0002   R3         0003   
+R4         0004   R5         0005   R6         0006   R7         0007   
+R8         0008   R9         0009   WPR2       0004R  
+
+0 Errors in assembly

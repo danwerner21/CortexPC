@@ -1,0 +1,687 @@
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0001
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+              2         IDT  'RENUM'
+              3  *
+              4  *
+              5  *
+              6         DEF  RENUMS,NINE
+              7  *
+              8         REF  MOVEB,MOVEL,TYPB$,CRLF,EDIT1,LSTL
+              9         REF  MOVEBN,MOVELN
+             10         REF  NVD,NVS,BUS,VNT,SLT,DCNT,IOB
+             11         REF  ESCFLG,RENCMP,RENLNE,RENRET
+             12         REF  RNGOTO,RNGSUB,RNRSTR,RNON,CKEX
+             13         REF  RNINP,RNIF,RNELSE,RNERR,RNREM
+             14  *
+             15         REF  RENSTA,RENINC         START & INCREMENT HOLDERS
+             16         REF  MODEOK
+             17  *
+             18         DXOP OUTINT,13
+             19         DXOP EVFIX,11
+             20  *
+     2F80    21  ERROR  EQU  >2F80
+             22  *
+             23  * RENUMBER COMMAND
+             24  *   FORM :                       NEW LINES :-
+             25  *
+             26  *     RENUM                     FROM 10 IN STEPS OF 10
+             27  *     RENUM <ARG1>              FROM ARG1 IN STEPS OF 10
+             28  *     RENUM STEP <ARG1>         FROM 10 IN ARG1 STEPS
+             29  *     RENUM <ARG1> STEP <ARG2>  FROM ARG1 IN ARG2 STEPS
+             30  *
+             31  *
+             32  * REPLACES ALL REFERENCES TO STATEMENTS IN
+             33  *           GOTO
+             34  *           GOSUB
+             35  *           RESTOR
+             36  *           ON
+             37  *           INPUT
+             38  *           ERROR
+             39  * WITH THE NEW STATEMENT NUMBER
+             40  *
+             41  * METHOD:
+             42  *  1. GO THROUGH PROGRAM AND BUILD UP A TABLE OF ALL
+             43  *     STATEMENTS CONTAINING REFERENCES TO OTHER STATEMENTS.
+             44  *     TABLE CONTAINS STATEMENT NUMBER REFERENCED AND ADDRESS
+             45  *     IN PSEUDO CODE OF THIS REFERENCE.
+             46  *  2. GO THROUGH PROGRAM AGAIN AND CHANGE OLD STATEMENT
+             47  *     NUMBERS TO NEW. CHECK EACH OLD STATEMENT NUMBER
+             48  *     AGAINST ALL NUMBERS IN THE TABLE BUILT UP IN STEP 1.
+             49  *     IF A MATCH IS FOUND, CHANGE THE STATEMENT REFERENCE
+             50  *     AT THE ADDRESS GIVEN IN THE TABLE FROM OLD TO NEW
+             51  *     STATEMENT NUMBER. THERE MAY BE MORE THAN ONE
+             52  *     ENTRY IN THE TABLE FOR EACH OLD STATEMENT NUMBER.
+             53  *
+             54  * DESIGN CONSIDERATIONS:
+             55  *    THIS PROGRAM IS NOT OPTIMISED FOR SPEED, AS IT IS NOT
+             56  *    AN EXECUTION TIME ROUTINE. IT IS DESIGNED TO USE THE
+             57  *    MINIMUM DATA STORAGE CONSISTENT WITH GOOD PROGRAM
+             58  *    STRUCTURE.
+             59  *    DATA AREA FOR THE TABLE IS TAKEN FROM THE TOP OF THE
+             60  *    VARIABLE DEFINITION TABLE (@NVD+2) TO (MAXIMALLY)
+             61  *    THE BOTTOM OF THE VARIABLE STORAGE AREA (@NVS-2).
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0002
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+             62  *
+             63  * ERRORS:
+             64  *    IF THE PROGRAM RUNS OUT OF MEMORY WHILE TRYING TO
+             65  *    BUILD THE TABLE (STEP 1), THE POWER BASIC SYSTEM
+             66  *    RETURNS AN ERROR 10 - STORAGE OVERFLOW
+             67  *
+             68  * NOTE:
+             69  *    BEFORE RUNNING THE RENUM ROUTINE IT IS FIRST NECESSARY
+             70  *    TO MODIFY THE WAY VALUES 1 TO 9 ARE STORED INTERNALLY
+             71  *    (>64 - >6C) - THEY NEED TO BE STORED AS >6D >0001 TO
+             72  *    >6D >0009.  WHEN RENUMBERING IS COMPLETE THE REVERSE
+             73  *    OPERATION MUST BE PERFORMED.
+             74  *    IT IS NOT NECESSARY TO DO THIS FOR VALUES -1 AND 0
+             75  *    (>62 AND >63) AS THEY ARE NOT VALID LINE NUMBERS.
+             76  *    THIS REQUIRES EACH LINE IN THE PROGRAM TO BE 'LISTED
+             77  *    TO THE IOB' AND THE EDITOR INVOKED ON THE IOB (WITH
+             78  *    THE APPROPRIATE COMPRESSION/UNCOMPRESSION FLAG SET).
+             79  *
+             80  * CALLING SEQUENCE:
+             81  *
+             82  *      B    @RENUM
+             83  *
+             84  * DATA:
+             85  *
+             86  *      R0-R2     GENERAL
+             87  *      R3        CURRENT OPCODE
+             88  *      R4        TABLE POINTER
+             89  *      R5        SLT POINTER
+             90  *      R6        END OF AVAILABLE STORAGE
+             91  *      R7        NEW STATEMENT NUMBER
+             92  *      R8        PSEUDO CODE BYTE POINTER (PBC)
+             93  *
+             94  * STORE REF'D OPCODES (DEF'D IN EDIT)
+             95  *
+     0001'   96  GOTO   EQU  $+1
+0000 0000    97         DATA RNGOTO
+     0003'   98  GOSUB  EQU  $+1
+0002 0000    99         DATA RNGSUB
+     0005'  100  RSTR   EQU  $+1
+0004 0000   101         DATA RNRSTR
+     0007'  102  ON     EQU  $+1
+0006 0000   103         DATA RNON
+     0009'  104  INP    EQU  $+1
+0008 0000   105         DATA RNINP
+     000B'  106  ERR    EQU  $+1
+000A 0000   107         DATA RNERR
+     000D'  108  REM    EQU  $+1
+000C 0000   109         DATA RNREM
+     000F'  110  IF     EQU  $+1
+000E 0000   111         DATA RNIF
+     0011'  112  ELSE   EQU  $+1
+0010 0000   113         DATA RNELSE
+            114  *
+0012 45     115  QUOTE  BYTE >45
+0013 44     116  DQUOTE BYTE >44
+0014 47     117  EXCLAM BYTE >47
+0015 6D     118  INT2B  BYTE >6D
+0016 6E     119  HINT2B BYTE >6E
+0017 6F     120  FP6B   BYTE >6F
+0018 3C     121  CONCAT BYTE >3C
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0003
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+0019 3E     122  HASH   BYTE >3E
+001A 3F     123  COMMA  BYTE >3F
+001B 41     124  QUEST  BYTE >41
+001C 40     125  SEMCOL BYTE >40
+001D 38     126  TO     BYTE >38
+001E 3A     127  STEP   BYTE >3A
+001F 3B     128  THEN   BYTE >3B
+0020        129         EVEN
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0004
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+            131  *
+            132  * BEFORE EXECUTING THE RENUMBERING ROUTINE, UNCOMPRESS
+            133  * THE STORED PROGRAM FOR VALUES 1 TO 9.
+            134  *
+     0020'  135  RENUMS EQU  $
+0020 06A0   136         BL   @MODEOK           ABORT IF RUNNING !
+0022 0000 
+0024 0201   137         LI   R1,10             DEFAULT INCREMENT = 10
+0026 000A 
+0028 C081   138         MOV  R1,R2             DEFAULT NEW START = 10
+002A 9838   139         CB   *R8+,@STEP        ; 'STEP' ?
+002C 001E'
+002E 1308   140         JEQ  REN$1             ;Y, GET STEP
+0030 0608   141         DEC  R8                ;N, BACKUP
+0032 06A0   142         BL   @CKEX             ;EXPRESSION ?
+0034 0000 
+0036 1005   143         JMP  REN$2             ;N, TAKE DEFAULTS
+0038 2EC2   144         EVFIX R2               ;Y, GET START LINE #
+003A 9800   145         CB   R0,@STEP          ;'STEP' ?
+003C 001E'
+     003C'  146  B3A    EQU  $-2
+003E 1601   147         JNE  REN$2             ;N, TAKE DEFAULT STEP
+0040 2EC1   148  REN$1  EVFIX R1               ;Y, GET INCREMENT
+0042 C801   149  REN$2  MOV  R1,@RENINC        ;SAVE STEP SIZE
+0044 0000 
+0046 6081   150         S    R1,R2             ;BACKUP START
+0048 C802   151         MOV  R2,@RENSTA        ;SAVE START LINE
+004A 0000 
+            152  *
+004C 0720   153         SETO @ESCFLG           NO ESCAPE DURING RENUMBER
+004E 0000 
+0050 06A0   154         BL   @UNCOMP           UNCOMPRESS PROGRAM
+0052 02A0'
+0054 0000   155         DATA 0
+0056 C120   156         MOV  @NVD,R4           INITIALISE TABLE POINTER
+0058 0000 
+005A C1A0   157         MOV  @NVS,R6           SET R6 TO END OF AVAILABLE MEMORY
+005C 0000 
+005E 0226   158         AI   R6,-6             - 4 (FOR OVERFLOW TEST)
+0060 FFFA 
+0062 C0A0   159         MOV  @RENSTA,R2        INITIALISE STATEMENT #
+0064 004A'
+0066 C160   160         MOV  @VNT,R5           INITIALISE SLT PTR
+0068 0000 
+            161  *
+            162  * END OF LINE ENCOUNTERED - GET PBC OF NEXT LINE
+            163  *
+006A 0645   164  ENDLIN DECT R5
+006C 0645   165         DECT R5                TO NEXT LINE
+006E 8160   166         C    @SLT,R5           END OF PROGRAM?
+0070 0000 
+0072 1A4E   167         JL   SETUP
+            168  *
+            169  * END OF PROGRAM - UPDATE ALL PBC ENTRIES IN THE TABLE THAT
+            170  * CORRESPOND TO ACTUAL PROGRAM LINE #S; RENUMBER THE SLT
+            171  * ENTRIES; CHECK FOR NON-EXISTENT LINE #S; CLEAR DOWN THE
+            172  * TABLE AREA AND RETURN TO THE INTERPRETER
+            173  *
+0074 04D4   174         CLR  *R4               Y - PUT ZERO TO MARK END OF TABLE
+0076 C1E0   175         MOV  @RENSTA,R7        INITIALISE NEW STATEMENT #
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0005
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+0078 0064'
+007A C160   176         MOV  @VNT,R5           INITIALISE SLT POINTER
+007C 0068'
+007E 0645   177         DECT R5                POINT TO "FIRST LINE #"
+     0080'  178  RENST  EQU  $                 RENUMBER STATEMENT
+0080 A1E0   179         A    @RENINC,R7        INCREMENT STATEMENT #
+0082 0044'
+0084 0225   180         AI   R5,-4             POINT TO NEXT SLT ENTRY
+0086 FFFC 
+0088 8805   181         C    R5,@SLT           END OF PROGRAM?
+008A 0070'
+008C 1A11   182         JL   ENDRNS
+008E C120   183         MOV  @NVD,R4           N - INITIALISE TABLE POINTER
+0090 0058'
+     0092'  184  SCHTAB EQU  $                 SEARCH TABLE FOR STMT # MATCH
+0092 C514   185         MOV  *R4,*R4           END OF TABLE?
+0094 130B   186         JEQ  ENDSTB
+0096 8D15   187         C    *R5,*R4+          N - MATCH?
+0098 1607   188         JNE  SCHINC
+009A 0644   189         DECT R4                Y - BACK UP TO STATEMENT #
+009C 0534   190         NEG  *R4+              MARK AS DONE
+009E C014   191         MOV  *R4,R0            PUT NEW STMT NO IN STMT REF
+00A0 DC07   192         MOVB R7,*R0+           (MAY CROSS WORD BOUNDARY)
+00A2 06C7   193         SWPB R7
+00A4 D407   194         MOVB R7,*R0
+00A6 06C7   195         SWPB R7
+00A8 05C4   196  SCHINC INCT R4                POINT TO NEXT TABLE ENTRY
+00AA 10F3   197         JMP  SCHTAB            LOOP
+            198  *
+            199  * ALL TABLE ENTRIES CORRESPONDING TO THAT LINE # DONE.
+            200  * NOW UPDATE THE SLT ENTRY
+            201  *
+     00AC'  202  ENDSTB EQU  $
+00AC C547   203         MOV  R7,*R5            PUT NEW STMT NO IN SLT
+00AE 10E8   204         JMP  RENST             LOOP
+            205  *
+            206  * ALL SLT ENTRIES DONE. NOW CHECK FOR NON-EXISTENT LINE #S
+            207  * CLEAR DOWN TABLE AREA IN THE PROCESS
+            208  *
+     00B0'  209  ENDRNS EQU  $
+00B0 C120   210         MOV  @NVD,R4           REF TABLE
+00B2 0090'
+00B4 C014   211  CHECK  MOV  *R4,R0            GET STATEMENT # ENTRY
+00B6 1124   212         JLT  CHECKA            STATEMENT # = -VE
+00B8 1326   213         JEQ  CHCKND            STATEMENT # = 0 (FINISHED)
+00BA C064   214         MOV  @2(R4),R1         GET PBC ENTRY
+00BC 0002 
+00BE C160   215         MOV  @SLT,R5           GET END OF SLT
+00C0 008A'
+00C2 C0B5   216  CHECKB MOV  *R5+,R2           GET STATEMENT #
+00C4 C235   217         MOV  *R5+,R8           GET DISPLACEMENT INTO BUS
+00C6 A220   218         A    @BUS,R8           REF START OF STMT IN BUS
+00C8 0000 
+00CA 8201   219         C    R1,R8             PBC ENTRY IN THIS LINE?
+00CC 1AFA   220         JL   CHECKB            N - TRY NEXT LINE
+00CE 06A0   221         BL   @MOVEBN           Y - OUTPUT MSG TO IOB
+00D0 0000 
+00D2 0D0A   222         DATA >0D0A             CR LF
+00D4 42     223         TEXT -'Bad line No.('
+00D5 61   
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0006
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+00D6 64   
+00D7 20   
+00D8 6C   
+00D9 69   
+00DA 6E   
+00DB 65   
+00DC 20   
+00DD 4E   
+00DE 6F   
+00DF 2E   
+00E0 D8   
+00E2 2F40   224         OUTINT R0              OUT 'OFFENDING' STMT # TO IOB
+00E4 06A0   225         BL   @MOVELN           OUT MSG TO IOB
+00E6 0000 
+00E8 29     226         TEXT -')in new line '
+00E9 69   
+00EA 6E   
+00EB 20   
+00EC 6E   
+00ED 65   
+00EE 77   
+00EF 20   
+00F0 6C   
+00F1 69   
+00F2 6E   
+00F3 65   
+00F4 E0   
+00F6 2F42   227         OUTINT R2              OUT LINE # TO IOB
+00F8 06A0   228         BL   @MOVELN           NULL TERMINATE
+00FA 00E6'
+00FC 0000   229         DATA 0
+00FE 0000   230         DATA TYPB$             OUTPUT IOB
+0100 04F4   231  CHECKA CLR  *R4+              CLEAR STMT # ENTRY IN TABLE
+0102 04F4   232         CLR  *R4+              CLEAR PBC ENTRY IN TABLE
+0104 10D7   233         JMP  CHECK             BACK FOR NEXT ENTRY
+0106 06A0   234  CHCKND BL   @UNCOMP           COMPRESS PROGRAM
+0108 02A0'
+010A 0009   235  NINE   DATA 9
+010C 0460   236         B    @CRLF             RETURN TO INTERPRETER
+010E 0000 
+            237  *
+            238  * PROGRAM NOT EXHAUSTED - CONTINUE BUILDING TABLE ENTRIES
+            239  *
+0110 A0A0   240  SETUP  A    @RENINC,R2        INCREMENT STATEMENT #
+0112 0082'
+0114 C215   241         MOV  *R5,R8            SET UP PSEUDO CODE POINTER
+0116 A220   242         A    @BUS,R8           ADD PSEUDO CODE BASE
+0118 00C8'
+     011A'  243  GOTOTS EQU  $                 WHILE NOT END OF LINE
+011A D618   244         MOVB *R8,*R8           END OF LINE (0)?
+011C 13A6   245         JEQ  ENDLIN
+011E D0D8   246         MOVB *R8,R3            N - SAVE OPCODE
+            247  *
+            248  * GOTO OR GOSUB
+            249  *
+0120 9818   250         CB   *R8,@GOTO         GOTO?
+0122 0001'
+0124 1308   251         JEQ  T2COMB            Y - CHECK VALIDITY OF CODE FOLLOW
+0126 9818   252         CB   *R8,@GOSUB        GOSUB?
+0128 0003'
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0007
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+012A 1305   253         JEQ  T2COMB            Y - CHECK VALIDITY OF CODE FOLLOW
+012C 1012   254         JMP  TEST3             JUMP ROUND 'TRAP'
+     012E'  255  TS2LPE EQU  $                 SKIP "TO"
+012E 0588   256  T2COMA INC  R8
+            257  *
+            258  * TEST 2 COMMON CODE - ALSO USED BY TESTS 1, 3 & 6
+            259  * (CHECKS FOR VALID DELIMITER - 0, ::, ! )
+            260  *
+0130 9818   261  T2COM  CB   *R8,@INT2B        2 BYTE INTEGER?
+0132 0015'
+0134 166E   262         JNE  T2WARN            N - PRINT WARNING MSG
+0136 0588   263  T2COMB INC  R8
+0138 05C8   264         INCT R8                POINT TO DELIMITER
+013A D618   265         MOVB *R8,*R8           0?
+013C 1306   266         JEQ  TS2OK
+013E 9818   267         CB   *R8,@CONCAT       ::?
+0140 0018'
+0142 1303   268         JEQ  TS2OK
+0144 9818   269         CB   *R8,@EXCLAM       !?
+0146 0014'
+0148 1664   270         JNE  T2WARN            N - PRINT WARNING MSG
+014A 0648   271  TS2OK  DECT R8                POINT TO STMT REF
+014C 06A0   272         BL   @STORE            STORE IN TABLE
+014E 0282'
+0150 1052   273         JMP  TSTEND
+            274  *
+            275  * RESTOR
+            276  *
+0152 9818   277  TEST3  CB   *R8,@RSTR         RESTOR?
+0154 0005'
+0156 160D   278         JNE  TEST4
+0158 0588   279         INC  R8
+015A D618   280         MOVB *R8,*R8           RESTOR W/O LINE NO?
+015C 134C   281         JEQ  TSTEND
+015E 9818   282         CB   *R8,@CONCAT       ::?
+0160 0018'
+0162 1349   283         JEQ  TSTEND
+0164 9818   284         CB   *R8,@EXCLAM       !?
+0166 0014'
+0168 1346   285         JEQ  TSTEND
+016A 9818   286         CB   *R8,@HASH         #?
+016C 0019'
+016E 1343   287         JEQ  TSTEND
+0170 10DF   288         JMP  T2COM             MUST BE STMT EXPRESSION
+            289  *
+            290  * ON AND IF
+            291  *
+0172 9818   292  TEST4  CB   *R8,@ON           ON?
+0174 0007'
+0176 1303   293         JEQ  TS4LP
+0178 9818   294         CB   *R8,@IF           IF?
+017A 000F'
+017C 1629   295         JNE  TEST5
+017E 0588   296  TS4LP  INC  R8                SKIP EXPRESSION
+0180 9818   297  FIX2   CB   *R8,@THEN         THEN?
+0182 001F'
+0184 131A   298         JEQ  TS4LPE
+0186 9818   299         CB   *R8,@CONCAT       ':' ?
+0188 0018'
+018A 1317   300         JEQ  TS4LPE            Y, TREAT AS A 'THEN'
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0008
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+            301  *    SKIP NOS IN CASE THEY CONTAIN "THEN" P-CODE
+018C 9818   302         CB   *R8,@INT2B        2-BYTE INTEGER?
+018E 0015'
+0190 1309   303         JEQ  TS4INT
+0192 9818   304         CB   *R8,@HINT2B       2-BYTE HEX INTEGER?
+0194 0016'
+0196 1306   305         JEQ  TS4INT
+0198 9818   306         CB   *R8,@FP6B         6-BYTE FP NUMBER?
+019A 0017'
+019C 1605   307         JNE  FIX
+019E 0228   308         AI   R8,6              SKIP 6 BYTE FP NUMBER
+01A0 0006 
+01A2 10ED   309         JMP  TS4LP
+01A4 05C8   310  TS4INT INCT R8                SKIP 2 BYTE INTEGER
+01A6 10EB   311         JMP  TS4LP
+01A8 9818   312  FIX    CB   *R8,@QUOTE        '?
+01AA 0012'
+01AC 1303   313         JEQ  FIX1              Y
+01AE 9818   314         CB   *R8,@DQUOTE       "?
+01B0 0013'
+01B2 16E5   315         JNE  TS4LP             N - SKIP OVER CODE
+            316  *    STRING - SKIP OVER CHARACTERS UNTIL THE NULL
+            317  * NOTE: ASCII ';' SAME AS ENCODED 'THEN'
+01B4 D038   318  FIX1   MOVB *R8+,R0
+01B6 16FE   319         JNE  FIX1              NOT NULL - CONTINUE SKIP OP
+01B8 10E3   320         JMP  FIX2              NULL - CHECK NEXT CHAR
+01BA 0588   321  TS4LPE INC  R8                SKIP "THEN"
+01BC 9803   322         CB   R3,@IF            WAS THIS AN IF?
+01BE 000F'
+01C0 13AC   323         JEQ  GOTOTS            Y - TEST STMT
+01C2 0588   324  TES4LP INC  R8                N (ON) - SKIP GOTO
+01C4 06A0   325         BL   @STORE            STORE IN TABLE
+01C6 0282'
+01C8 9818   326         CB   *R8,@COMMA        ,?
+01CA 001A'
+01CC 1614   327         JNE  TSTEND            N - END OF STMT
+01CE 10F9   328         JMP  TES4LP            Y - INC PAST
+            329  *
+            330  * INPUT
+            331  *
+01D0 9818   332  TEST5  CB   *R8,@INP          INPUT?
+01D2 0009'
+01D4 130F   333         JEQ  SKPINC
+            334  *
+            335  * ERROR
+            336  *
+01D6 9818   337         CB   *R8,@ERR          ERROR STATEMENT?
+01D8 000B'
+01DA 13A9   338         JEQ  T2COMA
+            339  *
+            340  * REM
+            341  *
+01DC 9818   342         CB   *R8,@RNREM        REM?
+01DE 000C'
+01E0 1603   343         JNE  TEST8
+01E2 D038   344  STRING MOVB *R8+,R0           SKIP TO END OF LINE (0 BYTE)
+01E4 16FE   345         JNE  STRING
+01E6 1006   346         JMP  SKPINC
+            347  *
+            348  * ELSE
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0009
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+            349  *
+01E8 9818   350  TEST8  CB   *R8,@ELSE         ELSE?
+01EA 0011'
+01EC 1604   351         JNE  TSTEND
+01EE 0588   352  SKPNDA INC  R8                SKIP PAST
+01F0 1094   353  SKPEND JMP  GOTOTS            TEST SUBORDINATE STMT
+            354  *
+            355  *
+            356  *
+01F2 05C8   357  SKP2   INCT R8
+01F4 0588   358  SKPINC INC  R8
+     01F6'  359  TSTEND EQU  $
+            360  *
+     01F6'  361  SKIP   EQU  $                 SKIP TO END OF CURRENT STMT
+01F6 D618   362         MOVB *R8,*R8           0 (EOL)?
+01F8 13FB   363         JEQ  SKPEND            Y - TERMINATE SKIP
+01FA 9818   364         CB   *R8,@CONCAT       :: (EO STMT) ?
+01FC 0018'
+01FE 13F7   365         JEQ  SKPNDA            N
+            366  *
+            367  * CODE FOR INPUT'S ? - THEN CHECK FOR VALID DELIMITER
+            368  *
+0200 9818   369         CB   *R8,@QUEST        ??
+0202 001B'
+0204 1618   370         JNE  NTQST             N
+0206 9803   371         CB   R3,@INP           INPUT STMT?
+0208 0009'
+020A 1615   372         JNE  NTQST             N
+020C 0588   373         INC  R8                ? FOUND - CHECK STMT REF
+020E 9818   374         CB   *R8,@INT2B        2 BYTE INTEGER?
+0210 0015'
+0212 1626   375  T2WARN JNE  WARN              N - PRINT WARNING
+0214 0588   376         INC  R8
+0216 05C8   377         INCT R8                POINT TO DELIMITER
+0218 D618   378         MOVB *R8,*R8           0?
+021A 1397   379         JEQ  TS2OK
+021C 9818   380         CB   *R8,@CONCAT       ::?
+021E 0018'
+0220 1394   381         JEQ  TS2OK
+0222 9818   382         CB   *R8,@EXCLAM       !?
+0224 0014'
+0226 1391   383         JEQ  TS2OK
+0228 9818   384         CB   *R8,@COMMA        ,?
+022A 001A'
+022C 138E   385         JEQ  TS2OK
+022E 9818   386         CB   *R8,@SEMCOL       :?
+0230 001C'
+0232 1616   387         JNE  WARN
+0234 108A   388         JMP  TS2OK
+            389  *
+            390  * TEST FOR STRINGS
+            391  *
+     0236'  392  NTQST  EQU  $
+0236 9818   393         CB   *R8,@QUOTE        '?
+0238 0012'
+023A 13D3   394         JEQ  STRING            Y
+023C 9818   395         CB   *R8,@DQUOTE       "?
+023E 0013'
+0240 13D0   396         JEQ  STRING            Y
+0242 9818   397         CB   *R8,@EXCLAM       !? (STORED SAME AS STRING)
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0010
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+0244 0014'
+0246 13CD   398         JEQ  STRING
+            399  *
+            400  * TEST FOR NUMBERS
+            401  *
+0248 9818   402         CB   *R8,@INT2B        2 BYTE INTEGER?
+024A 0015'
+024C 13D2   403         JEQ  SKP2              Y
+024E 9818   404         CB   *R8,@HINT2B       2 BYTE HEX INTEGER?
+0250 0016'
+0252 13CF   405         JEQ  SKP2              Y
+0254 9818   406         CB   *R8,@FP6B         6 BYTE FP NUMBER?
+0256 0017'
+0258 16CD   407         JNE  SKPINC            N
+025A 0228   408         AI   R8,6              Y - SKIP NUMBER
+025C 0006 
+025E 10CB   409         JMP  SKIP
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0011
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+            411  *
+            412  * LINE NUMBERS AS EXPRESSIONS - OUTPUT WARNING MESSAGE
+            413  *
+0260 06A0   414  WARN   BL   @MOVEBN           PUT MESSAGE IN BUFFER
+0262 00D0'
+0264 0D0A   415         DATA >0D0A             CR LF
+0266 50     416         TEXT -'Problem with new line '
+0267 72   
+0268 6F   
+0269 62   
+026A 6C   
+026B 65   
+026C 6D   
+026D 20   
+026E 77   
+026F 69   
+0270 74   
+0271 68   
+0272 20   
+0273 6E   
+0274 65   
+0275 77   
+0276 20   
+0277 6C   
+0278 69   
+0279 6E   
+027A 65   
+027B E0   
+027C 2F42   417         OUTINT R2              OUT LINE # INTO IOB
+027E 00FE'  418         DATA TYPB$             OUTPUT BUFFER
+0280 10BA   419         JMP  TSTEND            FIND END OF STATEMENT
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0012
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+            421  *
+            422  * STORE STATEMENT NUMBER AND PBC ADDRESS IN TABLE
+            423  *
+0282 8106   424  STORE  C    R6,R4             STORAGE OVERFLOW?
+0284 1A06   425         JL   STOVFL
+0286 DD38   426         MOVB *R8+,*R4+         N - STORE STMT NO
+0288 DD18   427         MOVB *R8,*R4+          (CAN BE ODD BOUNDARY)
+028A 0608   428         DEC  R8
+028C CD08   429         MOV  R8,*R4+           STORE CURRENT PBC
+028E 05C8   430         INCT R8                POINT TO NEXT BYTE IN P-CODE
+0290 045B   431         B    *R11              RETURN
+            432  *
+            433  * OVERFLOW - CLEAR TABLE AREA THEN OUTPUT OVERFLOW MESSAGE.
+            434  * (RETURNS TO INTERPRETER)
+            435  *
+0292 C120   436  STOVFL MOV  @NVD,R4           INITIALISE TABLE POINTER
+0294 00B2'
+0296 05C6   437         INCT R6                SET R6 TO LAST WORD TO BE CLEARED
+0298 04F4   438  CLRLP  CLR  *R4+
+029A 8106   439         C    R6,R4             DONE?
+029C 14FD   440         JHE  CLRLP
+029E 2F8A   441         DATA ERROR+10          STORAGE OVERFLOW (ERROR 10)
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0013
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+            443  *
+            444  * THIS ROUTINE PERFORMS THE NECESSARY COMPRESSION/
+            445  * UNCOMPRESSION OF THE STORED PROGRAM
+            446  *
+            447  *      BL   @UNCOMP
+            448  *      DATA [FLAG]
+            449  *
+            450  *  FLAG = 0 THEN UNCOMPRESS
+            451  *       = 9 THEN COMPRESS
+            452  *       ANYTHING ELSE WILL CAUSE PROBLEMS!    (BIG ONES !!!)
+            453  *
+            454  *  RENLNE - LAST STATEMENT LINE NUMBER THAT WAS LISTED
+            455  *  RENCMP - COMPRESSION/UNCOMPRESSION FLAG (USED IN EDIT)
+            456  *
+02A0 C83B   457  UNCOMP MOV  *R11+,@RENCMP     GET COMPRESSION FLAG
+02A2 0000 
+02A4 C80B   458         MOV  R11,@RENRET       SAVE RETURN ADDRESS
+02A6 0000 
+02A8 04E0   459         CLR  @RENLNE           START AT THE FIRST LINE #
+02AA 0000 
+02AC 0720   460         SETO @DCNT             CLEAR INDENTATION COUNTER
+02AE 0000 
+02B0 C220   461  UNCMP1 MOV  @VNT,R8
+02B2 007C'
+02B4 0648   462         DECT R8                BACK UP TO SLT TERMINATOR
+02B6 8808   463  UNCMP2 C    R8,@SLT           REACHED END OF SLT?
+02B8 00C0'
+02BA 120F   464         JLE  UNCMP3            Y - RETURN TO CALLER
+02BC 0228   465         AI   R8,-4             N - GET NEXT LINE #
+02BE FFFC 
+02C0 8620   466         C    @RENLNE,*R8       RENLNE => LINE #?
+02C2 02AA'
+02C4 14F8   467         JHE  UNCMP2            Y - GOTO NEXT LINE
+02C6 C818   468         MOV  *R8,@RENLNE       N - SAVE CURRENT LINE #
+02C8 02C2'
+            469  *
+            470  * FOUND NEXT LINE TO BE COMPRESSED/UNCOMPRESSED
+            471  *
+02CA C1E0   472         MOV  @IOB,R7            REF IOB
+02CC 0000 
+02CE C078   473         MOV  *R8+,R1           GET LINE #; R8 REFS PBC ENTRY
+02D0 06A0   474         BL   @LSTL             LIST THIS LINE TO IOB
+02D2 0000 
+02D4 06A0   475         BL   @EDIT1            EDIT LINE IN IOB
+02D6 0000 
+            476  *
+            477  * SLT/VNT/ ETC MAY HAVE CHANGED - FIND THE NEXT LINE TO
+            478  * BE OPERATED ON (WHEN STATEMENT # ENTRY IN SLT > RENLNE)
+            479  *
+02D8 10EB   480         JMP  UNCMP1
+02DA C2E0   481  UNCMP3 MOV  @RENRET,R11       RESTORE RETURN ADDRESS
+02DC 02A6'
+02DE 045B   482         B    *R11              RETURN TO CALLING ROUTINE
+            483         END
+ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0014
+RENUMBER COMMAND - CORTEX BASIC REV. 1.1
+
+B3A        003C'  BUS        0118R  CHCKND     0106'  CHECK      00B4'  
+CHECKA     0100'  CHECKB     00C2'  CKEX       0034R  CLRLP      0298'  
+COMMA      001A'  CONCAT     0018'  CRLF       010ER  DCNT       02AER  
+DQUOTE     0013'  EDIT1      02D6R  ELSE       0011'  ENDLIN     006A'  
+ENDRNS     00B0'  ENDSTB     00AC'  ERR        000B'  ERROR      2F80   
+ESCFLG     004ER  EXCLAM     0014'  FIX        01A8'  FIX1       01B4'  
+FIX2       0180'  FP6B       0017'  GOSUB      0003'  GOTO       0001'  
+GOTOTS     011A'  HASH       0019'  HINT2B     0016'  IF         000F'  
+INP        0009'  INT2B      0015'  IOB        02CCR  LSTL       02D2R  
+MODEOK     0022R  MOVEB      0000R  MOVEBN     0262R  MOVEL      0000R  
+MOVELN     00FAR  NINE       010AD  NTQST      0236'  NVD        0294R  
+NVS        005CR  ON         0007'  QUEST      001B'  QUOTE      0012'  
+R0         0000   R1         0001   R10        000A   R11        000B   
+R12        000C   R13        000D   R14        000E   R15        000F   
+R2         0002   R3         0003   R4         0004   R5         0005   
+R6         0006   R7         0007   R8         0008   R9         0009   
+REM        000D'  REN$1      0040'  REN$2      0042'  RENCMP     02A2R  
+RENINC     0112R  RENLNE     02C8R  RENRET     02DCR  RENST      0080'  
+RENSTA     0078R  RENUMS     0020D  RNELSE     0010R  RNERR      000AR  
+RNGOTO     0000R  RNGSUB     0002R  RNIF       000ER  RNINP      0008R  
+RNON       0006R  RNREM      01DER  RNRSTR     0004R  RSTR       0005'  
+SCHINC     00A8'  SCHTAB     0092'  SEMCOL     001C'  SETUP      0110'  
+SKIP       01F6'  SKP2       01F2'  SKPEND     01F0'  SKPINC     01F4'  
+SKPNDA     01EE'  SLT        02B8R  STEP       001E'  STORE      0282'  
+STOVFL     0292'  STRING     01E2'  T2COM      0130'  T2COMA     012E'  
+T2COMB     0136'  T2WARN     0212'  TES4LP     01C2'  TEST3      0152'  
+TEST4      0172'  TEST5      01D0'  TEST8      01E8'  THEN       001F'  
+TO         001D'  TS2LPE     012E'  TS2OK      014A'  TS4INT     01A4'  
+TS4LP      017E'  TS4LPE     01BA'  TSTEND     01F6'  TYPB$      027ER  
+UNCMP1     02B0'  UNCMP2     02B6'  UNCMP3     02DA'  UNCOMP     02A0'  
+VNT        02B2R  WARN       0260'  
+
+0 Errors in assembly
