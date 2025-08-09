@@ -1,8 +1,8 @@
 # CortexPC
 
-*** THIS IS UNTESTED DO NOT BUILD ***
+![Board](images/image1.jpg)
 
-This is an ATX format implimentation of the Mini-Cortex system by Paul Ruizendaal and Stuart Conner.  The Mini-Cortex system is a further development of a TMS 9995 breadboard project to produce a system similar to a Powertran Cortex, but using more modern components. The system is based around a TMS 9995 running at 3 MHz, with 32K byte EEPROM, and will use 512K bytes of RAM  accessed through a memory mapper. An on-board serial port and IDE interface exists on the card.  There is also provisions for a TMS9918 clone, a keyboard and some expansion slots -- these are not supported by the firmware at this time however.
+This is an ATX format implimentation of the Mini-Cortex system by Paul Ruizendaal and Stuart Conner.  The Mini-Cortex system is a further development of a TMS 9995 breadboard project to produce a system similar to a Powertran Cortex, but using more modern components. The system is based around a TMS 9995 running at 3 MHz, with 32K byte EEPROM, and will use 512K bytes of RAM  accessed through a memory mapper. An on-board serial port and IDE interface exists on the card.  There is also provisions for a TMS9918 clone, a keyboard and some expansion slots -- these are not totally supported by the firmware at this time however.
 
 The main EEPROM image provides a boot menu which enables the user to select between the EVMBUG system monitor from TI's TMS 9995 Evaluation Module, a port of the Powertran Cortex Power BASIC made for a TM 990 computer, the Marinchip Disk Executive (MDEX) operating system, and an implementation of V6 Unix including a C compiler.
 
@@ -20,10 +20,10 @@ Memory Address	Mapped To
 >F000 - >F0FB	TMS 9995 internal RAM
 >F0FC - >FDFF	RAM
 >FE00 - >FE03	CF card ATA registers 
->FE10 - >FE13	SOUND
->FE20 - >FE23	Video
->FE30 - >FE33	Keyboard
+>FE08 - >FE08	SN76489 SOUND
+>FE20 - >FE21	Video
 >FE40 - >FE4F	Memory mapper registers 0-15 
+>FE60 - >FE7F	SID Chip
 >FE80 - >FEBF	Offboard IO (ports $80-$FF)
 >FFF0 - >FFF9	RAM
 >FFFA - >FFFF	TMS 9995 internal RAM
@@ -46,7 +46,21 @@ It can be problematic formatting a new card using Windows 10 as it does not alwa
 
 ## Jumper Settings
 ```
-
+  P6 - ATX Case Power Button
+  JP1- ATX Case Reset Button
+  JP3- SID Chip CS (Some SID replacement chips need 2-3, default 1-2)
+  J21- Enable SID Audio Amp
+  J20- SID Speaker Out
+  J22- SN76489 Audio Amp
+  J23- SN76489 Speaker Out
+  J1 - F18A TANG NANO Connector 
+  J4 - Serial Interrupt Enabled (Required for UNIX)
+  J5 - TTL Serial Interface
+  J6 - TTL Serial Power Enable
+  JP2- Enable Keyboard Interface
+  JP4- ATX Case IDE Led output
+  JP5- IDE Power Enable (2-3 for VCC on IDE Pin 20)
+  
 ```
 ## Powering up
 The serial port on the TMS9995 board is configured for 9600 Baud, 7 data bits, even parity, one stop bit, no flow control.
@@ -74,20 +88,8 @@ The first version of Unix ported was LSX Unix (https://www.mailcom.com/lsx/), wh
 
 
 ## Bugs/To Do
-
-* The power switch circuit is FUBAR.  The chips involved (u26, U27) need to be powered from 5vsb not 5v.  Best to leave out U26 & U27 when building V0.5 and just supply 5v to the appropriate pin on the ATX connector rather than using an atx power supply.
-
-* The ISA bus is also pretty messed up on V0.5.  The reset line that goes to the slots is active low when it should be active High.  The bus clock is also driven at an inappropriate speed, and it is important to leave U25 out of the system entirely as it drives the data bus improperly.  
-
-* B_INT cannot be left floating, it must be pulled low.
-
-* Test Video
-
-* Test SID
-
-* Test SN76489
-
-* Test Keyboard
+* No known bugs in V0.9
+* Keyboard Firmware needs created and tested
 
 
 ## Troubleshooting
@@ -101,6 +103,7 @@ The third test image has two versions.   The first version configures the serial
 
 
 ## Patches
+* none needed for V0.9
  
 ## BOM
 Reference|Value|Qty|Description
