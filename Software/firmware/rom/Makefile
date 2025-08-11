@@ -4,7 +4,7 @@ all:  	rom.bin bootsel.s19 mdexboot.s19 unixboot.S19 monitor.s19
 monitor.s19: monitor.asm
 	asm990  -l monitor.lst -o monitor.obj monitor.asm
 	lnk990 -a -o monitor.out monitor.obj
-	srec_cat  monitor.out -binary -exclude 0x0000 0x0012 -offset -0x0012 -o monitor.s19 -Data_Only
+	srec_cat  monitor.out -binary -exclude 0x0000 0x0010 -offset -0x0010 -o monitor.s19 -Data_Only
 
 bootsel.s19: bootsel.asm
 	asm990  -l bootsel.lst -o bootsel.obj bootsel.asm
@@ -22,8 +22,8 @@ unixboot.S19: unixboot.asm
 	srec_cat  unixboot.out -binary -exclude 0x0000 0x0012 -offset 0x7AEE -o unixboot.s19 -Data_Only
 
 
-rom.bin: bootsel.s19 mdexboot.s19 unixboot.S19
-	srec_cat  bootsel.s19 mdexboot.s19 unixboot.S19 -o rom.bin -binary
+rom.bin: bootsel.s19 mdexboot.s19 unixboot.S19 monitor.s19
+	srec_cat  monitor.s19 bootsel.s19 mdexboot.s19 unixboot.S19 -o rom.bin -binary
 
 
 pretty:
