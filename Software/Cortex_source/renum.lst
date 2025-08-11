@@ -1,4 +1,4 @@
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0001
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
               2         IDT  'RENUM'
@@ -61,7 +61,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
              59  *    DATA AREA FOR THE TABLE IS TAKEN FROM THE TOP OF THE
              60  *    VARIABLE DEFINITION TABLE (@NVD+2) TO (MAXIMALLY)
              61  *    THE BOTTOM OF THE VARIABLE STORAGE AREA (@NVS-2).
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0002
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
              62  *
@@ -124,7 +124,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 0016 6E     119  HINT2B BYTE >6E
 0017 6F     120  FP6B   BYTE >6F
 0018 3C     121  CONCAT BYTE >3C
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0003
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0003
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
 0019 3E     122  HASH   BYTE >3E
@@ -135,7 +135,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 001E 3A     127  STEP   BYTE >3A
 001F 3B     128  THEN   BYTE >3B
 0020        129         EVEN
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0004
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0004
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
             131  *
@@ -198,7 +198,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
             173  *
 0074 04D4   174         CLR  *R4               Y - PUT ZERO TO MARK END OF TABLE
 0076 C1E0   175         MOV  @RENSTA,R7        INITIALISE NEW STATEMENT #
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0005
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0005
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
 0078 0064'
@@ -261,7 +261,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 00D2 0D0A   222         DATA >0D0A             CR LF
 00D4 42     223         TEXT -'Bad line No.('
 00D5 61   
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0006
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0006
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
 00D6 64   
@@ -324,7 +324,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 0124 1308   251         JEQ  T2COMB            Y - CHECK VALIDITY OF CODE FOLLOW
 0126 9818   252         CB   *R8,@GOSUB        GOSUB?
 0128 0003'
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0007
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0007
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
 012A 1305   253         JEQ  T2COMB            Y - CHECK VALIDITY OF CODE FOLLOW
@@ -387,7 +387,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 0186 9818   299         CB   *R8,@CONCAT       ':' ?
 0188 0018'
 018A 1317   300         JEQ  TS4LPE            Y, TREAT AS A 'THEN'
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0008
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0008
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
             301  *    SKIP NOS IN CASE THEY CONTAIN "THEN" P-CODE
@@ -450,7 +450,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 01E6 1006   346         JMP  SKPINC
             347  *
             348  * ELSE
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0009
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0009
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
             349  *
@@ -513,7 +513,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 023E 0013'
 0240 13D0   396         JEQ  STRING            Y
 0242 9818   397         CB   *R8,@EXCLAM       !? (STORED SAME AS STRING)
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0010
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0010
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
 0244 0014'
@@ -533,7 +533,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 025A 0228   408         AI   R8,6              Y - SKIP NUMBER
 025C 0006 
 025E 10CB   409         JMP  SKIP
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0011
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0011
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
             411  *
@@ -567,7 +567,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 027C 2F42   417         OUTINT R2              OUT LINE # INTO IOB
 027E 00FE'  418         DATA TYPB$             OUTPUT BUFFER
 0280 10BA   419         JMP  TSTEND            FIND END OF STATEMENT
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0012
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0012
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
             421  *
@@ -592,7 +592,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 029A 8106   439         C    R6,R4             DONE?
 029C 14FD   440         JHE  CLRLP
 029E 2F8A   441         DATA ERROR+10          STORAGE OVERFLOW (ERROR 10)
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0013
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0013
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
             443  *
@@ -649,7 +649,7 @@ RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 02DC 02A6'
 02DE 045B   482         B    *R11              RETURN TO CALLING ROUTINE
             483         END
-ASM990 2.4.6     RENUM                      Sun Jul 20 19:28:50 2025 Page 0014
+ASM990 2.4.6     RENUM                      Sun Aug 10 23:07:34 2025 Page 0014
 RENUMBER COMMAND - CORTEX BASIC REV. 1.1
 
 B3A        003C'  BUS        0118R  CHCKND     0106'  CHECK      00B4'  

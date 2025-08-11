@@ -1,4 +1,4 @@
-ASM990 2.4.6     RANDOM                     Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     RANDOM                     Sun Aug 10 23:07:34 2025 Page 0001
 RANDOM STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT  'RANDOM'
@@ -29,7 +29,7 @@ RANDOM STATEMENT - CORTEX BASIC REV. 1.1
 0004 0460    26         B    @NLIN
 0006 0000 
              27         END
-ASM990 2.4.6     RANDOM                     Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     RANDOM                     Sun Aug 10 23:07:34 2025 Page 0002
 RANDOM STATEMENT - CORTEX BASIC REV. 1.1
 
 NLIN      0006R  R0        0000   R1        0001   R10       000A   

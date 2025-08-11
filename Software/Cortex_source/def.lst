@@ -1,4 +1,4 @@
-ASM990 2.4.6     DEF                        Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     DEF                        Sun Aug 10 23:07:32 2025 Page 0001
 DEF STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT  'DEF'
@@ -20,7 +20,7 @@ DEF STATEMENT - CORTEX BASIC REV. 1.1
              18  * CALLING SEQUENCE:
              19  *
              20  *       B @DEFY
-ASM990 2.4.6     DEF                        Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     DEF                        Sun Aug 10 23:07:32 2025 Page 0002
 DEF STATEMENT - CORTEX BASIC REV. 1.1
 
              22  *
@@ -52,7 +52,7 @@ DEF STATEMENT - CORTEX BASIC REV. 1.1
 0020 0460    45  DEF2   B    @LINE             ;GOTO NEXT LINE
 0022 0000 
              46         END
-ASM990 2.4.6     DEF                        Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     DEF                        Sun Aug 10 23:07:32 2025 Page 0003
 DEF STATEMENT - CORTEX BASIC REV. 1.1
 
 B56      0010R  DEF1     000C'  DEF2     0020'  DEFY     0000D  LINE     0022R  

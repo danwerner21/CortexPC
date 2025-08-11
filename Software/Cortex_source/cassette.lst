@@ -1,4 +1,4 @@
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0001
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
               2         IDT  'CASSETTE'
@@ -52,7 +52,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
              50  *DH$END EQU  $            END OF DUMMY HEADER
              51  ****************
              52         COPY 'IODEFS.INC'
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0002
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
               2C *
@@ -115,7 +115,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
              59C *      EQU  PRMPOP+7
              60C *EDATA EQU  PRMPOP+8
      0210    61C EPADR  EQU  PRMPOP+16
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0003
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
              62C *
@@ -178,7 +178,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
              53  *
              54  *   WORKSPACE       :
              55  *   ROUTINE(S)      :
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0004
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0004
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
              56  *   REGISTER USAGE  :
@@ -237,7 +237,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 002C C220   104         MOV  @IOB,R8           GET ITS START
 002E 0000 
 0030 1016   105         JMP  SAV0              DO SAVE
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0005
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0005
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
             107  *
@@ -300,7 +300,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 0092 8044   150         C    R4,R1             DONE
 0094 1AFD   151         JL   SAV5              N, LOOP
             152  *
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0006
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0006
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
             153  *      NOW DUMP TO TAPE
@@ -363,7 +363,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 0100 0000   196         DATA CMOF$             TURN TAPE OFF
 0102 C803   197         MOV  R3,@UNIT          RESTORE UNIT FLAGS
 0104 00B6'
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0007
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0007
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
 0106 04E0   198         CLR  @PLF              RESET PROGRAM LOAD FLAG  
@@ -371,7 +371,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 010A 045A   199         B    *R10              AND EXIT
             200  *
 010C 00C8   201  D200   DATA 200               TWO SECOND WAIT FOR TAPE M/C
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0008
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0008
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
             203  *
@@ -434,7 +434,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 0142 05A0   252  LDPY0A INC  @PLF              PLF=1 NON DESTRUCTIVE ESC.
 0144 0108'
 0146 06A0   253         BL   @SET02            GO SET UP 9902
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0009
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0009
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
 0148 028E'
@@ -497,7 +497,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
             302  *      IS IT THE ONE WE ARE LOOKING FOR ?
             303  *
 01A8 0200   304         LI   R0,8              MAX 8 BYTES
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0010
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0010
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
 01AA 0008 
@@ -560,7 +560,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
             354  *  TAPE LOAD ERROR - ERROR & ABORT
             355  *
 0200 C3CF   356  ABORT  MOV  R15,R15           M/C LOAD?
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0011
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0011
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
 0202 1302   357         JEQ  LDERR             Y, JUST ERROR IT
@@ -618,7 +618,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 0258 0000 
 025A 02CF   394         STST R15               SAVE STATUS
 025C 10E2   395         JMP  LOAD8
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0012
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0012
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
             397  *
@@ -680,7 +680,7 @@ CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
             446  *
 02A2 04D0   447  CBRATE DATA >04D0             300 BAUD CASSETTE
             448         END
-ASM990 2.4.6     CASSETTE                   Sun Jul 20 19:28:48 2025 Page 0013
+ASM990 2.4.6     CASSETTE                   Sun Aug 10 23:07:32 2025 Page 0013
 CASSETTE LOAD/SAVE - CORTEX BASIC REV. 1.1
 
 ABORT     0200'  ADDROK    000A'  AUTORN    006CR  B43       0298R  

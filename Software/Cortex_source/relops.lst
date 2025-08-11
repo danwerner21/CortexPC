@@ -1,4 +1,4 @@
-ASM990 2.4.6     RELOPS                     Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     RELOPS                     Sun Aug 10 23:07:35 2025 Page 0001
 RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
 
               2         IDT  'RELOPS'
@@ -30,7 +30,7 @@ RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
              28  *
              29  *      NORMAL EXIT - RETURN
              30  *
-ASM990 2.4.6     RELOPS                     Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     RELOPS                     Sun Aug 10 23:07:35 2025 Page 0002
 RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
 
              32  *
@@ -53,7 +53,7 @@ RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
 0016 0202    48  ANDF3  LI   R2,FPAC
 0018 0000 
 001A 045B    49         RT
-ASM990 2.4.6     RELOPS                     Sun Jul 20 19:28:50 2025 Page 0003
+ASM990 2.4.6     RELOPS                     Sun Aug 10 23:07:35 2025 Page 0003
 RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
 
              51  * ABSTRACT:
@@ -86,7 +86,7 @@ RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
 002A C0D2    78         MOV  *R2,R3
 002C 16F2    79         JNE  ANDF2
 002E 10F3    80         JMP  ANDF3             ;RESULT=0
-ASM990 2.4.6     RELOPS                     Sun Jul 20 19:28:50 2025 Page 0004
+ASM990 2.4.6     RELOPS                     Sun Aug 10 23:07:35 2025 Page 0004
 RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
 
              82  * ABSTRACT:
@@ -110,7 +110,7 @@ RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
 0038 13EC   100         JEQ  ANDF2
 003A 10ED   101         JMP  ANDF3
             102         END
-ASM990 2.4.6     RELOPS                     Sun Jul 20 19:28:50 2025 Page 0005
+ASM990 2.4.6     RELOPS                     Sun Aug 10 23:07:35 2025 Page 0005
 RELATIONAL OPERATORS - CORTEX BASIC REV. 1.1
 
 ANDF      0000D  ANDF1     000A'  ANDF2     0012'  ANDF3     0016'  

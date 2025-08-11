@@ -1,4 +1,4 @@
-ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0001
+ASM990 2.4.6     EXTEND                     Sun Aug 10 23:07:36 2025 Page 0001
 EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
 
               2         IDT  'EXTEND'
@@ -23,7 +23,7 @@ EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
      2FA0    21  ERROR2 EQU  ERROR+>20
              22  *
              23         COPY 'IODEFS.INC'
-ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0002
+ASM990 2.4.6     EXTEND                     Sun Aug 10 23:07:36 2025 Page 0002
 EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
 
               2C *
@@ -86,7 +86,7 @@ EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
              59C *      EQU  PRMPOP+7
              60C *EDATA EQU  PRMPOP+8
      0210    61C EPADR  EQU  PRMPOP+16
-ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0003
+ASM990 2.4.6     EXTEND                     Sun Aug 10 23:07:36 2025 Page 0003
 EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
 
              62C *
@@ -149,7 +149,7 @@ EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
              24         DEF  XFRPM,EXTNDY
              25  *
              26         REF  WPR2,EXTWP,C10,EXT$ID,LINE,CONFIG
-ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0004
+ASM990 2.4.6     EXTEND                     Sun Aug 10 23:07:36 2025 Page 0004
 EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
 
              27  *
@@ -199,7 +199,7 @@ EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
 0042 03C0    62  XF2    CKOF                   DISABLE MAPPER
 0044 C700    63         MOV  R0,*R12           RESTORE MAP REG 2
 0046 0380    64         RTWP                   EXIT
-ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0005
+ASM990 2.4.6     EXTEND                     Sun Aug 10 23:07:36 2025 Page 0005
 EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
 
              66  *
@@ -262,7 +262,7 @@ EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
 006A 2000 
 006C 8832   119         C    *R2+,@EXT$ID      EXPANSION FOUND?
 006E 0000 
-ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0006
+ASM990 2.4.6     EXTEND                     Sun Aug 10 23:07:36 2025 Page 0006
 EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
 
 0070 1620   120         JNE  EXT7              N, TRY NEXT 4K
@@ -311,7 +311,7 @@ EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
 00BE C58E   157         MOV  R14,*R6           RESTORE MAPPER REGISTER
 00C0 2FA0   158         DATA ERROR2,41         EXPANSION EPROM NOT FOUND
             159         END
-ASM990 2.4.6     EXTEND                     Sun Jul 20 19:28:52 2025 Page 0007
+ASM990 2.4.6     EXTEND                     Sun Aug 10 23:07:36 2025 Page 0007
 EXTENDED COMMAND HANDLER - CORTEX BASIC REV. 1.1
 
 BELLON     0006   BTENBL     0003   BUSACK     0002   BUSINT     0007   

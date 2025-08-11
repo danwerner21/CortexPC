@@ -1,4 +1,4 @@
-ASM990 2.4.6     SQRF                       Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     SQRF                       Sun Aug 10 23:07:36 2025 Page 0001
 SQUARE ROOT FUNCTION - CORTEX BASIC REV. 1.1
 
               2         IDT  'SQRF'
@@ -61,7 +61,7 @@ SQUARE ROOT FUNCTION - CORTEX BASIC REV. 1.1
 0010 4000 
 0012 6040    57         S    R0,R1             ;UNBIAS OLD EXPONENT
 0014 D800    58         MOVB R0,@FPAC          ;LOAD EXPONENT
-ASM990 2.4.6     SQRF                       Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     SQRF                       Sun Aug 10 23:07:36 2025 Page 0002
 SQUARE ROOT FUNCTION - CORTEX BASIC REV. 1.1
 
 0016 0000 
@@ -116,7 +116,7 @@ SQUARE ROOT FUNCTION - CORTEX BASIC REV. 1.1
 0064 4080    94  SQRC3  DATA >4080,>0000,>0000 ;0.5
 006A 4140    95  FP4    DATA >4140,>0000,>0000 ;4.0
              96         END
-ASM990 2.4.6     SQRF                       Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     SQRF                       Sun Aug 10 23:07:36 2025 Page 0003
 SQUARE ROOT FUNCTION - CORTEX BASIC REV. 1.1
 
 C8000     0050R  DS        0038R  ERR25     0056'  ERROR     2F80   

@@ -1,4 +1,4 @@
-ASM990 2.4.6     POWF                       Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     POWF                       Sun Aug 10 23:07:36 2025 Page 0001
 POWER FUNCTIONS - CORTEX BASIC REV. 1.1
 
               2         IDT  'POWF'
@@ -16,7 +16,7 @@ POWER FUNCTIONS - CORTEX BASIC REV. 1.1
              14         DXOP FLOATF,10         ;FLOAT FPAC
              15         REF  TEMP,TEMP6        ;TEMPORARY STORAGE
              16         DEF  POWF
-ASM990 2.4.6     POWF                       Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     POWF                       Sun Aug 10 23:07:36 2025 Page 0002
 POWER FUNCTIONS - CORTEX BASIC REV. 1.1
 
              18  * ABSTRACT:
@@ -61,7 +61,7 @@ POWER FUNCTIONS - CORTEX BASIC REV. 1.1
 001E 0460    51         B    @EVOP3A
 0020 0000 
              52         END
-ASM990 2.4.6     POWF                       Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     POWF                       Sun Aug 10 23:07:36 2025 Page 0003
 POWER FUNCTIONS - CORTEX BASIC REV. 1.1
 
 EVOP3A     0020R  EXPF       0018R  LOGF       0008R  POWF       0000D  

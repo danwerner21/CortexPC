@@ -1,4 +1,4 @@
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0001
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0001
 MID HANDLER - CORTEX BASIC REV. 1.1
 
               2         IDT  'MID'
@@ -43,7 +43,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
              41         REF  EREGS,ECHOEN,IREGS,WENTRY,RENTRY
              42         REF  MREGS,MENTRY,XOPENT
              43         COPY 'IODEFS.INC'
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0002
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0002
 MID HANDLER - CORTEX BASIC REV. 1.1
 
               2C *
@@ -106,7 +106,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
              59C *      EQU  PRMPOP+7
              60C *EDATA EQU  PRMPOP+8
      0210    61C EPADR  EQU  PRMPOP+16
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0003
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0003
 MID HANDLER - CORTEX BASIC REV. 1.1
 
              62C *
@@ -169,7 +169,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
      0000    44  MBIAS  EQU  >0000             NORMAL MID
              45  *
 0000 0300    46  MIDPC  LIMI 3                 NO I/O INTERRUPTS
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0004
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0004
 MID HANDLER - CORTEX BASIC REV. 1.1
 
 0002 0003 
@@ -232,7 +232,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
 0068 A2CD    89         A    R13,R11           R11 = ADDRESS OF REGISTER
 006A C228    90         MOV  @FMTTYP(8),R8     GET ADDRESS OF Ts HANDLER
 006C 0070'
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0005
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0005
 MID HANDLER - CORTEX BASIC REV. 1.1
 
 006E 0458    91         B    *R8               GOTO ROUTINE
@@ -284,7 +284,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
 00BE 00BA'  131         DATA IREGS,RENTRY      CHARACTER READ
 00C2 00B2'  132         DATA XREGS,MENTRY      MESSAGE OUTPUT
 00C6 0000   133         DATA MREGS,XOPENT      BREAKPOINT ENTRY
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0006
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0006
 MID HANDLER - CORTEX BASIC REV. 1.1
 
      00C8'  135  MIDTAB EQU  $-2                       0 - RESERVED MID
@@ -332,7 +332,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
      0015   177  CMOF$  EQU  ($-MIDTAB/2)+MBIAS       15 - CASSETTE OFF
 00F2 0238'  178         DATA ECMOF
      0015   179  MAXMID EQU  $-MIDTAB-2/2      HIGHEST SYSTEM MID
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0007
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0007
 MID HANDLER - CORTEX BASIC REV. 1.1
 
             181  *
@@ -395,7 +395,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
 0122 C2BE   232  ETYPS  MOV  *R14+,R10         GET INLINE ADDRESS & BUMP PC
             233  *   FALL THROUGH TO ETYP0
             234  *
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0008
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0008
 MID HANDLER - CORTEX BASIC REV. 1.1
 
             235  * NOW OUTPUT STRING *R10 (TERMINATED BY A NULL)
@@ -431,7 +431,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
 015A 06A0   261         BL   @DSRGO            Y, OUT BUFFER SO FAR
 015C 0182'
 015E 10E2   262         JMP  TYPE0             & CONTINUE
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0009
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0009
 MID HANDLER - CORTEX BASIC REV. 1.1
 
             264  *
@@ -464,7 +464,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
 017C 06A0   287         BL   @WAIT1            DELAY
 017E 0168'
 0180 0380   288         RTWP                   & EXIT
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0010
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0010
 MID HANDLER - CORTEX BASIC REV. 1.1
 
             290  *
@@ -527,7 +527,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
             333  *         R9   = OUTPUT BUFFER START
             334  *         R10  = OUTPUT BUFFER END 
             335  *         R11  = POINTER TO LOCAL STORAGE 
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0011
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0011
 MID HANDLER - CORTEX BASIC REV. 1.1
 
             336  *         R13-15 RETURN CONTEXT
@@ -542,7 +542,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
 01E8 0016 
 01EA 0410   343         BLWP *R0               CALL HANDLER
 01EC 10ED   344         JMP  DSRGO1            NEXT ENTRY
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0012
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0012
 MID HANDLER - CORTEX BASIC REV. 1.1
 
             346  *
@@ -605,7 +605,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
             399  *      FLUSH THE INPUT BUFFER ( R4 IS CLEARED )
             400  *
 0204 0208   401  EFLUSH LI   R8,RBUF           Y, GET START OF BUFFER
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0013
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0013
 MID HANDLER - CORTEX BASIC REV. 1.1
 
 0206 0000 
@@ -646,7 +646,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
 0242 3220   430         LDCR @B62,8            2 STOP,EV PAR,7 BITS,/3 CLOCK
 0244 0000 
 0246 10DE   431         JMP  EFLUSH            FLUSH BUFFER & EXIT
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0014
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0014
 MID HANDLER - CORTEX BASIC REV. 1.1
 
             433  ************************************************************
@@ -676,7 +676,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
 0256 04DD   454         CLR  *R13              N, CLEAR CALLERS R0
 0258 D758   455         MOVB *R8,*R13          COPY THE CHARACTER OVER
 025A 10E7   456         JMP  GETC4             AND EXIT @2(R14)
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0015
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0015
 MID HANDLER - CORTEX BASIC REV. 1.1
 
             458  ************************************************************
@@ -739,7 +739,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
             498  *
             499  *              SET VDP FOR GRAPHIC 2 MODE
             500  *
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0016
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0016
 MID HANDLER - CORTEX BASIC REV. 1.1
 
             501  *
@@ -802,7 +802,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
 0310 058B   544  SGRA1  INC  R11               NEXT PATTERN
 0312 06CB   545         SWPB R11               POSITION LS BYTE
 0314 D80B   546         MOVB R11,@VRAM         WRITE IT
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0017
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0017
 MID HANDLER - CORTEX BASIC REV. 1.1
 
 0316 F120 
@@ -853,7 +853,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
             575  *
 0366 D0     576  BD0    BYTE >D0
 0368        577         EVEN
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0018
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0018
 MID HANDLER - CORTEX BASIC REV. 1.1
 
             579  *
@@ -882,7 +882,7 @@ MID HANDLER - CORTEX BASIC REV. 1.1
 0386 86DB   598         C    *R11,*R11         DUMY DELAY FOR VDP
 0388 045B   599         RT                     RETURN TO CALLER
             600         END
-ASM990 2.4.6     MID                        Sun Jul 20 19:28:47 2025 Page 0019
+ASM990 2.4.6     MID                        Sun Aug 10 23:07:32 2025 Page 0019
 MID HANDLER - CORTEX BASIC REV. 1.1
 
 B00      0332R  B1B      0224R  B20      029CR  B62      0244R  BADMID   002E'  

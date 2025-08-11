@@ -1,4 +1,4 @@
-ASM990 2.4.6     RNDF                       Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     RNDF                       Sun Aug 10 23:07:36 2025 Page 0001
 RANDOM FUNCTION - CORTEX BASIC REV. 1.1
 
               2         IDT  'RNDF'
@@ -20,7 +20,7 @@ RANDOM FUNCTION - CORTEX BASIC REV. 1.1
              18  *       X[N+1] = (X[N] * A + C) MOD 2^16
              19  *
              20  * USE MOST SIGNIFICANT K-BITS IF <16 ARE REQUIRED
-ASM990 2.4.6     RNDF                       Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     RNDF                       Sun Aug 10 23:07:36 2025 Page 0002
 RANDOM FUNCTION - CORTEX BASIC REV. 1.1
 
              22  * CALLING SEQUENCE:
@@ -72,7 +72,7 @@ RANDOM FUNCTION - CORTEX BASIC REV. 1.1
 002C 0460    62          B @FNRM         ;NORMALIZE
 002E 0000 
              63          END
-ASM990 2.4.6     RNDF                       Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     RNDF                       Sun Aug 10 23:07:36 2025 Page 0003
 RANDOM FUNCTION - CORTEX BASIC REV. 1.1
 
 FNRM     002ER  FPWP     0018R  R0       0000   R1       0001   R10      000A   

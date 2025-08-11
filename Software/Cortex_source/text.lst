@@ -1,9 +1,9 @@
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0001
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0001
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
               2         IDT  'TEXT'
               3         COPY 'IODEFS.INC'
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0002
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0002
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
               2C *
@@ -66,7 +66,7 @@ TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
              59C *      EQU  PRMPOP+7
              60C *EDATA EQU  PRMPOP+8
      0210    61C EPADR  EQU  PRMPOP+16
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0003
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0003
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
              62C *
@@ -129,7 +129,7 @@ TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
               4         DEF  B4A,B0D,B1B,B2E,B56,B62,CRDELY
               5         DEF  IDRUN,MBEGN,MCRLF,MPRDY,STRTC,B00
               6         DEF  EXT$ID,CPYST,B3C,B3A,BFA,BF1,B4C,B47
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0004
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0004
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
               7         DEF  CASRDY,CRLF1T,CRLF2T,SYSERR
@@ -192,7 +192,7 @@ TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 002C 62      64  B62    BYTE >62               'b'
 002D F1      65  BF1    BYTE >F1
      0017'   66  B7F    EQU  C7F+1             CURSOR CHARACTER
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0005
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0005
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
              67  *
@@ -228,7 +228,7 @@ TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
      00A5'   97  B3A    EQU  $                 ':'
 00A5 3A      98  INM3   TEXT ': '
 00A7 00      99         BYTE 0
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0006
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0006
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
             101  ************************************************************
@@ -281,7 +281,7 @@ TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 010F 00     148         BYTE 0
 0110 49     149  BADTER TEXT -'Illegal terminator'
 0122 49     150  BADADR TEXT -'Invalid address'
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0007
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0007
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
             152  ***********************************************************
@@ -344,7 +344,7 @@ TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 015C 6000 
 015E 1AF2   206         JL   L0                N, LOOP
 0160 04C1   207         CLR  R1
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0008
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0008
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
             208X        ASMIF PIO
@@ -407,7 +407,7 @@ TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 01AE 0000 
 01B0 0642   254  START1 DECT R2                BACKUP POINTER
 01B2 C484   255         MOV  R4,*R2            WRITE
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0009
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0009
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
 01B4 8484   256         C    R4,*R2            O.K. ?
@@ -470,7 +470,7 @@ TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 0204 04E7   302  NODEV  CLR  @-2(R7)           DELETE TABLE ENTRY
 0206 FFFE 
 0208 10EF   303         JMP  NXTDEV            DO NEXT DEVICE
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0010
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0010
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
             304  *
@@ -479,7 +479,7 @@ TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 020C 0000 
 020E 0460   307         B    @SETVEC           SET CRITICAL SYSTEM POINTERS
 0210 0000 
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0011
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0011
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
      0212'  309  CPYST  EQU  $
@@ -541,7 +541,7 @@ TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
             365X  SPLAT !!! - SCRATCH BUFFER IS TOO SMALL
             366         ASMEND
             367         END
-ASM990 2.4.6     TEXT                       Sun Jul 20 19:28:52 2025 Page 0012
+ASM990 2.4.6     TEXT                       Sun Aug 10 23:07:36 2025 Page 0012
 TEXT & CONSTANTS - CORTEX BASIC REV. 1.1
 
 ASKBP    00D8D  AUTORN   0089D  B00      0057D  B0D      002ED  B1B      0027D  

@@ -1,4 +1,4 @@
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0001
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
               2         IDT  'VDP'
@@ -23,7 +23,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
      2F80    21  ERROR  EQU  >2F80
      2FA0    22  ERROR2 EQU  ERROR+>20
              23         COPY 'IODEFS.INC'
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0002
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
               2C *
@@ -86,7 +86,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
              59C *      EQU  PRMPOP+7
              60C *EDATA EQU  PRMPOP+8
      0210    61C EPADR  EQU  PRMPOP+16
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0003
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
              62C *
@@ -146,7 +146,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
             116C *
      F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
             118C *
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0004
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0004
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
              25  *
@@ -209,7 +209,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 0048 F120 
 004A C618    72         MOV  *R8,*R8      <<< SLOW THE BLOODY THING DOWN >>>
 004C 0A20    73         SLA  R0,2         DONE?
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0005
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0005
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
 004E 16FB    74         JNE  GREAD        N, LOOP
@@ -227,7 +227,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 0064 0A20    83         SLA  R0,2         DONE?
 0066 16FB    84         JNE  GWRIT        N, LOOP
 0068 103E    85         JMP  PUTXIT       Y, EXIT
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0006
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0006
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
              87  *
@@ -290,7 +290,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 00B6 0608   133         DEC  R8           DONE?
 00B8 16FB   134         JNE  RSHAPE       N, LOOP
             135  *
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0007
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0007
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
 00BA C201   136         MOV  R1,R8        GET CURSOR ADDRESS IN R8
@@ -320,7 +320,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 00E8 101E   153         JMP  FNLIN0       AND EXIT
             154  *
 00EA 1065   155  ERR15A JMP  ERR15        "DISP TOO BIG"
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0008
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0008
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
             157  *
@@ -365,7 +365,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
             195  *
 00F2 0000   196  GRAPHY DATA SETGRA            SET GRAPHIC 2 MODE
 00F4 10FC   197         JMP  TGEXIT
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0009
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0009
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
             199  *
@@ -428,7 +428,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 012C 0201   250         LI   R1,PCHTB          POINT TO START OF C. SET
 012E 011E'
             251  *
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0010
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0010
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
 0130 0300   252  COPY   LIMI 0                 CLOSE INTERRUPT WINDOW
@@ -442,7 +442,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 0140 0000 
 0142 1AF6   258         JL   COPY              N, CONTINUE COPY
 0144 10D4   259         JMP  TGEXIT            EXIT
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0011
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0011
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
             261  *
@@ -489,7 +489,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 017C 4700 
 017E 0588   295         INC  R8                ADJUST R8
 0180 10F0   296         JMP  COLR2             & EXIT
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0012
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0012
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
             298  *
@@ -540,7 +540,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 01BA 2FA0   334  ERR35  DATA ERROR2,35         PARAMETER ERROR
 01BE 2FA0   335  ERR37  DATA ERROR2,37         ILLEGAL DELIMETER
 01C2 2FA0   336  ERR48  DATA ERROR2,48         WRONG MODE !
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0013
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0013
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
             338  ************************************************************
@@ -568,7 +568,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
             358  *
 01D4 0000   359  WAITO  DATA WAIT$             WAIT OUTPUT COMPLETION
 01D6 108B   360         JMP  TGEXIT            EXIT
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0014
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0014
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
             362  *
@@ -609,7 +609,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 0206 0603   391         DEC  R3                DONE?
 0208 16F5   392         JNE  GETPAT            N, LOOP
 020A 108D   393  FNLIN  JMP  FNLIN0            Y, EXIT TO NLIN0
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0015
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0015
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
             395  *
@@ -672,7 +672,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
             444  *    R2   =  |  SPRITE #   |    MSB
             445  *            +-------------+
             446  *            |   COLOUR    |    LSB
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0016
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0016
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
             447  *            +-------------+
@@ -688,7 +688,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 0262 0604   455         DEC  R4                DONE ?
 0264 16FB   456         JNE  WRTIT             N, LOOP
 0266 10D1   457         JMP  FNLIN             Y, EXIT
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0017
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0017
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
             459  *
@@ -717,7 +717,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 0288 C0     479  S$SM   BYTE >C0,>80+R1        RELOAD VDP R1
 028A 0000   480         DATA 0
 028C 10BE   481         JMP  FNLIN             EXIT
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0018
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0018
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
             483  *      THESE ROUTINES UNPACK ENTRIES FROM THE
@@ -759,7 +759,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
             519  *   R14     !          RETURN PC              !
             520  *   R15     !          RETURN ST              !
             521  *           -----------------------------------
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0019
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0019
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
 028E 0000   523  UNPACK DATA VDPWP1,$+2
@@ -822,7 +822,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 02F0 0B14   563  MOD2   SRC  R4,1              POSITION ADDER
 02F2 0B17   564         SRC  R7,1              POSITION MASK, NEW BYTE?
 02F4 1701   565         JNC  MOD3              N, SKIP
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0020
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0020
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
 02F6 D1BC   566         MOVB *R12+,R6          Y, GET NEW BYTE
@@ -836,7 +836,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 0306 060A   574         DEC  R10               COUNT BYTE
 0308 15EE   575         JGT  MOD1              LOOP TILL ALL BYTES DONE
 030A 0380   576         RTWP                   DONE, RETURN TO CALLER
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0021
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0021
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
             578  *      THIS ROUTINE SETS,RESETS OR TESTS A SPECIFIED
@@ -899,7 +899,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
             632  *
 0328 D241   633  PIX1   MOVB R1,R9             GET X ORDINATE
 032A 0989   634         SRL  R9,8              POSITION IT
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0022
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0022
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
 032C C201   635         MOV  R1,R8             GET CO-ORDINATES
@@ -962,7 +962,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
 037E D220   679         MOVB @FBCOL,R8         GET COLOUR TABLE ENTRY
 0380 0164'
 0382 2260   680         COC  @C2000,R9         Y, 'EQ' SET?
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0023
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0023
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
 0384 0000 
@@ -997,7 +997,7 @@ VDP ROUTINES - CORTEX BASIC REV. 1.1
             702  *  PIXEL -   0 1   2 3   4 5   6 7
 03B0 8040   703  MASKTB DATA >8040,>2010,>0804,>0201
             704         END
-ASM990 2.4.6     VDP                        Sun Jul 20 19:28:48 2025 Page 0024
+ASM990 2.4.6     VDP                        Sun Aug 10 23:07:32 2025 Page 0024
 VDP ROUTINES - CORTEX BASIC REV. 1.1
 
 BADXY     01B0'  BELLON    0006   BITMAP    0294R  BITOFF    038A'  

@@ -1,4 +1,4 @@
-ASM990 2.4.6     ON                         Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     ON                         Sun Aug 10 23:07:34 2025 Page 0001
 ON STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT   'ON'
@@ -33,7 +33,7 @@ ON STATEMENT - CORTEX BASIC REV. 1.1
              31  *       SYNTAX ERROR
              32  *       EVALUATION ERRORS
              33  *
-ASM990 2.4.6     ON                         Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     ON                         Sun Aug 10 23:07:34 2025 Page 0002
 ON STATEMENT - CORTEX BASIC REV. 1.1
 
              35  *
@@ -74,7 +74,7 @@ ON STATEMENT - CORTEX BASIC REV. 1.1
              65  *
 0030 2F81    66  ERR1    DATA ERROR+1    ;SYNTAX ERROR
              67         END
-ASM990 2.4.6     ON                         Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     ON                         Sun Aug 10 23:07:34 2025 Page 0003
 ON STATEMENT - CORTEX BASIC REV. 1.1
 
 B3F       0024R  ERR1      0030'  ERROR     2F80   GOSON     002ER  

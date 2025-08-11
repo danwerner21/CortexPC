@@ -1,4 +1,4 @@
-ASM990 2.4.6     SINF                       Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     SINF                       Sun Aug 10 23:07:36 2025 Page 0001
 SINE FINCTION - CORTEX BASIC REV. 1.1
 
               2          IDT  'SINF'
@@ -20,7 +20,7 @@ SINE FINCTION - CORTEX BASIC REV. 1.1
              18          DXOP FMUL,4     ;MULTIPLY FPAC
              19          DXOP FDIV,5     ;DIVIDE FPAC
              20          DXOP NEGATE,9   ;NEGATE FPAC
-ASM990 2.4.6     SINF                       Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     SINF                       Sun Aug 10 23:07:36 2025 Page 0002
 SINE FINCTION - CORTEX BASIC REV. 1.1
 
              22  *
@@ -83,7 +83,7 @@ SINE FINCTION - CORTEX BASIC REV. 1.1
 0044 0000 
 0046 0066'   69            DATA COSC1
 0048 2C60    70          STORE @DS1      SAVE IN DS1
-ASM990 2.4.6     SINF                       Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     SINF                       Sun Aug 10 23:07:36 2025 Page 0003
 SINE FINCTION - CORTEX BASIC REV. 1.1
 
 004A 0000 
@@ -112,7 +112,7 @@ SINE FINCTION - CORTEX BASIC REV. 1.1
 0094 C3A9    89          DATA >C3A9,>3BA0,>C828
 009A 441B    90          DATA >441B,>70D4,>8BB5
              91         END
-ASM990 2.4.6     SINF                       Sun Jul 20 19:28:51 2025 Page 0004
+ASM990 2.4.6     SINF                       Sun Aug 10 23:07:36 2025 Page 0004
 SINE FINCTION - CORTEX BASIC REV. 1.1
 
 COSC0      0060'  COSC1      0066'  COSC2      0068'  COSC3      007A'  

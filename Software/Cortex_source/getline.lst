@@ -1,4 +1,4 @@
-ASM990 2.4.6     GETLINE                    Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     GETLINE                    Sun Aug 10 23:07:35 2025 Page 0001
 GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 
               2         IDT  'GETLINE'
@@ -16,7 +16,7 @@ GETLINE ROUTINE - CORTEX BASIC REV. 1.1
              14         REF  ERRLS2,BLSTOR
      2F80    15  ERROR  EQU  >2F80
              16         DXOP OUTINT,13
-ASM990 2.4.6     GETLINE                    Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     GETLINE                    Sun Aug 10 23:07:35 2025 Page 0002
 GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 
              18  *
@@ -75,7 +75,7 @@ GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 0054 A1A0    57         A    @IOB,R6           ;ADD BUFFER ADR
 0056 0030'
 0058 6187    58         S    R7,R6             ;SUB CURRENT ADR
-ASM990 2.4.6     GETLINE                    Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     GETLINE                    Sun Aug 10 23:07:35 2025 Page 0003
 GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 
 005A 04CF    60  GTLLP$ CLR  R15               ;RESET INSERT FLAG
@@ -123,7 +123,7 @@ GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 00A8 C2E0    98  GTCR1  MOV  @BLSTOR,R11       GET RETURN ADDRESS
 00AA 0028'
 00AC 045B    99         RT
-ASM990 2.4.6     GETLINE                    Sun Jul 20 19:28:51 2025 Page 0004
+ASM990 2.4.6     GETLINE                    Sun Aug 10 23:07:35 2025 Page 0004
 GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 
             101  *BACKSPACE  (^H)
@@ -159,7 +159,7 @@ GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 00D6 16E1   128         JNE  GTLB+4            ;OK TO SEND
 00D8 0607   129         DEC  R7                ;TOO FAR
 00DA 10DD   130         JMP  GTLB              ;OUT BELL
-ASM990 2.4.6     GETLINE                    Sun Jul 20 19:28:51 2025 Page 0005
+ASM990 2.4.6     GETLINE                    Sun Aug 10 23:07:35 2025 Page 0005
 GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 
             132  *
@@ -191,7 +191,7 @@ GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 0108 D037   153         MOVB *R7+,R0           ;N, OUT CHARACTER
 010A 009A'  154         DATA TYP0$
 010C 10FA   155         JMP  GTLI4             ;DO AGAIN
-ASM990 2.4.6     GETLINE                    Sun Jul 20 19:28:51 2025 Page 0006
+ASM990 2.4.6     GETLINE                    Sun Aug 10 23:07:35 2025 Page 0006
 GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 
             157  *
@@ -215,7 +215,7 @@ GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 012E C1C1   174  DEL3   MOV  R1,R7             ;RESTORE POINTER
 0130 0586   175         INC  R6                ;SOMETHING TO DELETE
 0132 1094   176         JMP  GTLLP             ;AND LOOP
-ASM990 2.4.6     GETLINE                    Sun Jul 20 19:28:51 2025 Page 0007
+ASM990 2.4.6     GETLINE                    Sun Aug 10 23:07:35 2025 Page 0007
 GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 
             178  *
@@ -247,7 +247,7 @@ GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 0158 0126'  203         DATA TYP11$,>0800      ;Y, OUT A BS
 015C 10FB   204         JMP  INS2              ;LOOP TILL CURSOR POSITIONED
             205         END
-ASM990 2.4.6     GETLINE                    Sun Jul 20 19:28:51 2025 Page 0008
+ASM990 2.4.6     GETLINE                    Sun Aug 10 23:07:35 2025 Page 0008
 GETLINE ROUTINE - CORTEX BASIC REV. 1.1
 
 AINC       003ER  B08        00D0D  B20        00CCD  BLSTOR     00AAR  

@@ -1,10 +1,10 @@
-ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     DSR02                      Sun Aug 10 23:07:32 2025 Page 0001
 DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
 
               2         IDT  'DSR02'
 0000          3         RORG
               4         COPY 'IODEFS.INC'
-ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     DSR02                      Sun Aug 10 23:07:32 2025 Page 0002
 DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
 
               2C *
@@ -67,7 +67,7 @@ DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
              59C *      EQU  PRMPOP+7
              60C *EDATA EQU  PRMPOP+8
      0210    61C EPADR  EQU  PRMPOP+16
-ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     DSR02                      Sun Aug 10 23:07:32 2025 Page 0003
 DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
 
              62C *
@@ -130,7 +130,7 @@ DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
               5  *
               6         DEF  INT4PC,D$RTWP,C10
               7         REF  MREG13
-ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0004
+ASM990 2.4.6     DSR02                      Sun Aug 10 23:07:32 2025 Page 0004
 DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
 
               8         REF  BELCNT,RBUFE,CRDELY
@@ -153,7 +153,7 @@ DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
              25  *   R12     CRUBASE
              26  *   R13-R15 RTWP VECTORS
              27  *
-ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0005
+ASM990 2.4.6     DSR02                      Sun Aug 10 23:07:32 2025 Page 0005
 DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
 
              29  ************************************************************
@@ -216,7 +216,7 @@ DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
              77  *            ALL 9902'S FOR INTERRUPT                      *
              78  *                                                          *
              79  ************************************************************
-ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0006
+ASM990 2.4.6     DSR02                      Sun Aug 10 23:07:32 2025 Page 0006
 DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
 
 0040 020A    80  POLL02 LI   R10,IOSTOR        POINT TO I/O STORAGE AREA
@@ -279,7 +279,7 @@ DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
             125  *
             126  *      ABORT !     IF PLF > +1 THEN DO A NEW
             127  *
-ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0007
+ASM990 2.4.6     DSR02                      Sun Aug 10 23:07:32 2025 Page 0007
 DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
 
 00A0 C820   128  ABRTIO MOV  @C1,@UNIT         <>0 SET UNIT TO 1
@@ -342,7 +342,7 @@ DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
 0100 1F1B   174  DSR    TB   27                ONLINE?
 0102 1313   175         JEQ  OUTPUT            Y, OUT CHARACTER
 0104 1D15   176         SBO  21                N, ENABLE DSCH INTERRUPTS
-ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0008
+ASM990 2.4.6     DSR02                      Sun Aug 10 23:07:32 2025 Page 0008
 DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
 
 0106 0380   177         RTWP                   EXIT
@@ -389,7 +389,7 @@ DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
 014E 1D13   210         SBO  19                ENABLE XBRE INTERRUPTS
 0150 0380   211         RTWP                   EXIT
             212         END
-ASM990 2.4.6     DSR02                      Sun Jul 20 19:28:48 2025 Page 0009
+ASM990 2.4.6     DSR02                      Sun Aug 10 23:07:32 2025 Page 0009
 DSR FOR TMS9902 UARTS - CORTEX BASIC REV 1.1
 
 ABRTIO   00A0'  B00      0036R  B0D      0138R  B1B      0084R  BEEP     00DA'  

@@ -1,4 +1,4 @@
-ASM990 2.4.6     PURGE                      Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     PURGE                      Sun Aug 10 23:07:34 2025 Page 0001
 PURGE STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT  'PURGE'
@@ -56,7 +56,7 @@ PURGE STATEMENT - CORTEX BASIC REV. 1.1
              42  *
 0050 2FA0    43  ERR37  DATA ERROR2,37         ILLEGAL DELIMITER
              44         END
-ASM990 2.4.6     PURGE                      Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     PURGE                      Sun Aug 10 23:07:34 2025 Page 0002
 PURGE STATEMENT - CORTEX BASIC REV. 1.1
 
 EMV       0044R  ERR37     0050'  ERROR     2F80   ERROR2    2FA0   

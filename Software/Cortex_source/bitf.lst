@@ -1,4 +1,4 @@
-ASM990 2.4.6     BITF                       Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     BITF                       Sun Aug 10 23:07:35 2025 Page 0001
 BIT ROUTINES - CORTEX BASIC REV. 1.1
 
               2         IDT  'BITF'
@@ -22,7 +22,7 @@ BIT ROUTINES - CORTEX BASIC REV. 1.1
              20         DEF  BITY               ENTRY POINT FOR BIT STATEMENT
              21         DEF  BITF               ENTRY POINT FOR BIT FUNCTION
              22         DEF  C8000
-ASM990 2.4.6     BITF                       Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     BITF                       Sun Aug 10 23:07:35 2025 Page 0002
 BIT ROUTINES - CORTEX BASIC REV. 1.1
 
              24  *       THE BIT STATEMENT ALLOWS A BASIC PROGRAM
@@ -75,7 +75,7 @@ BIT ROUTINES - CORTEX BASIC REV. 1.1
 0030 0000 
              66  *
 0032 2F81    67  ERR1   DATA ERROR+1
-ASM990 2.4.6     BITF                       Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     BITF                       Sun Aug 10 23:07:35 2025 Page 0003
 BIT ROUTINES - CORTEX BASIC REV. 1.1
 
              69  *       THE BIT FUNCTION WILL DISPLAY ANY BIT VALUE OFFSET
@@ -110,7 +110,7 @@ BIT ROUTINES - CORTEX BASIC REV. 1.1
 0050 0460    96  BITF1  B    @EVSFR$           ;RETURN ADR
 0052 0000 
              97         END
-ASM990 2.4.6     BITF                       Sun Jul 20 19:28:51 2025 Page 0004
+ASM990 2.4.6     BITF                       Sun Aug 10 23:07:35 2025 Page 0004
 BIT ROUTINES - CORTEX BASIC REV. 1.1
 
 B4A       0002R  BITF      0034D  BITF0     003A'  BITF1     0050'  

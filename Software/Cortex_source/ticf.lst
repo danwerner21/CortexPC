@@ -1,4 +1,4 @@
-ASM990 2.4.6     TICF                       Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     TICF                       Sun Aug 10 23:07:34 2025 Page 0001
 TIC FUNCTION - CORTEX BASIC REV. 1.1
 
               2         IDT  'TICF'
@@ -40,7 +40,7 @@ TIC FUNCTION - CORTEX BASIC REV. 1.1
              38  *
              39  *       OUT FPAC = CLOCK TICS
              40  *
-ASM990 2.4.6     TICF                       Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     TICF                       Sun Aug 10 23:07:34 2025 Page 0002
 TIC FUNCTION - CORTEX BASIC REV. 1.1
 
              42  *
@@ -86,7 +86,7 @@ TIC FUNCTION - CORTEX BASIC REV. 1.1
 002C 0460    73         B    @EVSFR$           ;RETURN
 002E 0000 
              74         END
-ASM990 2.4.6     TICF                       Sun Jul 20 19:28:50 2025 Page 0003
+ASM990 2.4.6     TICF                       Sun Aug 10 23:07:34 2025 Page 0003
 TIC FUNCTION - CORTEX BASIC REV. 1.1
 
 CLKT01     000AR  CLKT02     000ER  EVSFR$     002ER  FNRM       001AR  

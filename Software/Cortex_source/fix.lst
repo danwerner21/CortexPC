@@ -1,4 +1,4 @@
-ASM990 2.4.6     FIX                        Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     FIX                        Sun Aug 10 23:07:35 2025 Page 0001
 FIX ROUTINE - CORTEX BASIC REV. 1.1
 
               2         IDT  'FIX'
@@ -15,7 +15,7 @@ FIX ROUTINE - CORTEX BASIC REV. 1.1
              13         REF  C4600
              14         DEF  FIX
              15         DEF  PFIX
-ASM990 2.4.6     FIX                        Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     FIX                        Sun Aug 10 23:07:35 2025 Page 0002
 FIX ROUTINE - CORTEX BASIC REV. 1.1
 
              17  *       FIX RETURNS THE 2'S COMPLEMENT 16-BIT INTEGER VALUE OF
@@ -47,7 +47,7 @@ FIX ROUTINE - CORTEX BASIC REV. 1.1
              43  *       GREATER THAN 2^15
              44  *
              45  *       R0 IS PRESERVED
-ASM990 2.4.6     FIX                        Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     FIX                        Sun Aug 10 23:07:35 2025 Page 0003
 FIX ROUTINE - CORTEX BASIC REV. 1.1
 
 0000 C072    47  FIX    MOV  *R2+,R1           ;INTEGER?
@@ -88,7 +88,7 @@ FIX ROUTINE - CORTEX BASIC REV. 1.1
 0038 001E'
 003A 045B    76         RT
              77         END
-ASM990 2.4.6     FIX                        Sun Jul 20 19:28:51 2025 Page 0004
+ASM990 2.4.6     FIX                        Sun Aug 10 23:07:35 2025 Page 0004
 FIX ROUTINE - CORTEX BASIC REV. 1.1
 
 C4600     0034R  ERR30     002A'  ERROR     2F80   FIX       0000D  

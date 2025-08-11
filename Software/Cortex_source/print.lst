@@ -1,4 +1,4 @@
-ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     PRINT                      Sun Aug 10 23:07:34 2025 Page 0001
 PRINT STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT 'PRINT'
@@ -61,7 +61,7 @@ PRINT STATEMENT - CORTEX BASIC REV. 1.1
 0050 003E'   48         DATA TYP11$,>1C00      ;WAS ON, PUT IT BACK ON
 0054 1024    49         JMP  PRT2              ;CONTINUE PRINTING
              50  *
-ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     PRINT                      Sun Aug 10 23:07:34 2025 Page 0002
 PRINT STATEMENT - CORTEX BASIC REV. 1.1
 
              51  *   SCREEN COMMANDS IN A STRING
@@ -96,7 +96,7 @@ PRINT STATEMENT - CORTEX BASIC REV. 1.1
 0086 C1C3    77         MOV  R3,R7             RESTORE IOB POINTER
 0088 100A    78         JMP  PRT2              ;CONTINUE PRINTING
 008A 2F8F    79  ERR15  DATA ERROR+15          ;INVALID SCREEN COMMAND
-ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     PRINT                      Sun Aug 10 23:07:34 2025 Page 0003
 PRINT STATEMENT - CORTEX BASIC REV. 1.1
 
              81  *
@@ -145,7 +145,7 @@ PRINT STATEMENT - CORTEX BASIC REV. 1.1
             116  *
 00D4 0460   117  PRTE   B @PRTEND         ;END PRINT
 00D6 0000 
-ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0004
+ASM990 2.4.6     PRINT                      Sun Aug 10 23:07:34 2025 Page 0004
 PRINT STATEMENT - CORTEX BASIC REV. 1.1
 
             119  *PRINT FORMATTING
@@ -208,7 +208,7 @@ PRINT STATEMENT - CORTEX BASIC REV. 1.1
             163  *
 0136 06A0   164  PRTC    BL @PRTCK       ;GET CURRENT # OF BYTES
 0138 017A'
-ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0005
+ASM990 2.4.6     PRINT                      Sun Aug 10 23:07:34 2025 Page 0005
 PRINT STATEMENT - CORTEX BASIC REV. 1.1
 
 013A 0240   165          ANDI R0,>7      ;MOD 8
@@ -227,7 +227,7 @@ PRINT STATEMENT - CORTEX BASIC REV. 1.1
 014E 06A0   174          BL @OUTL1       ;Y, PRINT LINE
 0150 0128'
 0152 10A5   175          JMP PRT2
-ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0006
+ASM990 2.4.6     PRINT                      Sun Aug 10 23:07:34 2025 Page 0006
 PRINT STATEMENT - CORTEX BASIC REV. 1.1
 
             177  *TAB FUNCTION
@@ -261,7 +261,7 @@ PRINT STATEMENT - CORTEX BASIC REV. 1.1
 0180 6020   199          S @IOB,R0        ;GET CURRENT CHARACTER POSITION
 0182 011C'
 0184 045B   200  PRTCK1  RT
-ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0007
+ASM990 2.4.6     PRINT                      Sun Aug 10 23:07:34 2025 Page 0007
 PRINT STATEMENT - CORTEX BASIC REV. 1.1
 
             202  *PRINT HEX
@@ -321,7 +321,7 @@ PRINT STATEMENT - CORTEX BASIC REV. 1.1
             237  *B48     BYTE >48
 01D0        238          EVEN
             239         END
-ASM990 2.4.6     PRINT                      Sun Jul 20 19:28:49 2025 Page 0008
+ASM990 2.4.6     PRINT                      Sun Aug 10 23:07:34 2025 Page 0008
 PRINT STATEMENT - CORTEX BASIC REV. 1.1
 
 B20       0176R  B3F       00E6R  B40       00F2R  B48       01BC'  

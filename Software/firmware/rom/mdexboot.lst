@@ -1,0 +1,566 @@
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0001
+
+
+7800          2          AORG >7800
+              3  *        BOOT loader for MDEX on the 9995 breadboard with a CF 
+              4  *
+              5  *        SYMBOLIC NAMES
+              6  *
+              7  *        DEFINES for the CF card registers
+     FE00     8  CFREGS          EQU >fe00
+     FE00     9  CFDATA          EQU CFREGS+0
+     FE01    10  CFERR           EQU CFREGS+1                      ; rd
+     FE01    11  CFFEAT          EQU CFREGS+1                      ; wr
+     FE02    12  CFCNT           EQU CFREGS+2
+     FE03    13  CFLBA0          EQU CFREGS+3
+     FE04    14  CFLBA1          EQU CFREGS+4
+     FE05    15  CFLBA2          EQU CFREGS+5
+     FE06    16  CFLBA3          EQU CFREGS+6
+     FE07    17  CFSTAT          EQU CFREGS+7                      ; rd
+     FE07    18  CFCMD           EQU CFREGS+7                      ; wr
+             19  
+     EF00    21  SETFEAT         EQU >ef00                         ; set feature
+     2000    22  RDSECT          EQU >2000                         ; read sector
+     3000    23  WRSECT          EQU >3000                         ; write secto
+     EC00    24  IDENT           EQU >ec00                         ; identify dr
+     0100    25  BYTEMOD         EQU >0100                         ; 8 bit acces
+             26  
+     0004    28  PTYPE           EQU 4                             ; type offset
+     0008    29  START           EQU 8                             ; START secto
+     9000    33  SECBUF          EQU >9000                         ; sector read
+     FF80    34  TMP             EQU >ff80                         ; temp var
+     FF82    35  CLUSLBA         EQU >ff82                         ; LBA of FAT 
+7800         40  BEGIN
+7800 02E0    41          LWPI                                      >f000
+7802 F000 
+7804 0460    42          B                                         @MAIN
+7806 78F8 
+             43  
+7808         47  GET16
+7808         48  TAG0
+7808 D032    49          MOVB                                      *R2+,R0
+780A 06C0    50          SWPB                                      R0
+780C D012    51          MOVB                                      *R2,R0
+780E 045B    52          B                                         *R11
+             53  
+7810         57  GET32
+7810 D072    58          MOVB                                      *R2+,R1
+7812 06C1    59          SWPB                                      R1
+7814 D072    60          MOVB                                      *R2+,R1
+7816 10F8    61          JMP                                       TAG0
+             62  
+7818         66  CFREAD
+7818         67  TAG1
+7818 D820    68          MOVB                                      @CFSTAT,@TMP 
+781A FE07 
+781C FF80 
+781E 11FC    69          JLT                                       TAG1
+7820 D801    70          MOVB                                      R1,@CFLBA1   
+7822 FE04 
+7824 06C1    71          SWPB                                      R1
+7826 D801    72          MOVB                                      R1,@CFLBA0
+7828 FE03 
+782A 0240    73          ANDI                                      R0,>0fff
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0002
+
+
+782C 0FFF 
+782E 0260    74          ORI                                       R0,>e000
+7830 E000 
+7832 D800    75          MOVB                                      R0,@CFLBA3
+7834 FE06 
+7836 06C0    76          SWPB                                      R0
+7838 D800    77          MOVB                                      R0,@CFLBA2
+783A FE05 
+783C 0200    78          LI                                        R0,>0100     
+783E 0100 
+7840 D800    79          MOVB                                      R0,@CFCNT
+7842 FE02 
+7844 0200    80          LI                                        R0,RDSECT    
+7846 2000 
+7848 D800    81          MOVB                                      R0,@CFCMD
+784A FE07 
+784C         82  TAG2
+784C D020    83          MOVB                                      @CFSTAT,R0   
+784E FE07 
+7850 11FD    84          JLT                                       TAG2
+7852 0200    85          LI                                        R0,SECBUF    
+7854 9000 
+7856 0201    86          LI                                        R1,512
+7858 0200 
+785A         87  TAG3
+785A DC20    88          MOVB                                      @CFDATA,*R0+
+785C FE00 
+785E 0601    89          DEC                                       R1
+7860 16FC    90          JNE                                       TAG3
+7862 045B    91          B                                         *R11         
+             92  
+7864         96  CLUS2LBA
+7864 0641    97          DECT                                      R1           
+7866 1801    98          JOC                                       TAG4
+7868 0600    99          DEC                                       R0
+786A        100  TAG4
+786A 0202   101          LI                                        R2,3         
+786C 0003 
+786E        102  TAG5
+786E 0A10   103          SLA                                       R0,1
+7870 0A11   104          SLA                                       R1,1
+7872 1701   105          JNC                                       TAG6
+7874 0580   106          INC                                       R0
+7876        107  TAG6
+7876 0602   108          DEC                                       R2
+7878 16FA   109          JNE                                       TAG5
+787A A020   110          A                                         @CLUSLBA,R0  
+787C FF82 
+787E A060   111          A                                         @CLUSLBA+2,R1
+7880 FF84 
+7882 1701   112          JNC                                       TAG7
+7884 0580   113          INC                                       R0
+7886        114  TAG7
+7886 045B   115          B                                         *R11
+            116  
+7888        123  FATTEST
+7888 C30B   124          MOV                                       R11,R12
+788A 04C4   125          CLR                                       R4           
+788C D122   126          MOVB                                      @11(R2),R4
+788E 000B 
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0003
+
+
+7890 1303   127          JEQ                                       TAG8
+7892 0284   128          CI                                        R4,>2000
+7894 2000 
+7896 1612   129          JNE                                       TAG10        
+7898        130  TAG8
+7898 0204   131          LI                                        R4,11        
+789A 000B 
+789C        132  TAG9
+789C 9CF2   133          CB                                        *R2+,*R3+
+789E 160E   134          JNE                                       TAG10        
+78A0 0604   135          DEC                                       R4
+78A2 16FC   136          JNE                                       TAG9
+78A4 0222   138          AI                                        R2,15        
+78A6 000F 
+78A8 06A0   139          BL                                        @GET16
+78AA 7808 
+78AC C040   140          MOV                                       R0,R1
+78AE 0222   141          AI                                        R2,-7        
+78B0 FFF9 
+78B2 06A0   142          BL                                        @GET16
+78B4 7808 
+78B6 06A0   143          BL                                        @CLUS2LBA    
+78B8 7864 
+78BA 8000   144          C                                         R0,R0        
+78BC        145  TAG10
+78BC 045C   146          B                                         *R12
+            147  
+78BE        153  ISBOOT
+78BE 0204   154          LI                                        R4,12        
+78C0 000C 
+78C2 0203   155          LI                                        R3,BOOTSAV   
+78C4 7AB2 
+78C6        156  TAG11
+78C6 9CF2   157          CB                                        *R2+,*R3+
+78C8 1604   158          JNE                                       TAG12
+78CA 0604   159          DEC                                       R4
+78CC 16FC   160          JNE                                       TAG11
+78CE C0D2   161          MOV                                       *R2,R3       
+78D0 8000   162          C                                         R0,R0        
+78D2        163  TAG12
+78D2 045B   164          B                                         *R11
+            165  
+78D4        169  RD_MDEX
+78D4 C020   170          MOV                                       @>ff00,R0    
+78D6 FF00 
+78D8 A060   171          A                                         @>ff02,R1
+78DA FF02 
+78DC 1701   172          JNC                                       TAG13
+78DE 0580   173          INC                                       R0
+78E0        174  TAG13
+78E0 0460   175          B                                         @CFREAD      
+78E2 7818 
+            176  
+78E4        179  ERROR
+78E4 2FA0   180          XOP                                       @ERRMSG,14   
+78E6 7ABE 
+78E8 0460   181          B                                         @>0142       
+78EA 0142 
+            182  
+78EC        183  PROGRESS
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0004
+
+
+78EC F020   184          DATA >F020                                ; bar
+78EE 78F0   185          DATA >78F0
+            186  
+78F0        187  BAR
+78F0 0200   188          LI                                        R0,'>'*256
+78F2 3E00 
+78F4 2F00   189          XOP                                       R0,12
+78F6 0380   190          RTWP
+            191  
+78F8        199  MAIN
+78F8        200  TAG14
+78F8 D020   201          MOVB                                      @CFSTAT,R0   
+78FA FE07 
+78FC 11FD   202          JLT                                       TAG14
+78FE D820   203          MOVB                                      @ZERO,@CFLBA3
+7900 7AE0 
+7902 FE06 
+7904 0200   204          LI                                        R0,BYTEMOD
+7906 0100 
+7908 D800   205          MOVB                                      R0,@CFFEAT
+790A FE01 
+790C 0200   206          LI                                        R0,SETFEAT
+790E EF00 
+7910 D800   207          MOVB                                      R0,@CFCMD
+7912 FE07 
+            208  
+7914 0420   209          BLWP                                      @PROGRESS    
+7916 78EC 
+            210  
+7918 04C0   213          CLR                                       R0           
+791A 04C1   214          CLR                                       R1
+791C 06A0   215          BL                                        @CFREAD
+791E 7818 
+7920 0202   216          LI                                        R2,SECBUF+>1b
+7922 91BE 
+7924 0203   217          LI                                        R3,4         
+7926 0004 
+7928 04C0   218          CLR                                       R0
+792A        219  TAG15
+792A D022   220          MOVB                                      @PTYPE(R2),R0
+792C 0004 
+792E 0280   221          CI                                        R0,11*256    
+7930 0B00 
+7932 1308   222          JEQ                                       TAG16
+7934 0280   223          CI                                        R0,12*256
+7936 0C00 
+7938 1305   224          JEQ                                       TAG16
+793A 0603   225          DEC                                       R3           
+793C 13D3   226          JEQ                                       ERROR
+793E 0222   227          AI                                        R2,16
+7940 0010 
+7942 10F3   228          JMP                                       TAG15
+7944        229  TAG16
+7944 0222   230          AI                                        R2, START    
+7946 0008 
+7948 06A0   231          BL                                        @GET32       
+794A 7810 
+            232  
+794C 0420   233          BLWP                                      @PROGRESS    
+794E 78EC 
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0005
+
+
+            234  
+7950 C800   237          MOV                                       R0,@CLUSLBA  
+7952 FF82 
+7954 C801   238          MOV                                       R1,@CLUSLBA+2
+7956 FF84 
+7958 06A0   239          BL                                        @CFREAD      
+795A 7818 
+795C 0202   240          LI                                        R2,SECBUF+14
+795E 900E 
+7960 06A0   241          BL                                        @GET16       
+7962 7808 
+7964 A800   242          A                                         R0,@CLUSLBA+2
+7966 FF84 
+7968 1702   243          JNC                                       TAG17
+796A 05A0   244          INC                                       @CLUSLBA
+796C FF82 
+796E        245  TAG17
+796E 04C0   246          CLR                                       R0           
+7970 D020   247          MOVB                                      @SECBUF+16,R0
+7972 9010 
+7974 0280   248          CI                                        R0,>0200
+7976 0200 
+7978 16B5   249          JNE                                       ERROR
+797A 0202   250          LI                                        R2,SECBUF+36 
+797C 9024 
+797E 06A0   251          BL                                        @GET32
+7980 7810 
+7982 0A10   252          SLA                                       R0,1         
+7984 0A11   253          SLA                                       R1,1
+7986 1701   254          JNC                                       TAG18
+7988 0580   255          INC                                       R0
+798A        256  TAG18
+798A A800   257          A                                         R0,@CLUSLBA  
+798C FF82 
+798E A801   258          A                                         R1,@CLUSLBA+2
+7990 FF84 
+7992 1702   259          JNC                                       TAG19
+7994 05A0   260          INC                                       @CLUSLBA
+7996 FF82 
+7998        261  TAG19
+7998 04C0   262          CLR                                       R0           
+799A D020   263          MOVB                                      @SECBUF+13,R0
+799C 900D 
+799E 0280   264          CI                                        R0,>0800     
+79A0 0800 
+79A2 16A0   265          JNE                                       ERROR
+79A4 0202   266          LI                                        R2,SECBUF+44
+79A6 902C 
+79A8 06A0   267          BL                                        @GET32       
+79AA 7810 
+            268  
+79AC 0420   269          BLWP                                      @PROGRESS    
+79AE 78EC 
+            270  
+79B0 06A0   273          BL                                        @CLUS2LBA    
+79B2 7864 
+79B4 06A0   274          BL                                        @CFREAD      
+79B6 7818 
+79B8 0206   275          LI                                        R6,16        
+79BA 0010 
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0006
+
+
+79BC 04C7   276          CLR                                       R7           
+79BE 0205   277          LI                                        R5,SECBUF    
+79C0 9000 
+79C2        278  TAG20
+79C2 C085   279          MOV                                       R5,R2
+79C4 0203   280          LI                                        R3,FD0IMG
+79C6 7A9C 
+79C8 06A0   281          BL                                        @FATTEST
+79CA 7888 
+79CC 1605   282          JNE                                       TAG21
+79CE C800   283          MOV                                       R0,@>ff00    
+79D0 FF00 
+79D2 C801   284          MOV                                       R1,@>ff02
+79D4 FF02 
+79D6 100A   285          JMP                                       TAG22
+79D8        286  TAG21
+79D8 C085   287          MOV                                       R5,R2
+79DA 0203   288          LI                                        R3,FD1IMG
+79DC 7AA7 
+79DE 06A0   289          BL                                        @FATTEST
+79E0 7888 
+79E2 1608   290          JNE                                       TAG23
+79E4 C800   291          MOV                                       R0,@>ff04    
+79E6 FF04 
+79E8 C801   292          MOV                                       R1,@>ff06
+79EA FF06 
+79EC        293  TAG22
+79EC 0587   294          INC                                       R7
+79EE 0287   295          CI                                        R7,2         
+79F0 0002 
+79F2 1309   296          JEQ                                       READ_MDEX    
+79F4        297  TAG23
+79F4 0225   298          AI                                        R5,32        
+79F6 0020 
+79F8 0285   299          CI                                        R5,SECBUF+512
+79FA 9200 
+79FC 11E2   300          JLT                                       TAG20        
+79FE 0460   301          B                                         @>0142
+7A00 0142 
+7A02 0460   302          B                                         @ERROR       
+7A04 78E4 
+            303  
+7A06        306  READ_MDEX
+7A06 0420   307          BLWP                                      @PROGRESS    
+7A08 78EC 
+            308  
+7A0A 04C4   309          CLR                                       R4           
+7A0C        310  TAG24
+7A0C C044   311          MOV                                       R4,R1        
+7A0E 06A0   312          BL                                        @RD_MDEX
+7A10 78D4 
+7A12 0205   313          LI                                        R5,7         
+7A14 0007 
+7A16 0206   314          LI                                        R6,SECBUF
+7A18 9000 
+7A1A        315  TAG25
+7A1A C086   316          MOV                                       R6,R2
+7A1C 8812   317          C                                         *R2,@ENDDIR  
+7A1E 7AE2 
+7A20 1602   319          DATA >1602
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0007
+
+
+7A22 0460   320          DATA >0460
+7A24 78E4   321          DATA >78E4
+7A26 06A0   323          BL                                        @ISBOOT      
+7A28 78BE 
+7A2A 1307   324          JEQ                                       LOADSYS      
+7A2C 0605   325          DEC                                       R5           
+7A2E 1303   326          JEQ                                       TAG26        
+7A30 0226   327          AI                                        R6,18        
+7A32 0012 
+7A34 10F2   328          JMP                                       TAG25
+7A36        329  TAG26
+7A36 0584   330          INC                                       R4           
+7A38 10E9   331          JMP                                       TAG24        
+            332  
+7A3A        335  LOADSYS
+7A3A 0420   336          BLWP                                      @PROGRESS    
+7A3C 78EC 
+            337  
+7A3E C043   338          MOV                                       R3,R1        
+7A40 06A0   339          BL                                        @RD_MDEX
+7A42 78D4 
+7A44 0202   340          LI                                        R2,SECBUF
+7A46 9000 
+7A48 C262   341          MOV                                       @6(R2),R9    
+7A4A 0006 
+7A4C C2A2   342          MOV                                       @8(R2),R10   
+7A4E 0008 
+7A50 022A   343          AI                                        R10,127      
+7A52 007F 
+7A54 087A   344          SRA                                       R10,7
+            345  
+7A56 C362   346          MOV                                       @10(R2),R13  
+7A58 000A 
+7A5A 1602   347          JNE                                       TAG27
+7A5C 020D   348          LI                                        R13,>f000
+7A5E F000 
+7A60        349  TAG27
+7A60 C3A2   350          MOV                                       @12(R2),R14
+7A62 000C 
+7A64 04CF   351          CLR                                       R15
+            352  
+7A66        353  TAG28
+7A66 0583   354          INC                                       R3           
+7A68 C043   355          MOV                                       R3,R1        
+7A6A 06A0   356          BL                                        @RD_MDEX
+7A6C 78D4 
+7A6E 0202   357          LI                                        R2,64        
+7A70 0040 
+7A72 0201   358          LI                                        R1,SECBUF
+7A74 9000 
+7A76        359  TAG29
+7A76 CE71   360          MOV                                       *R1+,*R9+
+7A78 0602   361          DEC                                       R2
+7A7A 16FD   362          JNE                                       TAG29
+7A7C 060A   363          DEC                                       R10          
+7A7E 16F3   364          JNE                                       TAG28
+            365  
+7A80 0420   366          BLWP                                      @PROGRESS    
+7A82 78EC 
+7A84 020C   367          LI                                        R12,>0d00    
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0008
+
+
+7A86 0D00 
+7A88 2F0C   368          XOP                                       R12,12
+            369  
+7A8A 0200   375          LI                                        R0,>020c     
+7A8C 020C 
+7A8E 0201   376          LI                                        R1,>0040
+7A90 0040 
+7A92 0202   377          LI                                        R2,>1d00     
+7A94 1D00 
+7A96 0203   378          LI                                        R3,>0380     
+7A98 0380 
+7A9A 0440   379          B                                         R0
+            380  
+            381  
+7A9C        386  FD0IMG
+7A9C 4D     387          TEXT 'MDEX_FD0DSK'                        ; FAT filenam
+7A9D 44   
+7A9E 45   
+7A9F 58   
+7AA0 5F   
+7AA1 46   
+7AA2 44   
+7AA3 30   
+7AA4 44   
+7AA5 53   
+7AA6 4B   
+7AA7        388  FD1IMG
+7AA7 4D     389          TEXT 'MDEX_FD1DSK'                        ; FAT filenam
+7AA8 44   
+7AA9 45   
+7AAA 58   
+7AAB 5F   
+7AAC 46   
+7AAD 44   
+7AAE 31   
+7AAF 44   
+7AB0 53   
+7AB1 4B   
+7AB2        390  BOOTSAV
+7AB2 42     391          TEXT 'BOOT$.SAV   '                       ; MDEX filena
+7AB3 4F   
+7AB4 4F   
+7AB5 54   
+7AB6 24   
+7AB7 2E   
+7AB8 53   
+7AB9 41   
+7ABA 56   
+7ABB 20   
+7ABC 20   
+7ABD 20   
+7ABE        392  ERRMSG
+7ABE 55     393          TEXT 'Unrecoverable error booting MDEX'
+7ABF 6E   
+7AC0 72   
+7AC1 65   
+7AC2 63   
+7AC3 6F   
+7AC4 76   
+7AC5 65   
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0009
+
+
+7AC6 72   
+7AC7 61   
+7AC8 62   
+7AC9 6C   
+7ACA 65   
+7ACB 20   
+7ACC 65   
+7ACD 72   
+7ACE 72   
+7ACF 6F   
+7AD0 72   
+7AD1 20   
+7AD2 62   
+7AD3 6F   
+7AD4 6F   
+7AD5 74   
+7AD6 69   
+7AD7 6E   
+7AD8 67   
+7AD9 20   
+7ADA 4D   
+7ADB 44   
+7ADC 45   
+7ADD 58   
+7ADE 0D00   394          DATA >0D00
+7AE0        397  ZERO
+7AE0 0000   398          DATA >0000                                ; convenience
+7AE2        399  ENDDIR
+7AE2 FFFF   400          DATA >FFFF                                ; end-of-dir 
+            401  
+            402  
+            403          END
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0010
+
+
+BAR         78F0   BEGIN       7800   BOOTSAV     7AB2   BYTEMOD     0100   
+CFCMD       FE07   CFCNT       FE02   CFDATA      FE00   CFERR       FE01   
+CFFEAT      FE01   CFLBA0      FE03   CFLBA1      FE04   CFLBA2      FE05   
+CFLBA3      FE06   CFREAD      7818   CFREGS      FE00   CFSTAT      FE07   
+CLUS2LBA    7864   CLUSLBA     FF82   ENDDIR      7AE2   ERRMSG      7ABE   
+ERROR       78E4   FATTEST     7888   FD0IMG      7A9C   FD1IMG      7AA7   
+GET16       7808   GET32       7810   IDENT       EC00   ISBOOT      78BE   
+LOADSYS     7A3A   MAIN        78F8   PROGRESS    78EC   PTYPE       0004   
+R0          0000   R1          0001   R10         000A   R11         000B   
+R12         000C   R13         000D   R14         000E   R15         000F   
+R2          0002   R3          0003   R4          0004   R5          0005   
+R6          0006   R7          0007   R8          0008   R9          0009   
+RDSECT      2000   RD_MDEX     78D4   READ_MDEX   7A06   SECBUF      9000   
+SETFEAT     EF00   START       0008   TAG0        7808   TAG1        7818   
+TAG10       78BC   TAG11       78C6   TAG12       78D2   TAG13       78E0   
+TAG14       78F8   TAG15       792A   TAG16       7944   TAG17       796E   
+TAG18       798A   TAG19       7998   TAG2        784C   TAG20       79C2   
+TAG21       79D8   TAG22       79EC   TAG23       79F4   TAG24       7A0C   
+TAG25       7A1A   TAG26       7A36   TAG27       7A60   TAG28       7A66   
+TAG29       7A76   TAG3        785A   TAG4        786A   TAG5        786E   
+TAG6        7876   TAG7        7886   TAG8        7898   TAG9        789C   
+TMP         FF80   WRSECT      3000   ZERO        7AE0   
+
+0 Errors in assembly

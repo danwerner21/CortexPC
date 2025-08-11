@@ -25,9 +25,6 @@ jump.obj: jump.asm
 cassette.obj: cassette.asm
 	asm990 -a "BUNLST,DUNLST,MUNLST" -l cassette.lst -o cassette.obj cassette.asm
 
-centron.obj: centron.asm
-	asm990 -a "BUNLST,DUNLST,MUNLST" -l centron.lst -o centron.obj centron.asm
-
 atnf.obj: atnf.asm
 	asm990 -a "BUNLST,DUNLST,MUNLST" -l atnf.lst -o atnf.obj atnf.asm
 
@@ -224,13 +221,13 @@ rom.bin: start.obj mid.obj dsr02.obj centron.obj vdpdsr.obj monitor.obj jump.obj
 	read.obj renum.obj sgnf.obj size.obj ticf.obj time.obj trace.obj unit.obj boot.obj sfsn.obj swap.obj relops.obj edit.obj run.obj \
 	cvbd.obj cvdb.obj cvgc.obj eval.obj expf.obj fix.obj fp.obj bitf.obj getline.obj getp2.obj getparm.obj \
 	logf.obj plot.obj poly.obj powf.obj rndf.obj sinf.obj sqrf.obj extend.obj text.obj last.obj
-	lnk990 -a -m rom.map -o rom.bin start.obj mid.obj dsr02.obj centron.obj vdpdsr.obj monitor.obj jump.obj cassette.obj atnf.obj \
+	lnk990 -a -m rom.map -o rom.out start.obj mid.obj dsr02.obj centron.obj vdpdsr.obj monitor.obj jump.obj cassette.obj atnf.obj \
 	vdp.obj error.obj call.obj chrf.obj cruf.obj def.obj dim.obj enter.obj escape.obj for.obj format.obj func.obj gosub.obj \
         if.obj input.obj ipcom.obj let.obj logops.obj memf.obj move.obj mwdf.obj number.obj on.obj print.obj purge.obj putb.obj random.obj \
 	read.obj renum.obj sgnf.obj size.obj ticf.obj time.obj trace.obj unit.obj boot.obj sfsn.obj swap.obj relops.obj edit.obj run.obj \
 	cvbd.obj cvdb.obj cvgc.obj eval.obj expf.obj fix.obj fp.obj bitf.obj getline.obj getp2.obj getparm.obj \
 	logf.obj plot.obj poly.obj powf.obj rndf.obj sinf.obj sqrf.obj extend.obj text.obj last.obj
-
+	srec_cat  rom.out -binary -exclude 0x0000 0x0010 -offset -0x0010 -o rom.bin -binary
 
 
 pretty:

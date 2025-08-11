@@ -1,4 +1,4 @@
-ASM990 2.4.6     EXPF                       Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     EXPF                       Sun Aug 10 23:07:35 2025 Page 0001
 EXP FUNCTION - CORTEX BASIC REV. 1.1
 
               2         IDT  'EXPF'
@@ -23,7 +23,7 @@ EXP FUNCTION - CORTEX BASIC REV. 1.1
              21         DXOP FDIV,5            ;DIVIDE FPAC
      2F80    22  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
      2FA0    23  ERROR2 EQU  ERROR+>20
-ASM990 2.4.6     EXPF                       Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     EXPF                       Sun Aug 10 23:07:35 2025 Page 0002
 EXP FUNCTION - CORTEX BASIC REV. 1.1
 
              25  *
@@ -41,7 +41,7 @@ EXP FUNCTION - CORTEX BASIC REV. 1.1
              37  *
              38  *       ERROR 33 = EXP ARGUMENT TOO LARGE
              39  *       FLOATING POINT ERRORS
-ASM990 2.4.6     EXPF                       Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     EXPF                       Sun Aug 10 23:07:35 2025 Page 0003
 EXP FUNCTION - CORTEX BASIC REV. 1.1
 
 0000 2FA0    41  ERR33  DATA ERROR2,33         ;EXP ARG TOO LARGE
@@ -104,7 +104,7 @@ EXP FUNCTION - CORTEX BASIC REV. 1.1
 0070 2C60    78         STORE @TEMP            ;Y, MOVE TO TEMP
 0072 0046'
 0074 2C20    79         LOADF @FP1             ;GET INVERSE, LOAD FPAC
-ASM990 2.4.6     EXPF                       Sun Jul 20 19:28:51 2025 Page 0004
+ASM990 2.4.6     EXPF                       Sun Aug 10 23:07:35 2025 Page 0004
 EXP FUNCTION - CORTEX BASIC REV. 1.1
 
 0076 00AA'
@@ -132,7 +132,7 @@ EXP FUNCTION - CORTEX BASIC REV. 1.1
 00BC 465B    98         DATA >465B,>9820,>5C39
 00C2 4116    99  EXPC4  DATA >4116,>A09E,>667F 1.4142135
             100         END
-ASM990 2.4.6     EXPF                       Sun Jul 20 19:28:51 2025 Page 0005
+ASM990 2.4.6     EXPF                       Sun Aug 10 23:07:35 2025 Page 0005
 EXP FUNCTION - CORTEX BASIC REV. 1.1
 
 DS        004AR  DS1       004ER  ERR33     0000'  ERROR     2F80   

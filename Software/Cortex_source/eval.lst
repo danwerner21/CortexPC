@@ -1,4 +1,4 @@
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0001
 EVAL - CORTEX BASIC REV. 1.1
 
               2         IDT  'EVAL'
@@ -61,7 +61,7 @@ EVAL - CORTEX BASIC REV. 1.1
              59         REF  ANDF              ;AND FUNCTION
              60         REF  ORF               ;OR FUNCTION
              61         REF  NOTF              ;NOT FUNCTION
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0002
 EVAL - CORTEX BASIC REV. 1.1
 
              62         REF  LNOTF             ;LOGICAL NOT FUNCTION
@@ -98,7 +98,7 @@ EVAL - CORTEX BASIC REV. 1.1
              93         DEF  EVALS2            ;PARTIAL EXPRESSION EVALUATION
              94         DEF  SUBF
              95         DEF  ADDF
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0003
 EVAL - CORTEX BASIC REV. 1.1
 
              97  *       EVSD EVALUATES FOR A STRING CONSTANT OR VARIABLE
@@ -126,7 +126,7 @@ EVAL - CORTEX BASIC REV. 1.1
             119  *       OVERFLOW, UNDEFINED VARIABLE, EXPRESSION TOO
             120  *       COMPLEX, SUBSCRIPT ERROR, TOO MANY SUBSCRIPTS,
             121  *       UNDIMENSIONED VARIABLE, AND ALL ARITHMETIC ERRORS.
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0004
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0004
 EVAL - CORTEX BASIC REV. 1.1
 
 0000 0000   123  EVSDZ  DATA WPR2,EVSD
@@ -157,7 +157,7 @@ EVAL - CORTEX BASIC REV. 1.1
 002A 0010 
             145  *
             146  *  THIS SHOULD FALL THROUGH INTO EVAR
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0005
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0005
 EVAL - CORTEX BASIC REV. 1.1
 
             148  *       EVAR CALLS THE EXPRESSION EVALUATOR FOR
@@ -181,7 +181,7 @@ EVAL - CORTEX BASIC REV. 1.1
             166  * EXCEPTIONS AND CONDITIONS:
             167  *
             168  *       SAME AS EVSD
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0006
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0006
 EVAL - CORTEX BASIC REV. 1.1
 
 002C 04C5   170  EVAR   CLR  R5                ;SET FOR VARIABLE ONLY
@@ -193,7 +193,7 @@ EVAL - CORTEX BASIC REV. 1.1
             174  *
 0038 2F96   175  ERR22  DATA ERROR+22          ;EXPECTING VARIABLE
 003A 0000'  176  EVARZ  DATA WPR2,EVAR
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0007
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0007
 EVAL - CORTEX BASIC REV. 1.1
 
             178  *       CKEX IS CALLED TO SEE IF AN EXPRESSION
@@ -220,7 +220,7 @@ EVAL - CORTEX BASIC REV. 1.1
             196  *
 0050 05CB   197  CKEX1  INCT R11
 0052 045B   198  CKEX2  RT
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0008
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0008
 EVAL - CORTEX BASIC REV. 1.1
 
             200  *       EVER WILL EVALUATE A FULL EXPRESSION AND
@@ -251,7 +251,7 @@ EVAL - CORTEX BASIC REV. 1.1
 0066 CB48   222         MOV  R8,@16(13)        ;UPDATE PBC
 0068 0010 
 006A 0380   223         RTWP
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0009
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0009
 EVAL - CORTEX BASIC REV. 1.1
 
             225  *       EVFX USES AN XOP CALL SINCE IT IS
@@ -291,7 +291,7 @@ EVAL - CORTEX BASIC REV. 1.1
 007A 006E'
 007C C701   256         MOV  R1,*R12           RETURN #
 007E 10F0   257         JMP  EVER2
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0010
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0010
 EVAL - CORTEX BASIC REV. 1.1
 
             259  *       EVAL IS A RECURSIVE STACK EXPRESSION EVALUATOR.
@@ -354,7 +354,7 @@ EVAL - CORTEX BASIC REV. 1.1
             316  *       BL @EVAL        ;RECURSIVE EVALUATOR
             317  *
             318  *           R5  = EXPRESSION FLAG
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0011
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0011
 EVAL - CORTEX BASIC REV. 1.1
 
             319  *           R6  = BOTTOM OF STACK
@@ -365,7 +365,7 @@ EVAL - CORTEX BASIC REV. 1.1
             324  *
             325  *       IF R6 >= R7, THEN AN EXPRESSION TOO
             326  *          COMPLEX OCCURS.
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0012
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0012
 EVAL - CORTEX BASIC REV. 1.1
 
             328  *USER FUNCTION EVALUATION
@@ -428,7 +428,7 @@ EVAL - CORTEX BASIC REV. 1.1
 00DA 0705   380         SETO R5                ;N, DO FULL
 00DC 0280   381         CI   R0,>3F00          ;,?
 00DE 3F00 
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0013
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0013
 EVAL - CORTEX BASIC REV. 1.1
 
 00E0 13E9   382         JEQ  EVAFN1            ;Y
@@ -459,7 +459,7 @@ EVAL - CORTEX BASIC REV. 1.1
 010E CCF4   404         MOV  *R4+,*R3+
 0110 C4D4   405         MOV  *R4,*R3
 0112 1051   406         JMP  EVSFR             ;RETURN
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0014
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0014
 EVAL - CORTEX BASIC REV. 1.1
 
             408  *DO SYSTEM STRING OPERAND
@@ -486,7 +486,7 @@ EVAL - CORTEX BASIC REV. 1.1
 0134 04C5   427         CLR  R5
 0136 0460   428         B    @EVAL             ;DO EVALUATION
 0138 01E4'
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0015
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0015
 EVAL - CORTEX BASIC REV. 1.1
 
             430  *SYSTEM FUNCTION EVALUATION
@@ -549,7 +549,7 @@ EVAL - CORTEX BASIC REV. 1.1
             475  *
 019C 0646   476  EVSF1B DECT R6                ;POP 1ST OPERAND
 019E C096   477         MOV  *R6,R2
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0016
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0016
 EVAL - CORTEX BASIC REV. 1.1
 
 01A0 0280   478         CI   R0,>4B00          ;]?
@@ -588,7 +588,7 @@ EVAL - CORTEX BASIC REV. 1.1
 01D0 0202   507         LI   R2,FPAC
 01D2 01C8'
 01D4 10F2   508         JMP  EVSF4
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0017
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0017
 EVAL - CORTEX BASIC REV. 1.1
 
             510  *
@@ -651,12 +651,12 @@ EVAL - CORTEX BASIC REV. 1.1
 0234 0220   557         AI   R0,->63           ;N, -1 THRU 9
 0236 FF9D 
 0238 102A   558         JMP  EVAL5             ;STORE #
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0018
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0018
 EVAL - CORTEX BASIC REV. 1.1
 
             559  *
 023A 2F8A   560  EVER10 DATA ERROR+10          ;STORAGE OVERFLOW
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0019
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0019
 EVAL - CORTEX BASIC REV. 1.1
 
             562  *UNARY MINUS
@@ -719,14 +719,14 @@ EVAL - CORTEX BASIC REV. 1.1
             608  *
 029A D160   609  EVAL8  MOVB @BFF,R5           ;IF OPERATOR: MUST NOT BE UNARY
 029C 056D'
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0020
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0020
 EVAL - CORTEX BASIC REV. 1.1
 
 029E 81C6   610         C    R6,R7             ;STACK OVERFLOW?
 02A0 1AA9   611         JL   EVAL2             ;N, OK
             612  *
 02A2 2F9B   613  EVER27 DATA ERROR+27          ;Y, EXPRESSION TOO COMPLEX
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0021
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0021
 EVAL - CORTEX BASIC REV. 1.1
 
             615  *OPERATOR
@@ -789,7 +789,7 @@ EVAL - CORTEX BASIC REV. 1.1
 02F8 0973   663         SRL  R3,7              ;SWAP & X 2
 02FA C2E3   664         MOV  @EVATB->9C(3),R11
 02FC 0342'
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0022
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0022
 EVAL - CORTEX BASIC REV. 1.1
 
             665  *
@@ -840,7 +840,7 @@ EVAL - CORTEX BASIC REV. 1.1
 034C 0002 
 034E 16B6   704         JNE  EVER0             ;N, ERROR
 0350 045B   705         RT
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0023
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0023
 EVAL - CORTEX BASIC REV. 1.1
 
 0352 10A3   707  EVAL8P JMP  EVAL8
@@ -903,7 +903,7 @@ EVAL - CORTEX BASIC REV. 1.1
 03B8 1610   752         JNE  EVADVE            ;N, ERROR
 03BA 0646   753         DECT R6                ;Y, POP R5
 03BC C156   754         MOV  *R6,R5
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0024
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0024
 EVAL - CORTEX BASIC REV. 1.1
 
 03BE 0646   755         DECT R6                ;POP ADR
@@ -966,7 +966,7 @@ EVAL - CORTEX BASIC REV. 1.1
 0432 0000   810         DATA BITF              2A
 0434 0000   811         DATA CRBF              2B
 0436 0000   812         DATA CRFF              2C
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0025
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0025
 EVAL - CORTEX BASIC REV. 1.1
 
 0438 0000   813         DATA MEMF              2D
@@ -980,7 +980,7 @@ EVAL - CORTEX BASIC REV. 1.1
 0448 0000   821         DATA 0                 35
 044A 0000   822         DATA 0                 36
 044C 0000   823         DATA 0                 37
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0026
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0026
 EVAL - CORTEX BASIC REV. 1.1
 
             825  *       ARITHMETIC OPERATIONS SUCH AS ADD, SUBTRACT,
@@ -1043,11 +1043,11 @@ EVAL - CORTEX BASIC REV. 1.1
             882  *       IN (R1) = OPERAND
             883  *
             884  *       OUT (R2) = RESULT
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0027
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0027
 EVAL - CORTEX BASIC REV. 1.1
 
             885  *       EXISTS TO EVOP3A
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0028
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0028
 EVAL - CORTEX BASIC REV. 1.1
 
             887  *ARITHMETIC PREPARATION
@@ -1078,7 +1078,7 @@ EVAL - CORTEX BASIC REV. 1.1
 046A C052   907         MOV  *R2,R1            ;GET INTEGERS
 046C 046B   908         B    @2(11)
 046E 0002 
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0029
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0029
 EVAL - CORTEX BASIC REV. 1.1
 
 0470 C28B   910  ADDF   MOV  R11,R10           ;SAVE RETURN
@@ -1115,7 +1115,7 @@ EVAL - CORTEX BASIC REV. 1.1
 04A0 6043   936         S    R3,R1             ;INTEGERS
 04A2 19F3   937         JNO  PREP5A
 04A4 10EB   938         JMP  PREP4             ;OVERFLOW
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0030
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0030
 EVAL - CORTEX BASIC REV. 1.1
 
             940  *
@@ -1150,7 +1150,7 @@ EVAL - CORTEX BASIC REV. 1.1
 04D4 C042   968         MOV  R2,R1             ;OVERFLOW?
 04D6 11D2   969         JLT  PREP4             ;Y
 04D8 10D7   970         JMP  PREP5             ;RETURN
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0031
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0031
 EVAL - CORTEX BASIC REV. 1.1
 
             972  *
@@ -1190,7 +1190,7 @@ EVAL - CORTEX BASIC REV. 1.1
 0512 10BA  1005         JMP  PREP5             ;RETURN
            1006  *
 0514 2F9C  1007  ERR28  DATA ERROR+28          ;DIVISION BY ZERO
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0032
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0032
 EVAL - CORTEX BASIC REV. 1.1
 
            1009  *
@@ -1235,7 +1235,7 @@ EVAL - CORTEX BASIC REV. 1.1
 054C 05A0  1043         INC  @FPAC2            ;RETURN 1
 054E 048C'
 0550 1007  1044         JMP  UMNF3
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0033
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0033
 EVAL - CORTEX BASIC REV. 1.1
 
            1046  *
@@ -1262,7 +1262,7 @@ EVAL - CORTEX BASIC REV. 1.1
 056D FF    1064  BFF    BYTE >FF
 056E       1065         EVEN
            1066         END
-ASM990 2.4.6     EVAL                       Sun Jul 20 19:28:51 2025 Page 0034
+ASM990 2.4.6     EVAL                       Sun Aug 10 23:07:35 2025 Page 0034
 EVAL - CORTEX BASIC REV. 1.1
 
 ABSF       0414R  ADDF       0470D  ADRF       0416R  ANDF       03E2R  

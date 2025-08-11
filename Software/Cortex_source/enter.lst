@@ -1,4 +1,4 @@
-ASM990 2.4.6     ENTER                      Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     ENTER                      Sun Aug 10 23:07:33 2025 Page 0001
 ENTER STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT  'ENTER'
@@ -48,7 +48,7 @@ ENTER STATEMENT - CORTEX BASIC REV. 1.1
 003E 0460    34         B    @LINE             ;CONTINUE EXECUTION
 0040 0000 
              35         END
-ASM990 2.4.6     ENTER                      Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     ENTER                      Sun Aug 10 23:07:33 2025 Page 0002
 ENTER STATEMENT - CORTEX BASIC REV. 1.1
 
 C1       002ER  EDIT     002AR  ENT1     000A'  ENT2     0012'  ENT3     001E'  

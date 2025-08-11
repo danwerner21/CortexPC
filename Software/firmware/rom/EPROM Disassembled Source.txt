@@ -1,0 +1,4998 @@
+        AORG >0000
+
+******************************************************************************
+* Interrupt vectors.                                                         *
+******************************************************************************
+
+A0000   DATA >EC00,A0226    WP/PC level 0 interrupt (reset).
+A0004   DATA >F0D6,>F0F6    WP/PC level 1 interrupt.
+A0008   DATA >F0CA,>F0EA    WP/PC level 2 interrupt.
+A000C   DATA >F0BE,>F0DE    WP/PC level 3 interrupt.
+A0010   DATA >F0B2,>F0D2    WP/PC level 4 interrupt.
+
+*Interrupts 5-15 not used. Use vector space for text strings.
+
+A0014   BYTE >0D,>0A
+        TEXT 'MON? '
+        BYTE >00
+
+A001C   TEXT '    '
+A0020   TEXT '  '
+        BYTE >00
+
+A0023   BYTE >0D,>0A
+        TEXT 'BP'
+        BYTE >00
+
+A0028   TEXT 'IDT='
+        BYTE >00
+
+A002D   BYTE >0D,>0A
+        TEXT 'READY Y/N '
+        BYTE >00
+
+A003A   TEXT 'W'
+        BYTE >00
+A003C   TEXT 'P'
+        BYTE >00
+A003E   TEXT 'S'
+        BYTE >00
+
+******************************************************************************
+* XOP vectors.                                                               *
+******************************************************************************
+
+A0040   DATA >F0AC,>F0BE    XOP 0.
+A0044   DATA >F09E,>F0B0    XOP 1.
+A0048   DATA >F090,>F0A2    XOP 2.
+A004C   DATA >F082,>F094    XOP 3.
+A0050   DATA >F074,>F086    XOP 4.
+A0054   DATA >F066,>F078    XOP 5.
+A0058   DATA >F058,>F06A    XOP 6.
+A005C   DATA >F04A,>F05C    XOP 7.
+A0060   DATA >EC24,>03F8    XOP 8.
+A0064   DATA >EC24,>0396    XOP 9.
+A0068   DATA >EC24,>0402    XOP 10.
+A006C   DATA >EC0A,A0326    XOP 11 - read character and echo to terminal.
+A0070   DATA >EC16,A02EE    XOP 12 - write character.
+A0074   DATA >EC16,A02E2    XOP 13 - read character.
+A0078   DATA >EC24,A032C    XOP 14 - write message.
+A007C   DATA >EC00,>0442    XOP 15.
+
+A0080   DATA >0460
+A0082   DATA >0142
+
+*Baud rate table.
+
+A0084   DATA >0009,>001A   19200 BAUD
+        DATA >0012,>0034    9600 BAUD
+        DATA >0023,>0068    4800 BAUD
+        DATA >0046,>00D0    2400 BAUD
+A0094   DATA >008D,>01A1    1200 BAUD
+        DATA >0119,>0341     600 BAUD (I assume)
+        DATA >02A4,>04D0     300 BAUD
+        DATA >7FFF,>0638     110 BAUD
+
+A00A4   BYTE >0D,>0A        Error message.
+        TEXT 'ERROR '
+A00AC   BYTE >00
+
+A00AD   BYTE >0D,>0A        Logon message.
+        TEXT 'EVMBUG  R1.0'
+        BYTE >00
+
+A00BC   DATA >0D0A
+A00BE   DATA >5200
+A00C0   DATA >0D0A
+A00C2   DATA >4831
+A00C4   DATA >2B48
+A00C6   DATA >323D
+A00C8   DATA >0020
+A00CA   DATA >4831
+A00CC   DATA >2D48
+A00CE   TEXT '2='
+A00D0   BYTE >00
+        TEXT ' '
+A00D2   DATA >4552
+A00D4   DATA >524F
+A00D6   DATA >5200
+A00D8   DATA >0D0A
+A00DA   DATA >434F
+A00DC   DATA >4D3F
+A00DE   DATA >2000
+A00E0   DATA >3A0D
+A00E2   BYTE >00
+
+A00E3   BYTE >0D,>0A
+        TEXT 'TERMINAL MODE'
+A00F2   BYTE >0D,>0A
+        BYTE >00
+
+A00F5   BYTE >0D
+A00F6   DATA >0A43
+A00F8   DATA >4D44
+A00FA   DATA >2045
+A00FC   DATA >5252
+A00FE   DATA >000D
+A0100   DATA >0A50
+A0102   DATA >4152
+A0104   DATA >4D20
+A0106   DATA >4552
+A0108   DATA >5200
+A010A   DATA >0D0A
+A010C   DATA >434B
+A010E   DATA >534D
+A0110   DATA >2045
+A0112   DATA >5252
+A0114   DATA >000D
+A0116   DATA >0A54
+A0118   DATA >4147
+A011A   DATA >2045
+A011C   DATA >5252
+A011E   DATA >0055
+A0120   DATA >504C
+A0122   DATA >4420
+A0124   DATA >4552
+A0126   DATA >5200
+A0128   DATA >460D
+A012A   DATA >000A
+A012C   DATA >7F3A
+A012E   DATA >0D0A
+A0130   DATA >7F13
+A0132   DATA >0D14
+A0134   DATA >7F00
+A0136   DATA >120A
+A0138   DATA >7F00
+
+*Initialisation values for TMS9902 control registers.
+
+A013A   BYTE >62         (0110 0010) 7 bits/character, even parity, 2 stop bits.
+
+A013B   BYTE >42         (0100 0010) 7 bits/character, no parity, 2 stop bits.
+
+
+A013C   DATA >1100       <DC1> character written to RS-232 port as part of XCL command.
+A013E   DATA >0000       1st TMS9902 CRU base address.
+A0140   DATA >0400       2nd TMS9902 CRU base address.
+
+*Branch taken to here after printing logon message.
+
+A0142   LWPI >EC00       DATA >02E0  Initialise workspace.
+*                        DATA >EC00
+
+        CLR R1           DATA >04C1  Address of WP vector for level 0 interrupt.
+        LI R2,>FFFC      DATA >0202  Address of NMI WP vector.
+*                        DATA >FFFC
+        MOV *R1+,*R2+    DATA >CCB1  Copy level 0 interrupt WP vector to NMI WP vector.
+        LI R1,A042E      DATA >0201  Address to put in PC vector for NMI (address of load for single step).
+*                        DATA >042E
+        MOV R1,*R2+      DATA >CC81  Store NMI PC vector.
+
+        LI R9,>0142      DATA >0209  Re-entry address for monitor. Used by some commands to return to command scanner.
+*                        DATA >0142
+
+        CLR R1           DATA >04C1  Delay loop (leftover from TIBUG for microterminal?).
+A015A   DECT R1          DATA >0641
+        JNE A015A        DATA >16FE
+
+        MOV @>013E,R12   DATA >C320  CRU address of 1st TMS9902 serial port.
+*                        DATA >013E
+        MOV R12,@>EC2E   DATA >C80C  Store CRU address.
+*                        DATA >EC2E
+        TB 21            DATA >1F15  Receive buffer register full?
+        JNE A016C        DATA >1601  No, jump.
+
+*Input command.
+*Command is one to three uppercase letters followed by a <CR>, <space> or <comma> character.
+
+A016A   XOP R5,13        DATA >2F45  Read character into R5.
+A016C   XOP @A0014,14    DATA >2FA0  Print "MON? ".
+*                        DATA >0014
+        CLR R0           DATA >04C0
+        LI R2,>0A05      DATA >0202  Opcode for SLA R5,0.
+*                        DATA >0A05
+        LI R3,>0004      DATA >0203  Max number of characters that can be entered + 1.
+*                        DATA >0004
+        CLR R4           DATA >04C4  Keystrokes assembled into R4.
+        LI R8,>0001      DATA >0208
+*                        DATA >0001
+A0180   XOP R5,11        DATA >2EC5  Read character into R5 and echo to terminal.
+        CI R5,>0D00      DATA >0285  <CR> character?
+*                        DATA >0D00
+A0186   JNE A0190        DATA >1604  No, jump.
+A0188   LI R5,>0A00      DATA >0205  Yes, load a <LF> character.
+*                        DATA >0A00
+A018C   XOP R5,12        DATA >2F05  Write character to terminal.
+        JMP A01C2        DATA >1019  Find command in command table.
+A0190   CI R5,>2000      DATA >0285  <Space> character?
+*                        DATA >2000
+A0194   JEQ A01C2        DATA >1316  Yes, find command in command table.
+A0196   CI R5,>2C00      DATA >0285  No, <Comma> character?
+*                        DATA >2C00
+A019A   JEQ A01C2        DATA >1313  Yes, find command in command table.
+A019C   CI R5,>4100      DATA >0285  'A' character?
+*                        DATA >4100
+A01A0   JLT A021A        DATA >113C  Jump if ASCII character < 'A' and display error number 4.
+
+        CI R5,>5A00      DATA >0285  'Z' character?
+*                        DATA >5A00
+        JGT A021A        DATA >1539  Jump if character > 'Z' and display error number 4.
+        DEC R3           DATA >0603  Decrement number of characters entered.
+        JEQ A021A        DATA >1337  Jump if entered 3 characters and display error number 4.
+        SWPB R5          DATA >06C5  Swap character in R5 into LS byte.
+        ANDI R5,>001F    DATA >0245  Mask the least 5 significant bits.
+*                        DATA >001F
+        CI R3,>0003      DATA >0283  This the first character entered?
+*                        DATA >0003
+        JEQ A01BA        DATA >1301  Yes, skip next instruction.
+        X R2             DATA >0482  Initially SLA R5,0.
+A01BA   A R5,R4          DATA >A105  Add result to R4.
+        AI R2,>0050      DATA >0222  Add 5 to the shift count in R2.
+*                        DATA >0050
+        JMP A0180        DATA >10DF  Get next character.
+
+* So following the routine above, the ASCII codes of the characters entered are packed in R4
+* as follows:
+
+* XXXX XXXX XXXX XXXX
+*              ^ ^^^^ = 1st character entered.
+*        ^^ ^^^       = 2nd character entered.
+*  ^^^ ^^             = 3rd character entered.
+
+A01C2   LI R11,A027A     DATA >020B  Address of start of command table.
+*                        DATA >027A
+        JMP A01CC        DATA >1002  Skip following increment.
+
+A01C8   AI R11,>0004     DATA >022B
+*                        DATA >0004
+
+A01CC   MOV *R11+,R10    DATA >C2BB  Get command value from table.
+        JEQ A021A        DATA >1325  Jump if end of table reached.
+        C R10,R4         DATA >810A  Command value = command entered?
+        JNE A01C8        DATA >16FA  No, loop and check next command in table.
+        MOV *R11+,R6     DATA >C1BB  Yes, get number of operands for this command.
+        MOV *R11,R11     DATA >C2DB  Get entry point address for this command.
+        LI R7,>EC00      DATA >0207  Address to store operands.
+*                        DATA >EC00
+        CI R5,>0A00      DATA >0285  Previously a <CR> character, and we loaded a <LF>?
+*                        DATA >0A00
+        JEQ A0200        DATA >130F  Yes, jump.
+A01E2   SRL R6,1         DATA >0916  Command has at least one operand?
+        JNC A0202        DATA >170E  No, execute command.
+        XOP R4,9         DATA >2E44  Input 4 digit hex number to R4.
+        DATA A01F8                   Returns to this address if input is termination character only.
+        DATA A020E                   Returns to this address if invalid entry - print error number 2.
+        MOV R4,*R7+      DATA >CDC4  Store operand and increment operand pointer.
+A01EE   INC R3           DATA >0583
+        CI R5,>0D00      DATA >0285
+*                        DATA >0D00
+        JEQ A0202        DATA >1306  Yes, execute command.
+        JMP A01E2        DATA >10F5  Loop and check for another operand.
+
+A01F8   INCT R7          DATA >05C7
+        CI R5,>0D00      DATA >0285
+*                        DATA >0D00
+        JNE A01EE        DATA >16F7
+A0200   CLR R3           DATA >04C3
+A0202   B *R11           DATA >045B  Execute command.
+
+A0204   CLR R0           DATA >04C0  Error number 0.
+        JMP A021E        DATA >100B  Print error message.
+
+A0208   LI R0,>0001      DATA >0200  Error number 1.
+*                        DATA >0001
+        JMP A021E        DATA >1008  Print error message.
+
+A020E   LI R0,>0002      DATA >0200  Error number 2.
+*                        DATA >0002
+        JMP A021E        DATA >1005  Print error message.
+
+A0214   LI R0,>0003      DATA >0200  Error number 3.
+*                        DATA >0003
+        JMP A021E        DATA >1002  Print error message.
+
+A021A   LI R0,>0004      DATA >0200  End of command table reached. Error number 4.
+*                        DATA >0004
+A021E   XOP @A00A4,14    DATA >2FA0  Print error message ...
+*                        DATA >00A4
+        XOP R0,8         DATA >2E00  ... followed by error number.
+        JMP A0142        DATA >108E
+
+******************************************************************************
+* Reset entry point.                                                         *
+******************************************************************************
+
+A0226   LI R12,>EC44     DATA >020C
+*                        DATA >EC44
+        CLR *R12+        DATA >04FC  Clear ASR flag (>EC44).
+        SETO *R12+       DATA >073C  Reset dump flag (>EC46).
+        CLR *R12+        DATA >04FC  Clear step flag (>EC48).
+        CLR *R12         DATA >04DC  Clear halt flag (>EC50).
+
+*Initialise TMS9902.
+
+        MOV @A013E,R12   DATA >C320  CRU address of TMS9902 serial port.
+*                        DATA >013E
+        MOV R12,@>EC2E   DATA >C80C  Store CRU address.
+*                        DATA >EC2E
+        SBO 31           DATA >1D1F  Reset TMS9902.
+        CLR R3           DATA >04C3  Reset loop count.
+        LDCR @A013A,8    DATA >3220  Initialise TMS9902 control register.
+*                        DATA >013A
+        SBZ 13           DATA >1E0D  Do not initalise interval register.
+A0244   TB 15            DATA >1F0F  RS-232 space?
+        JEQ A0244        DATA >13FE  No, jump back.
+A0248   INC R3           DATA >0583  Yes, time the start bit.
+        TB 15            DATA >1F0F  RS-232 mark?
+        JNE A0248        DATA >16FD  No, jump back.
+
+*Table search for baud rate.
+
+A024E   LI R7,A0084      DATA >0207  Set pointer to baud rate table.
+*                        DATA >0084
+A0252   C R3,*R7+        DATA >8DC3  Matching baud rate?
+        JLT A025A        DATA >1202  Yes, jump.
+        INCT R7          DATA >05C7  No, update pointer to check next baud rate.
+        JMP A0252        DATA >10FC
+
+A025A   LDCR *R7,12      DATA >3317  Initialise TMS9902 receive/transmit baud rate.
+        MOV *R7,R7       DATA >C1D7
+        CI R7,>01A1      DATA >0287  1200 baud?
+*                        DATA >01A1
+        JLT A0274        DATA >1108  If faster baud rate, jump.
+        JNE A026A        DATA >1602  If 300 or 110 baud, jump.
+        SETO @>EC44      DATA >0720  Set ASR flag.
+*                        DATA >EC44
+
+A026A   XOP R5,13        DATA >2F45  Read character into R5.
+        XOP @A00AD,14    DATA >2FA0  Print logon message.
+*                        DATA >00AD
+        B @A0142         DATA >0460  Branch.
+*                        DATA >0142
+
+A0274   DATA >05A0
+A0276   DATA >EC44
+A0278   DATA >10F8
+
+*Command table.
+*Second word is a bitmap of the number of operands for the command.
+*Example: >0003 = binary 0011 = two operands.
+
+A027A   DATA >01A9       Command IM (Inspect/Change Memory - as TIBUG 'M' command with start address only).
+A027C   DATA >0001       One operand.
+A027E   DATA A036C       Address.
+
+A0280   DATA >01A4       Command DM (Dump Memory - as TIBUG 'M' command with start and stop addresses).
+A0282   DATA >0003       Two operands.
+A0284   DATA A0334       Address.
+
+A0286   DATA >4AE9       Command IWR (Inspect/Change Workspace Register - as TIBUG 'W' command).
+A0288   DATA >0001       One operand.
+A028A   DATA A04AC       Address.
+
+A028C   DATA >0305       Command EX (Execute - as TIBUG 'E' command).
+A028E   DATA >0000       No operands.
+A0290   DATA A042C       Address.
+
+A0292   DATA >0B05       Command EXB (Execute With Breakpoint - as TIBUG 'B' command).
+A0294   DATA >0001       One operand.
+A0296   DATA A0436       Address.
+
+A0298   DATA >0273       Command SS (Single Step - as TIBUG 'S' command).
+A029A   DATA >0000       No operand.
+A029C   DATA A0426       Address.
+
+A029E   DATA >0DAC       Command LMC (Tag Format Loader - as TIBUG 'L' command).
+A02A0   DATA >0001       One operand.
+A02A2   DATA A064A       Address.
+
+A02A4   DATA >0DA4       Command DMC (Dump RAM Image - as TIBUG 'D' command).
+A02A6   DATA >0007       Three operands.
+A02A8   DATA A0552       Address.
+
+A02AA   DATA >0069       Command IC (Inspect/Change CRU - as TIBUG 'C' command).
+A02AC   DATA >0003       Two operands.
+A02AE   DATA A0460       Address.
+
+A02B0   DATA >0249       Command IR (Inspect/Change WP, PC and ST Registers - as TIBUG 'R' command).
+A02B2   DATA >0000       No operands.
+A02B4   DATA A051A       Address.
+
+A02B6   DATA >0086       Command FD (Find - as TIBUG 'F' command).
+A02B8   DATA >0007       Three operands.
+A02BA   DATA A0770       Address.
+
+A02BC   DATA >60A8       Command HEX (Hex Arithmetic - as TIBUG 'H' command).
+A02BE   DATA >0003       Two operands.
+A02C0   DATA A07A0       Address
+
+A02C2   DATA >19D4       Command TNF (Toggle ASR Flag - as TIBUG 'T' command).
+A02C4   DATA >0000       No operands.
+A02C6   DATA A07B4       Address.
+
+A02C8   DATA >1438       Command XAE (Line-By-Line Assembler, retain symbol table).
+A02CA   DATA >0001       One operand.
+A02CC   DATA A07C2       Address.
+
+A02CE   DATA >0038       Command XA (Line-By-Line Assembler, clear symbol table).
+A02D0   DATA >0001       One operand.
+A02D2   DATA A07BA       Address.
+
+A02D4   DATA >3078       Command XCL (Terminal Mode)
+A02D6   DATA >0000       No operands.
+A02D8   DATA A0E1A       Address.
+
+A02DA   DATA >0658       Command XRA (Disassemble - Reverse Assemble?).
+A02DC   DATA >0003       Two operands.
+A02DE   DATA >1166       Address.
+
+A02E0   DATA >0000       End of command table.
+
+******************************************************************************
+* XOP 13. Read character.                                                    *
+******************************************************************************
+
+A02E2   TB 21            DATA >1F15  Receive buffer register full?
+        JNE A02E2        DATA >16FE  No, loop round.
+        CLR *R11         DATA >04DB
+        STCR *R11,8      DATA >361B
+        SBZ 18           DATA >1E12  Disable receive buffer interrupts.
+        RTWP             DATA >0380  Return from XOP.
+
+******************************************************************************
+* XOP 12. Write character.                                                   *
+******************************************************************************
+
+A02EE   LI R10,>186A     DATA >020A  Carriage return, ASR delay.
+*                        DATA >186A
+        SBO 16           DATA >1D10  Set RTS on.
+A02F4   TB 22            DATA >1F16  Transmit buffer register empty?
+        JNE A02F4        DATA >16FE  No, wait until it is.
+        LDCR *R11,8      DATA >321B  Send character to TMS9902.
+        MOVB *R11,R11    DATA >D2DB
+        CB R11,@A00F2    DATA >980B  Carriage return?
+*                        DATA >00F2
+        JNE A0318        DATA >160B  No, jump.
+        MOV @>EC44,R11   DATA >C2E0  Yes, ASR flag set?
+*                        DATA >EC44
+        JGT A0324        DATA >150E  Yes, exit.
+        SLA R10,3        DATA >0A3A  Adjust ASR delay?
+A030A   TB 22            DATA >1F16  Wait for transmission to end.
+        JNE A030A        DATA >16FE
+        TB 23            DATA >1F17
+        JNE A030A        DATA >16FC
+A0312   DEC R10          DATA >060A  Decrement ASR delay loop.
+        JNE A0312        DATA >16FE
+        RTWP             DATA >0380  Return from XOP.
+
+A0318   MOV @>EC46,R11   DATA >C2E0  Dump flag set?
+*                        DATA >EC46
+        JEQ A0324        DATA >1303  Yes, ignore ASR flag and exit.
+        MOV @>EC44,R11   DATA >C2E0  No, ASR flag set?
+*                        DATA >EC44
+        JLT A030A        DATA >11F3  Yes, wait 3 nulls.
+A0324   RTWP             DATA >0380  Return from XOP.
+
+******************************************************************************
+* XOP 11. Reach character and echo to terminal.                              *
+******************************************************************************
+
+A0326   XOP *R11,13      DATA >2F5B  Read character.
+        XOP *R11,12      DATA >2F1B  Write character.
+A032A   RTWP             DATA >0380  Return from XOP.
+
+******************************************************************************
+* XOP 14. Write message.                                                     *
+******************************************************************************
+
+A032C   MOVB *R11+,R12   DATA >D33B  Get character from buffer.
+        JEQ A032A        DATA >13FD  If end of message, exit.
+        XOP R12,12       DATA >2F0C  Write character.
+        JMP A032C        DATA >10FC  Loop for next character.
+
+******************************************************************************
+* DM (Dump Memory) command.                                                  *
+* Two operands.                                                              *
+******************************************************************************
+
+A0334   DATA >4008
+A0336   DATA >4048
+A0338   DATA >0203
+A033A   DATA >0008
+A033C   DATA >2FA0
+A033E   DATA >00F2
+A0340   DATA >2E80
+A0342   DATA >2FA0
+A0344   DATA >00CF
+A0346   DATA >2E90
+A0348   DATA >1F15
+A034A   DATA >1602
+A034C   DATA >2F40
+A034E   DATA >0459
+A0350   DATA >8040
+A0352   DATA >13FD
+A0354   DATA >05C0
+A0356   DATA >0603
+A0358   DATA >0283
+A035A   DATA >0004
+A035C   DATA >1602
+A035E   DATA >2FA0
+A0360   DATA >0020
+A0362   DATA >C0C3
+A0364   DATA >13E9
+A0366   DATA >2FA0
+A0368   DATA >0020
+A036A   DATA >10ED
+
+0334 4008   szc  r8, r0
+0336 4048   szc  r8, r1
+0338 0203   li   r3, >0008
+033a 0008
+033c 2fa0   xop  @>00f2, r14
+033e 00f2
+0340 2e80   xop  r0, r10
+0342 2fa0   xop  @>00cf, r14
+0344 00cf
+0346 2e90   xop  *r0, r10
+0348 1f15   tb   21
+034a 1602   jne  >0350
+034c 2f40   xop  r0, r13
+034e 0459   b    *r9
+0350 8040   c    r0, r1
+0352 13fd   jeq  >034e
+0354 05c0   inct r0
+0356 0603   dec  r3
+0358 0283   ci   r3, >0004
+035a 0004
+035c 1602   jne  >0362
+035e 2fa0   xop  @>0020, r14
+0360 0020
+0362 c0c3   mov  r3, r3
+0364 13e9   jeq  >0338
+0366 2fa0   xop  @>0020, r14
+0368 0020
+036a 10ed   jmp  >0346
+
+
+******************************************************************************
+* IM (Inspect Memory) command.                                               *
+* One operand.                                                               *
+******************************************************************************
+
+A036C   DATA >4008
+A036E   DATA >1004
+A0370   DATA >0640
+A0372   DATA >0A25
+A0374   DATA >16FB
+A0376   DATA >8C30
+A0378   DATA >2FA0
+A037A   DATA >00F2
+A037C   DATA >2E80
+A037E   DATA >2FA0
+A0380   DATA >00CF
+A0382   DATA >2E90
+A0384   DATA >2FA0
+A0386   DATA >0020
+A0388   DATA >2E44
+A038A   DATA >0390
+A038C   DATA >020E
+A038E   DATA >C404
+A0390   DATA >0A25
+A0392   DATA >11EE
+A0394   DATA >0459
+A0396   DATA >04C9
+A0398   DATA >04CC
+A039A   DATA >2ECA
+A039C   DATA >028A
+A039E   DATA >3000
+A03A0   DATA >1A11
+A03A2   DATA >028A
+A03A4   DATA >3900
+A03A6   DATA >1208
+A03A8   DATA >028A
+A03AA   DATA >4100
+A03AC   DATA >1A0B
+A03AE   DATA >028A
+A03B0   DATA >4600
+A03B2   DATA >1B08
+A03B4   DATA >022A
+A03B6   DATA >0900
+A03B8   DATA >0A4A
+A03BA   DATA >09CA
+A03BC   DATA >0A4C
+A03BE   DATA >A30A
+A03C0   DATA >0589
+A03C2   DATA >10EB
+A03C4   DATA >028A
+A03C6   DATA >2000
+A03C8   DATA >130B
+A03CA   DATA >028A
+A03CC   DATA >2D00
+A03CE   DATA >1308
+A03D0   DATA >028A
+A03D2   DATA >0D00
+A03D4   DATA >1305
+A03D6   DATA >028A
+A03D8   DATA >2C00
+A03DA   DATA >160C
+A03DC   DATA >020A
+A03DE   DATA >2000
+A03E0   DATA >C249
+A03E2   DATA >1304
+A03E4   DATA >CECC
+A03E6   DATA >C6CA
+A03E8   DATA >8FBE
+A03EA   DATA >0380
+A03EC   DATA >05CB
+A03EE   DATA >C6CA
+A03F0   DATA >C39E
+A03F2   DATA >0380
+A03F4   DATA >05CE
+A03F6   DATA >10FC
+A03F8   DATA >C31B
+A03FA   DATA >0ACC
+A03FC   DATA >0209
+A03FE   DATA >0001
+A0400   DATA >1003
+A0402   DATA >C31B
+A0404   DATA >0209
+A0406   DATA >0004
+A0408   DATA >C28C
+A040A   DATA >09CA
+A040C   DATA >0A8A
+A040E   DATA >028A
+A0410   DATA >0900
+A0412   DATA >1202
+A0414   DATA >022A
+A0416   DATA >0700
+A0418   DATA >022A
+A041A   DATA >3000
+A041C   DATA >2F0A
+A041E   DATA >0BCC
+A0420   DATA >0609
+A0422   DATA >16F2
+A0424   DATA >0380
+036c 4008   szc  r8, r0
+036e 1004   jmp  >0378
+0370 0640   dect r0
+0372 0a25   sla  r5, 2
+0374 16fb   jne  >036c
+0376 8c30   c    *r0+, *r0+
+0378 2fa0   xop  @>00f2, r14
+037a 00f2
+037c 2e80   xop  r0, r10
+037e 2fa0   xop  @>00cf, r14
+0380 00cf
+0382 2e90   xop  *r0, r10
+0384 2fa0   xop  @>0020, r14
+0386 0020
+0388 2e44   xop  r4, r9
+038a 0390   data >0390
+038c 020e   li   r14, >c404
+038e c404
+0390 0a25   sla  r5, 2
+0392 11ee   jlt  >0370
+0394 0459   b    *r9
+0396 04c9   clr  r9
+0398 04cc   clr  r12
+039a 2eca   xop  r10, r11
+039c 028a   ci   r10, >3000
+039e 3000
+03a0 1a11   jl   >03c4
+03a2 028a   ci   r10, >3900
+03a4 3900
+03a6 1208   jle  >03b8
+03a8 028a   ci   r10, >4100
+03aa 4100
+03ac 1a0b   jl   >03c4
+03ae 028a   ci   r10, >4600
+03b0 4600
+03b2 1b08   jh   >03c4
+03b4 022a   ai   r10, >0900
+03b6 0900
+03b8 0a4a   sla  r10, 4
+03ba 09ca   srl  r10, 12
+03bc 0a4c   sla  r12, 4
+03be a30a   a    r10, r12
+03c0 0589   inc  r9
+03c2 10eb   jmp  >039a
+03c4 028a   ci   r10, >2000
+03c6 2000
+03c8 130b   jeq  >03e0
+03ca 028a   ci   r10, >2d00
+03cc 2d00
+03ce 1308   jeq  >03e0
+03d0 028a   ci   r10, >0d00
+03d2 0d00
+03d4 1305   jeq  >03e0
+03d6 028a   ci   r10, >2c00
+03d8 2c00
+03da 160c   jne  >03f4
+03dc 020a   li   r10, >2000
+03de 2000
+03e0 c249   mov  r9, r9
+03e2 1304   jeq  >03ec
+03e4 cecc   mov  r12, *r11+
+03e6 c6ca   mov  r10, *r11
+03e8 8fbe   c    *r14+, *r14+
+03ea 0380   rtwp
+03ec 05cb   inct r11
+03ee c6ca   mov  r10, *r11
+03f0 c39e   mov  *r14, r14
+03f2 0380   rtwp
+03f4 05ce   inct r14
+03f6 10fc   jmp  >03f0
+03f8 c31b   mov  *r11, r12
+03fa 0acc   sla  r12, 12
+03fc 0209   li   r9, >0001
+03fe 0001
+0400 1003   jmp  >0408
+0402 c31b   mov  *r11, r12
+0404 0209   li   r9, >0004
+0406 0004
+0408 c28c   mov  r12, r10
+040a 09ca   srl  r10, 12
+040c 0a8a   sla  r10, 8
+040e 028a   ci   r10, >0900
+0410 0900
+0412 1202   jle  >0418
+0414 022a   ai   r10, >0700
+0416 0700
+0418 022a   ai   r10, >3000
+041a 3000
+041c 2f0a   xop  r10, r12
+041e 0bcc   src  r12, 12
+0420 0609   dec  r9
+0422 16f2   jne  >0408
+0424 0380   rtwp
+
+******************************************************************************
+* SS (Single Step) command.                                                  *
+* No operands.                                                               *
+******************************************************************************
+
+A0426   LI R7,>9900      DATA >0207  Set trace flag.
+*                        DATA >9900
+        DATA >03E0       Opcode for LREX instruction (assembler doesn't recognise it.
+*                        Initiate load interrupt.
+
+******************************************************************************
+* (embedded with SS code - EX (Execute) command.                             *
+* No operands.                                                               *
+******************************************************************************
+
+A042C   RTWP             DATA >0380
+
+*
+* Load (NMI) entry point.
+*
+A042E   CI R7,>9900      DATA >0287  Trace flag set?
+*                        DATA >9900
+        JEQ A044A        DATA >130B  Yes, jump to print user WP, PC and ST.
+        JMP A045C        DATA >1013  No, return to monitor.
+
+******************************************************************************
+* EXB (Execute With Breakpoint) command.                                     *
+* One operand.                                                               *
+******************************************************************************
+
+A0436   DATA >4008
+A0438   DATA >C190
+A043A   DATA >C420
+A043C   DATA >0440
+A043E   DATA >0380
+A0440   DATA >2FC0
+A0442   DATA >064E
+A0444   DATA >C406
+A0446   DATA >2FA0
+A0448   DATA >0023
+
+A044A   DATA >04C7
+A044C   DATA >020A
+A044E   DATA >FFFA
+A0450   DATA >2FA0
+A0452   DATA >001E
+A0454   DATA >2EAA
+A0456   DATA >EC20
+A0458   DATA >05CA
+A045A   DATA >16FA
+
+A045C   B @>0142         DATA >0460  Return to monitor.
+*                        DATA >0142
+0436 4008   szc  r8, r0
+0438 c190   mov  *r0, r6
+043a c420   mov  @>0440, *r0
+043c 0440
+043e 0380   rtwp
+0440 2fc0   xop  r0, r15
+0442 064e   dect r14
+0444 c406   mov  r6, *r0
+0446 2fa0   xop  @>0023, r14
+0448 0023
+044a 04c7   clr  r7
+044c 020a   li   r10, >fffa
+044e fffa
+0450 2fa0   xop  @>001e, r14
+0452 001e
+0454 2eaa   xop  @>ec20(r10), r10
+0456 ec20
+0458 05ca   inct r10
+045a 16fa   jne  >0450
+045c 0460   b    @>0142
+045e 0142
+******************************************************************************
+* IC (Inspect/Change CRU) command.                                           *
+* Two operands.                                                              *
+******************************************************************************
+
+A0460   DATA >C300
+A0462   DATA >04C7
+A0464   DATA >0241
+A0466   DATA >000F
+A0468   DATA >1303
+A046A   DATA >0281
+A046C   DATA >0009
+A046E   DATA >1A01
+A0470   DATA >0587
+A0472   DATA >0A61
+A0474   DATA >0208
+A0476   DATA >3406
+A0478   DATA >E201
+A047A   DATA >0488
+A047C   DATA >2FA0
+A047E   DATA >00F2
+A0480   DATA >2E8C
+A0482   DATA >2FA0
+A0484   DATA >00CF
+A0486   DATA >C1C7
+A0488   DATA >1601
+A048A   DATA >0986
+A048C   DATA >2E86
+A048E   DATA >2FA0
+A0490   DATA >0020
+A0492   DATA >2E44
+A0494   DATA >04A6
+A0496   DATA >020E
+A0498   DATA >C184
+A049A   DATA >C1C7
+A049C   DATA >1601
+A049E   DATA >0A86
+A04A0   DATA >0248
+A04A2   DATA >F3FF
+A04A4   DATA >0488
+A04A6   DATA >09C5
+A04A8   DATA >16E5
+A04AA   DATA >0459
+0460 c300   mov  r0, r12
+0462 04c7   clr  r7
+0464 0241   andi r1, >000f
+0466 000f
+0468 1303   jeq  >0470
+046a 0281   ci   r1, >0009
+046c 0009
+046e 1a01   jl   >0472
+0470 0587   inc  r7
+0472 0a61   sla  r1, 6
+0474 0208   li   r8, >3406
+0476 3406
+0478 e201   soc  r1, r8
+047a 0488   x    r8
+047c 2fa0   xop  @>00f2, r14
+047e 00f2
+0480 2e8c   xop  r12, r10
+0482 2fa0   xop  @>00cf, r14
+0484 00cf
+0486 c1c7   mov  r7, r7
+0488 1601   jne  >048c
+048a 0986   srl  r6, 8
+048c 2e86   xop  r6, r10
+048e 2fa0   xop  @>0020, r14
+0490 0020
+0492 2e44   xop  r4, r9
+0494 04a6   x    @>020e(r6)
+0496 020e
+0498 c184   mov  r4, r6
+049a c1c7   mov  r7, r7
+049c 1601   jne  >04a0
+049e 0a86   sla  r6, 8
+04a0 0248   andi r8, >f3ff
+04a2 f3ff
+04a4 0488   x    r8
+04a6 09c5   srl  r5, 12
+04a8 16e5   jne  >0474
+04aa 0459   b    *r9
+
+******************************************************************************
+* IWR (Inspect/Change Workspace Register) command.                           *
+* One operand.                                                               *
+******************************************************************************
+
+A04AC   MOV R13,R7       DATA >C1CD
+        MOV R3,R3        DATA >C0C3
+A04B0   DATA >131F
+A04B2   DATA >0240
+A04B4   DATA >000F
+A04B6   DATA >C180
+A04B8   DATA >0A10
+A04BA   DATA >A1C0
+A04BC   DATA >2FA0
+A04BE   DATA >00BC
+A04C0   DATA >2E06
+A04C2   DATA >2FA0
+A04C4   DATA >00CF
+A04C6   DATA >2E97
+A04C8   DATA >2FA0
+A04CA   DATA >0020
+A04CC   DATA >2E44
+A04CE   DATA >04D4
+A04D0   DATA >020E
+A04D2   DATA >C5C4
+A04D4   DATA >0A25
+A04D6   DATA >153C
+A04D8   DATA >0A15
+A04DA   DATA >1304
+A04DC   DATA >0606
+A04DE   DATA >1138
+A04E0   DATA >0647
+A04E2   DATA >10EC
+A04E4   DATA >0286
+A04E6   DATA >000F
+A04E8   DATA >1333
+A04EA   DATA >0586
+A04EC   DATA >05C7
+A04EE   DATA >10E6
+A04F0   DATA >04C6
+A04F2   DATA >C1CD
+A04F4   DATA >2FA0
+A04F6   DATA >00BC
+A04F8   DATA >2E06
+A04FA   DATA >2FA0
+A04FC   DATA >00CF
+A04FE   DATA >2E97
+A0500   DATA >0586
+A0502   DATA >05C7
+A0504   DATA >0286
+A0506   DATA >0008
+A0508   DATA >13F5
+A050A   DATA >0286
+A050C   DATA >0010
+A050E   DATA >1320
+A0510   DATA >2FA0
+A0512   DATA >0020
+A0514   DATA >2FA0
+A0516   DATA >00D6
+A0518   DATA >10EF
+04ac c1cd   mov  r13, r7
+04ae c0c3   mov  r3, r3
+04b0 131f   jeq  >04f0
+04b2 0240   andi r0, >000f
+04b4 000f
+04b6 c180   mov  r0, r6
+04b8 0a10   sla  r0, 1
+04ba a1c0   a    r0, r7
+04bc 2fa0   xop  @>00bc, r14
+04be 00bc
+04c0 2e06   xop  r6, r8
+04c2 2fa0   xop  @>00cf, r14
+04c4 00cf
+04c6 2e97   xop  *r7, r10
+04c8 2fa0   xop  @>0020, r14
+04ca 0020
+04cc 2e44   xop  r4, r9
+04ce 04d4   clr  *r4
+04d0 020e   li   r14, >c5c4
+04d2 c5c4
+04d4 0a25   sla  r5, 2
+04d6 153c   jgt  >0550
+04d8 0a15   sla  r5, 1
+04da 1304   jeq  >04e4
+04dc 0606   dec  r6
+04de 1138   jlt  >0550
+04e0 0647   dect r7
+04e2 10ec   jmp  >04bc
+04e4 0286   ci   r6, >000f
+04e6 000f
+04e8 1333   jeq  >0550
+04ea 0586   inc  r6
+04ec 05c7   inct r7
+04ee 10e6   jmp  >04bc
+04f0 04c6   clr  r6
+04f2 c1cd   mov  r13, r7
+04f4 2fa0   xop  @>00bc, r14
+04f6 00bc
+04f8 2e06   xop  r6, r8
+04fa 2fa0   xop  @>00cf, r14
+04fc 00cf
+04fe 2e97   xop  *r7, r10
+0500 0586   inc  r6
+0502 05c7   inct r7
+0504 0286   ci   r6, >0008
+0506 0008
+0508 13f5   jeq  >04f4
+050a 0286   ci   r6, >0010
+050c 0010
+050e 1320   jeq  >0550
+0510 2fa0   xop  @>0020, r14
+0512 0020
+0514 2fa0   xop  @>00d6, r14
+0516 00d6
+0518 10ef   jmp  >04f8
+
+******************************************************************************
+* IR (Set WP, PC and ST Registers) command.                                  *
+* No operands.                                                               *
+******************************************************************************
+
+A051A   LI R6,A003A      DATA >0206  Pointer to 'W' text.
+*                        DATA >003A
+        LI R7,3          DATA >0207  Set loop count.
+*                        DATA >0003
+        LI R8,>EC1A      DATA >0208  Address of R13 in workspace.
+*                        DATA >EC1A
+A0526   XOP @A00F2,14    DATA >2FA0  Print <CR><LF>.
+*                        DATA >00F2
+        XOP *R6,14       DATA >2F96  Print 'W'.
+        XOP @A00CE+1,14  DATA >2FA0  Print '='.
+*                        DATA >00CF
+        MOV *R8,R4       DATA >C118  Get current value in R13.
+        XOP *R8,10       DATA >2E98  Print value.
+        XOP @A0020,14    DATA >2FA0  Print two spaces.
+*                        DATA >0020
+        XOP R4,9         DATA >2E44  Get new value into R4.
+        DATA A053E                   Returns to this address if null entry.
+        DATA A020E                   Returns to this address if invalid entry - print error number 2.
+A053E   MOV R4,*R8       DATA >C604  Move value into R13.
+        SLA R5,2         DATA >0A25
+        JGT A0550        DATA >1506
+        SLA R5,1         DATA >0A15
+        JNE A0526        DATA >16EF
+        INCT R6          DATA >05C6  Increment text pointer to point to next register name.
+        INCT R8          DATA >05C8  Point to R14 (then R15 on next loop) in workspace.
+        DEC R7           DATA >0607  Decrement loop counter.
+        JNE A0526        DATA >16EB  Loop round for next register.
+A0550   B *R9            DATA >0459  Return to command scanner.
+
+******************************************************************************
+* DMC (Dump RAM Image) command.                                              *
+* Three operands.                                                               *
+******************************************************************************
+
+A0552   DATA >4008
+A0554   DATA >4048
+A0556   DATA >4088
+A0558   DATA >8040
+A055A   DATA >1202
+A055C   DATA >0460
+A055E   DATA >0214
+A0560   DATA >04C4
+A0562   DATA >04C3
+A0564   DATA >2FA0
+A0566   DATA >0028
+A0568   DATA >2F44
+A056A   DATA >0284
+A056C   DATA >0D00
+A056E   DATA >1603
+A0570   DATA >0204
+A0572   DATA >2000
+A0574   DATA >1001
+A0576   DATA >2F04
+A0578   DATA >D8C4
+A057A   DATA >EC0C
+A057C   DATA >0583
+A057E   DATA >0283
+A0580   DATA >0008
+A0582   DATA >1304
+A0584   DATA >0284
+A0586   DATA >2000
+A0588   DATA >16EF
+A058A   DATA >10F6
+A058C   DATA >2FA0
+A058E   DATA >002D
+A0590   DATA >2F44
+A0592   DATA >0284
+A0594   DATA >5900
+A0596   DATA >1641
+A0598   DATA >04E0
+A059A   DATA >EC46
+A059C   DATA >2FA0
+A059E   DATA >0136
+A05A0   DATA >04CA
+A05A2   DATA >04C5
+A05A4   DATA >06A0
+A05A6   DATA >061C
+A05A8   DATA >3000
+A05AA   DATA >2FA0
+A05AC   DATA >EC0C
+A05AE   DATA >0203
+A05B0   DATA >0008
+A05B2   DATA >D123
+A05B4   DATA >EC0B
+A05B6   DATA >0984
+A05B8   DATA >A144
+A05BA   DATA >0603
+A05BC   DATA >16FA
+A05BE   DATA >C282
+A05C0   DATA >06A0
+A05C2   DATA >061C
+A05C4   DATA >3100
+A05C6   DATA >C280
+A05C8   DATA >06A0
+A05CA   DATA >061C
+A05CC   DATA >3900
+A05CE   DATA >C290
+A05D0   DATA >06A0
+A05D2   DATA >061C
+A05D4   DATA >4200
+A05D6   DATA >8040
+A05D8   DATA >1304
+A05DA   DATA >05C0
+A05DC   DATA >0283
+A05DE   DATA >003C
+A05E0   DATA >1AF6
+A05E2   DATA >0225
+A05E4   DATA >0037
+A05E6   DATA >C285
+A05E8   DATA >050A
+A05EA   DATA >06A0
+A05EC   DATA >061C
+A05EE   DATA >3700
+A05F0   DATA >04C5
+A05F2   DATA >2FA0
+A05F4   DATA >0128
+A05F6   DATA >8040
+A05F8   DATA >1304
+A05FA   DATA >04C3
+A05FC   DATA >2FA0
+A05FE   DATA >0137
+A0600   DATA >10E2
+A0602   DATA >2FA0
+A0604   DATA >012B
+A0606   DATA >0203
+A0608   DATA >003C
+A060A   DATA >2FA0
+A060C   DATA >0134
+A060E   DATA >0603
+A0610   DATA >16FC
+A0612   DATA >0720
+A0614   DATA >EC46
+A0616   DATA >2FA0
+A0618   DATA >00F2
+A061A   DATA >104A
+A061C   DATA >C13B
+A061E   DATA >2F04
+A0620   DATA >0984
+A0622   DATA >A144
+A0624   DATA >2E8A
+A0626   DATA >0223
+A0628   DATA >0005
+A062A   DATA >0204
+A062C   DATA >0004
+A062E   DATA >0B4A
+A0630   DATA >C30A
+A0632   DATA >09CC
+A0634   DATA >A14C
+A0636   DATA >0225
+A0638   DATA >0030
+A063A   DATA >028C
+A063C   DATA >000A
+A063E   DATA >1A02
+A0640   DATA >0225
+A0642   DATA >0007
+A0644   DATA >0604
+A0646   DATA >16F3
+A0648   DATA >045B
+0552 4008   szc  r8, r0
+0554 4048   szc  r8, r1
+0556 4088   szc  r8, r2
+0558 8040   c    r0, r1
+055a 1202   jle  >0560
+055c 0460   b    @>0214
+055e 0214
+0560 04c4   clr  r4
+0562 04c3   clr  r3
+0564 2fa0   xop  @>0028, r14
+0566 0028
+0568 2f44   xop  r4, r13
+056a 0284   ci   r4, >0d00
+056c 0d00
+056e 1603   jne  >0576
+0570 0204   li   r4, >2000
+0572 2000
+0574 1001   jmp  >0578
+0576 2f04   xop  r4, r12
+0578 d8c4   movb r4, @>ec0c(r3)
+057a ec0c
+057c 0583   inc  r3
+057e 0283   ci   r3, >0008
+0580 0008
+0582 1304   jeq  >058c
+0584 0284   ci   r4, >2000
+0586 2000
+0588 16ef   jne  >0568
+058a 10f6   jmp  >0578
+058c 2fa0   xop  @>002d, r14
+058e 002d
+0590 2f44   xop  r4, r13
+0592 0284   ci   r4, >5900
+0594 5900
+0596 1641   jne  >061a
+0598 04e0   clr  @>ec46
+059a ec46
+059c 2fa0   xop  @>0136, r14
+059e 0136
+05a0 04ca   clr  r10
+05a2 04c5   clr  r5
+05a4 06a0   bl   @>061c
+05a6 061c
+05a8 3000   ldcr r0, r0
+05aa 2fa0   xop  @>ec0c, r14
+05ac ec0c
+05ae 0203   li   r3, >0008
+05b0 0008
+05b2 d123   movb @>ec0b(r3), r4
+05b4 ec0b
+05b6 0984   srl  r4, 8
+05b8 a144   a    r4, r5
+05ba 0603   dec  r3
+05bc 16fa   jne  >05b2
+05be c282   mov  r2, r10
+05c0 06a0   bl   @>061c
+05c2 061c
+05c4 3100   ldcr r0, r4
+05c6 c280   mov  r0, r10
+05c8 06a0   bl   @>061c
+05ca 061c
+05cc 3900   mpy  r0, r4
+05ce c290   mov  *r0, r10
+05d0 06a0   bl   @>061c
+05d2 061c
+05d4 4200   szc  r0, r8
+05d6 8040   c    r0, r1
+05d8 1304   jeq  >05e2
+05da 05c0   inct r0
+05dc 0283   ci   r3, >003c
+05de 003c
+05e0 1af6   jl   >05ce
+05e2 0225   ai   r5, >0037
+05e4 0037
+05e6 c285   mov  r5, r10
+05e8 050a   neg  r10
+05ea 06a0   bl   @>061c
+05ec 061c
+05ee 3700   stcr r0, r12
+05f0 04c5   clr  r5
+05f2 2fa0   xop  @>0128, r14
+05f4 0128
+05f6 8040   c    r0, r1
+05f8 1304   jeq  >0602
+05fa 04c3   clr  r3
+05fc 2fa0   xop  @>0137, r14
+05fe 0137
+0600 10e2   jmp  >05c6
+0602 2fa0   xop  @>012b, r14
+0604 012b
+0606 0203   li   r3, >003c
+0608 003c
+060a 2fa0   xop  @>0134, r14
+060c 0134
+060e 0603   dec  r3
+0610 16fc   jne  >060a
+0612 0720   seto @>ec46
+0614 ec46
+0616 2fa0   xop  @>00f2, r14
+0618 00f2
+061a 104a   jmp  >06b0
+061c c13b   mov  *r11+, r4
+061e 2f04   xop  r4, r12
+0620 0984   srl  r4, 8
+0622 a144   a    r4, r5
+0624 2e8a   xop  r10, r10
+0626 0223   ai   r3, >0005
+0628 0005
+062a 0204   li   r4, >0004
+062c 0004
+062e 0b4a   src  r10, 4
+0630 c30a   mov  r10, r12
+0632 09cc   srl  r12, 12
+0634 a14c   a    r12, r5
+0636 0225   ai   r5, >0030
+0638 0030
+063a 028c   ci   r12, >000a
+063c 000a
+063e 1a02   jl   >0644
+0640 0225   ai   r5, >0007
+0642 0007
+0644 0604   dec  r4
+0646 16f3   jne  >062e
+0648 045b   rt
+
+******************************************************************************
+* LMC (Tag Format Loader) command.                                           *
+* One operand.                                                               *
+******************************************************************************
+
+A064A   DATA >2FA0
+A064C   DATA >002D
+A064E   DATA >2F44
+A0650   DATA >0284
+A0652   DATA >5900
+A0654   DATA >162D
+A0656   DATA >0206
+A0658   DATA >1100
+A065A   DATA >2F06
+A065C   DATA >04C7
+A065E   DATA >04C8
+A0660   DATA >06A0
+A0662   DATA >0728
+A0664   DATA >100B
+A0666   DATA >D22A
+A0668   DATA >070E
+A066A   DATA >132D
+A066C   DATA >06A0
+A066E   DATA >0722
+A0670   DATA >100E
+A0672   DATA >0205
+A0674   DATA >0008
+A0676   DATA >0878
+A0678   DATA >0468
+A067A   DATA >0678
+A067C   DATA >0286
+A067E   DATA >0047
+A0680   DATA >1106
+A0682   DATA >0286
+A0684   DATA >004A
+A0686   DATA >1516
+A0688   DATA >0226
+A068A   DATA >FFC9
+A068C   DATA >10EC
+A068E   DATA >0286
+A0690   DATA >003A
+A0692   DATA >1610
+A0694   DATA >04CA
+A0696   DATA >0705
+A0698   DATA >020C
+A069A   DATA >0080
+A069C   DATA >1F0F
+A069E   DATA >16FB
+A06A0   DATA >0605
+A06A2   DATA >16FC
+A06A4   DATA >C28A
+A06A6   DATA >1609
+A06A8   DATA >2FA0
+A06AA   DATA >00F2
+A06AC   DATA >2FA0
+A06AE   DATA >EC02
+A06B0   DATA >0460
+A06B2   DATA >0142
+A06B4   DATA >04C0
+A06B6   DATA >070A
+A06B8   DATA >10EE
+A06BA   DATA >C000
+A06BC   DATA >1302
+A06BE   DATA >0460
+A06C0   DATA >0208
+A06C2   DATA >0460
+A06C4   DATA >0204
+A06C6   DATA >2F46
+A06C8   DATA >9806
+A06CA   DATA >00F2
+A06CC   DATA >16FC
+A06CE   DATA >10C6
+A06D0   DATA >A280
+A06D2   DATA >C24A
+A06D4   DATA >10C4
+A06D6   DATA >A280
+A06D8   DATA >CE4A
+A06DA   DATA >10C1
+A06DC   DATA >A1CA
+A06DE   DATA >13BF
+A06E0   DATA >0200
+A06E2   DATA >0001
+A06E4   DATA >10E8
+A06E6   DATA >020A
+A06E8   DATA >EC02
+A06EA   DATA >1003
+A06EC   DATA >0645
+A06EE   DATA >020A
+A06F0   DATA >EC22
+A06F2   DATA >2F46
+A06F4   DATA >DE86
+A06F6   DATA >0986
+A06F8   DATA >A1C6
+A06FA   DATA >0605
+A06FC   DATA >16FA
+A06FE   DATA >10AF
+A0700   DATA >A280
+A0702   DATA >C38A
+A0704   DATA >10AC
+A0706   DATA >024A
+A0708   DATA >FFFE
+A070A   DATA >C00A
+A070C   DATA >10A8
+A070E   DATA >3745
+A0710   DATA >443A
+A0712   DATA >3A3A
+A0714   DATA >3A32
+A0716   DATA >F22D
+A0718   DATA >2C30
+A071A   DATA >2F47
+A071C   DATA >1E00
+A071E   DATA >3A3A
+A0720   DATA >3BF3
+A0722   DATA >0205
+A0724   DATA >FFFC
+A0726   DATA >1001
+A0728   DATA >0705
+A072A   DATA >04CA
+A072C   DATA >2F46
+A072E   DATA >0286
+A0730   DATA >2000
+A0732   DATA >11FC
+A0734   DATA >0286
+A0736   DATA >5F00
+A0738   DATA >15F9
+
+064a 2fa0   xop  @>002d, r14
+064c 002d
+064e 2f44   xop  r4, r13
+0650 0284   ci   r4, >5900
+0652 5900
+0654 162d   jne  >06b0
+0656 0206   li   r6, >1100
+0658 1100
+065a 2f06   xop  r6, r12
+065c 04c7   clr  r7
+065e 04c8   clr  r8
+0660 06a0   bl   @>0728
+0662 0728
+0664 100b   jmp  >067c
+0666 d22a   movb @>070e(r10), r8
+0668 070e
+066a 132d   jeq  >06c6
+066c 06a0   bl   @>0722
+066e 0722
+0670 100e   jmp  >068e
+0672 0205   li   r5, >0008
+0674 0008
+0676 0878   sra  r8, 7
+0678 0468   b    @>0678(r8)
+067a 0678
+067c 0286   ci   r6, >0047
+067e 0047
+0680 1106   jlt  >068e
+0682 0286   ci   r6, >004a
+0684 004a
+0686 1516   jgt  >06b4
+0688 0226   ai   r6, >ffc9
+068a ffc9
+068c 10ec   jmp  >0666
+068e 0286   ci   r6, >003a
+0690 003a
+0692 1610   jne  >06b4
+0694 04ca   clr  r10
+0696 0705   seto r5
+0698 020c   li   r12, >0080
+069a 0080
+069c 1f0f   tb   15
+069e 16fb   jne  >0696
+06a0 0605   dec  r5
+06a2 16fc   jne  >069c
+06a4 c28a   mov  r10, r10
+06a6 1609   jne  >06ba
+06a8 2fa0   xop  @>00f2, r14
+06aa 00f2
+06ac 2fa0   xop  @>ec02, r14
+06ae ec02
+06b0 0460   b    @>0142
+06b2 0142
+06b4 04c0   clr  r0
+06b6 070a   seto r10
+06b8 10ee   jmp  >0696
+06ba c000   mov  r0, r0
+06bc 1302   jeq  >06c2
+06be 0460   b    @>0208
+06c0 0208
+06c2 0460   b    @>0204
+06c4 0204
+06c6 2f46   xop  r6, r13
+06c8 9806   cb   r6, @>00f2
+06ca 00f2
+06cc 16fc   jne  >06c6
+06ce 10c6   jmp  >065c
+06d0 a280   a    r0, r10
+06d2 c24a   mov  r10, r9
+06d4 10c4   jmp  >065e
+06d6 a280   a    r0, r10
+06d8 ce4a   mov  r10, *r9+
+06da 10c1   jmp  >065e
+06dc a1ca   a    r10, r7
+06de 13bf   jeq  >065e
+06e0 0200   li   r0, >0001
+06e2 0001
+06e4 10e8   jmp  >06b6
+06e6 020a   li   r10, >ec02
+06e8 ec02
+06ea 1003   jmp  >06f2
+06ec 0645   dect r5
+06ee 020a   li   r10, >ec22
+06f0 ec22
+06f2 2f46   xop  r6, r13
+06f4 de86   movb r6, *r10+
+06f6 0986   srl  r6, 8
+06f8 a1c6   a    r6, r7
+06fa 0605   dec  r5
+06fc 16fa   jne  >06f2
+06fe 10af   jmp  >065e
+0700 a280   a    r0, r10
+0702 c38a   mov  r10, r14
+0704 10ac   jmp  >065e
+0706 024a   andi r10, >fffe
+0708 fffe
+070a c00a   mov  r10, r0
+070c 10a8   jmp  >065e
+070e 3745   stcr r5, r13
+0710 443a   szc  *r10+, *r0
+0712 3a3a   mpy  *r10+, r8
+0714 3a32   mpy  *r2+, r8
+0716 f22d   socb @>2c30(r13), r8
+0718 2c30
+071a 2f47   xop  r7, r13
+071c 1e00   sbz  0
+071e 3a3a   mpy  *r10+, r8
+0720 3bf3   mpy  *r3+, r15
+0722 0205   li   r5, >fffc
+0724 fffc
+0726 1001   jmp  >072a
+0728 0705   seto r5
+072a 04ca   clr  r10
+072c 2f46   xop  r6, r13
+072e 0286   ci   r6, >2000
+0730 2000
+0732 11fc   jlt  >072c
+0734 0286   ci   r6, >5f00
+0736 5f00
+0738 15f9   jgt  >072c
+
+*If character in R6 is a hex digit, add it to R10 and return to address *R11+2.
+*If character in R6 is NOT a hex digit, return to address *R11.
+
+A073A   SRL R6,8         DATA >0986  Shift character in MSB of R6 into LSB.
+        CI R8,>3200      DATA >0288  (R8 given value in >EC52)
+*                        DATA >3200
+        JEQ A0744        DATA >1301
+        A R6,R7          DATA >A1C6  Add ASCII of character read to R7.
+A0744   CI R6,>0030      DATA >0286  Is character lower in ASCII than '0'?
+*                        DATA >0030
+        JLT A076E        DATA >1112  Yes, return.
+        CI R6,>0039      DATA >0286  Is character lower in ASCII than '9'?
+*                        DATA >0039
+        JLE A0760        DATA >1208  Yes, jump (character was numeric).
+
+        CI R6,>0041      DATA >0286  Is character lower in ASCII than 'A'? (so it is ;:<=>?@)
+*                        DATA >0041
+        JLT A076E        DATA >110C  Yes, return.
+        CI R6,>0046      DATA >0286  Is character higher in ASCII than 'F'?
+*                        DATA >0046
+        JGT A076E        DATA >1509  Yes, return.
+        AI R6,>0009      DATA >0226  Shift ASCII 'A' to 'F' so we can convert to numeric.
+*                        DATA >0009
+A0760   ANDI R6,>000F    DATA >0246  Convert ASCII value to numeric.
+*                        DATA >000F
+        SLA R10,4        DATA >0A4A  Shift current value across to next digit, then add new digit???
+        A R6,R10         DATA >A286  Add number to R10.
+        INC R5           DATA >0585
+        JNE A072C        DATA >16E0
+        INCT R11         DATA >05CB  Bump return address.
+
+A076E   B *R11           DATA >045B  Return.
+
+******************************************************************************
+* FD (Find) command.                                                         *
+* Three operands.                                                            *
+******************************************************************************
+
+A0770   DATA >0203
+A0772   DATA >8402
+A0774   DATA >0204
+A0776   DATA >05C0
+A0778   DATA >0A25
+A077A   DATA >1103
+A077C   DATA >4008
+A077E   DATA >4048
+A0780   DATA >1007
+A0782   DATA >0223
+A0784   DATA >1000
+A0786   DATA >0224
+A0788   DATA >FFC0
+A078A   DATA >0A82
+A078C   DATA >1001
+A078E   DATA >0484
+A0790   DATA >0483
+A0792   DATA >1603
+A0794   DATA >2FA0
+A0796   DATA >00F2
+A0798   DATA >2E80
+A079A   DATA >8040
+A079C   DATA >16F8
+A079E   DATA >0459
+0770 0203   li   r3, >8402
+0772 8402
+0774 0204   li   r4, >05c0
+0776 05c0
+0778 0a25   sla  r5, 2
+077a 1103   jlt  >0782
+077c 4008   szc  r8, r0
+077e 4048   szc  r8, r1
+0780 1007   jmp  >0790
+0782 0223   ai   r3, >1000
+0784 1000
+0786 0224   ai   r4, >ffc0
+0788 ffc0
+078a 0a82   sla  r2, 8
+078c 1001   jmp  >0790
+078e 0484   x    r4
+0790 0483   x    r3
+0792 1603   jne  >079a
+0794 2fa0   xop  @>00f2, r14
+0796 00f2
+0798 2e80   xop  r0, r10
+079a 8040   c    r0, r1
+079c 16f8   jne  >078e
+079e 0459   b    *r9
+
+******************************************************************************
+* Hex (Hexadecimal Arithmetic) command.                                      *
+* Two operands.                                                              *
+******************************************************************************
+
+A07A0   DATA >2FA0
+A07A2   DATA >00C0
+A07A4   DATA >C100
+A07A6   DATA >A101
+A07A8   DATA >2E84
+A07AA   DATA >2FA0
+A07AC   DATA >00C9
+A07AE   DATA >6001
+A07B0   DATA >2E80
+A07B2   DATA >0459
+07a0 2fa0   xop  @>00c0, r14
+07a2 00c0
+07a4 c100   mov  r0, r4
+07a6 a101   a    r1, r4
+07a8 2e84   xop  r4, r10
+07aa 2fa0   xop  @>00c9, r14
+07ac 00c9
+07ae 6001   s    r1, r0
+07b0 2e80   xop  r0, r10
+07b2 0459   b    *r9
+
+******************************************************************************
+* TNF (Toggle ASR Flag) command.                                             *
+* No operands.                                                               *
+******************************************************************************
+
+A07B4   DATA >0560
+A07B6   DATA >EC44
+A07B8   DATA >0459
+07b4 0560   inv  @>ec44
+07b6 ec44
+07b8 0459   b    *r9
+
+******************************************************************************
+* XA (Line-By-Line Assembler) command, clear symbol table.                   *
+* One operand.                                                               *
+******************************************************************************
+
+A07BA   CLR @>EC4E       DATA >04E0
+*                        DATA >EC4E
+        CLR @>EC4C       DATA >04E0
+*                        DATA >EC4C
+
+******************************************************************************
+* XAE (Line-By-Line Assembler) command, retain symbol table.                 *
+* One operand.                                                               *
+******************************************************************************
+
+A07C2   MOV R0,R9        DATA >C240
+        XOP @A00F2,14    DATA >2FA0
+*                        DATA >00F2
+        LI R10,>0850     DATA >020A
+*                        DATA >0850
+        LI R0,>EC52      DATA >0200
+*                        DATA >EC52
+A07D0   DATA >0208
+A07D2   DATA >0006
+A07D4   DATA >04F0
+A07D6   DATA >0608
+A07D8   DATA >15FD
+A07DA   DATA >2E89
+A07DC   DATA >2FA0
+A07DE   DATA >001C
+A07E0   DATA >069A
+A07E2   DATA >0284
+A07E4   DATA >0020
+A07E6   DATA >1316
+A07E8   DATA >0284
+A07EA   DATA >002A
+A07EC   DATA >1605
+A07EE   DATA >069A
+A07F0   DATA >0284
+A07F2   DATA >000D
+A07F4   DATA >16FC
+A07F6   DATA >10E6
+A07F8   DATA >06A0
+A07FA   DATA >0BEE
+A07FC   DATA >C807
+A07FE   DATA >EC52
+A0800   DATA >C809
+A0802   DATA >EC54
+A0804   DATA >C107
+A0806   DATA >06A0
+A0808   DATA >0C64
+A080A   DATA >1321
+A080C   DATA >9807
+A080E   DATA >0BF3
+A0810   DATA >1303
+A0812   DATA >1004
+A0814   DATA >2FA0
+A0816   DATA >0021
+A0818   DATA >2FA0
+A081A   DATA >0021
+A081C   DATA >0207
+A081E   DATA >0CE3
+A0820   DATA >04C5
+A0822   DATA >04C6
+A0824   DATA >069A
+A0826   DATA >06A0
+A0828   DATA >0C34
+A082A   DATA >1643
+A082C   DATA >0AB4
+A082E   DATA >0587
+A0830   DATA >D017
+A0832   DATA >1102
+A0834   DATA >1372
+A0836   DATA >05C6
+A0838   DATA >0A10
+A083A   DATA >09E0
+A083C   DATA >8005
+A083E   DATA >11F7
+A0840   DATA >156C
+A0842   DATA >D017
+A0844   DATA >0A30
+A0846   DATA >9100
+A0848   DATA >16F2
+A084A   DATA >0585
+A084C   DATA >10EB
+A084E   DATA >1065
+A0850   DATA >2F44
+A0852   DATA >0284
+A0854   DATA >1B00
+A0856   DATA >13B6
+A0858   DATA >0284
+A085A   DATA >2000
+A085C   DATA >1A01
+A085E   DATA >2F04
+A0860   DATA >0984
+A0862   DATA >C804
+A0864   DATA >EC60
+A0866   DATA >045B
+A0868   DATA >069A
+A086A   DATA >0284
+A086C   DATA >0027
+A086E   DATA >1655
+A0870   DATA >C1C9
+A0872   DATA >75D7
+A0874   DATA >0588
+A0876   DATA >069A
+A0878   DATA >0284
+A087A   DATA >0027
+A087C   DATA >1358
+A087E   DATA >06C4
+A0880   DATA >DDC4
+A0882   DATA >10F7
+A0884   DATA >06A0
+A0886   DATA >0B14
+A0888   DATA >C806
+A088A   DATA >EC54
+A088C   DATA >1064
+A088E   DATA >070E
+A0890   DATA >C006
+A0892   DATA >06A0
+A0894   DATA >0B14
+A0896   DATA >C809
+A0898   DATA >EC54
+A089A   DATA >0280
+A089C   DATA >0014
+A089E   DATA >1605
+A08A0   DATA >A189
+A08A2   DATA >1303
+A08A4   DATA >0586
+A08A6   DATA >8246
+A08A8   DATA >1A38
+A08AA   DATA >C246
+A08AC   DATA >0249
+A08AE   DATA >FFFE
+A08B0   DATA >1052
+A08B2   DATA >C145
+A08B4   DATA >13AF
+A08B6   DATA >D017
+A08B8   DATA >1130
+A08BA   DATA >070E
+A08BC   DATA >0286
+A08BE   DATA >0032
+A08C0   DATA >13E1
+A08C2   DATA >0286
+A08C4   DATA >009A
+A08C6   DATA >13D0
+A08C8   DATA >C026
+A08CA   DATA >0D76
+A08CC   DATA >C040
+A08CE   DATA >0241
+A08D0   DATA >FFF0
+A08D2   DATA >1302
+A08D4   DATA >C641
+A08D6   DATA >05C8
+A08D8   DATA >C040
+A08DA   DATA >0241
+A08DC   DATA >000F
+A08DE   DATA >D021
+A08E0   DATA >0CD6
+A08E2   DATA >06C0
+A08E4   DATA >0260
+A08E6   DATA >FFE0
+A08E8   DATA >C040
+A08EA   DATA >0921
+A08EC   DATA >0241
+A08EE   DATA >0006
+A08F0   DATA >C061
+A08F2   DATA >0CC6
+A08F4   DATA >1307
+A08F6   DATA >0284
+A08F8   DATA >0020
+A08FA   DATA >160F
+A08FC   DATA >04CE
+A08FE   DATA >020F
+A0900   DATA >0904
+A0902   DATA >0691
+A0904   DATA >C040
+A0906   DATA >0AD1
+A0908   DATA >09C1
+A090A   DATA >C061
+A090C   DATA >0CC6
+A090E   DATA >1309
+A0910   DATA >04C0
+A0912   DATA >04CE
+A0914   DATA >020F
+A0916   DATA >0922
+A0918   DATA >0691
+A091A   DATA >2FA0
+A091C   DATA >00D1
+A091E   DATA >0460
+A0920   DATA >07C4
+A0922   DATA >0284
+A0924   DATA >000D
+A0926   DATA >1307
+A0928   DATA >0284
+A092A   DATA >0020
+A092C   DATA >16F6
+A092E   DATA >069A
+A0930   DATA >0284
+A0932   DATA >000D
+A0934   DATA >16FC
+A0936   DATA >0280
+A0938   DATA >0030
+A093A   DATA >135C
+A093C   DATA >2F20
+A093E   DATA >00F2
+A0940   DATA >2E89
+A0942   DATA >C089
+A0944   DATA >06A0
+A0946   DATA >0C86
+A0948   DATA >0204
+A094A   DATA >2052
+A094C   DATA >C0C3
+A094E   DATA >1301
+A0950   DATA >06C4
+A0952   DATA >2F04
+A0954   DATA >2EB9
+A0956   DATA >2FA0
+A0958   DATA >00F2
+A095A   DATA >0648
+A095C   DATA >15F1
+A095E   DATA >0200
+A0960   DATA >EC56
+A0962   DATA >06A0
+A0964   DATA >0C9A
+A0966   DATA >06A0
+A0968   DATA >0C9A
+A096A   DATA >C120
+A096C   DATA >EC52
+A096E   DATA >1331
+A0970   DATA >0224
+A0972   DATA >8000
+A0974   DATA >06A0
+A0976   DATA >0C64
+A0978   DATA >1608
+A097A   DATA >06A0
+A097C   DATA >09D6
+A097E   DATA >C390
+A0980   DATA >C403
+A0982   DATA >06A0
+A0984   DATA >09E6
+A0986   DATA >C00E
+A0988   DATA >16FA
+A098A   DATA >0224
+A098C   DATA >8080
+A098E   DATA >06A0
+A0990   DATA >0C64
+A0992   DATA >161A
+A0994   DATA >06A0
+A0996   DATA >09D6
+A0998   DATA >04CE
+A099A   DATA >0580
+A099C   DATA >D390
+A099E   DATA >C083
+A09A0   DATA >6080
+A09A2   DATA >0602
+A09A4   DATA >0A72
+A09A6   DATA >1907
+A09A8   DATA >0600
+A09AA   DATA >2E80
+A09AC   DATA >2FA0
+A09AE   DATA >00D1
+A09B0   DATA >2FA0
+A09B2   DATA >00F2
+A09B4   DATA >1004
+A09B6   DATA >D402
+A09B8   DATA >0600
+A09BA   DATA >06A0
+A09BC   DATA >09E6
+A09BE   DATA >087E
+A09C0   DATA >05CE
+A09C2   DATA >1302
+A09C4   DATA >A00E
+A09C6   DATA >10E8
+A09C8   DATA >0200
+A09CA   DATA >EC52
+A09CC   DATA >04C4
+A09CE   DATA >06A0
+A09D0   DATA >0C9C
+A09D2   DATA >0460
+A09D4   DATA >07C8
+A09D6   DATA >C012
+A09D8   DATA >04E2
+A09DA   DATA >FFFE
+A09DC   DATA >0620
+A09DE   DATA >EC4C
+A09E0   DATA >C0E0
+A09E2   DATA >EC54
+A09E4   DATA >045B
+A09E6   DATA >2E80
+A09E8   DATA >2F20
+A09EA   DATA >0A05
+A09EC   DATA >2E90
+A09EE   DATA >2FA0
+A09F0   DATA >00F2
+A09F2   DATA >045B
+A09F4   DATA >2FA0
+A09F6   DATA >001F
+A09F8   DATA >2EA0
+A09FA   DATA >EC4C
+A09FC   DATA >0460
+A09FE   DATA >0142
+A0A00   DATA >069A
+A0A02   DATA >0284
+A0A04   DATA >002A
+A0A06   DATA >131A
+A0A08   DATA >0284
+A0A0A   DATA >0040
+A0A0C   DATA >1622
+A0A0E   DATA >06A0
+A0A10   DATA >0B14
+A0A12   DATA >C088
+A0A14   DATA >A089
+A0A16   DATA >C486
+A0A18   DATA >05C8
+A0A1A   DATA >0206
+A0A1C   DATA >0020
+A0A1E   DATA >0284
+A0A20   DATA >0028
+A0A22   DATA >1608
+A0A24   DATA >06A0
+A0A26   DATA >0AD0
+A0A28   DATA >0266
+A0A2A   DATA >0020
+A0A2C   DATA >0284
+A0A2E   DATA >0029
+A0A30   DATA >1649
+A0A32   DATA >069A
+A0A34   DATA >C000
+A0A36   DATA >1601
+A0A38   DATA >0A66
+A0A3A   DATA >1040
+A0A3C   DATA >06A0
+A0A3E   DATA >0AD0
+A0A40   DATA >0266
+A0A42   DATA >0010
+A0A44   DATA >0284
+A0A46   DATA >002B
+A0A48   DATA >1603
+A0A4A   DATA >069A
+A0A4C   DATA >0266
+A0A4E   DATA >0030
+A0A50   DATA >10F1
+A0A52   DATA >020E
+A0A54   DATA >0A34
+A0A56   DATA >C80E
+A0A58   DATA >EC5E
+A0A5A   DATA >0460
+A0A5C   DATA >0AD6
+A0A5E   DATA >06A0
+A0A60   DATA >0AD0
+A0A62   DATA >0A46
+A0A64   DATA >102B
+A0A66   DATA >C006
+A0A68   DATA >0280
+A0A6A   DATA >0030
+A0A6C   DATA >1604
+A0A6E   DATA >0284
+A0A70   DATA >000D
+A0A72   DATA >1312
+A0A74   DATA >070E
+A0A76   DATA >06A0
+A0A78   DATA >0B14
+A0A7A   DATA >0280
+A0A7C   DATA >0030
+A0A7E   DATA >130B
+A0A80   DATA >C089
+A0A82   DATA >A088
+A0A84   DATA >C486
+A0A86   DATA >05C8
+A0A88   DATA >0280
+A0A8A   DATA >0026
+A0A8C   DATA >1605
+A0A8E   DATA >070E
+A0A90   DATA >0284
+A0A92   DATA >002C
+A0A94   DATA >13F0
+A0A96   DATA >C386
+A0A98   DATA >045F
+A0A9A   DATA >06A0
+A0A9C   DATA >0AD0
+A0A9E   DATA >10CA
+A0AA0   DATA >06A0
+A0AA2   DATA >0B14
+A0AA4   DATA >C089
+A0AA6   DATA >05C2
+A0AA8   DATA >6182
+A0AAA   DATA >0816
+A0AAC   DATA >0286
+A0AAE   DATA >007F
+A0AB0   DATA >1507
+A0AB2   DATA >0286
+A0AB4   DATA >FF80
+A0AB6   DATA >1104
+A0AB8   DATA >0246
+A0ABA   DATA >00FF
+A0ABC   DATA >E646
+A0ABE   DATA >045F
+A0AC0   DATA >2FA0
+A0AC2   DATA >00D6
+A0AC4   DATA >0460
+A0AC6   DATA >091A
+A0AC8   DATA >070E
+A0ACA   DATA >06A0
+A0ACC   DATA >0B14
+A0ACE   DATA >10EE
+A0AD0   DATA >C80B
+A0AD2   DATA >EC5E
+A0AD4   DATA >069A
+A0AD6   DATA >020C
+A0AD8   DATA >0B04
+A0ADA   DATA >0284
+A0ADC   DATA >0052
+A0ADE   DATA >130C
+A0AE0   DATA >0284
+A0AE2   DATA >003A
+A0AE4   DATA >110A
+A0AE6   DATA >0284
+A0AE8   DATA >003E
+A0AEA   DATA >1309
+A0AEC   DATA >020E
+A0AEE   DATA >FFFE
+A0AF0   DATA >020D
+A0AF2   DATA >0B04
+A0AF4   DATA >0460
+A0AF6   DATA >0B18
+A0AF8   DATA >069A
+A0AFA   DATA >0460
+A0AFC   DATA >0C2A
+A0AFE   DATA >069A
+A0B00   DATA >0460
+A0B02   DATA >0C0C
+A0B04   DATA >C145
+A0B06   DATA >11DE
+A0B08   DATA >0286
+A0B0A   DATA >0010
+A0B0C   DATA >14DB
+A0B0E   DATA >C2E0
+A0B10   DATA >EC5E
+A0B12   DATA >045B
+A0B14   DATA >C34B
+A0B16   DATA >069A
+A0B18   DATA >04E0
+A0B1A   DATA >EC50
+A0B1C   DATA >0284
+A0B1E   DATA >0027
+A0B20   DATA >1307
+A0B22   DATA >0284
+A0B24   DATA >002D
+A0B26   DATA >1610
+A0B28   DATA >054D
+A0B2A   DATA >05CE
+A0B2C   DATA >069A
+A0B2E   DATA >1011
+A0B30   DATA >04C6
+A0B32   DATA >04CE
+A0B34   DATA >069A
+A0B36   DATA >0284
+A0B38   DATA >0027
+A0B3A   DATA >1304
+A0B3C   DATA >06C6
+A0B3E   DATA >D106
+A0B40   DATA >C184
+A0B42   DATA >10F8
+A0B44   DATA >069A
+A0B46   DATA >1043
+A0B48   DATA >0284
+A0B4A   DATA >002B
+A0B4C   DATA >13EE
+A0B4E   DATA >C38E
+A0B50   DATA >154B
+A0B52   DATA >0284
+A0B54   DATA >0024
+A0B56   DATA >1603
+A0B58   DATA >C189
+A0B5A   DATA >069A
+A0B5C   DATA >1037
+A0B5E   DATA >0284
+A0B60   DATA >003E
+A0B62   DATA >1604
+A0B64   DATA >069A
+A0B66   DATA >06A0
+A0B68   DATA >0C0A
+A0B6A   DATA >1030
+A0B6C   DATA >06A0
+A0B6E   DATA >0C34
+A0B70   DATA >11A9
+A0B72   DATA >1325
+A0B74   DATA >06A0
+A0B76   DATA >0C28
+A0B78   DATA >1029
+A0B7A   DATA >C38E
+A0B7C   DATA >16A3
+A0B7E   DATA >C059
+A0B80   DATA >04C2
+A0B82   DATA >06A0
+A0B84   DATA >0C86
+A0B86   DATA >C4C9
+A0B88   DATA >0241
+A0B8A   DATA >F000
+A0B8C   DATA >0281
+A0B8E   DATA >1000
+A0B90   DATA >1611
+A0B92   DATA >0264
+A0B94   DATA >0080
+A0B96   DATA >C189
+A0B98   DATA >0643
+A0B9A   DATA >C4C4
+A0B9C   DATA >8820
+A0B9E   DATA >EC56
+A0BA0   DATA >EC5A
+A0BA2   DATA >1603
+A0BA4   DATA >C1A0
+A0BA6   DATA >EC58
+A0BA8   DATA >1012
+A0BAA   DATA >06A0
+A0BAC   DATA >0C64
+A0BAE   DATA >1601
+A0BB0   DATA >C192
+A0BB2   DATA >100D
+A0BB4   DATA >A4C8
+A0BB6   DATA >0264
+A0BB8   DATA >8000
+A0BBA   DATA >04C6
+A0BBC   DATA >10ED
+A0BBE   DATA >06A0
+A0BC0   DATA >0BEE
+A0BC2   DATA >C107
+A0BC4   DATA >06A0
+A0BC6   DATA >0C64
+A0BC8   DATA >16D8
+A0BCA   DATA >C192
+A0BCC   DATA >05CE
+A0BCE   DATA >C120
+A0BD0   DATA >EC60
+A0BD2   DATA >C34D
+A0BD4   DATA >1502
+A0BD6   DATA >0506
+A0BD8   DATA >054D
+A0BDA   DATA >C145
+A0BDC   DATA >1194
+A0BDE   DATA >C38E
+A0BE0   DATA >1305
+A0BE2   DATA >A806
+A0BE4   DATA >EC50
+A0BE6   DATA >109D
+A0BE8   DATA >C1A0
+A0BEA   DATA >EC50
+A0BEC   DATA >045D
+A0BEE   DATA >C30B
+A0BF0   DATA >0207
+A0BF2   DATA >0031
+A0BF4   DATA >06A0
+A0BF6   DATA >0C34
+A0BF8   DATA >111C
+A0BFA   DATA >1303
+A0BFC   DATA >0A87
+A0BFE   DATA >1919
+A0C00   DATA >1001
+A0C02   DATA >0A87
+A0C04   DATA >A1C4
+A0C06   DATA >069A
+A0C08   DATA >10F5
+A0C0A   DATA >C30B
+A0C0C   DATA >0202
+A0C0E   DATA >0010
+A0C10   DATA >04C6
+A0C12   DATA >0705
+A0C14   DATA >06A0
+A0C16   DATA >0C34
+A0C18   DATA >110C
+A0C1A   DATA >8083
+A0C1C   DATA >1409
+A0C1E   DATA >C146
+A0C20   DATA >3942
+A0C22   DATA >A183
+A0C24   DATA >069A
+A0C26   DATA >10F6
+A0C28   DATA >C30B
+A0C2A   DATA >0202
+A0C2C   DATA >000A
+A0C2E   DATA >10F0
+A0C30   DATA >0705
+A0C32   DATA >045C
+A0C34   DATA >0701
+A0C36   DATA >C0C4
+A0C38   DATA >0284
+A0C3A   DATA >0024
+A0C3C   DATA >1306
+A0C3E   DATA >0223
+A0C40   DATA >FFD0
+A0C42   DATA >170E
+A0C44   DATA >0283
+A0C46   DATA >0009
+A0C48   DATA >1502
+A0C4A   DATA >0501
+A0C4C   DATA >045B
+A0C4E   DATA >0223
+A0C50   DATA >FFF9
+A0C52   DATA >0283
+A0C54   DATA >000A
+A0C56   DATA >1A04
+A0C58   DATA >0283
+A0C5A   DATA >0023
+A0C5C   DATA >1B01
+A0C5E   DATA >04C1
+A0C60   DATA >C041
+A0C62   DATA >045B
+A0C64   DATA >0703
+A0C66   DATA >C060
+A0C68   DATA >EC4E
+A0C6A   DATA >130B
+A0C6C   DATA >0A21
+A0C6E   DATA >0202
+A0C70   DATA >EC62
+A0C72   DATA >A042
+A0C74   DATA >04C3
+A0C76   DATA >05C2
+A0C78   DATA >8C84
+A0C7A   DATA >1303
+A0C7C   DATA >8042
+A0C7E   DATA >1AFB
+A0C80   DATA >0583
+A0C82   DATA >C0C3
+A0C84   DATA >045B
+A0C86   DATA >0203
+A0C88   DATA >EC58
+A0C8A   DATA >84C2
+A0C8C   DATA >1305
+A0C8E   DATA >0203
+A0C90   DATA >EC5C
+A0C92   DATA >84C2
+A0C94   DATA >1301
+A0C96   DATA >04C3
+A0C98   DATA >045B
+A0C9A   DATA >C110
+A0C9C   DATA >C30B
+A0C9E   DATA >06A0
+A0CA0   DATA >0C64
+A0CA2   DATA >130D
+A0CA4   DATA >C104
+A0CA6   DATA >1304
+A0CA8   DATA >04C4
+A0CAA   DATA >05A0
+A0CAC   DATA >EC4C
+A0CAE   DATA >10F7
+A0CB0   DATA >05A0
+A0CB2   DATA >EC4E
+A0CB4   DATA >C0A0
+A0CB6   DATA >EC4E
+A0CB8   DATA >0A22
+A0CBA   DATA >0222
+A0CBC   DATA >EC62
+A0CBE   DATA >0642
+A0CC0   DATA >CCB0
+A0CC2   DATA >C4B0
+A0CC4   DATA >045C
+A0CC6   DATA >0000
+A0CC8   DATA >0A00
+A0CCA   DATA >0A9A
+A0CCC   DATA >0A66
+A0CCE   DATA >0A5E
+A0CD0   DATA >0AA0
+A0CD2   DATA >0AC8
+A0CD4   DATA >088E
+A0CD6   DATA >0905
+A0CD8   DATA >0A0A
+A0CDA   DATA >1408
+A0CDC   DATA >0013
+A0CDE   DATA >0A06
+A0CE0   DATA >0310
+A0CE2   DATA >0307
+A0CE4   DATA >0122
+A0CE6   DATA >5329
+A0CE8   DATA >AEC4
+A0CEA   DATA >69AF
+A0CEC   DATA >D267
+A0CEE   DATA >022C
+A0CF0   DATA >D770
+A0CF2   DATA >B353
+A0CF4   DATA >0322
+A0CF6   DATA >29AB
+A0CF8   DATA >CF6E
+A0CFA   DATA >66AC
+A0CFC   DATA >52AF
+A0CFE   DATA >43BA
+A0D00   DATA >4384
+A0D02   DATA >A1D4
+A0D04   DATA >61A5
+A0D06   DATA >4374
+A0D08   DATA >A956
+A0D0A   DATA >7385
+A0D0C   DATA >AE44
+A0D0E   DATA >B155
+A0D10   DATA >89A4
+A0D12   DATA >CC65
+A0D14   DATA >AE43
+A0D16   DATA >7456
+A0D18   DATA >8AA5
+A0D1A   DATA >51A7
+A0D1C   DATA >5428
+A0D1E   DATA >452C
+A0D20   DATA >4554
+A0D22   DATA >AD50
+A0D24   DATA >AE43
+A0D26   DATA >454F
+A0D28   DATA >AF43
+A0D2A   DATA >508C
+A0D2C   DATA >A4C3
+A0D2E   DATA >7229
+A0D30   DATA >CD69
+A0D32   DATA >B2C5
+A0D34   DATA >78B3
+A0D36   DATA >54B7
+A0D38   DATA >5069
+A0D3A   DATA >8DAF
+A0D3C   DATA >5662
+A0D3E   DATA >B059
+A0D40   DATA >738E
+A0D42   DATA >A547
+A0D44   DATA >AF50
+A0D46   DATA >8FB2
+A0D48   DATA >4992
+A0D4A   DATA >B3C5
+A0D4C   DATA >74B4
+A0D4E   DATA >D770
+A0D50   DATA >1322
+A0D52   DATA >4F5A
+A0D54   DATA >A5D4
+A0D56   DATA >6FAC
+A0D58   DATA >41AF
+A0D5A   DATA >4362
+A0D5C   DATA >B241
+A0D5E   DATA >434C
+A0D60   DATA >B4C3
+A0D62   DATA >72D3
+A0D64   DATA >74D7
+A0D66   DATA >70B7
+A0D68   DATA >D062
+A0D6A   DATA >BA43
+A0D6C   DATA >6294
+A0D6E   DATA >22A5
+A0D70   DATA >D874
+A0D72   DATA >18AF
+A0D74   DATA >5052
+A0D76   DATA >0000
+A0D78   DATA >A000
+A0D7A   DATA >B000
+A0D7C   DATA >0745
+A0D7E   DATA >0227
+A0D80   DATA >0247
+A0D82   DATA >000D
+A0D84   DATA >0445
+A0D86   DATA >0685
+A0D88   DATA >0405
+A0D8A   DATA >000D
+A0D8C   DATA >8000
+A0D8E   DATA >9000
+A0D90   DATA >0287
+A0D92   DATA >03A6
+A0D94   DATA >03C6
+A0D96   DATA >04C5
+A0D98   DATA >2002
+A0D9A   DATA >2402
+A0D9C   DATA >000A
+A0D9E   DATA >0605
+A0DA0   DATA >0645
+A0DA2   DATA >3C08
+A0DA4   DATA >0185
+A0DA6   DATA >000C
+A0DA8   DATA >0006
+A0DAA   DATA >0346
+A0DAC   DATA >0585
+A0DAE   DATA >05C5
+A0DB0   DATA >0545
+A0DB2   DATA >1301
+A0DB4   DATA >1501
+A0DB6   DATA >1B01
+A0DB8   DATA >1401
+A0DBA   DATA >1A01
+A0DBC   DATA >1201
+A0DBE   DATA >1101
+A0DC0   DATA >1001
+A0DC2   DATA >1701
+A0DC4   DATA >1601
+A0DC6   DATA >1901
+A0DC8   DATA >1801
+A0DCA   DATA >1C01
+A0DCC   DATA >3003
+A0DCE   DATA >0207
+A0DD0   DATA >030A
+A0DD2   DATA >03E6
+A0DD4   DATA >008B
+A0DD6   DATA >009B
+A0DD8   DATA >02EA
+A0DDA   DATA >C000
+A0DDC   DATA >D000
+A0DDE   DATA >3808
+A0DE0   DATA >01C5
+A0DE2   DATA >0505
+A0DE4   DATA >1006
+A0DE6   DATA >0267
+A0DE8   DATA >0366
+A0DEA   DATA >0386
+A0DEC   DATA >6000
+A0DEE   DATA >7000
+A0DF0   DATA >1D09
+A0DF2   DATA >1E09
+A0DF4   DATA >0705
+A0DF6   DATA >0A04
+A0DF8   DATA >E000
+A0DFA   DATA >F000
+A0DFC   DATA >0804
+A0DFE   DATA >0B04
+A0E00   DATA >0904
+A0E02   DATA >3403
+A0E04   DATA >02CB
+A0E06   DATA >02AB
+A0E08   DATA >06C5
+A0E0A   DATA >4000
+A0E0C   DATA >5000
+A0E0E   DATA >1F09
+A0E10   DATA >0006
+A0E12   DATA >0485
+A0E14   DATA >2C08
+A0E16   DATA >2802
+A0E18   DATA >0000
+07d0 0208   li   r8, >0006
+07d2 0006
+07d4 04f0   clr  *r0+
+07d6 0608   dec  r8
+07d8 15fd   jgt  >07d4
+07da 2e89   xop  r9, r10
+07dc 2fa0   xop  @>001c, r14
+07de 001c
+07e0 069a   bl   *r10
+07e2 0284   ci   r4, >0020
+07e4 0020
+07e6 1316   jeq  >0814
+07e8 0284   ci   r4, >002a
+07ea 002a
+07ec 1605   jne  >07f8
+07ee 069a   bl   *r10
+07f0 0284   ci   r4, >000d
+07f2 000d
+07f4 16fc   jne  >07ee
+07f6 10e6   jmp  >07c4
+07f8 06a0   bl   @>0bee
+07fa 0bee
+07fc c807   mov  r7, @>ec52
+07fe ec52
+0800 c809   mov  r9, @>ec54
+0802 ec54
+0804 c107   mov  r7, r4
+0806 06a0   bl   @>0c64
+0808 0c64
+080a 1321   jeq  >084e
+080c 9807   cb   r7, @>0bf3
+080e 0bf3
+0810 1303   jeq  >0818
+0812 1004   jmp  >081c
+0814 2fa0   xop  @>0021, r14
+0816 0021
+0818 2fa0   xop  @>0021, r14
+081a 0021
+081c 0207   li   r7, >0ce3
+081e 0ce3
+0820 04c5   clr  r5
+0822 04c6   clr  r6
+0824 069a   bl   *r10
+0826 06a0   bl   @>0c34
+0828 0c34
+082a 1643   jne  >08b2
+082c 0ab4   sla  r4, 11
+082e 0587   inc  r7
+0830 d017   movb *r7, r0
+0832 1102   jlt  >0838
+0834 1372   jeq  >091a
+0836 05c6   inct r6
+0838 0a10   sla  r0, 1
+083a 09e0   srl  r0, 14
+083c 8005   c    r5, r0
+083e 11f7   jlt  >082e
+0840 156c   jgt  >091a
+0842 d017   movb *r7, r0
+0844 0a30   sla  r0, 3
+0846 9100   cb   r0, r4
+0848 16f2   jne  >082e
+084a 0585   inc  r5
+084c 10eb   jmp  >0824
+084e 1065   jmp  >091a
+0850 2f44   xop  r4, r13
+0852 0284   ci   r4, >1b00
+0854 1b00
+0856 13b6   jeq  >07c4
+0858 0284   ci   r4, >2000
+085a 2000
+085c 1a01   jl   >0860
+085e 2f04   xop  r4, r12
+0860 0984   srl  r4, 8
+0862 c804   mov  r4, @>ec60
+0864 ec60
+0866 045b   rt
+0868 069a   bl   *r10
+086a 0284   ci   r4, >0027
+086c 0027
+086e 1655   jne  >091a
+0870 c1c9   mov  r9, r7
+0872 75d7   sb   *r7, *r7
+0874 0588   inc  r8
+0876 069a   bl   *r10
+0878 0284   ci   r4, >0027
+087a 0027
+087c 1358   jeq  >092e
+087e 06c4   swpb r4
+0880 ddc4   movb r4, *r7+
+0882 10f7   jmp  >0872
+0884 06a0   bl   @>0b14
+0886 0b14
+0888 c806   mov  r6, @>ec54
+088a ec54
+088c 1064   jmp  >0956
+088e 070e   seto r14
+0890 c006   mov  r6, r0
+0892 06a0   bl   @>0b14
+0894 0b14
+0896 c809   mov  r9, @>ec54
+0898 ec54
+089a 0280   ci   r0, >0014
+089c 0014
+089e 1605   jne  >08aa
+08a0 a189   a    r9, r6
+08a2 1303   jeq  >08aa
+08a4 0586   inc  r6
+08a6 8246   c    r6, r9
+08a8 1a38   jl   >091a
+08aa c246   mov  r6, r9
+08ac 0249   andi r9, >fffe
+08ae fffe
+08b0 1052   jmp  >0956
+08b2 c145   mov  r5, r5
+08b4 13af   jeq  >0814
+08b6 d017   movb *r7, r0
+08b8 1130   jlt  >091a
+08ba 070e   seto r14
+08bc 0286   ci   r6, >0032
+08be 0032
+08c0 13e1   jeq  >0884
+08c2 0286   ci   r6, >009a
+08c4 009a
+08c6 13d0   jeq  >0868
+08c8 c026   mov  @>0d76(r6), r0
+08ca 0d76
+08cc c040   mov  r0, r1
+08ce 0241   andi r1, >fff0
+08d0 fff0
+08d2 1302   jeq  >08d8
+08d4 c641   mov  r1, *r9
+08d6 05c8   inct r8
+08d8 c040   mov  r0, r1
+08da 0241   andi r1, >000f
+08dc 000f
+08de d021   movb @>0cd6(r1), r0
+08e0 0cd6
+08e2 06c0   swpb r0
+08e4 0260   ori  r0, >ffe0
+08e6 ffe0
+08e8 c040   mov  r0, r1
+08ea 0921   srl  r1, 2
+08ec 0241   andi r1, >0006
+08ee 0006
+08f0 c061   mov  @>0cc6(r1), r1
+08f2 0cc6
+08f4 1307   jeq  >0904
+08f6 0284   ci   r4, >0020
+08f8 0020
+08fa 160f   jne  >091a
+08fc 04ce   clr  r14
+08fe 020f   li   r15, >0904
+0900 0904
+0902 0691   bl   *r1
+0904 c040   mov  r0, r1
+0906 0ad1   sla  r1, 13
+0908 09c1   srl  r1, 12
+090a c061   mov  @>0cc6(r1), r1
+090c 0cc6
+090e 1309   jeq  >0922
+0910 04c0   clr  r0
+0912 04ce   clr  r14
+0914 020f   li   r15, >0922
+0916 0922
+0918 0691   bl   *r1
+091a 2fa0   xop  @>00d1, r14
+091c 00d1
+091e 0460   b    @>07c4
+0920 07c4
+0922 0284   ci   r4, >000d
+0924 000d
+0926 1307   jeq  >0936
+0928 0284   ci   r4, >0020
+092a 0020
+092c 16f6   jne  >091a
+092e 069a   bl   *r10
+0930 0284   ci   r4, >000d
+0932 000d
+0934 16fc   jne  >092e
+0936 0280   ci   r0, >0030
+0938 0030
+093a 135c   jeq  >09f4
+093c 2f20   xop  @>00f2, r12
+093e 00f2
+0940 2e89   xop  r9, r10
+0942 c089   mov  r9, r2
+0944 06a0   bl   @>0c86
+0946 0c86
+0948 0204   li   r4, >2052
+094a 2052
+094c c0c3   mov  r3, r3
+094e 1301   jeq  >0952
+0950 06c4   swpb r4
+0952 2f04   xop  r4, r12
+0954 2eb9   xop  *r9+, r10
+0956 2fa0   xop  @>00f2, r14
+0958 00f2
+095a 0648   dect r8
+095c 15f1   jgt  >0940
+095e 0200   li   r0, >ec56
+0960 ec56
+0962 06a0   bl   @>0c9a
+0964 0c9a
+0966 06a0   bl   @>0c9a
+0968 0c9a
+096a c120   mov  @>ec52, r4
+096c ec52
+096e 1331   jeq  >09d2
+0970 0224   ai   r4, >8000
+0972 8000
+0974 06a0   bl   @>0c64
+0976 0c64
+0978 1608   jne  >098a
+097a 06a0   bl   @>09d6
+097c 09d6
+097e c390   mov  *r0, r14
+0980 c403   mov  r3, *r0
+0982 06a0   bl   @>09e6
+0984 09e6
+0986 c00e   mov  r14, r0
+0988 16fa   jne  >097e
+098a 0224   ai   r4, >8080
+098c 8080
+098e 06a0   bl   @>0c64
+0990 0c64
+0992 161a   jne  >09c8
+0994 06a0   bl   @>09d6
+0996 09d6
+0998 04ce   clr  r14
+099a 0580   inc  r0
+099c d390   movb *r0, r14
+099e c083   mov  r3, r2
+09a0 6080   s    r0, r2
+09a2 0602   dec  r2
+09a4 0a72   sla  r2, 7
+09a6 1907   jno  >09b6
+09a8 0600   dec  r0
+09aa 2e80   xop  r0, r10
+09ac 2fa0   xop  @>00d1, r14
+09ae 00d1
+09b0 2fa0   xop  @>00f2, r14
+09b2 00f2
+09b4 1004   jmp  >09be
+09b6 d402   movb r2, *r0
+09b8 0600   dec  r0
+09ba 06a0   bl   @>09e6
+09bc 09e6
+09be 087e   sra  r14, 7
+09c0 05ce   inct r14
+09c2 1302   jeq  >09c8
+09c4 a00e   a    r14, r0
+09c6 10e8   jmp  >0998
+09c8 0200   li   r0, >ec52
+09ca ec52
+09cc 04c4   clr  r4
+09ce 06a0   bl   @>0c9c
+09d0 0c9c
+09d2 0460   b    @>07c8
+09d4 07c8
+09d6 c012   mov  *r2, r0
+09d8 04e2   clr  @>fffe(r2)
+09da fffe
+09dc 0620   dec  @>ec4c
+09de ec4c
+09e0 c0e0   mov  @>ec54, r3
+09e2 ec54
+09e4 045b   rt
+09e6 2e80   xop  r0, r10
+09e8 2f20   xop  @>0a05, r12
+09ea 0a05
+09ec 2e90   xop  *r0, r10
+09ee 2fa0   xop  @>00f2, r14
+09f0 00f2
+09f2 045b   rt
+09f4 2fa0   xop  @>001f, r14
+09f6 001f
+09f8 2ea0   xop  @>ec4c, r10
+09fa ec4c
+09fc 0460   b    @>0142
+09fe 0142
+0a00 069a   bl   *r10
+0a02 0284   ci   r4, >002a
+0a04 002a
+0a06 131a   jeq  >0a3c
+0a08 0284   ci   r4, >0040
+0a0a 0040
+0a0c 1622   jne  >0a52
+0a0e 06a0   bl   @>0b14
+0a10 0b14
+0a12 c088   mov  r8, r2
+0a14 a089   a    r9, r2
+0a16 c486   mov  r6, *r2
+0a18 05c8   inct r8
+0a1a 0206   li   r6, >0020
+0a1c 0020
+0a1e 0284   ci   r4, >0028
+0a20 0028
+0a22 1608   jne  >0a34
+0a24 06a0   bl   @>0ad0
+0a26 0ad0
+0a28 0266   ori  r6, >0020
+0a2a 0020
+0a2c 0284   ci   r4, >0029
+0a2e 0029
+0a30 1649   jne  >0ac4
+0a32 069a   bl   *r10
+0a34 c000   mov  r0, r0
+0a36 1601   jne  >0a3a
+0a38 0a66   sla  r6, 6
+0a3a 1040   jmp  >0abc
+0a3c 06a0   bl   @>0ad0
+0a3e 0ad0
+0a40 0266   ori  r6, >0010
+0a42 0010
+0a44 0284   ci   r4, >002b
+0a46 002b
+0a48 1603   jne  >0a50
+0a4a 069a   bl   *r10
+0a4c 0266   ori  r6, >0030
+0a4e 0030
+0a50 10f1   jmp  >0a34
+0a52 020e   li   r14, >0a34
+0a54 0a34
+0a56 c80e   mov  r14, @>ec5e
+0a58 ec5e
+0a5a 0460   b    @>0ad6
+0a5c 0ad6
+0a5e 06a0   bl   @>0ad0
+0a60 0ad0
+0a62 0a46   sla  r6, 4
+0a64 102b   jmp  >0abc
+0a66 c006   mov  r6, r0
+0a68 0280   ci   r0, >0030
+0a6a 0030
+0a6c 1604   jne  >0a76
+0a6e 0284   ci   r4, >000d
+0a70 000d
+0a72 1312   jeq  >0a98
+0a74 070e   seto r14
+0a76 06a0   bl   @>0b14
+0a78 0b14
+0a7a 0280   ci   r0, >0030
+0a7c 0030
+0a7e 130b   jeq  >0a96
+0a80 c089   mov  r9, r2
+0a82 a088   a    r8, r2
+0a84 c486   mov  r6, *r2
+0a86 05c8   inct r8
+0a88 0280   ci   r0, >0026
+0a8a 0026
+0a8c 1605   jne  >0a98
+0a8e 070e   seto r14
+0a90 0284   ci   r4, >002c
+0a92 002c
+0a94 13f0   jeq  >0a76
+0a96 c386   mov  r6, r14
+0a98 045f   b    *r15
+0a9a 06a0   bl   @>0ad0
+0a9c 0ad0
+0a9e 10ca   jmp  >0a34
+0aa0 06a0   bl   @>0b14
+0aa2 0b14
+0aa4 c089   mov  r9, r2
+0aa6 05c2   inct r2
+0aa8 6182   s    r2, r6
+0aaa 0816   sra  r6, 1
+0aac 0286   ci   r6, >007f
+0aae 007f
+0ab0 1507   jgt  >0ac0
+0ab2 0286   ci   r6, >ff80
+0ab4 ff80
+0ab6 1104   jlt  >0ac0
+0ab8 0246   andi r6, >00ff
+0aba 00ff
+0abc e646   soc  r6, *r9
+0abe 045f   b    *r15
+0ac0 2fa0   xop  @>00d6, r14
+0ac2 00d6
+0ac4 0460   b    @>091a
+0ac6 091a
+0ac8 070e   seto r14
+0aca 06a0   bl   @>0b14
+0acc 0b14
+0ace 10ee   jmp  >0aac
+0ad0 c80b   mov  r11, @>ec5e
+0ad2 ec5e
+0ad4 069a   bl   *r10
+0ad6 020c   li   r12, >0b04
+0ad8 0b04
+0ada 0284   ci   r4, >0052
+0adc 0052
+0ade 130c   jeq  >0af8
+0ae0 0284   ci   r4, >003a
+0ae2 003a
+0ae4 110a   jlt  >0afa
+0ae6 0284   ci   r4, >003e
+0ae8 003e
+0aea 1309   jeq  >0afe
+0aec 020e   li   r14, >fffe
+0aee fffe
+0af0 020d   li   r13, >0b04
+0af2 0b04
+0af4 0460   b    @>0b18
+0af6 0b18
+0af8 069a   bl   *r10
+0afa 0460   b    @>0c2a
+0afc 0c2a
+0afe 069a   bl   *r10
+0b00 0460   b    @>0c0c
+0b02 0c0c
+0b04 c145   mov  r5, r5
+0b06 11de   jlt  >0ac4
+0b08 0286   ci   r6, >0010
+0b0a 0010
+0b0c 14db   jhe  >0ac4
+0b0e c2e0   mov  @>ec5e, r11
+0b10 ec5e
+0b12 045b   rt
+0b14 c34b   mov  r11, r13
+0b16 069a   bl   *r10
+0b18 04e0   clr  @>ec50
+0b1a ec50
+0b1c 0284   ci   r4, >0027
+0b1e 0027
+0b20 1307   jeq  >0b30
+0b22 0284   ci   r4, >002d
+0b24 002d
+0b26 1610   jne  >0b48
+0b28 054d   inv  r13
+0b2a 05ce   inct r14
+0b2c 069a   bl   *r10
+0b2e 1011   jmp  >0b52
+0b30 04c6   clr  r6
+0b32 04ce   clr  r14
+0b34 069a   bl   *r10
+0b36 0284   ci   r4, >0027
+0b38 0027
+0b3a 1304   jeq  >0b44
+0b3c 06c6   swpb r6
+0b3e d106   movb r6, r4
+0b40 c184   mov  r4, r6
+0b42 10f8   jmp  >0b34
+0b44 069a   bl   *r10
+0b46 1043   jmp  >0bce
+0b48 0284   ci   r4, >002b
+0b4a 002b
+0b4c 13ee   jeq  >0b2a
+0b4e c38e   mov  r14, r14
+0b50 154b   jgt  >0be8
+0b52 0284   ci   r4, >0024
+0b54 0024
+0b56 1603   jne  >0b5e
+0b58 c189   mov  r9, r6
+0b5a 069a   bl   *r10
+0b5c 1037   jmp  >0bcc
+0b5e 0284   ci   r4, >003e
+0b60 003e
+0b62 1604   jne  >0b6c
+0b64 069a   bl   *r10
+0b66 06a0   bl   @>0c0a
+0b68 0c0a
+0b6a 1030   jmp  >0bcc
+0b6c 06a0   bl   @>0c34
+0b6e 0c34
+0b70 11a9   jlt  >0ac4
+0b72 1325   jeq  >0bbe
+0b74 06a0   bl   @>0c28
+0b76 0c28
+0b78 1029   jmp  >0bcc
+0b7a c38e   mov  r14, r14
+0b7c 16a3   jne  >0ac4
+0b7e c059   mov  *r9, r1
+0b80 04c2   clr  r2
+0b82 06a0   bl   @>0c86
+0b84 0c86
+0b86 c4c9   mov  r9, *r3
+0b88 0241   andi r1, >f000
+0b8a f000
+0b8c 0281   ci   r1, >1000
+0b8e 1000
+0b90 1611   jne  >0bb4
+0b92 0264   ori  r4, >0080
+0b94 0080
+0b96 c189   mov  r9, r6
+0b98 0643   dect r3
+0b9a c4c4   mov  r4, *r3
+0b9c 8820   c    @>ec56, @>ec5a
+0b9e ec56
+0ba0 ec5a
+0ba2 1603   jne  >0baa
+0ba4 c1a0   mov  @>ec58, r6
+0ba6 ec58
+0ba8 1012   jmp  >0bce
+0baa 06a0   bl   @>0c64
+0bac 0c64
+0bae 1601   jne  >0bb2
+0bb0 c192   mov  *r2, r6
+0bb2 100d   jmp  >0bce
+0bb4 a4c8   a    r8, *r3
+0bb6 0264   ori  r4, >8000
+0bb8 8000
+0bba 04c6   clr  r6
+0bbc 10ed   jmp  >0b98
+0bbe 06a0   bl   @>0bee
+0bc0 0bee
+0bc2 c107   mov  r7, r4
+0bc4 06a0   bl   @>0c64
+0bc6 0c64
+0bc8 16d8   jne  >0b7a
+0bca c192   mov  *r2, r6
+0bcc 05ce   inct r14
+0bce c120   mov  @>ec60, r4
+0bd0 ec60
+0bd2 c34d   mov  r13, r13
+0bd4 1502   jgt  >0bda
+0bd6 0506   neg  r6
+0bd8 054d   inv  r13
+0bda c145   mov  r5, r5
+0bdc 1194   jlt  >0b06
+0bde c38e   mov  r14, r14
+0be0 1305   jeq  >0bec
+0be2 a806   a    r6, @>ec50
+0be4 ec50
+0be6 109d   jmp  >0b22
+0be8 c1a0   mov  @>ec50, r6
+0bea ec50
+0bec 045d   b    *r13
+0bee c30b   mov  r11, r12
+0bf0 0207   li   r7, >0031
+0bf2 0031
+0bf4 06a0   bl   @>0c34
+0bf6 0c34
+0bf8 111c   jlt  >0c32
+0bfa 1303   jeq  >0c02
+0bfc 0a87   sla  r7, 8
+0bfe 1919   jno  >0c32
+0c00 1001   jmp  >0c04
+0c02 0a87   sla  r7, 8
+0c04 a1c4   a    r4, r7
+0c06 069a   bl   *r10
+0c08 10f5   jmp  >0bf4
+0c0a c30b   mov  r11, r12
+0c0c 0202   li   r2, >0010
+0c0e 0010
+0c10 04c6   clr  r6
+0c12 0705   seto r5
+0c14 06a0   bl   @>0c34
+0c16 0c34
+0c18 110c   jlt  >0c32
+0c1a 8083   c    r3, r2
+0c1c 1409   jhe  >0c30
+0c1e c146   mov  r6, r5
+0c20 3942   mpy  r2, r5
+0c22 a183   a    r3, r6
+0c24 069a   bl   *r10
+0c26 10f6   jmp  >0c14
+0c28 c30b   mov  r11, r12
+0c2a 0202   li   r2, >000a
+0c2c 000a
+0c2e 10f0   jmp  >0c10
+0c30 0705   seto r5
+0c32 045c   b    *r12
+0c34 0701   seto r1
+0c36 c0c4   mov  r4, r3
+0c38 0284   ci   r4, >0024
+0c3a 0024
+0c3c 1306   jeq  >0c4a
+0c3e 0223   ai   r3, >ffd0
+0c40 ffd0
+0c42 170e   jnc  >0c60
+0c44 0283   ci   r3, >0009
+0c46 0009
+0c48 1502   jgt  >0c4e
+0c4a 0501   neg  r1
+0c4c 045b   rt
+0c4e 0223   ai   r3, >fff9
+0c50 fff9
+0c52 0283   ci   r3, >000a
+0c54 000a
+0c56 1a04   jl   >0c60
+0c58 0283   ci   r3, >0023
+0c5a 0023
+0c5c 1b01   jh   >0c60
+0c5e 04c1   clr  r1
+0c60 c041   mov  r1, r1
+0c62 045b   rt
+0c64 0703   seto r3
+0c66 c060   mov  @>ec4e, r1
+0c68 ec4e
+0c6a 130b   jeq  >0c82
+0c6c 0a21   sla  r1, 2
+0c6e 0202   li   r2, >ec62
+0c70 ec62
+0c72 a042   a    r2, r1
+0c74 04c3   clr  r3
+0c76 05c2   inct r2
+0c78 8c84   c    r4, *r2+
+0c7a 1303   jeq  >0c82
+0c7c 8042   c    r2, r1
+0c7e 1afb   jl   >0c76
+0c80 0583   inc  r3
+0c82 c0c3   mov  r3, r3
+0c84 045b   rt
+0c86 0203   li   r3, >ec58
+0c88 ec58
+0c8a 84c2   c    r2, *r3
+0c8c 1305   jeq  >0c98
+0c8e 0203   li   r3, >ec5c
+0c90 ec5c
+0c92 84c2   c    r2, *r3
+0c94 1301   jeq  >0c98
+0c96 04c3   clr  r3
+0c98 045b   rt
+0c9a c110   mov  *r0, r4
+0c9c c30b   mov  r11, r12
+0c9e 06a0   bl   @>0c64
+0ca0 0c64
+0ca2 130d   jeq  >0cbe
+0ca4 c104   mov  r4, r4
+0ca6 1304   jeq  >0cb0
+0ca8 04c4   clr  r4
+0caa 05a0   inc  @>ec4c
+0cac ec4c
+0cae 10f7   jmp  >0c9e
+0cb0 05a0   inc  @>ec4e
+0cb2 ec4e
+0cb4 c0a0   mov  @>ec4e, r2
+0cb6 ec4e
+0cb8 0a22   sla  r2, 2
+0cba 0222   ai   r2, >ec62
+0cbc ec62
+0cbe 0642   dect r2
+0cc0 ccb0   mov  *r0+, *r2+
+0cc2 c4b0   mov  *r0+, *r2
+0cc4 045c   b    *r12
+0cc6 0000   data >0000
+0cc8 0a00   sla  r0, 0
+0cca 0a9a   sla  r10, 9
+0ccc 0a66   sla  r6, 6
+0cce 0a5e   sla  r14, 5
+0cd0 0aa0   sla  r0, 10
+0cd2 0ac8   sla  r8, 12
+0cd4 088e   sra  r14, 8
+0cd6 0905   srl  r5, 0
+0cd8 0a0a   sla  r10, 0
+0cda 1408   jhe  >0cec
+0cdc 0013   data >0013
+0cde 0a06   sla  r6, 0
+0ce0 0310   data >0310
+0ce2 0307   data >0307
+0ce4 0122   data >0122
+0ce6 5329   szcb @>aec4(r9), r12
+0ce8 aec4
+0cea 69af   s    @>d267(r15), @>022c(r6)
+0cec d267
+0cee 022c
+0cf0 d770   movb *r0+, *r13
+0cf2 b353   ab   *r3, r13
+0cf4 0322   data >0322
+0cf6 29ab   xor  @>cf6e(r11), r6
+0cf8 cf6e
+0cfa 66ac   s    @>52af(r12), *r10
+0cfc 52af
+0cfe 43ba   szc  *r10+, r14
+0d00 4384   szc  r4, r14
+0d02 a1d4   a    *r4, r7
+0d04 61a5   s    @>4374(r5), r6
+0d06 4374
+0d08 a956   a    *r6, @>7385(r5)
+0d0a 7385
+0d0c ae44   a    r4, *r9+
+0d0e b155   ab   *r5, r5
+0d10 89a4   c    @>cc65(r4), @>ae43(r6)
+0d12 cc65
+0d14 ae43
+0d16 7456   sb   *r6, *r1
+0d18 8aa5   c    @>51a7(r5), @>5428(r10)
+0d1a 51a7
+0d1c 5428
+0d1e 452c   szc  @>4554(r12), *r4
+0d20 4554
+0d22 ad50   a    *r0, *r5+
+0d24 ae43   a    r3, *r9+
+0d26 454f   szc  r15, *r5
+0d28 af43   a    r3, *r13+
+0d2a 508c   szcb r12, r2
+0d2c a4c3   a    r3, *r3
+0d2e 7229   sb   @>cd69(r9), r8
+0d30 cd69
+0d32 b2c5   ab   r5, r11
+0d34 78b3   sb   *r3+, @>54b7(r2)
+0d36 54b7
+0d38 5069   szcb @>8daf(r9), r1
+0d3a 8daf
+0d3c 5662   szcb @>b059(r2), *r9
+0d3e b059
+0d40 738e   sb   r14, r14
+0d42 a547   a    r7, *r5
+0d44 af50   a    *r0, *r13+
+0d46 8fb2   c    *r2+, *r14+
+0d48 4992   szc  *r2, @>b3c5(r6)
+0d4a b3c5
+0d4c 74b4   sb   *r4+, *r2
+0d4e d770   movb *r0+, *r13
+0d50 1322   jeq  >0d96
+0d52 4f5a   szc  *r10, *r13+
+0d54 a5d4   a    *r4, *r7
+0d56 6fac   s    @>41af(r12), *r14+
+0d58 41af
+0d5a 4362   szc  @>b241(r2), r13
+0d5c b241
+0d5e 434c   szc  r12, r13
+0d60 b4c3   ab   r3, *r3
+0d62 72d3   sb   *r3, r11
+0d64 74d7   sb   *r7, *r3
+0d66 70b7   sb   *r7+, r2
+0d68 d062   movb @>ba43(r2), r1
+0d6a ba43
+0d6c 6294   s    *r4, r10
+0d6e 22a5   coc  @>d874(r5), r10
+0d70 d874
+0d72 18af   joc  >0cd2
+0d74 5052   szcb *r2, r1
+0d76 0000   data >0000
+0d78 a000   a    r0, r0
+0d7a b000   ab   r0, r0
+0d7c 0745   abs  r5
+0d7e 0227   ai   r7, >0247
+0d80 0247
+0d82 000d   data >000d
+0d84 0445   b    r5
+0d86 0685   bl   r5
+0d88 0405   blwp r5
+0d8a 000d   data >000d
+0d8c 8000   c    r0, r0
+0d8e 9000   cb   r0, r0
+0d90 0287   ci   r7, >03a6
+0d92 03a6
+0d94 03c6   data >03c6
+0d96 04c5   clr  r5
+0d98 2002   coc  r2, r0
+0d9a 2402   czc  r2, r0
+0d9c 000a   data >000a
+0d9e 0605   dec  r5
+0da0 0645   dect r5
+0da2 3c08   div  r8, r0
+0da4 0185   data >0185
+0da6 000c   data >000c
+0da8 0006   data >0006
+0daa 0346   data >0346
+0dac 0585   inc  r5
+0dae 05c5   inct r5
+0db0 0545   inv  r5
+0db2 1301   jeq  >0db6
+0db4 1501   jgt  >0db8
+0db6 1b01   jh   >0dba
+0db8 1401   jhe  >0dbc
+0dba 1a01   jl   >0dbe
+0dbc 1201   jle  >0dc0
+0dbe 1101   jlt  >0dc2
+0dc0 1001   jmp  >0dc4
+0dc2 1701   jnc  >0dc6
+0dc4 1601   jne  >0dc8
+0dc6 1901   jno  >0dca
+0dc8 1801   joc  >0dcc
+0dca 1c01   jop  >0dce
+0dcc 3003   ldcr r3, r0
+0dce 0207   li   r7, >030a
+0dd0 030a
+0dd2 03e6   data >03e6
+0dd4 008b   data >008b
+0dd6 009b   data >009b
+0dd8 02ea   data >02ea
+0dda c000   mov  r0, r0
+0ddc d000   movb r0, r0
+0dde 3808   mpy  r8, r0
+0de0 01c5   data >01c5
+0de2 0505   neg  r5
+0de4 1006   jmp  >0df2
+0de6 0267   ori  r7, >0366
+0de8 0366
+0dea 0386   data >0386
+0dec 6000   s    r0, r0
+0dee 7000   sb   r0, r0
+0df0 1d09   sbo  9
+0df2 1e09   sbz  9
+0df4 0705   seto r5
+0df6 0a04   sla  r4, 0
+0df8 e000   soc  r0, r0
+0dfa f000   socb r0, r0
+0dfc 0804   sra  r4, 0
+0dfe 0b04   src  r4, 0
+0e00 0904   srl  r4, 0
+0e02 3403   stcr r3, r0
+0e04 02cb   stst r11
+0e06 02ab   stwp r11
+0e08 06c5   swpb r5
+0e0a 4000   szc  r0, r0
+0e0c 5000   szcb r0, r0
+0e0e 1f09   tb   9
+0e10 0006   data >0006
+0e12 0485   x    r5
+0e14 2c08   xop  r8, r0
+0e16 2802   xor  r2, r0
+0e18 0000   data >0000
+
+******************************************************************************
+* XCL (Terminal Mode???????) command.                                        *
+* No operands.                                                               *
+******************************************************************************
+
+A0E1A   LWPI >EC00       DATA >02E0  Initialise workspace pointer.
+*                        DATA >EC00
+        LI R3,>EC4C      DATA >0203
+*                        DATA >EC4C
+        LI R5,>ED00      DATA >0205  Some sort of buffer from >ED00 to >EFFE????????????
+*                        DATA >ED00
+        LI R6,>EFFE      DATA >0206
+*                        DATA >EFFE
+        MOV R5,*R3+      DATA >CCC5
+        MOV R6,*R3+      DATA >CCC6
+        MOV R5,*R3+      DATA >CCC5
+        CLR R5           DATA >04C5
+        CLR *R3          DATA >04D3
+        LI R9,>EC2E      DATA >0209  TMS9902 serial port previously stored at >EC2E.
+*                        DATA >EC2E
+        MOV @>EC44,@>EC54  DATA >C820  Save state of ASR flag for 1st RS-232 port.
+*                        DATA >EC44
+*                        DATA >EC54
+        LI R12,>0400     DATA >020C  Address 2nd RS-232 port.
+*                        DATA >0400
+        SBO 31           DATA >1D1F  Reset TMS9902.
+        LDCR @A013B,8    DATA >3220  Initialise TMS9902 control register.
+*                        DATA >013B
+        SBZ 13           DATA >1E0D  Do not initalise interval register.
+        LDCR @A0094+2,12  DATA >3320  Set to 1200 Baud.
+*                        DATA >0096
+        SBO 16           DATA >1D10  Set /RTS active.
+        LI R12,>0000     DATA >020C  Address 1st RS-232 port.
+*                        DATA >0000
+        SBO 14           DATA >1D0E  Set to load control register.
+        LDCR @A013B,8    DATA >3220  Set 1st RS-232 port to 1200 Baud also.
+*                        DATA >013B
+        CLR R1           DATA >04C1
+        CLR R2           DATA >04C2
+        MOV @A013E,*R9   DATA >C660  1st TMS9902 CRU base address.
+*                        DATA >013E
+        XOP @A00E3,14    DATA >2FA0  Print "TERMINAL MODE" to 1st RS-232 port.
+*                        DATA >00E3
+        INCT @>EC44      DATA >05E0  ASR flag.
+*                        DATA >EC44
+A0E6A   LI R12,>0000     DATA >020C  Address 1st RS-232 port.
+*                        DATA >0000
+        TB 21            DATA >1F15  Character received on 1st RS-232 port?
+        JEQ A0EDA        DATA >1334  Yes, jump.
+        LI R12,>0400     DATA >020C  No, address 2nd RS-232 port.
+*                        DATA >0400
+        TB 21            DATA >1F15  Character received on 2nd RS-232 port?
+        JEQ A0E80        DATA >1303  Yes, jump.
+        MOV R1,R1        DATA >C041
+        JNE A0ED6        DATA >162C
+        JMP A0E6A        DATA >10F5  Loop round and check for character on 1st RS-232 port again.
+
+*Character received on 2nd RS-232 port.
+
+A0E80   MOV @A0140,*R9   DATA >C660  2nd TMS9902 CRU base address.
+*                        DATA >0140
+        MOV R2,R2        DATA >C082  (R2 set to FFFF if character received on 2nd RS-232 port is not <DLE> or <DC2>)
+        JNE A0ED2        DATA >1625
+        XOP R10,13       DATA >2F4A  Read character into R10.
+        CI R10,>0000     DATA >028A  Is character a null?
+*                        DATA >0000
+        JEQ A0E6A        DATA >13ED  Yes, ignore and check for character on 1st RS-232 port again.
+        CI R10,>7F00     DATA >028A  No, is character <DEL>?
+*                        DATA >7F00
+        JEQ A0E6A        DATA >13EA  Yes, ignore and check for character on 1st RS-232 port again.
+        CI R10,>1000     DATA >028A  No, is character <DLE>?
+*                        DATA >1000
+        JNE A0EB6        DATA >160D  No, jump.
+A0E9C   XOP R10,13       DATA >2F4A  Yes, wait for next character and read into R10.
+        CI R10,>0000     DATA >028A  Is next character a null?
+*                        DATA >0000
+        JEQ A0E9C        DATA >13FC  Yes, ignore and check for character again.
+        CI R10,>3700     DATA >028A
+*                        DATA >3700  No, is character a '7'?
+        JEQ A0EC6        DATA >130E  Yes, jump.
+        CI R10,>3C00     DATA >028A  No, is character a '<'?
+*                        DATA >3C00
+        JNE A0E6A        DATA >16DD  No, ignore and check for character on 1st RS-232 port again.
+        XOP @A013C,12    DATA >2F20  Write character
+*                        DATA >013C
+        JMP A0E6A        DATA >10DA  Check for character on 1st RS-232 port again.
+
+*                                    (Character received on 2nd RS-232 port is not <DLE>)
+
+A0EB6   CI R10,>1200     DATA >028A  Is character <DC2>?
+*                        DATA >1200
+        JNE A0EC0        DATA >1602  No, jump.
+A0EBC   B @>1070         DATA >0460  Yes, branch.
+*                        DATA >1070
+A0EC0   CI R10,>1100     DATA >028A
+*                        DATA >1100  Is character <DC1>?
+        JNE A0ECA        DATA >1602  No, jump.
+
+A0EC6   B @A0FA0         DATA >0460  Yes, branch.
+*                        DATA >0FA0
+A0ECA   MOV @A013E,*R9   DATA >C660  1st TMS9902 CRU base address.
+*                        DATA >013E
+        XOP R10,12       DATA >2F0A  Write character from 2nd RS-232 port to 1st port.
+        JMP A0E6A        DATA >10CC  Check for character on 1st RS-232 port again.
+
+A0ED2   B @>107C         DATA >0460  Branch.
+*                        DATA >107C
+
+A0ED6   B @A0FC8         DATA >0460  Branch.
+*                        DATA >0FC8
+
+*Character received on 1st RS-232 port.
+
+A0EDA   MOV @A013E,*R9   DATA >C660  1st TMS9902 CRU base address.
+*                        DATA >013E
+        XOP R10,13       DATA >2F4A  Read character into R10.
+        CI R10,>1A00     DATA >028A  Is character <SUB>?
+*                        DATA >1A00
+        JNE A0EF0        DATA >1605  No, jump.
+        MOV @>EC54,@>EC44  DATA >C820  Yes, restore state of ASR flag for 1st RS-232 port.
+*                        DATA >EC54
+*                        DATA >EC44
+        B @A0142         DATA >0460  Return to monitor.
+*                        DATA >0142
+
+*                                    (Character received on 1st RS-232 port is not <SUB>)
+
+A0EF0   CI R10,>0300     DATA >028A  Is character <ETX>?
+*                        DATA >0300
+        JEQ A0F16        DATA >1310  Yes, jump.
+        CI R10,>1200     DATA >028A  No, is character <DC2>?
+*                        DATA >1200
+        JEQ A0EBC        DATA >13E0  Yes, jump.
+        CI R10,>1400     DATA >028A  No, is character <DC4>?
+*       DATA >1400
+        JNE A0F06        DATA >1602  No, jump.
+        B @A10FE         DATA >0460  Yes, jump.
+*                        DATA >10FE
+A0F06   MOV R1,R1        DATA >C041
+        JNE A0ED6        DATA >16E6
+        MOV R2,R2        DATA >C082
+        JNE A0ED2        DATA >16E2
+        MOV @A0140,*R9   DATA >C660  2nd TMS9902 CRU base address.
+*                        DATA >0140
+        XOP R10,12       DATA >2F0A  Write character to 2nd RS-232 port.
+        JMP A0E6A        DATA >10AA  Loop round and check for character on ports again.
+
+*                                    (Character received on 1st RS-232 port is <ETX>)
+
+A0F16   DATA >C660
+A0F18   DATA >013E
+A0F1A   DATA >C820
+A0F1C   DATA >EC54
+A0F1E   DATA >EC44
+A0F20   DATA >2FA0
+A0F22   DATA >00D8
+A0F24   DATA >2ECA
+A0F26   DATA >2FA0
+A0F28   DATA >00DE
+A0F2A   DATA >06A0
+A0F2C   DATA >0F42
+A0F2E   DATA >5500
+A0F30   DATA >0F7E
+A0F32   DATA >4400
+A0F34   DATA >0F94
+A0F36   DATA >5400
+A0F38   DATA >0F5A
+A0F3A   DATA >5100
+A0F3C   DATA >0E5A
+A0F3E   DATA >0000
+A0F40   DATA >05CB
+A0F42   DATA >C01B
+A0F44   DATA >1304
+A0F46   DATA >82BB
+A0F48   DATA >16FB
+A0F4A   DATA >C2DB
+A0F4C   DATA >045B
+A0F4E   DATA >2FA0
+A0F50   DATA >00F5
+A0F52   DATA >10E1
+A0F54   DATA >2FA0
+A0F56   DATA >00FF
+A0F58   DATA >10DE
+A0F5A   DATA >2E4A
+A0F5C   DATA >0F16
+A0F5E   DATA >0F54
+A0F60   DATA >0A2A
+A0F62   DATA >064A
+A0F64   DATA >12F7
+A0F66   DATA >028A
+A0F68   DATA >0023
+A0F6A   DATA >14F4
+A0F6C   DATA >020C
+A0F6E   DATA >0400
+A0F70   DATA >1D0B
+A0F72   DATA >1D0C
+A0F74   DATA >332A
+A0F76   DATA >0084
+A0F78   DATA >1E0B
+A0F7A   DATA >1E0C
+A0F7C   DATA >10CC
+A0F7E   DATA >2E4A
+A0F80   DATA >0F88
+A0F82   DATA >0F54
+A0F84   DATA >C80A
+A0F86   DATA >EC50
+A0F88   DATA >2E4A
+A0F8A   DATA >0F16
+A0F8C   DATA >0F54
+A0F8E   DATA >C80A
+A0F90   DATA >EC4E
+A0F92   DATA >10C1
+A0F94   DATA >2E4A
+A0F96   DATA >0F16
+A0F98   DATA >0F54
+A0F9A   DATA >C80A
+A0F9C   DATA >EC4C
+A0F9E   DATA >10BB
+
+A0FA0   DATA >0701
+A0FA2   DATA >C1E0
+A0FA4   DATA >EC52
+A0FA6   DATA >112D
+A0FA8   DATA >1533
+A0FAA   DATA >C1E0
+A0FAC   DATA >EC50
+A0FAE   DATA >8807
+A0FB0   DATA >EC4E
+A0FB2   DATA >1B37
+A0FB4   DATA >C660
+A0FB6   DATA >0140
+A0FB8   DATA >04C5
+A0FBA   DATA >04C3
+A0FBC   DATA >2FA0
+A0FBE   DATA >0137
+A0FC0   DATA >C287
+A0FC2   DATA >06A0
+A0FC4   DATA >1042
+A0FC6   DATA >3900
+
+A0FC8   DATA >C297
+A0FCA   DATA >06A0
+A0FCC   DATA >1042
+A0FCE   DATA >4200
+A0FD0   DATA >8807
+A0FD2   DATA >EC4E
+A0FD4   DATA >1A03
+A0FD6   DATA >0720
+A0FD8   DATA >EC52
+A0FDA   DATA >1004
+A0FDC   DATA >05C7
+A0FDE   DATA >0283
+A0FE0   DATA >003C
+A0FE2   DATA >111D
+A0FE4   DATA >0225
+A0FE6   DATA >0037
+A0FE8   DATA >C285
+A0FEA   DATA >050A
+A0FEC   DATA >06A0
+A0FEE   DATA >1042
+A0FF0   DATA >3700
+A0FF2   DATA >C807
+A0FF4   DATA >EC50
+A0FF6   DATA >2FA0
+A0FF8   DATA >0128
+A0FFA   DATA >C160
+A0FFC   DATA >EC54
+A0FFE   DATA >110E
+0f16 c660   mov  @>013e, *r9
+0f18 013e
+0f1a c820   mov  @>ec54, @>ec44
+0f1c ec54
+0f1e ec44
+0f20 2fa0   xop  @>00d8, r14
+0f22 00d8
+0f24 2eca   xop  r10, r11
+0f26 2fa0   xop  @>00de, r14
+0f28 00de
+0f2a 06a0   bl   @>0f42
+0f2c 0f42
+0f2e 5500   szcb r0, *r4
+0f30 0f7e   data >0f7e
+0f32 4400   szc  r0, *r0
+0f34 0f94   data >0f94
+0f36 5400   szcb r0, *r0
+0f38 0f5a   data >0f5a
+0f3a 5100   szcb r0, r4
+0f3c 0e5a   data >0e5a
+0f3e 0000   data >0000
+0f40 05cb   inct r11
+0f42 c01b   mov  *r11, r0
+0f44 1304   jeq  >0f4e
+0f46 82bb   c    *r11+, r10
+0f48 16fb   jne  >0f40
+0f4a c2db   mov  *r11, r11
+0f4c 045b   rt
+0f4e 2fa0   xop  @>00f5, r14
+0f50 00f5
+0f52 10e1   jmp  >0f16
+0f54 2fa0   xop  @>00ff, r14
+0f56 00ff
+0f58 10de   jmp  >0f16
+0f5a 2e4a   xop  r10, r9
+0f5c 0f16   data >0f16
+0f5e 0f54   data >0f54
+0f60 0a2a   sla  r10, 2
+0f62 064a   dect r10
+0f64 12f7   jle  >0f54
+0f66 028a   ci   r10, >0023
+0f68 0023
+0f6a 14f4   jhe  >0f54
+0f6c 020c   li   r12, >0400
+0f6e 0400
+0f70 1d0b   sbo  11
+0f72 1d0c   sbo  12
+0f74 332a   ldcr @>0084(r10), r12
+0f76 0084
+0f78 1e0b   sbz  11
+0f7a 1e0c   sbz  12
+0f7c 10cc   jmp  >0f16
+0f7e 2e4a   xop  r10, r9
+0f80 0f88   data >0f88
+0f82 0f54   data >0f54
+0f84 c80a   mov  r10, @>ec50
+0f86 ec50
+0f88 2e4a   xop  r10, r9
+0f8a 0f16   data >0f16
+0f8c 0f54   data >0f54
+0f8e c80a   mov  r10, @>ec4e
+0f90 ec4e
+0f92 10c1   jmp  >0f16
+0f94 2e4a   xop  r10, r9
+0f96 0f16   data >0f16
+0f98 0f54   data >0f54
+0f9a c80a   mov  r10, @>ec4c
+0f9c ec4c
+0f9e 10bb   jmp  >0f16
+0fa0 0701   seto r1
+0fa2 c1e0   mov  @>ec52, r7
+0fa4 ec52
+0fa6 112d   jlt  >1002
+0fa8 1533   jgt  >1010
+0faa c1e0   mov  @>ec50, r7
+0fac ec50
+0fae 8807   c    r7, @>ec4e
+0fb0 ec4e
+0fb2 1b37   jh   >1022
+0fb4 c660   mov  @>0140, *r9
+0fb6 0140
+0fb8 04c5   clr  r5
+0fba 04c3   clr  r3
+0fbc 2fa0   xop  @>0137, r14
+0fbe 0137
+0fc0 c287   mov  r7, r10
+0fc2 06a0   bl   @>1042
+0fc4 1042
+0fc6 3900   mpy  r0, r4
+0fc8 c297   mov  *r7, r10
+0fca 06a0   bl   @>1042
+0fcc 1042
+0fce 4200   szc  r0, r8
+0fd0 8807   c    r7, @>ec4e
+0fd2 ec4e
+0fd4 1a03   jl   >0fdc
+0fd6 0720   seto @>ec52
+0fd8 ec52
+0fda 1004   jmp  >0fe4
+0fdc 05c7   inct r7
+0fde 0283   ci   r3, >003c
+0fe0 003c
+0fe2 111d   jlt  >101e
+0fe4 0225   ai   r5, >0037
+0fe6 0037
+0fe8 c285   mov  r5, r10
+0fea 050a   neg  r10
+0fec 06a0   bl   @>1042
+0fee 1042
+0ff0 3700   stcr r0, r12
+0ff2 c807   mov  r7, @>ec50
+0ff4 ec50
+0ff6 2fa0   xop  @>0128, r14
+0ff8 0128
+0ffa c160   mov  @>ec54, r5
+0ffc ec54
+0ffe 110e   jlt  >101c
+
+*****************************
+* 2ND EPROM *****************
+*****************************
+
+A1000   DATA >10CF
+        DATA >2FA0
+        DATA >0137
+        DATA >2FA0
+        DATA >00E0
+        DATA >05E0
+        DATA >EC52
+        DATA >10F5
+A1010   DATA >2FA0
+        DATA >0137
+        DATA >2FA0
+        DATA >0131
+        DATA >04E0
+        DATA >EC52
+        DATA >04C1
+        DATA >0460
+A1020   DATA >0E6A
+        DATA >2FA0
+        DATA >0137
+        DATA >2FA0
+        DATA >0131
+        DATA >C660
+        DATA >013E
+        DATA >C820
+A1030   DATA >EC54
+        DATA >EC44
+        DATA >2FA0
+        DATA >011F
+        DATA >05E0
+        DATA >EC44
+        DATA >0720
+        DATA >EC4C
+A1040   DATA >10EB
+        DATA >C03B
+        DATA >2F00
+        DATA >0980
+        DATA >A140
+        DATA >2E8A
+        DATA >0223
+        DATA >0005
+A1050   DATA >0200
+        DATA >0004
+        DATA >0B4A
+        DATA >C18A
+        DATA >09C6
+        DATA >A146
+        DATA >0225
+        DATA >0030
+A1060   DATA >0286
+        DATA >000A
+        DATA >1A02
+        DATA >0225
+        DATA >0007
+        DATA >0600
+        DATA >16F3
+        DATA >045B
+1000 10cf   jmp  >0fa0
+1002 2fa0   xop  @>0137, r14
+1004 0137
+1006 2fa0   xop  @>00e0, r14
+1008 00e0
+100a 05e0   inct @>ec52
+100c ec52
+100e 10f5   jmp  >0ffa
+1010 2fa0   xop  @>0137, r14
+1012 0137
+1014 2fa0   xop  @>0131, r14
+1016 0131
+1018 04e0   clr  @>ec52
+101a ec52
+101c 04c1   clr  r1
+101e 0460   b    @>0e6a
+1020 0e6a
+1022 2fa0   xop  @>0137, r14
+1024 0137
+1026 2fa0   xop  @>0131, r14
+1028 0131
+102a c660   mov  @>013e, *r9
+102c 013e
+102e c820   mov  @>ec54, @>ec44
+1030 ec54
+1032 ec44
+1034 2fa0   xop  @>011f, r14
+1036 011f
+1038 05e0   inct @>ec44
+103a ec44
+103c 0720   seto @>ec4c
+103e ec4c
+1040 10eb   jmp  >1018
+1042 c03b   mov  *r11+, r0
+1044 2f00   xop  r0, r12
+1046 0980   srl  r0, 8
+1048 a140   a    r0, r5
+104a 2e8a   xop  r10, r10
+104c 0223   ai   r3, >0005
+104e 0005
+1050 0200   li   r0, >0004
+1052 0004
+1054 0b4a   src  r10, 4
+1056 c18a   mov  r10, r6
+1058 09c6   srl  r6, 12
+105a a146   a    r6, r5
+105c 0225   ai   r5, >0030
+105e 0030
+1060 0286   ci   r6, >000a
+1062 000a
+1064 1a02   jl   >106a
+1066 0225   ai   r5, >0007
+1068 0007
+106a 0600   dec  r0
+106c 16f3   jne  >1054
+106e 045b   rt
+
+*Character received on 2nd RS-232 port is not <DLE> or <DC2>.
+
+A1070   SETO R2          DATA >0702
+        MOV @A0140,*R9   DATA >C660  2nd TMS9902 CRU base address.
+*                        DATA >0140
+        MOV @>EC4C,R0    DATA >C020
+*                        DATA >EC4C
+        CLR R7           DATA >04C7
+
+A107C   XOP R6,13        DATA >2F46  Read character into R6.
+        CI R6,>1400      DATA >0286  Is character <DC4>?
+*                        DATA >1400
+        JEQ A10FE        DATA >133D  Yes, jump.
+        MOV @>EC52,R8    DATA >C220
+*                        DATA >EC52
+        JNE A1148        DATA >165F
+        CI R6,>2000      DATA >0286  Is character a control character?
+*                        DATA >2000
+        JLT A107C        DATA >11F6  Yes, loop round and read another character.
+A1090   CI R6,>5F00      DATA >0286  Is character higher in ASCII than "_"?
+*                        DATA >5F00
+        JGT A107C        DATA >15F3  Yes, loop round and read another character.
+*                                    (So character is between >20 and >5F)
+        SETO R5          DATA >0705
+        CLR R10          DATA >04CA
+        BL @A073A        DATA >06A0  Check if character in R6 is a hex digit. Add it to R10 if so.
+*                        DATA >073A
+        JMP A10B6        DATA >100B  (Returns here if character in R6 is not a hex digit)
+
+A10A0   DATA >D22A  (Returns here if character in R6 is a hex digit)
+        DATA >1152
+        DATA >1332
+        DATA >06A0
+        DATA >0722
+        DATA >100E
+        DATA >0205
+        DATA >0008
+A10B0   DATA >0878
+        DATA >0468
+        DATA >10B2
+10a0 d22a   movb @>1152(r10), r8
+10a2 1152
+10a4 1332   jeq  >110a
+10a6 06a0   bl   @>0722
+10a8 0722
+10aa 100e   jmp  >10c8
+10ac 0205   li   r5, >0008
+10ae 0008
+10b0 0878   sra  r8, 7
+10b2 0468   b    @>10b2(r8)
+10b4 10b2
+
+
+A10B6   CI R6,>0047      DATA >0286  R6 has been reversed?
+*                        DATA >0047
+        DATA >1106
+        DATA >0286
+        DATA >004A
+A10C0   DATA >1522
+        DATA >0226
+        DATA >FFC9
+        DATA >10EC
+        DATA >0286
+        DATA >003A
+        DATA >161C
+        DATA >103E
+A10D0   DATA >020C
+        DATA >0400
+        DATA >04C5
+        DATA >1F0F
+        DATA >16FD
+        DATA >0605
+        DATA >16FC
+        DATA >C660
+A10E0   DATA >013E
+        DATA >C820
+        DATA >EC54
+        DATA >EC44
+        DATA >0720
+        DATA >EC4C
+        DATA >C000
+        DATA >1303
+A10F0   DATA >2FA0
+        DATA >010A
+        DATA >1002
+        DATA >2FA0
+        DATA >0115
+        DATA >05E0
+        DATA >EC44
+
+A10FE   DATA >04C2
+A1100   DATA >04E0
+        DATA >EC52
+        DATA >1021
+        DATA >04C0
+        DATA >10E3
+        DATA >2F46
+        DATA >9806
+        DATA >00F2
+A1110   DATA >16FC
+        DATA >04C7
+        DATA >1019
+        DATA >A1CA
+        DATA >1317
+        DATA >0700
+        DATA >10D9
+        DATA >A280
+A1120   DATA >C0CA
+        DATA >1012
+        DATA >A280
+        DATA >CCCA
+        DATA >100F
+        DATA >0645
+        DATA >2F46
+        DATA >0986
+A1130   DATA >13FD
+        DATA >A1C6
+        DATA >0605
+        DATA >16FA
+
+A1148   DATA >1007
+        DATA >A280
+        DATA >C80A
+        DATA >EC1C
+A1140   DATA >1003
+        DATA >024A
+        DATA >FFFE
+        DATA >C00A
+        DATA >0460
+        DATA >0E6A
+        DATA >0720
+        DATA >EC52
+A1150   DATA >10FB
+        DATA >3D45
+        DATA >443C
+        DATA >3C3C
+        DATA >3C32
+        DATA >E437
+        DATA >363A
+        DATA >3948
+A1160   DATA >2A00
+        DATA >3C3C
+        DATA >3D8B
+        DATA >C141
+        DATA >0208
+        DATA >12D8
+        DATA >0209
+        DATA >12BA
+A1170   DATA >0207
+        DATA >12A6
+        DATA >2FA0
+        DATA >00F2
+        DATA >0206
+        DATA >202C
+        DATA >C050
+        DATA >2E80
+A1180   DATA >2F06
+        DATA >2E81
+        DATA >2F06
+        DATA >04C3
+        DATA >C050
+        DATA >0241
+        DATA >FFF0
+        DATA >C2A3
+A1190   DATA >13B4
+        DATA >C08A
+        DATA >1329
+        DATA >024A
+        DATA >FFF0
+        DATA >8281
+        DATA >1402
+        DATA >0643
+A11A0   DATA >10F6
+        DATA >C050
+        DATA >0A13
+        DATA >0223
+        DATA >14D6
+        DATA >604A
+        DATA >0242
+        DATA >000F
+A11B0   DATA >D0A2
+        DATA >11BA
+        DATA >0972
+        DATA >0462
+        DATA >11BA
+        DATA >060C
+        DATA >061F
+        DATA >232B
+A11C0   DATA >3337
+        DATA >063F
+        DATA >4145
+        DATA >0697
+        DATA >0698
+        DATA >2F06
+        DATA >0961
+        DATA >0698
+A11D0   DATA >103D
+        DATA >C041
+        DATA >1603
+        DATA >0203
+        DATA >14DA
+        DATA >1024
+        DATA >06C1
+        DATA >0871
+A11E0   DATA >05C1
+        DATA >A040
+        DATA >0697
+        DATA >1004
+        DATA >C050
+        DATA >0203
+        DATA >14DE
+        DATA >0697
+A11F0   DATA >2F20
+        DATA >14F5
+        DATA >2E81
+        DATA >102A
+        DATA >0697
+        DATA >0698
+        DATA >C209
+        DATA >10E5
+A1200   DATA >D041
+        DATA >16F2
+        DATA >0B41
+        DATA >D081
+        DATA >0A61
+        DATA >09C2
+        DATA >A042
+        DATA >10F4
+A1210   DATA >8810
+        DATA >1320
+        DATA >1603
+        DATA >0203
+        DATA >14EE
+        DATA >1004
+        DATA >0697
+        DATA >10D7
+A1220   DATA >C041
+        DATA >16E2
+        DATA >0697
+        DATA >1012
+        DATA >0AC1
+        DATA >18DE
+        DATA >09C1
+        DATA >0697
+A1230   DATA >0698
+        DATA >2F06
+        DATA >C070
+        DATA >10DC
+        DATA >0697
+        DATA >1019
+        DATA >C041
+        DATA >16D4
+A1240   DATA >0697
+        DATA >10F8
+        DATA >0AC1
+        DATA >18D0
+        DATA >09C1
+        DATA >10E2
+        DATA >C145
+        DATA >1603
+A1250   DATA >C740
+        DATA >0460
+        DATA >0142
+        DATA >C320
+        DATA >013E
+        DATA >1F15
+        DATA >1604
+        DATA >2F42
+A1260   DATA >0282
+        DATA >2F00
+        DATA >13F5
+        DATA >8140
+        DATA >1BF3
+        DATA >0460
+        DATA >1168
+        DATA >0203
+A1270   DATA >2D31
+        DATA >06C1
+        DATA >0881
+        DATA >1315
+        DATA >1502
+        DATA >2F03
+        DATA >0501
+        DATA >0281
+A1280   DATA >0064
+        DATA >1104
+        DATA >0A83
+        DATA >2F03
+        DATA >0221
+        DATA >FF9C
+        DATA >0204
+        DATA >000A
+A1290   DATA >C081
+        DATA >04C1
+        DATA >3C44
+        DATA >0A83
+        DATA >1302
+        DATA >C041
+        DATA >1301
+        DATA >0699
+A12A0   DATA >C042
+        DATA >0699
+        DATA >10D3
+        DATA >0202
+        DATA >0004
+        DATA >2F13
+        DATA >0583
+        DATA >0602
+A12B0   DATA >16FC
+        DATA >2F06
+        DATA >06C6
+        DATA >05C0
+        DATA >045B
+        DATA >C0C1
+        DATA >0AC3
+        DATA >0943
+A12C0   DATA >0283
+        DATA >0900
+        DATA >1203
+        DATA >06C3
+        DATA >0223
+        DATA >0126
+        DATA >0223
+        DATA >3000
+A12D0   DATA >2F03
+        DATA >0A83
+        DATA >16FD
+        DATA >045B
+        DATA >0204
+        DATA >2A52
+        DATA >C081
+        DATA >0AA2
+A12E0   DATA >09E2
+        DATA >1603
+        DATA >06C4
+        DATA >2F04
+        DATA >10E8
+        DATA >0602
+        DATA >1602
+        DATA >2F04
+A12F0   DATA >10F9
+        DATA >0602
+        DATA >1610
+        DATA >2FA0
+        DATA >14F4
+        DATA >2EB0
+        DATA >C081
+        DATA >0AC2
+A1300   DATA >13EA
+        DATA >0202
+        DATA >2829
+        DATA >2F02
+        DATA >06C4
+        DATA >2F04
+        DATA >C30B
+        DATA >0699
+A1310   DATA >06C2
+        DATA >2F02
+        DATA >045C
+        DATA >2FA0
+        DATA >14F7
+        DATA >0202
+        DATA >002B
+        DATA >10F6
+A1320   DATA >045B
+        DATA >0000
+        DATA >008B
+        DATA >009B
+        DATA >0185
+        DATA >01C5
+        DATA >0207
+        DATA >0227
+A1330   DATA >0247
+        DATA >0267
+        DATA >0287
+        DATA >02AB
+        DATA >02CB
+        DATA >02EA
+        DATA >030A
+        DATA >0346
+A1340   DATA >0366
+        DATA >0386
+        DATA >03A6
+        DATA >03C6
+        DATA >03E6
+        DATA >0405
+        DATA >0445
+        DATA >0485
+A1350   DATA >04C5
+        DATA >0505
+        DATA >0545
+        DATA >0585
+        DATA >05C5
+        DATA >0605
+        DATA >0645
+        DATA >0685
+A1360   DATA >06C5
+        DATA >0705
+        DATA >0745
+        DATA >0804
+        DATA >0904
+        DATA >0A04
+        DATA >0B04
+        DATA >1001
+A1370   DATA >1101
+        DATA >1201
+        DATA >1301
+        DATA >1401
+        DATA >1501
+        DATA >1601
+        DATA >1701
+        DATA >1801
+A1380   DATA >1901
+        DATA >1A01
+        DATA >1B01
+        DATA >1C01
+        DATA >1D09
+        DATA >1E09
+        DATA >1F09
+        DATA >2002
+A1390   DATA >2402
+        DATA >2802
+        DATA >2C03
+        DATA >3003
+        DATA >3403
+        DATA >3808
+        DATA >3C08
+        DATA >4000
+A13A0   DATA >5000
+        DATA >6000
+        DATA >7000
+        DATA >8000
+        DATA >9000
+        DATA >A000
+        DATA >B000
+        DATA >C000
+A13B0   DATA >D000
+        DATA >E000
+        DATA >F000
+        DATA >4C53
+        DATA >5420
+        DATA >4C57
+        DATA >5020
+        DATA >4449
+A13C0   DATA >5653
+        DATA >4D50
+        DATA >5953
+        DATA >4C49
+        DATA >2020
+        DATA >4149
+        DATA >2020
+        DATA >414E
+A13D0   DATA >4449
+        DATA >4F52
+        DATA >4920
+        DATA >4349
+        DATA >2020
+        DATA >5354
+        DATA >5750
+        DATA >5354
+A13E0   DATA >5354
+        DATA >4C57
+        DATA >5049
+        DATA >4C49
+        DATA >4D49
+        DATA >4944
+        DATA >4C45
+        DATA >5253
+A13F0   DATA >4554
+        DATA >5254
+        DATA >5750
+        DATA >434B
+        DATA >4F4E
+        DATA >434B
+        DATA >4F46
+        DATA >4C52
+A1400   DATA >4558
+        DATA >424C
+        DATA >5750
+        DATA >4220
+        DATA >2020
+        DATA >5820
+        DATA >2020
+        DATA >434C
+A1410   DATA >5220
+        DATA >4E45
+        DATA >4720
+        DATA >494E
+        DATA >5620
+        DATA >494E
+        DATA >4320
+        DATA >494E
+A1420   DATA >4354
+        DATA >4445
+        DATA >4320
+        DATA >4445
+        DATA >4354
+        DATA >424C
+        DATA >2020
+        DATA >5357
+A1430   DATA >5042
+        DATA >5345
+        DATA >544F
+        DATA >4142
+        DATA >5320
+        DATA >5352
+        DATA >4120
+        DATA >5352
+A1440   DATA >4C20
+        DATA >534C
+        DATA >4120
+        DATA >5352
+        DATA >4320
+        DATA >4A4D
+        DATA >5020
+        DATA >4A4C
+A1450   DATA >5420
+        DATA >4A4C
+        DATA >4520
+        DATA >4A45
+        DATA >5120
+        DATA >4A48
+        DATA >4520
+        DATA >4A47
+A1460   DATA >5420
+        DATA >4A4E
+        DATA >4520
+        DATA >4A4E
+        DATA >4320
+        DATA >4A4F
+        DATA >4320
+        DATA >4A4E
+A1470   DATA >4F20
+        DATA >4A4C
+        DATA >2020
+        DATA >4A48
+        DATA >2020
+        DATA >4A4F
+        DATA >5020
+        DATA >5342
+A1480   DATA >4F20
+        DATA >5342
+        DATA >5A20
+        DATA >5442
+        DATA >2020
+        DATA >434F
+        DATA >4320
+        DATA >435A
+A1490   DATA >4320
+        DATA >584F
+        DATA >5220
+        DATA >584F
+        DATA >5020
+        DATA >4C44
+        DATA >4352
+        DATA >5354
+A14A0   DATA >4352
+        DATA >4D50
+        DATA >5920
+        DATA >4449
+        DATA >5620
+        DATA >535A
+        DATA >4320
+        DATA >535A
+A14B0   DATA >4342
+        DATA >5320
+        DATA >2020
+        DATA >5342
+        DATA >2020
+        DATA >4320
+        DATA >2020
+        DATA >4342
+A14C0   DATA >2020
+        DATA >4120
+        DATA >2020
+        DATA >4142
+        DATA >2020
+        DATA >4D4F
+        DATA >5620
+        DATA >4D4F
+A14D0   DATA >5642
+        DATA >534F
+        DATA >4320
+        DATA >534F
+        DATA >4342
+        DATA >4E4F
+        DATA >5020
+        DATA >4441
+A14E0   DATA >5441
+        DATA >5445
+        DATA >5854
+        DATA >414F
+        DATA >5247
+        DATA >454E
+        DATA >4420
+        DATA >5254
+A14F0   DATA >2020
+        DATA >0000
+        DATA >403E
+        DATA >002A
+        DATA >5200
+        DATA >FFFF
+        DATA >FFFF
+        DATA >FFFF
+10ba 1106   jlt  >10c8
+10bc 0286   ci   r6, >004a
+10be 004a
+10c0 1522   jgt  >1106
+10c2 0226   ai   r6, >ffc9
+10c4 ffc9
+10c6 10ec   jmp  >10a0
+10c8 0286   ci   r6, >003a
+10ca 003a
+10cc 161c   jne  >1106
+10ce 103e   jmp  >114c
+10d0 020c   li   r12, >0400
+10d2 0400
+10d4 04c5   clr  r5
+10d6 1f0f   tb   15
+10d8 16fd   jne  >10d4
+10da 0605   dec  r5
+10dc 16fc   jne  >10d6
+10de c660   mov  @>013e, *r9
+10e0 013e
+10e2 c820   mov  @>ec54, @>ec44
+10e4 ec54
+10e6 ec44
+10e8 0720   seto @>ec4c
+10ea ec4c
+10ec c000   mov  r0, r0
+10ee 1303   jeq  >10f6
+10f0 2fa0   xop  @>010a, r14
+10f2 010a
+10f4 1002   jmp  >10fa
+10f6 2fa0   xop  @>0115, r14
+10f8 0115
+10fa 05e0   inct @>ec44
+10fc ec44
+10fe 04c2   clr  r2
+1100 04e0   clr  @>ec52
+1102 ec52
+1104 1021   jmp  >1148
+1106 04c0   clr  r0
+1108 10e3   jmp  >10d0
+110a 2f46   xop  r6, r13
+110c 9806   cb   r6, @>00f2
+110e 00f2
+1110 16fc   jne  >110a
+1112 04c7   clr  r7
+1114 1019   jmp  >1148
+1116 a1ca   a    r10, r7
+1118 1317   jeq  >1148
+111a 0700   seto r0
+111c 10d9   jmp  >10d0
+111e a280   a    r0, r10
+1120 c0ca   mov  r10, r3
+1122 1012   jmp  >1148
+1124 a280   a    r0, r10
+1126 ccca   mov  r10, *r3+
+1128 100f   jmp  >1148
+112a 0645   dect r5
+112c 2f46   xop  r6, r13
+112e 0986   srl  r6, 8
+1130 13fd   jeq  >112c
+1132 a1c6   a    r6, r7
+1134 0605   dec  r5
+1136 16fa   jne  >112c
+1138 1007   jmp  >1148
+113a a280   a    r0, r10
+113c c80a   mov  r10, @>ec1c
+113e ec1c
+1140 1003   jmp  >1148
+1142 024a   andi r10, >fffe
+1144 fffe
+1146 c00a   mov  r10, r0
+1148 0460   b    @>0e6a
+114a 0e6a
+114c 0720   seto @>ec52
+114e ec52
+1150 10fb   jmp  >1148
+1152 3d45   div  r5, r5
+1154 443c   szc  *r12+, *r0
+1156 3c3c   div  *r12+, r0
+1158 3c32   div  *r2+, r0
+115a e437   soc  *r7+, *r0
+115c 363a   stcr *r10+, r8
+115e 3948   mpy  r8, r5
+1160 2a00   xor  r0, r8
+1162 3c3c   div  *r12+, r0
+1164 3d8b   div  r11, r6
+1166 c141   mov  r1, r5
+1168 0208   li   r8, >12d8
+116a 12d8
+116c 0209   li   r9, >12ba
+116e 12ba
+1170 0207   li   r7, >12a6
+1172 12a6
+1174 2fa0   xop  @>00f2, r14
+1176 00f2
+1178 0206   li   r6, >202c
+117a 202c
+117c c050   mov  *r0, r1
+117e 2e80   xop  r0, r10
+1180 2f06   xop  r6, r12
+1182 2e81   xop  r1, r10
+1184 2f06   xop  r6, r12
+1186 04c3   clr  r3
+1188 c050   mov  *r0, r1
+118a 0241   andi r1, >fff0
+118c fff0
+118e c2a3   mov  @>13b4(r3), r10
+1190 13b4
+1192 c08a   mov  r10, r2
+1194 1329   jeq  >11e8
+1196 024a   andi r10, >fff0
+1198 fff0
+119a 8281   c    r1, r10
+119c 1402   jhe  >11a2
+119e 0643   dect r3
+11a0 10f6   jmp  >118e
+11a2 c050   mov  *r0, r1
+11a4 0a13   sla  r3, 1
+11a6 0223   ai   r3, >14d6
+11a8 14d6
+11aa 604a   s    r10, r1
+11ac 0242   andi r2, >000f
+11ae 000f
+11b0 d0a2   movb @>11ba(r2), r2
+11b2 11ba
+11b4 0972   srl  r2, 7
+11b6 0462   b    @>11ba(r2)
+11b8 11ba
+11ba 060c   dec  r12
+11bc 061f   dec  *r15
+11be 232b   coc  @>3337(r11), r12
+11c0 3337
+11c2 063f   dec  *r15+
+11c4 4145   szc  r5, r5
+11c6 0697   bl   *r7
+11c8 0698   bl   *r8
+11ca 2f06   xop  r6, r12
+11cc 0961   srl  r1, 6
+11ce 0698   bl   *r8
+11d0 103d   jmp  >124c
+11d2 c041   mov  r1, r1
+11d4 1603   jne  >11dc
+11d6 0203   li   r3, >14da
+11d8 14da
+11da 1024   jmp  >1224
+11dc 06c1   swpb r1
+11de 0871   sra  r1, 7
+11e0 05c1   inct r1
+11e2 a040   a    r0, r1
+11e4 0697   bl   *r7
+11e6 1004   jmp  >11f0
+11e8 c050   mov  *r0, r1
+11ea 0203   li   r3, >14de
+11ec 14de
+11ee 0697   bl   *r7
+11f0 2f20   xop  @>14f5, r12
+11f2 14f5
+11f4 2e81   xop  r1, r10
+11f6 102a   jmp  >124c
+11f8 0697   bl   *r7
+11fa 0698   bl   *r8
+11fc c209   mov  r9, r8
+11fe 10e5   jmp  >11ca
+1200 d041   movb r1, r1
+1202 16f2   jne  >11e8
+1204 0b41   src  r1, 4
+1206 d081   movb r1, r2
+1208 0a61   sla  r1, 6
+120a 09c2   srl  r2, 12
+120c a042   a    r2, r1
+120e 10f4   jmp  >11f8
+1210 8810   c    *r0, @>1320
+1212 1320
+1214 1603   jne  >121c
+1216 0203   li   r3, >14ee
+1218 14ee
+121a 1004   jmp  >1224
+121c 0697   bl   *r7
+121e 10d7   jmp  >11ce
+1220 c041   mov  r1, r1
+1222 16e2   jne  >11e8
+1224 0697   bl   *r7
+1226 1012   jmp  >124c
+1228 0ac1   sla  r1, 12
+122a 18de   joc  >11e8
+122c 09c1   srl  r1, 12
+122e 0697   bl   *r7
+1230 0698   bl   *r8
+1232 2f06   xop  r6, r12
+1234 c070   mov  *r0+, r1
+1236 10dc   jmp  >11f0
+1238 0697   bl   *r7
+123a 1019   jmp  >126e
+123c c041   mov  r1, r1
+123e 16d4   jne  >11e8
+1240 0697   bl   *r7
+1242 10f8   jmp  >1234
+1244 0ac1   sla  r1, 12
+1246 18d0   joc  >11e8
+1248 09c1   srl  r1, 12
+124a 10e2   jmp  >1210
+124c c145   mov  r5, r5
+124e 1603   jne  >1256
+1250 c740   mov  r0, *r13
+1252 0460   b    @>0142
+1254 0142
+1256 c320   mov  @>013e, r12
+1258 013e
+125a 1f15   tb   21
+125c 1604   jne  >1266
+125e 2f42   xop  r2, r13
+1260 0282   ci   r2, >2f00
+1262 2f00
+1264 13f5   jeq  >1250
+1266 8140   c    r0, r5
+1268 1bf3   jh   >1250
+126a 0460   b    @>1168
+126c 1168
+126e 0203   li   r3, >2d31
+1270 2d31
+1272 06c1   swpb r1
+1274 0881   sra  r1, 8
+1276 1315   jeq  >12a2
+1278 1502   jgt  >127e
+127a 2f03   xop  r3, r12
+127c 0501   neg  r1
+127e 0281   ci   r1, >0064
+1280 0064
+1282 1104   jlt  >128c
+1284 0a83   sla  r3, 8
+1286 2f03   xop  r3, r12
+1288 0221   ai   r1, >ff9c
+128a ff9c
+128c 0204   li   r4, >000a
+128e 000a
+1290 c081   mov  r1, r2
+1292 04c1   clr  r1
+1294 3c44   div  r4, r1
+1296 0a83   sla  r3, 8
+1298 1302   jeq  >129e
+129a c041   mov  r1, r1
+129c 1301   jeq  >12a0
+129e 0699   bl   *r9
+12a0 c042   mov  r2, r1
+12a2 0699   bl   *r9
+12a4 10d3   jmp  >124c
+12a6 0202   li   r2, >0004
+12a8 0004
+12aa 2f13   xop  *r3, r12
+12ac 0583   inc  r3
+12ae 0602   dec  r2
+12b0 16fc   jne  >12aa
+12b2 2f06   xop  r6, r12
+12b4 06c6   swpb r6
+12b6 05c0   inct r0
+12b8 045b   rt
+12ba c0c1   mov  r1, r3
+12bc 0ac3   sla  r3, 12
+12be 0943   srl  r3, 4
+12c0 0283   ci   r3, >0900
+12c2 0900
+12c4 1203   jle  >12cc
+12c6 06c3   swpb r3
+12c8 0223   ai   r3, >0126
+12ca 0126
+12cc 0223   ai   r3, >3000
+12ce 3000
+12d0 2f03   xop  r3, r12
+12d2 0a83   sla  r3, 8
+12d4 16fd   jne  >12d0
+12d6 045b   rt
+12d8 0204   li   r4, >2a52
+12da 2a52
+12dc c081   mov  r1, r2
+12de 0aa2   sla  r2, 10
+12e0 09e2   srl  r2, 14
+12e2 1603   jne  >12ea
+12e4 06c4   swpb r4
+12e6 2f04   xop  r4, r12
+12e8 10e8   jmp  >12ba
+12ea 0602   dec  r2
+12ec 1602   jne  >12f2
+12ee 2f04   xop  r4, r12
+12f0 10f9   jmp  >12e4
+12f2 0602   dec  r2
+12f4 1610   jne  >1316
+12f6 2fa0   xop  @>14f4, r14
+12f8 14f4
+12fa 2eb0   xop  *r0+, r10
+12fc c081   mov  r1, r2
+12fe 0ac2   sla  r2, 12
+1300 13ea   jeq  >12d6
+1302 0202   li   r2, >2829
+1304 2829
+1306 2f02   xop  r2, r12
+1308 06c4   swpb r4
+130a 2f04   xop  r4, r12
+130c c30b   mov  r11, r12
+130e 0699   bl   *r9
+1310 06c2   swpb r2
+1312 2f02   xop  r2, r12
+1314 045c   b    *r12
+1316 2fa0   xop  @>14f7, r14
+1318 14f7
+131a 0202   li   r2, >002b
+131c 002b
+131e 10f6   jmp  >130c
+1320 045b   rt
+1322 0000   data >0000
+1324 008b   data >008b
+1326 009b   data >009b
+1328 0185   data >0185
+132a 01c5   data >01c5
+132c 0207   li   r7, >0227
+132e 0227
+1330 0247   andi r7, >0267
+1332 0267
+1334 0287   ci   r7, >02ab
+1336 02ab
+1338 02cb   stst r11
+133a 02ea   data >02ea
+133c 030a   data >030a
+133e 0346   data >0346
+1340 0366   data >0366
+1342 0386   data >0386
+1344 03a6   data >03a6
+1346 03c6   data >03c6
+1348 03e6   data >03e6
+134a 0405   blwp r5
+134c 0445   b    r5
+134e 0485   x    r5
+>1350  04C5 0505 0545 0585 05C5 0605 0645 0685  .....E.......E..
+>1360  06C5 0705 0745 0804 0904 0A04 0B04 1001  .....E..........
+>1370  1101 1201 1301 1401 1501 1601 1701 1801  ................
+>1380  1901 1A01 1B01 1C01 1D09 1E09 1F09 2002  .............. .
+>1390  2402 2802 2C03 3003 3403 3808 3C08 4000  $.(.,.0.4.8.<.@.
+>13A0  5000 6000 7000 8000 9000 A000 B000 C000  P.`.p...........
+>13B0  D000 E000 F000 4C53 5420 4C57 5020 4449  ......LST LWP DI
+>13C0  5653 4D50 5953 4C49 2020 4149 2020 414E  VSMPYSLI  AI  AN
+>13D0  4449 4F52 4920 4349 2020 5354 5750 5354  DIORI CI  STWPST
+>13E0  5354 4C57 5049 4C49 4D49 4944 4C45 5253  STLWPILIMIIDLERS
+>13F0  4554 5254 5750 434B 4F4E 434B 4F46 4C52  ETRTWPCKONCKOFLR
+>1400  4558 424C 5750 4220 2020 5820 2020 434C  EXBLWPB   X   CL
+>1410  5220 4E45 4720 494E 5620 494E 4320 494E  R NEG INV INC IN
+>1420  4354 4445 4320 4445 4354 424C 2020 5357  CTDEC DECTBL  SW
+>1430  5042 5345 544F 4142 5320 5352 4120 5352  PBSETOABS SRA SR
+>1440  4C20 534C 4120 5352 4320 4A4D 5020 4A4C  L SLA SRC JMP JL
+>1450  5420 4A4C 4520 4A45 5120 4A48 4520 4A47  T JLE JEQ JHE JG
+>1460  5420 4A4E 4520 4A4E 4320 4A4F 4320 4A4E  T JNE JNC JOC JN
+>1470  4F20 4A4C 2020 4A48 2020 4A4F 5020 5342  O JL  JH  JOP SB
+>1480  4F20 5342 5A20 5442 2020 434F 4320 435A  O SBZ TB  COC CZ
+>1490  4320 584F 5220 584F 5020 4C44 4352 5354  C XOR XOP LDCRST
+>14A0  4352 4D50 5920 4449 5620 535A 4320 535A  CRMPY DIV SZC SZ
+>14B0  4342 5320 2020 5342 2020 4320 2020 4342  CBS   SB  C   CB
+>14C0  2020 4120 2020 4142 2020 4D4F 5620 4D4F    A   AB  MOV MO
+>14D0  5642 534F 4320 534F 4342 4E4F 5020 4441  VBSOC SOCBNOP DA
+>14E0  5441 5445 5854 414F 5247 454E 4420 5254  TATEXTAORGEND RT
+>14F0  2020 0000 403E 002A 5200 FFFF FFFF FFFF    ..@>.*R.......
+1350 04c5   clr  r5
+1352 0505   neg  r5
+1354 0545   inv  r5
+1356 0585   inc  r5
+1358 05c5   inct r5
+135a 0605   dec  r5
+135c 0645   dect r5
+135e 0685   bl   r5
+1360 06c5   swpb r5
+1362 0705   seto r5
+1364 0745   abs  r5
+1366 0804   sra  r4, 0
+1368 0904   srl  r4, 0
+136a 0a04   sla  r4, 0
+136c 0b04   src  r4, 0
+136e 1001   jmp  >1372
+1370 1101   jlt  >1374
+1372 1201   jle  >1376
+1374 1301   jeq  >1378
+1376 1401   jhe  >137a
+1378 1501   jgt  >137c
+137a 1601   jne  >137e
+137c 1701   jnc  >1380
+137e 1801   joc  >1382
+1380 1901   jno  >1384
+1382 1a01   jl   >1386
+1384 1b01   jh   >1388
+1386 1c01   jop  >138a
+1388 1d09   sbo  9
+138a 1e09   sbz  9
+138c 1f09   tb   9
+138e 2002   coc  r2, r0
+1390 2402   czc  r2, r0
+1392 2802   xor  r2, r0
+1394 2c03   xop  r3, r0
+1396 3003   ldcr r3, r0
+1398 3403   stcr r3, r0
+139a 3808   mpy  r8, r0
+139c 3c08   div  r8, r0
+139e 4000   szc  r0, r0
+13a0 5000   szcb r0, r0
+13a2 6000   s    r0, r0
+13a4 7000   sb   r0, r0
+13a6 8000   c    r0, r0
+13a8 9000   cb   r0, r0
+13aa a000   a    r0, r0
+13ac b000   ab   r0, r0
+13ae c000   mov  r0, r0
+13b0 d000   movb r0, r0
+13b2 e000   soc  r0, r0
+13b4 f000   socb r0, r0
+13b6 4c53   szc  *r3, *r1+
+13b8 5420   szcb @>4c57, *r0
+13ba 4c57
+13bc 5020   szcb @>4449, r0
+13be 4449
+13c0 5653   szcb *r3, *r9
+13c2 4d50   szc  *r0, *r5+
+13c4 5953   szcb *r3, @>4c49(r5)
+13c6 4c49
+13c8 2020   coc  @>4149, r0
+13ca 4149
+13cc 2020   coc  @>414e, r0
+13ce 414e
+13d0 4449   szc  r9, *r1
+13d2 4f52   szc  *r2, *r13+
+13d4 4920   szc  @>4349, @>2020(r4)
+13d6 4349
+13d8 2020
+13da 5354   szcb *r4, r13
+13dc 5750   szcb *r0, *r13
+13de 5354   szcb *r4, r13
+13e0 5354   szcb *r4, r13
+13e2 4c57   szc  *r7, *r1+
+13e4 5049   szcb r9, r1
+13e6 4c49   szc  r9, *r1+
+13e8 4d49   szc  r9, *r5+
+13ea 4944   szc  r4, @>4c45(r5)
+13ec 4c45
+13ee 5253   szcb *r3, r9
+13f0 4554   szc  *r4, *r5
+13f2 5254   szcb *r4, r9
+13f4 5750   szcb *r0, *r13
+13f6 434b   szc  r11, r13
+13f8 4f4e   szc  r14, *r13+
+13fa 434b   szc  r11, r13
+13fc 4f46   szc  r6, *r13+
+13fe 4c52   szc  *r2, *r1+
+1400 4558   szc  *r8, *r5
+1402 424c   szc  r12, r9
+1404 5750   szcb *r0, *r13
+1406 4220   szc  @>2020, r8
+1408 2020
+140a 5820   szcb @>2020, @>434c
+140c 2020
+140e 434c
+1410 5220   szcb @>4e45, r8
+1412 4e45
+1414 4720   szc  @>494e, *r12
+1416 494e
+1418 5620   szcb @>494e, *r8
+141a 494e
+141c 4320   szc  @>494e, r12
+141e 494e
+1420 4354   szc  *r4, r13
+1422 4445   szc  r5, *r1
+1424 4320   szc  @>4445, r12
+1426 4445
+1428 4354   szc  *r4, r13
+142a 424c   szc  r12, r9
+142c 2020   coc  @>5357, r0
+142e 5357
+1430 5042   szcb r2, r1
+1432 5345   szcb r5, r13
+1434 544f   szcb r15, *r1
+1436 4142   szc  r2, r5
+1438 5320   szcb @>5352, r12
+143a 5352
+143c 4120   szc  @>5352, r4
+143e 5352
+1440 4c20   szc  @>534c, *r0+
+1442 534c
+1444 4120   szc  @>5352, r4
+1446 5352
+1448 4320   szc  @>4a4d, r12
+144a 4a4d
+144c 5020   szcb @>4a4c, r0
+144e 4a4c
+1450 5420   szcb @>4a4c, *r0
+1452 4a4c
+1454 4520   szc  @>4a45, *r4
+1456 4a45
+1458 5120   szcb @>4a48, r4
+145a 4a48
+145c 4520   szc  @>4a47, *r4
+145e 4a47
+1460 5420   szcb @>4a4e, *r0
+1462 4a4e
+1464 4520   szc  @>4a4e, *r4
+1466 4a4e
+1468 4320   szc  @>4a4f, r12
+146a 4a4f
+146c 4320   szc  @>4a4e, r12
+146e 4a4e
+1470 4f20   szc  @>4a4c, *r12+
+1472 4a4c
+1474 2020   coc  @>4a48, r0
+1476 4a48
+1478 2020   coc  @>4a4f, r0
+147a 4a4f
+147c 5020   szcb @>5342, r0
+147e 5342
+1480 4f20   szc  @>5342, *r12+
+1482 5342
+1484 5a20   szcb @>5442, @>2020(r8)
+1486 5442
+1488 2020
+148a 434f   szc  r15, r13
+148c 4320   szc  @>435a, r12
+148e 435a
+1490 4320   szc  @>584f, r12
+1492 584f
+1494 5220   szcb @>584f, r8
+1496 584f
+1498 5020   szcb @>4c44, r0
+149a 4c44
+149c 4352   szc  *r2, r13
+149e 5354   szcb *r4, r13
+14a0 4352   szc  *r2, r13
+14a2 4d50   szc  *r0, *r5+
+14a4 5920   szcb @>4449, @>5620(r4)
+14a6 4449
+14a8 5620
+14aa 535a   szcb *r10, r13
+14ac 4320   szc  @>535a, r12
+14ae 535a
+14b0 4342   szc  r2, r13
+14b2 5320   szcb @>2020, r12
+14b4 2020
+14b6 5342   szcb r2, r13
+14b8 2020   coc  @>4320, r0
+14ba 4320
+14bc 2020   coc  @>4342, r0
+14be 4342
+14c0 2020   coc  @>4120, r0
+14c2 4120
+14c4 2020   coc  @>4142, r0
+14c6 4142
+14c8 2020   coc  @>4d4f, r0
+14ca 4d4f
+14cc 5620   szcb @>4d4f, *r8
+14ce 4d4f
+14d0 5642   szcb r2, *r9
+14d2 534f   szcb r15, r13
+14d4 4320   szc  @>534f, r12
+14d6 534f
+14d8 4342   szc  r2, r13
+14da 4e4f   szc  r15, *r9+
+14dc 5020   szcb @>4441, r0
+14de 4441
+14e0 5441   szcb r1, *r1
+14e2 5445   szcb r5, *r1
+14e4 5854   szcb *r4, @>414f(r1)
+14e6 414f
+14e8 5247   szcb r7, r9
+14ea 454e   szc  r14, *r5
+14ec 4420   szc  @>5254, *r0
+14ee 5254
+14f0 2020   coc  @>0000, r0
+14f2 0000
+14f4 403e   szc  *r14+, r0
+14f6 002a   data >002a
+14f8 5200   szcb r0, r8
+14fa ffff   socb *r15+, *r15+
+14fc ffff   socb *r15+, *r15+
+14fe ffff   socb *r15+, *r15+
+
+
+
+        END

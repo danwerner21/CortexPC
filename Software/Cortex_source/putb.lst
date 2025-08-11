@@ -1,4 +1,4 @@
-ASM990 2.4.6     PUTB                       Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     PUTB                       Sun Aug 10 23:07:34 2025 Page 0001
 PUT BYTE IN BUFFER - CORTEX BASIC REV. 1.1
 
               2         IDT  'PUTB'
@@ -21,7 +21,7 @@ PUT BYTE IN BUFFER - CORTEX BASIC REV. 1.1
              19  *       IN  (R7) = BUFFER
              20  *            R0  = CHARACTER
              21  *       OUT  R0  = CHARACTER OR BACKSPACE OR BELL
-ASM990 2.4.6     PUTB                       Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     PUTB                       Sun Aug 10 23:07:34 2025 Page 0002
 PUT BYTE IN BUFFER - CORTEX BASIC REV. 1.1
 
              23  *
@@ -71,7 +71,7 @@ PUT BYTE IN BUFFER - CORTEX BASIC REV. 1.1
 004A 046B    57  PUTB6  B    @4(11)            ;EXIT
 004C 0004 
              58         END
-ASM990 2.4.6     PUTB                       Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     PUTB                       Sun Aug 10 23:07:34 2025 Page 0003
 PUT BYTE IN BUFFER - CORTEX BASIC REV. 1.1
 
 CCNT     003CR  IOB      0022R  PUTB     0000D  PUTB1    000E'  PUTB2    0018'  

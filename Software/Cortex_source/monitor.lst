@@ -1,4 +1,4 @@
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0001
 DEBUG MONITOR - CORTEX BASIC REV. 1.1
 
               2         IDT  'MONITOR'
@@ -61,7 +61,7 @@ DEBUG MONITOR - CORTEX BASIC REV. 1.1
              35C    $IF  P1.A&$PSYM
              36C        $ASG O.V+>20 TO O.V
              37C        $ASG :O.V:',':P1.S: TO T.S
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0002
 DEBUG MONITOR - CORTEX BASIC REV. 1.1
 
              38C        DATA :T.S:              SYMBOLIC
@@ -115,7 +115,7 @@ DEBUG MONITOR - CORTEX BASIC REV. 1.1
              86C *
              87C *    END OF MACRO DEFINITIONS
              88C *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0003
 DEBUG MONITOR - CORTEX BASIC REV. 1.1
 
              26  ************************************************************
@@ -175,7 +175,7 @@ DEBUG MONITOR - CORTEX BASIC REV. 1.1
              80  *            DESTINATION START BYTE ADDR                   *
              81  *                                                          *
              82  ************************************************************
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0004
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0004
 DEBUG MONITOR - CORTEX BASIC REV. 1.1
 
              84  ************************************************************
@@ -201,7 +201,7 @@ DEBUG MONITOR - CORTEX BASIC REV. 1.1
             104  * PRINT FORMAT FOR 'F' & 'N' COMMANDS CHANGED              *
             105  * SINGLE STEP/TRACE CHANGED SO AS NOT TO OUTPUT IN XOP'S   *
             106  ************************************************************
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0005
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0005
 DEBUG MONITOR - CORTEX BASIC REV. 1.1
 
             108  *
@@ -243,7 +243,7 @@ DEBUG MONITOR - CORTEX BASIC REV. 1.1
 0030 0000 
 0032 06A0   136         BL   @SRCH
 0034 0090'
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0006
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0006
 DEBUG MONITOR - CORTEX BASIC REV. 1.1
 
             138  *
@@ -306,7 +306,7 @@ DEBUG MONITOR - CORTEX BASIC REV. 1.1
 007E 3F     195         TEXT '?'               WHERE AM I?
 007F 00     196         BYTE 0
 0080 03E2'  197         DATA QUERY
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0007
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0007
 DEBUG MONITOR - CORTEX BASIC REV. 1.1
 
 0082 00     198         BYTE 0,0,0,0           SPARE ENTRY
@@ -369,7 +369,7 @@ DEBUG MONITOR - CORTEX BASIC REV. 1.1
             249  *
 00E6 0000   250  OUTERR DATA TYPC$             OUT 'CRLF'
 00E8 0000   251         DATA TYPEN$            OUT ERROR TEXT
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0008
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0008
 COMMAND SEARCH AND ERROR HANDLER
 
 00EA 108A   252  JMMONT JMP  MONTOP            RETURN TO MONITOR
@@ -401,7 +401,7 @@ COMMAND SEARCH AND ERROR HANDLER
 0112 0420   273  G      BLWP @BVEC1            WARMSTART VECTORS
 0114 0116'
 0116 0000   274  BVEC1  DATA WPR1,BEGN1
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0009
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0009
 COMMAND SEARCH AND ERROR HANDLER
 
             276  ************************************************************
@@ -441,7 +441,7 @@ COMMAND SEARCH AND ERROR HANDLER
 013C 12FD   310         JLE  TOPDN              N, CONTINUE
 013E 045B   311         RT                      Y, EXIT TO MONITOR
             312  *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0010
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0010
 *** INITIALIZE COMMAND ***
 
             315  ************************************************************
@@ -466,7 +466,7 @@ COMMAND SEARCH AND ERROR HANDLER
 014A CC02   334         MOV  R2,*R0+
 014C 045B   335         RT                     EXIT
             336  *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0011
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0011
 *** FIND COMMAND ***
 
             339  ************************************************************
@@ -528,7 +528,7 @@ COMMAND SEARCH AND ERROR HANDLER
 018E 0206   389  N      LI   R6,SKIP2-SKIP11/2-1+>1300         =JUMP EQUAL
 0190 1303 
 0192 10DF   390         JMP  FIND
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0012
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0012
 ***MEMORY INSPECT/CHANGE***
 
             393  ************************************************************
@@ -570,7 +570,7 @@ COMMAND SEARCH AND ERROR HANDLER
 01B0 13F3   428         JEQ  MLOOP1            YES, NEW LINE
 01B2        429         WRIT *R9               NO, OUTPUT SPACE
 01B4 10F7   430         JMP  MLOOP2
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0013
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0013
 ***MEMORY INSPECT/CHANGE***
 
             432  *
@@ -595,7 +595,7 @@ COMMAND SEARCH AND ERROR HANDLER
 01DA 16ED   449         JNE  MIC1
 01DC 045B   450  MEXIT  RT                     EXIT TO MONITOR
             451  *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0014
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0014
 ***WORKSPACE REGISTER INSPECT/CHANGE***
 
             454  ************************************************************
@@ -658,7 +658,7 @@ COMMAND SEARCH AND ERROR HANDLER
 021C 1305   507         JEQ  NREG              YES
             508  *
             509  * CHECK FOR REGISTER OR BREAKPOINT ZERO
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0015
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0015
 ***WORKSPACE REGISTER INSPECT/CHANGE***
 
             510  *
@@ -693,7 +693,7 @@ COMMAND SEARCH AND ERROR HANDLER
 024C 13F5   536         JEQ  NLINE             YES, NEXT LINE
 024E 10F5   537         JMP  WLOOP             NO, CONTINUE ON THIS LINE
             538  *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0016
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0016
 ***CRU INSPECT/CHANGE***
 
             541  ************************************************************
@@ -752,7 +752,7 @@ COMMAND SEARCH AND ERROR HANDLER
 028E 9685   591  CNULL  CB   R5,*R10           EXIT?
 0290 16E8   592         JNE  CLOOP             NO LOOP
 0292 045B   593         RT                     EXIT TO MONITOR
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0017
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0017
 ***WP,PC,ST INSPECT/DISPLAY***
 
             596  ************************************************************
@@ -799,7 +799,7 @@ COMMAND SEARCH AND ERROR HANDLER
 02CE 16EE   632         JNE  RLOOP             NO
 02D0 045B   633  REXIT  RT                     EXIT TO MONITOR
             634  *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0018
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0018
 SINGLE STEPPING, BKPT ZERO SUBROUTINE
 
             637  ************************************************************
@@ -851,7 +851,7 @@ SINGLE STEPPING, BKPT ZERO SUBROUTINE
 0304 C420   679  BPTLOD MOV  @COD15,*R0        BREAKPOINT TO RAM
 0306 03AA'
 0308 0380   680         RTWP
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0019
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0019
 LOAD ENTRY POINT, TRACE
 
             683  *
@@ -913,7 +913,7 @@ LOAD ENTRY POINT, TRACE
 0346 C000   730         MOV  R0,R0             IF COUNT=0 DO ONLY ONE
 0348 15CF   731         JGT  LDCNT             IF >0 DECREMENT AND STEP
 034A 0455   732         B    *R5               RETURN TO MONITOR
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0020
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0020
 ***EXCEUTE***
 
             735  ************************************************************
@@ -976,7 +976,7 @@ LOAD ENTRY POINT, TRACE
 03A8 0222   781         AI   R2,>0FC0          ADD BKPT MID OPCODE
 03AA 0FC0 
      03AA'  782  COD15  EQU  $-2
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0021
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0021
 ***EXCEUTE***
 
 03AC C853   783         MOV  *R3,@BPTDTA(R1)   SAVE DATA
@@ -984,7 +984,7 @@ LOAD ENTRY POINT, TRACE
 03B0 C4C2   784         MOV  R2,*R3            INSTALL BP
 03B2 10F1   785         JMP  EBPTLP            AND LOOP FOR NEXT
             786  *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0022
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0022
 *** BREAKPOINT HANDLER ***
 
             789  *
@@ -1038,7 +1038,7 @@ LOAD ENTRY POINT, TRACE
 03FE 0420   827         BLWP @INSTR            CALL UNASSEMBLER
 0400 0814'
 0402 045B   828         RT                     EXIT TO MONITOR (OR TRACE)
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0023
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0023
 TOGGLE OUTPUT PORT
 
             831  ************************************************************
@@ -1069,7 +1069,7 @@ TOGGLE OUTPUT PORT
 0426 1AF8   850         JL   REPLP
 0428 045B   851  RMVRTN RT
             852  *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0024
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0024
 ***CHARACTER ECHO***
 
             855  ************************************************************
@@ -1090,7 +1090,7 @@ TOGGLE OUTPUT PORT
 042C        870         WRIT *R11              ECHO THE CHARACTER
 042E 0380   871         RTWP
             872  *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0025
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0025
 ***READ CHARACTER***
 
             875  ************************************************************
@@ -1112,7 +1112,7 @@ TOGGLE OUTPUT PORT
 0436 C00C   891         MOV  R12,R0            RESTORE R0
 0438 0380   892         RTWP                   EXIT
             893  *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0026
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0026
 WRITE
 
             896  ************************************************************
@@ -1148,7 +1148,7 @@ WRITE
 0448 0000 
 044A C00C   925  W40    MOV  R12,R0            RESTORE R0
 044C 0380   926         RTWP                   N, EXIT
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0027
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0027
 ***ASCII MESSAGE OUTPUT***
 
             929  ************************************************************
@@ -1169,7 +1169,7 @@ WRITE
 0452 16FD   944         JNE  MLOOP             IF NOT ZERO, LOOP BACK
 0454 0380   945         RTWP                   RETURN
             946  *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0028
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0028
 ***HEX INPUT***
 
             949  ************************************************************
@@ -1232,7 +1232,7 @@ WRITE
 048A 028A  1000         CI   R10,'-'*256       '-'?
 048C 2D00 
 048E 1308  1001         JEQ  SPCK
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0029
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0029
 ***HEX INPUT***
 
 0490 028A  1002         CI   R10,>D00          CARRIAGE RETURN?
@@ -1256,7 +1256,7 @@ WRITE
 04B4 05CE  1017  ERR    INCT R14               POINT TO ERROR POINTER
 04B6 10FC  1018         JMP  EXIT1
            1019  *
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0030
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0030
 ***HEX OUTPUT***
 
            1022  ************************************************************
@@ -1310,7 +1310,7 @@ WRITE
 04E0 0609  1065         DEC  R9                DONE?
 04E2 16F2  1066         JNE  LOOP1             NO, LOOP
 04E4 0380  1067         RTWP
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0031
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0031
 ASSEMBLER
 
            1070  ************************************************************
@@ -1373,7 +1373,7 @@ ASSEMBLER
 051C 0208  1123         LI   R8,16             PRESET BASE
 051E 0010 
 0520 1007  1124         JMP  DEC5
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0032
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0032
 ASSEMBLER
 
 0522 0208  1125  BIN    LI   R8,2              PRESET BASE
@@ -1436,7 +1436,7 @@ ASSEMBLER
 0588 C04B  1172  GETLA  MOV  R11,R1            SAVE RETURN
 058A 0284  1173  GETL10 CI   R4,'%'            CHECK FOR BINARY
 058C 0025 
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0033
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0033
 ASSEMBLER
 
 058E 13C9  1174         JEQ  BIN
@@ -1499,7 +1499,7 @@ ASSEMBLER
            1218  *
 05F4 0720  1219         SETO @MODE             STOP USER USING ^E ( EDIT )
 05F6 0000 
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0034
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0034
 ASSEMBLER
 
 05F8 04E0  1220         CLR  @ESCFLG           MAKE SURE USER CAN ESCAPE
@@ -1562,7 +1562,7 @@ ASSEMBLER
            1259  * EXIT
            1260  *
 0662 069F  1261  PT220  BL   *R15              GET A CHAR.
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0035
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0035
 ASSEMBLER
 
 0664 C104  1262         MOV  R4,R4             IF NULL - EXIT
@@ -1625,7 +1625,7 @@ ASSEMBLER
 06C0 FFF0 
 06C2 C480  1311         MOV  R0,*R2
 06C4 05C3  1312         INCT R3                COUNT=2
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0036
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0036
 ASSEMBLER
 
 06C6 C04A  1313         MOV  R10,R1            SAVE
@@ -1688,7 +1688,7 @@ ASSEMBLER
 071A C183  1361         MOV  R3,R6             ADD TO MEMORY
 071C A182  1362         A    R2,R6
 071E C581  1363         MOV  R1,*R6            SAVE X
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0037
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0037
 ASSEMBLER
 
 0720 05C3  1364         INCT R3                UPDATE COUNT
@@ -1751,7 +1751,7 @@ ASSEMBLER
 078C 0588'
 078E C28A  1407  TSTSGN MOV  R10,R10
 0790 1301  1408         JEQ  PT270
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0038
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0038
 ASSEMBLER
 
 0792 0501  1409         NEG  R1
@@ -1814,7 +1814,7 @@ ASSEMBLER
 07E6 0281  1458         CI   R1,>FF80
 07E8 FF80 
 07EA 118B  1459         JLT  RNGERR
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0039
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0039
 ASSEMBLER
 
 07EC 0241  1460  OPG15  ANDI R1,>FF            RANGE O.K. SO
@@ -1835,7 +1835,7 @@ ASSEMBLER
 0804 C38B  1473  OPH    MOV  R11,R14           SAVE RETURN
 0806 0699  1474         BL   *R9
 0808 10F1  1475         JMP  OPG15             GO PROCESS IT
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0040
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0040
 UNASSEMBLER FOR LOBUG. MJS & CRH
 
            1478  ************************************************************
@@ -1883,7 +1883,7 @@ UNASSEMBLER FOR LOBUG. MJS & CRH
 081C C140  1518         MOV  R0,R5             COPY FOR STOP ADDRESS
 081E 04CC  1519         CLR  R12
 0820 100E  1520         JMP  U2                DO DISASSEMBLY
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0041
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0041
 UNASSEMBLER FOR LOBUG. MJS & CRH
 
            1522  *
@@ -1946,7 +1946,7 @@ UNASSEMBLER FOR LOBUG. MJS & CRH
 0886 1403  1564         JHE  OPCFND            YES - EXIT
 0888 022A  1565  NODIR  AI   R10,-6            NEXT OPCODE
 088A FFFA 
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0042
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0042
 UNASSEMBLER FOR LOBUG. MJS & CRH
 
 088C 10F6  1566         JMP  GETOPC            LOOP BACK
@@ -2009,7 +2009,7 @@ UNASSEMBLER FOR LOBUG. MJS & CRH
 08EA 0699  1616         BL   *R9               PRINT REG NUMBER
 08EC 0941  1617         SRL  R1,4
 08EE       1618  TST81  WRIT R6                PRINT COMMA
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0043
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0043
 UNASSEMBLER FOR LOBUG. MJS & CRH
 
 08F0 0699  1619  TST82  BL   *R9               PRINT NUMBER
@@ -2037,7 +2037,7 @@ UNASSEMBLER FOR LOBUG. MJS & CRH
 0914 06C6  1638         SWPB R6                ASCII ',' IN UPPER BYTE
 0916 C070  1639         MOV  *R0+,R1           RELOAD OPCODE DATA, INC ADDR
 0918 045B  1640         RT
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0044
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0044
 UNASSEMBLER FOR LOBUG. MJS & CRH
 
            1642  *
@@ -2071,7 +2071,7 @@ UNASSEMBLER FOR LOBUG. MJS & CRH
 094A 0699  1666  BIT3   BL   *R9               PRINT TENS DIGIT
 094C C042  1667  BIT4   MOV  R2,R1             LOAD ONES DIGIT
 094E 0699  1668  BIT5   BL   *R9               PRINT ONES DIGIT
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0045
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0045
 UNASSEMBLER FOR LOBUG. MJS & CRH
 
            1670  *
@@ -2097,7 +2097,7 @@ UNASSEMBLER FOR LOBUG. MJS & CRH
 0964 8140  1688  CMD5   C    R0,R5             TEST DUMP END ADDRESS
 0966 12FC  1689         JLE  CMD4               N, CONTINUE DISASSEMBLY
 0968 0380  1690  CMD6   RTWP                    Y, EXIT DISASSEMBLER
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0046
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0046
 UNASSEMBLER FOR LOBUG. MJS & CRH
 
            1692  *
@@ -2160,7 +2160,7 @@ UNASSEMBLER FOR LOBUG. MJS & CRH
 09B6       1744         WRIT R2                PRINT "("
 09B8 06C4  1745  AMD4   SWPB R4                PUT ASCII R IN UPPER BYTE
 09BA       1746         WRIT R4                PRINT "R"
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0047
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0047
 UNASSEMBLER FOR LOBUG. MJS & CRH
 
 09BC C30B  1747         MOV  R11,R12           SAVE LINK ADDR
@@ -2175,7 +2175,7 @@ UNASSEMBLER FOR LOBUG. MJS & CRH
 09C8 0202  1756         LI   R2,'+'            LOAD ASCII "+"
 09CA 002B 
 09CC 10F5  1757         JMP  AMD4              GO HANDLE REST OF FORMAT
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0048
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0048
 OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 
            1760  *
@@ -2238,7 +2238,7 @@ OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 09E5 53   
 09E6 0186  1806         DATA >0180+FM6    DIVS
 09E8 4D    1807         TEXT 'MPYS'
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0049
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0049
 OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 
 09E9 50   
@@ -2301,7 +2301,7 @@ OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 0A2D 45   
 0A2E 0347  1830         DATA >0340+FM7    IDLE
 0A30 52    1831         TEXT 'RSET'
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0050
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0050
 OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 
 0A31 53   
@@ -2364,7 +2364,7 @@ OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 0A75 20   
 0A76 0586  1854         DATA >0580+FM6    INC
 0A78 49    1855         TEXT 'INCT'
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0051
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0051
 OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 
 0A79 4E   
@@ -2427,7 +2427,7 @@ OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 0ABD 20   
 0ABE 0B05  1878         DATA >0B00+FM5    SRC
 0AC0 44    1879         TEXT 'DATA'
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0052
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0052
 OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 
 0AC1 41   
@@ -2490,7 +2490,7 @@ OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 0B04 45   
 0B05 20   
 0B06 1202  1903         DATA >1200+FM2    JLE
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0053
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0053
 OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 
 0B08 4A    1904         TEXT 'JEQ '
@@ -2553,7 +2553,7 @@ OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 0B4C 5A   
 0B4D 20   
 0B4E 1E0A  1927         DATA >1E00+FMA    SBZ
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0054
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0054
 OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 
 0B50 54    1928         TEXT 'TB  '
@@ -2616,7 +2616,7 @@ OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 0B94 20   
 0B95 20   
 0B96 6001  1951         DATA >6000+FM1    S
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0055
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0055
 OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 
 0B98 53    1952         TEXT 'SB  '
@@ -2679,7 +2679,7 @@ OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 0BD4 0000  1979         DATA 0,>10FF
 0BD8 4E    1980  CONOP  TEXT 'NOP '
 0BD9 4F   
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0056
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0056
 OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 
 0BDA 50   
@@ -2696,7 +2696,7 @@ OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
            1987  *
 0BEA 0003  1988  C3     DATA >0003
            1989         END
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0057
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0057
 OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 
 ADREVN   004A'  AMD1     0994'  AMD2     099A'  AMD3     09A2'  AMD4     09B8'  
@@ -2759,7 +2759,7 @@ SETLOD   038E'  SETVEC   0336R  SINGLE   02E6'  SKIP     021A'  SKIP0    016A'
 SKIP1    0174'  SKIP11   017C'  SKIP2    0184'  SOPEND   0BE8'  SOPLP    085C'  
 SOPSTT   0BD0'  SPACE2   0956R  SPACE5   05F2R  SPBP     01E4R  SPCK     04A0'  
 SPEC1    0686'  SPECOC   0680'  SPR      01ECR  SRCH     0090'  SRCHLP   008C'  
-ASM990 2.4.6     MONITOR                    Sun Jul 20 19:28:48 2025 Page 0058
+ASM990 2.4.6     MONITOR                    Sun Aug 10 23:07:32 2025 Page 0058
 OPCODE TABLES FOR ASSEMBLER/DIS-ASSEMBLER
 
 STEP     02EC'  STPCHK   02F0'  STPMSG   0316R  SYMBLC   09A8R  T        033C'  

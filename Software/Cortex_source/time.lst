@@ -1,4 +1,4 @@
-ASM990 2.4.6     TIME                       Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     TIME                       Sun Aug 10 23:07:34 2025 Page 0001
 TIME STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT  'TIME'
@@ -27,7 +27,7 @@ TIME STATEMENT - CORTEX BASIC REV. 1.1
              25  * XOP EQUATES
              26  *
              27         DXOP EVFIX,11
-ASM990 2.4.6     TIME                       Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     TIME                       Sun Aug 10 23:07:34 2025 Page 0002
 TIME STATEMENT - CORTEX BASIC REV. 1.1
 
              29  *
@@ -90,7 +90,7 @@ TIME STATEMENT - CORTEX BASIC REV. 1.1
 0058 0000    73  TIM5   DATA TYPB$             ;Y - OUTPUT BUFFER
 005A 0300    74  TIMR   LIMI 15
 005C 000F 
-ASM990 2.4.6     TIME                       Sun Jul 20 19:28:50 2025 Page 0003
+ASM990 2.4.6     TIME                       Sun Aug 10 23:07:34 2025 Page 0003
 TIME STATEMENT - CORTEX BASIC REV. 1.1
 
 005E 0460    75         B    @NLIN
@@ -130,7 +130,7 @@ TIME STATEMENT - CORTEX BASIC REV. 1.1
 0096 000A 
 0098 0380   102         RTWP                   ;RETURN
             103         END
-ASM990 2.4.6     TIME                       Sun Jul 20 19:28:50 2025 Page 0004
+ASM990 2.4.6     TIME                       Sun Aug 10 23:07:34 2025 Page 0004
 TIME STATEMENT - CORTEX BASIC REV. 1.1
 
 B20       0034R  B3A       007ER  BFA       0000R  CKEX      0012R  

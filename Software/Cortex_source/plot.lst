@@ -1,4 +1,4 @@
-ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     PLOT                       Sun Aug 10 23:07:36 2025 Page 0001
 PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 
               2         IDT  'PLOT'
@@ -14,7 +14,7 @@ PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
              12         REF  V1R3L,V1R4L
              13         REF  XLOC,YLOC,NXLOC,NYLOC,NLIN,JMPR0A
              14         REF  FGM$
-ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     PLOT                       Sun Aug 10 23:07:36 2025 Page 0002
 PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 
              16  *
@@ -41,7 +41,7 @@ PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
              37  *                                 3.  FROM (C,D) TO (E,F)
              38  *
              39  *
-ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     PLOT                       Sun Aug 10 23:07:36 2025 Page 0003
 PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 
 0000 070D    41  UPLOTY SETO R13               FLAG AS 'UNPLOT'
@@ -104,7 +104,7 @@ PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 005C 10F9    84         JMP  LOOKTO            CHECK FOR 'TO'
              85  *
              86  *      GET A FOLLOWING  X,Y PAIR AND STORE THEM IN THE
-ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0004
+ASM990 2.4.6     PLOT                       Sun Aug 10 23:07:36 2025 Page 0004
 PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 
              87  *      MS BYTE OF R15 & R14 RESPECTIVLY.
@@ -121,7 +121,7 @@ PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
              97  *
 006E 2FA0    98  ERR37  DATA ERROR2,37         INVALID DELIMITER
 0072 2FA0    99  ERR48  DATA ERROR2,48         NOT ALLOWED IN CURRENT MODE
-ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0005
+ASM990 2.4.6     PLOT                       Sun Aug 10 23:07:36 2025 Page 0005
 PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 
             101  *   WORKSPACE       :    VDPWP1
@@ -184,7 +184,7 @@ PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 00BE 1508   148         JGT  LEEVEM
 00C0 2903   149         XOR  R3,R4
 00C2 28C4   150         XOR  R4,R3
-ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0006
+ASM990 2.4.6     PLOT                       Sun Aug 10 23:07:36 2025 Page 0006
 PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 
 00C4 2903   151         XOR  R3,R4
@@ -247,7 +247,7 @@ PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 0136 0227   194         AI   R7,->20
 0138 FFE0 
 013A A18A   195         A    R10,R6
-ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0007
+ASM990 2.4.6     PLOT                       Sun Aug 10 23:07:36 2025 Page 0007
 PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 
 013C A149   196  EXPLOT A    R9,R5
@@ -260,7 +260,7 @@ PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 014A 0124'
 014C 0380   200         RTWP
             201         END
-ASM990 2.4.6     PLOT                       Sun Jul 20 19:28:51 2025 Page 0008
+ASM990 2.4.6     PLOT                       Sun Aug 10 23:07:36 2025 Page 0008
 PLOT/UNPLOT ROUTINES - CORTEX BASIC REV. 1.1
 
 DIVLSB    00F4'  EOLTST    000C'  ERR37     006E'  ERR48     0072'  

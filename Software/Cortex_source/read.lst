@@ -1,4 +1,4 @@
-ASM990 2.4.6     READ                       Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     READ                       Sun Aug 10 23:07:34 2025 Page 0001
 READ STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT  'READ'
@@ -45,7 +45,7 @@ READ STATEMENT - CORTEX BASIC REV. 1.1
              43  *
              44  *       ERROR 24 FOR READING INTO STRING CONSTANT
              45  *       ERROR 23 FOR READ WITHOUT DATA
-ASM990 2.4.6     READ                       Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     READ                       Sun Aug 10 23:07:34 2025 Page 0002
 READ STATEMENT - CORTEX BASIC REV. 1.1
 
              47  *FIND DATA
@@ -99,7 +99,7 @@ READ STATEMENT - CORTEX BASIC REV. 1.1
 004E C805    83         MOV  R5,@DLIM          ;RESTORE DLIM
 0050 0004'
 0052 045B    84         RT
-ASM990 2.4.6     READ                       Sun Jul 20 19:28:50 2025 Page 0003
+ASM990 2.4.6     READ                       Sun Aug 10 23:07:34 2025 Page 0003
 READ STATEMENT - CORTEX BASIC REV. 1.1
 
              86  *READ COMMAND
@@ -137,7 +137,7 @@ READ STATEMENT - CORTEX BASIC REV. 1.1
 008A 06A0   110         BL   @BMVE             ;MOVE FROM *R2 TO *R7
 008C 0000 
 008E 10EF   111         JMP  RDD1
-ASM990 2.4.6     READ                       Sun Jul 20 19:28:50 2025 Page 0004
+ASM990 2.4.6     READ                       Sun Aug 10 23:07:34 2025 Page 0004
 READ STATEMENT - CORTEX BASIC REV. 1.1
 
             113  *
@@ -161,7 +161,7 @@ READ STATEMENT - CORTEX BASIC REV. 1.1
 00AE 0460   126  RNWY1  B    @NLIN0
 00B0 0000 
             127         END
-ASM990 2.4.6     READ                       Sun Jul 20 19:28:50 2025 Page 0005
+ASM990 2.4.6     READ                       Sun Aug 10 23:07:34 2025 Page 0005
 READ STATEMENT - CORTEX BASIC REV. 1.1
 
 BMVE      008CR  BUS       0030R  CKEX      0096R  DATXB     0034R  

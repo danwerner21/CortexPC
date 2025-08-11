@@ -1,4 +1,4 @@
-ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     CVDB                       Sun Aug 10 23:07:35 2025 Page 0001
 DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 
               2         IDT  'CVDB'
@@ -31,7 +31,7 @@ DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
              29         DXOP FLOATF,10         ;FLOAT FPAC
      2F80    30  ERROR  EQU  >2F80             ;XOP XX,14  (ERROR CALL)
      2FA0    31  ERROR2 EQU  ERROR+>20
-ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     CVDB                       Sun Aug 10 23:07:35 2025 Page 0002
 DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 
              33  *       CVDIZ AND CVDIFZ CONVERT A STRING OF
@@ -60,7 +60,7 @@ DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
              56  *
              57  *      NORMAL EXIT - RTWP
              58  *      ERROR EXIT
-ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     CVDB                       Sun Aug 10 23:07:35 2025 Page 0003
 DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 
              60  * CONVERT DECIMAL TO INTEGER
@@ -123,7 +123,7 @@ DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 0052 04C2   109  CVDIH4 CLR  R2                ;NOT HEX, CLEAR R2
             110  *
 0054 06A0   111  CVDI1  BL   @CVDB20           GET DIGIT
-ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0004
+ASM990 2.4.6     CVDB                       Sun Aug 10 23:07:35 2025 Page 0004
 DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 
 0056 0174'
@@ -166,7 +166,7 @@ DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 0098 13F3   143         JEQ  CVDI3A            N
             144  *
             145  * FALL THRU TO CVDB
-ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0005
+ASM990 2.4.6     CVDB                       Sun Aug 10 23:07:35 2025 Page 0005
 DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 
             147  * CONVERT DECIMAL TO FP
@@ -229,7 +229,7 @@ DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 00F2 04C2   195         CLR  R2                Y, SET FLAG
 00F4 10DD   196         JMP  CVDB1
             197  *
-ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0006
+ASM990 2.4.6     CVDB                       Sun Aug 10 23:07:35 2025 Page 0006
 DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 
 00F6 0280   198  CVDB5  CI   R0,>4500          "E?
@@ -292,7 +292,7 @@ DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 0152 8DBC   245         C    *R12+,*R6+        1ST WORD SAME?
 0154 160A   246         JNE  CVDB14
 0156 8DBC   247         C    *R12+,*R6+        Y - 2ND WORD SAME?
-ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0007
+ASM990 2.4.6     CVDB                       Sun Aug 10 23:07:35 2025 Page 0007
 DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 
 0158 1608   248         JNE  CVDB14
@@ -308,7 +308,7 @@ DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
             258  *
 016C C480   259  CC480  DATA >C480,0,0
 0172 8000   260         DATA >8000
-ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0008
+ASM990 2.4.6     CVDB                       Sun Aug 10 23:07:35 2025 Page 0008
 DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 
             262  * CVDB20:-  GETS THE NEXT DIGIT IF THERE
@@ -346,7 +346,7 @@ DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 018E 09C0   291         SRL  R0,12             RIGHT JUSTIFY CHARACTER
 0190 05CB   292         INCT R11
 0192 045B   293  CVDB22 RT   RETURN
-ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0009
+ASM990 2.4.6     CVDB                       Sun Aug 10 23:07:35 2025 Page 0009
 DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 
             295  * PROCESS SIGN
@@ -404,7 +404,7 @@ DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 01E6 0453   337         B    *R3               NUMBER OK
             338  *
             339         END
-ASM990 2.4.6     CVDB                       Sun Jul 20 19:28:51 2025 Page 0010
+ASM990 2.4.6     CVDB                       Sun Aug 10 23:07:35 2025 Page 0010
 DECIMAL/BINARY CONVERSION - CORTEX BASIC REV. 1.1
 
 B20        0196R  C000A      0114R  CC480      016C'  CVC10      00D0R  

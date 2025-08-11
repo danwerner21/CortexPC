@@ -1,4 +1,4 @@
-ASM990 2.4.6     SWAP                       Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     SWAP                       Sun Aug 10 23:07:35 2025 Page 0001
 COLOUR SWAP ROUTINE - CORTEX BASIC REV. 1.1
 
               2         IDT  'SWAP'
@@ -10,7 +10,7 @@ COLOUR SWAP ROUTINE - CORTEX BASIC REV. 1.1
      2F80     8  ERROR  EQU  >2F80
      2FA0     9  ERROR2 EQU  ERROR+>20
              10         COPY 'IODEFS.INC'
-ASM990 2.4.6     SWAP                       Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     SWAP                       Sun Aug 10 23:07:35 2025 Page 0002
 COLOUR SWAP ROUTINE - CORTEX BASIC REV. 1.1
 
               2C *
@@ -73,7 +73,7 @@ COLOUR SWAP ROUTINE - CORTEX BASIC REV. 1.1
              59C *      EQU  PRMPOP+7
              60C *EDATA EQU  PRMPOP+8
      0210    61C EPADR  EQU  PRMPOP+16
-ASM990 2.4.6     SWAP                       Sun Jul 20 19:28:50 2025 Page 0003
+ASM990 2.4.6     SWAP                       Sun Aug 10 23:07:35 2025 Page 0003
 COLOUR SWAP ROUTINE - CORTEX BASIC REV. 1.1
 
              62C *
@@ -136,7 +136,7 @@ COLOUR SWAP ROUTINE - CORTEX BASIC REV. 1.1
              11  *
              12  *      THIS ROUTINE READS THE COLOUR TABLE OF
              13  *      THE VDP AND SWAPS THE FGND & BGND COLOURS
-ASM990 2.4.6     SWAP                       Sun Jul 20 19:28:50 2025 Page 0004
+ASM990 2.4.6     SWAP                       Sun Aug 10 23:07:35 2025 Page 0004
 COLOUR SWAP ROUTINE - CORTEX BASIC REV. 1.1
 
              14  *      WITH THE COLOUR SET UP IN THE 16 BYTE
@@ -199,12 +199,12 @@ COLOUR SWAP ROUTINE - CORTEX BASIC REV. 1.1
              57  *
 005E C201    58         MOV  R1,R8             RESTORE PBC
 0060 0460    59         B    @NLIN0            NEXT LINE
-ASM990 2.4.6     SWAP                       Sun Jul 20 19:28:50 2025 Page 0005
+ASM990 2.4.6     SWAP                       Sun Aug 10 23:07:35 2025 Page 0005
 COLOUR SWAP ROUTINE - CORTEX BASIC REV. 1.1
 
 0062 0000 
              60         END
-ASM990 2.4.6     SWAP                       Sun Jul 20 19:28:50 2025 Page 0006
+ASM990 2.4.6     SWAP                       Sun Aug 10 23:07:35 2025 Page 0006
 COLOUR SWAP ROUTINE - CORTEX BASIC REV. 1.1
 
 BELLON   0006   BTENBL   0003   BUSACK   0002   BUSINT   0007   CASS02   00C0   

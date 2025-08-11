@@ -1,4 +1,4 @@
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0001
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
               2         IDT  'FP'
@@ -51,7 +51,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
              49         DEF  FNRM
              50  *
              51         REF  C7F,CF0,CFF80
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0002
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
              53  *
@@ -65,7 +65,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 0002 CEC1    61         MOV  R1,*R11+
 0004 C6C2    62         MOV  R2,*R11
 0006 0380    63         RTWP
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0003
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
              65  *
@@ -80,7 +80,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 000A C07B    74  FLDD1  MOV  *R11+,R1
 000C C09B    75         MOV  *R11,R2
 000E 0380    76  FLDD2  RTWP
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0004
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0004
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
              78  *
@@ -143,7 +143,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 004C 0545   133  FAD1A  INV  R5
 004E 0544   134  FAD1B  INV  R4
             135  *
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0005
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0005
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
 0050 020A   136  FAD2   LI   R10,10            10 SHIFTS GIVE ZERO RESULT
@@ -206,7 +206,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 00B6 102B   185         JMP  FNRM2             NORMALIZE
             186  *
 00B8 0502   187  FADN   NEG  R2                NEGATE FPAC
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0006
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0006
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
 00BA 1604   188         JNE  FADN1
@@ -218,7 +218,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 00C4 0541   194  FADN1  INV  R1
 00C6 0540   195  FADN2  INV  R0
 00C8 045B   196         B    *R11              RETURN
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0007
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0007
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
             198  *
@@ -238,7 +238,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 00CE 0220   212         AI   R0,>8000          N, COMPLEMENT SIGN BIT
 00D0 8000 
 00D2 0380   213  FNEG1  RTWP RETURN
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0008
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0008
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
             215  *
@@ -282,7 +282,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 00F6 04C1   251         CLR  R1
 00F8 0643   252         DECT R3                ADJUST EXPONENT
 00FA 1009   253         JMP  FNRM2
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0009
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0009
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
             255  *
@@ -329,7 +329,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 0130 06C3   294  FNRM3  SWPB R3                READY EXPONENT
 0132 D003   295         MOVB R3,R0             MOVE INTO FPAC
 0134 0380   296  FNRM4  RTWP                   RETURN
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0010
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0010
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
             298  *
@@ -392,7 +392,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 0156 1701   354         JNC  $+4
 0158 0588   355         INC  R8
 015A A207   356         A    R7,R8
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0011
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0011
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
 015C 1701   357         JNC  $+4
@@ -455,7 +455,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 01C8 0587   414         INC  R7
 01CA 3900   415         MPY  R0,R4             R4,R5 (I)
 01CC A205   416         A    R5,R8
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0012
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0012
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
 01CE 1701   417         JNC  $+4
@@ -468,7 +468,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 01DC D24A   424         MOVB R10,R9
 01DE 06C9   425         SWPB R9
 01E0 06CA   426         SWPB R10
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0013
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0013
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
             428  *MULTIPLY AND DIVIDE ENTRY
@@ -511,7 +511,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 021C 0580   463         INC  R0                IF THIS FAR, POSSIBILITY
 021E 0460   464         B    @FAD6             OF NORMALIZATION
 0220 00AE'
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0014
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0014
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
             466  *
@@ -529,7 +529,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 0224 04C1   478         CLR  R1
 0226 04C2   479         CLR  R2
 0228 0380   480         RTWP
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0015
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0015
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
             482  *
@@ -555,7 +555,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
             502  *
             503  *       FCLR            ;CLEAR
             504  *       FMD7            ;FINISH BY NORMALIZING
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0016
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0016
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
             506  *FIX EXPONENTS
@@ -618,7 +618,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
             558  *
 0282 04C7   559  FDD2   CLR  R7                Y, CLEAR QUOTIENT
 0284 04C8   560         CLR  R8
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0017
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0017
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
 0286 04C9   561         CLR  R9
@@ -663,7 +663,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 02CE 2F9C   597  FDDER  DATA ERROR+28          ;DIVISION BY ZERO
             598  *
 02D0 2F9D   599  ERR29  DATA ERROR+29          ;FP ERROR
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0018
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0018
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
             601  *
@@ -698,7 +698,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 02EC 0080 
 02EE 16F0   630         JNE  ERR29             Y, OVERFLOW
 02F0 045B   631         RT
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0019
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0019
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
             633  *
@@ -738,7 +738,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 0314 0600   667         DEC  R0
 0316 6004   668         S    R4,R0             SUBTRACTION COMPLETE
 0318 045B   669         RT
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0020
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0020
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
             671  *
@@ -793,7 +793,7 @@ FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 0340 0380   717  FSCL2  RTWP
             718  *
             719         END
-ASM990 2.4.6     FP                         Sun Jul 20 19:28:51 2025 Page 0021
+ASM990 2.4.6     FP                         Sun Aug 10 23:07:35 2025 Page 0021
 FLOATING POINT ROUTINES - CORTEX BASIC REV. 1.1
 
 C7F      01F0R  CF0      01EAR  CFF80    0248R  ERR29    02D0'  ERROR    2F80   

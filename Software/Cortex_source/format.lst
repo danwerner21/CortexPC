@@ -1,4 +1,4 @@
-ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     FORMAT                     Sun Aug 10 23:07:33 2025 Page 0001
 FORMAT ROUTINE - CORTEX BASIC REV 1.1
 
               2         IDT  'FORMAT'
@@ -61,7 +61,7 @@ FORMAT ROUTINE - CORTEX BASIC REV 1.1
 0052 102C    52         JMP  CVBF15            ".
 0054 0280    53         CI   R0,>2C00          ",?
 0056 2C00 
-ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     FORMAT                     Sun Aug 10 23:07:33 2025 Page 0002
 FORMAT ROUTINE - CORTEX BASIC REV 1.1
 
 0058 1602    54         JNE  CVBF7             N
@@ -69,7 +69,7 @@ FORMAT ROUTINE - CORTEX BASIC REV 1.1
 005C 1320    56         JEQ  CVBF11            N, OUT SPACE
 005E DDC0    57  CVBF7  MOVB R0,*R7+           Y, OUT CHARACTER
 0060 10F4    58         JMP  CVBF6
-ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     FORMAT                     Sun Aug 10 23:07:33 2025 Page 0003
 FORMAT ROUTINE - CORTEX BASIC REV 1.1
 
 0062 C1C6    60  CVBFR1 MOV  R6,R7             FORMATTING OVERFLOW
@@ -132,7 +132,7 @@ FORMAT ROUTINE - CORTEX BASIC REV 1.1
 00C8 10F2   106         JMP  CVBF16
             107  *
 00CA 0604   108  CVBF20 DEC  R4                COUNT
-ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0004
+ASM990 2.4.6     FORMAT                     Sun Aug 10 23:07:33 2025 Page 0004
 FORMAT ROUTINE - CORTEX BASIC REV 1.1
 
 00CC 8284   109         C    R4,R10            TIME FOR DIGIT?
@@ -154,7 +154,7 @@ FORMAT ROUTINE - CORTEX BASIC REV 1.1
 00E8 DDE0   123         MOVB @B30,*R7+         INSERT "0
 00EA 0000 
 00EC 045B   124  CVBF31 RT
-ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0005
+ASM990 2.4.6     FORMAT                     Sun Aug 10 23:07:33 2025 Page 0005
 FORMAT ROUTINE - CORTEX BASIC REV 1.1
 
             126  *CHECK FORMAT TYPE
@@ -207,7 +207,7 @@ FORMAT ROUTINE - CORTEX BASIC REV 1.1
 0138 05CB   162  CVBFT2 INCT R11
 013A 045B   163  CVBFT3 RT
             164         END
-ASM990 2.4.6     FORMAT                     Sun Jul 20 19:28:49 2025 Page 0006
+ASM990 2.4.6     FORMAT                     Sun Aug 10 23:07:33 2025 Page 0006
 FORMAT ROUTINE - CORTEX BASIC REV 1.1
 
 B2A      0020R  B2E      0114'  B30      00EAR  CVBD7A   004E'  CVBF     0000D  

@@ -1,4 +1,4 @@
-ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     INPUT                      Sun Aug 10 23:07:33 2025 Page 0001
 INPUT STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT  'INPUT'
@@ -26,7 +26,7 @@ INPUT STATEMENT - CORTEX BASIC REV. 1.1
              24  *
              25          DXOP STORE,1    ;STORE FPAC
              26          DXOP EVFIX,11   ;EVALUATE AND FIX
-ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     INPUT                      Sun Aug 10 23:07:33 2025 Page 0002
 INPUT STATEMENT - CORTEX BASIC REV. 1.1
 
              28  *
@@ -89,7 +89,7 @@ INPUT STATEMENT - CORTEX BASIC REV. 1.1
 004A 1000    76            NOP
 004C C000    77          MOV R0,R0       ;CHECK DELIMITER
 004E 160C    78            JNE INP5      ;PROBLEM
-ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     INPUT                      Sun Aug 10 23:07:33 2025 Page 0003
 INPUT STATEMENT - CORTEX BASIC REV. 1.1
 
 0050 04F6    79          CLR *R6+        ;INTEGER
@@ -100,7 +100,7 @@ INPUT STATEMENT - CORTEX BASIC REV. 1.1
 005A 04E0    83          CLR  @FFLG      CLEAR NUMBER OF CHARS FLAG
 005C 0000 
 005E 10D7    84          JMP INP0        ;LOOK AT DELIMITER
-ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0004
+ASM990 2.4.6     INPUT                      Sun Aug 10 23:07:33 2025 Page 0004
 INPUT STATEMENT - CORTEX BASIC REV. 1.1
 
              86  *GET NUMERIC INPUT
@@ -150,7 +150,7 @@ INPUT STATEMENT - CORTEX BASIC REV. 1.1
 0094 C2CD   122          MOV R13,R11
 0096 0460   123          B @OUTL1
 0098 0000 
-ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0005
+ASM990 2.4.6     INPUT                      Sun Aug 10 23:07:33 2025 Page 0005
 INPUT STATEMENT - CORTEX BASIC REV. 1.1
 
             125  *GET STRING
@@ -173,7 +173,7 @@ INPUT STATEMENT - CORTEX BASIC REV. 1.1
             138  *
 00B4 0460   139  INPE    B @INPEND
 00B6 0000 
-ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0006
+ASM990 2.4.6     INPUT                      Sun Aug 10 23:07:33 2025 Page 0006
 INPUT STATEMENT - CORTEX BASIC REV. 1.1
 
             141  *PROMPT AND GET CHARACTERS
@@ -226,7 +226,7 @@ INPUT STATEMENT - CORTEX BASIC REV. 1.1
 0106 0000 
             177  *
             178         END
-ASM990 2.4.6     INPUT                      Sun Jul 20 19:28:49 2025 Page 0007
+ASM990 2.4.6     INPUT                      Sun Aug 10 23:07:33 2025 Page 0007
 INPUT STATEMENT - CORTEX BASIC REV. 1.1
 
 BMVE      00AER  CVDIFZ    0044R  EVARZ     0036R  EVSDZ     002ER  

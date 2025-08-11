@@ -1,4 +1,4 @@
-ASM990 2.4.6     GETPARM                    Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     GETPARM                    Sun Aug 10 23:07:35 2025 Page 0001
 GET PARAMETER ROUTINE - CORTEX BASIC REV. 1.1
 
               2         IDT  'GETPARM'
@@ -54,7 +54,7 @@ GET PARAMETER ROUTINE - CORTEX BASIC REV. 1.1
 0018 2F81    49  ERR1   DATA ERROR+1
 001A 2FA0    50  ERR36  DATA ERROR2,36
              51         END
-ASM990 2.4.6     GETPARM                    Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     GETPARM                    Sun Aug 10 23:07:35 2025 Page 0002
 GET PARAMETER ROUTINE - CORTEX BASIC REV. 1.1
 
 B4A       0002R  B56       0010R  ERR1      0018'  ERR36     001A'  

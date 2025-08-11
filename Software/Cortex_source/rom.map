@@ -1,80 +1,80 @@
-LNK990 2.3.2     ROM                       Sun Jul 20 19:28:52 2025 Page 0001
+LNK990 2.3.2     ROM                       Sun Aug 10 23:08:03 2025 Page 0001
 
 MODULE    NO  ORIGIN  LENGTH    DATE      TIME    CREATOR   FILE
 
-START      1   0000    0278   07/20/25  19:28:47   ASM990   start.obj
-MID        2   0278    038A   07/20/25  19:28:47   ASM990   mid.obj
-DSR02      3   0602    0152   07/20/25  19:28:48   ASM990   dsr02.obj
-CENTRON    4   0754    001A   07/20/25  19:28:48   ASM990   centron.obj
-VDPDSR     5   076E    0298   07/20/25  19:28:48   ASM990   vdpdsr.obj
-MONITOR    6   0A06    0BEC   07/20/25  19:28:48   ASM990   monitor.obj
-JMP        7   15F2    001E   07/20/25  19:28:48   ASM990   jump.obj
-CASSETTE   8   1610    02A4   07/20/25  19:28:48   ASM990   cassette.obj
-ATNF       9   18B4    00DE   07/20/25  19:28:48   ASM990   atnf.obj
-VDP       10   1992    03B8   07/20/25  19:28:48   ASM990   vdp.obj
-ERROR     11   1D4A    01D4   07/20/25  19:28:48   ASM990   error.obj
-CALL      12   1F1E    002C   07/20/25  19:28:48   ASM990   call.obj
-CHRF      13   1F4A    003C   07/20/25  19:28:48   ASM990   chrf.obj
-CRUF      14   1F86    0088   07/20/25  19:28:48   ASM990   cruf.obj
-DEF       15   200E    0024   07/20/25  19:28:48   ASM990   def.obj
-DIM       16   2032    00C4   07/20/25  19:28:48   ASM990   dim.obj
-ENTER     17   20F6    0042   07/20/25  19:28:48   ASM990   enter.obj
-ESCAPE    18   2138    000E   07/20/25  19:28:48   ASM990   escape.obj
-FOR       19   2146    019A   07/20/25  19:28:48   ASM990   for.obj
-FORMAT    20   22E0    013C   07/20/25  19:28:49   ASM990   format.obj
-FUNC      21   241C    00C6   07/20/25  19:28:49   ASM990   func.obj
-GOSUB     22   24E2    00CC   07/20/25  19:28:49   ASM990   gosub.obj
-IF        23   25AE    0080   07/20/25  19:28:49   ASM990   if.obj
-INPUT     24   262E    0108   07/20/25  19:28:49   ASM990   input.obj
-IPCOM     25   2736    003C   07/20/25  19:28:49   ASM990   ipcom.obj
-LET       26   2772    0146   07/20/25  19:28:49   ASM990   let.obj
-LOGOPS    27   28B8    0050   07/20/25  19:28:49   ASM990   logops.obj
-MEMF      28   2908    0032   07/20/25  19:28:49   ASM990   memf.obj
-MOVE      29   293A    0064   07/20/25  19:28:49   ASM990   move.obj
-MWDF      30   299E    002E   07/20/25  19:28:49   ASM990   mwdf.obj
-NUMBER    31   29CC    002E   07/20/25  19:28:49   ASM990   number.obj
-ON        32   29FA    0032   07/20/25  19:28:49   ASM990   on.obj
-PRINT     33   2A2C    01D0   07/20/25  19:28:49   ASM990   print.obj
-PURGE     34   2BFC    0054   07/20/25  19:28:49   ASM990   purge.obj
-PUTB      35   2C50    004E   07/20/25  19:28:49   ASM990   putb.obj
-RANDOM    36   2C9E    0008   07/20/25  19:28:50   ASM990   random.obj
-READ      37   2CA6    00B2   07/20/25  19:28:50   ASM990   read.obj
-RENUM     38   2D58    02E0   07/20/25  19:28:50   ASM990   renum.obj
-SGNF      39   3038    0018   07/20/25  19:28:50   ASM990   sgnf.obj
-SIZE      40   3050    00BC   07/20/25  19:28:50   ASM990   size.obj
-TICF      41   310C    0030   07/20/25  19:28:50   ASM990   ticf.obj
-TIME      42   313C    009A   07/20/25  19:28:50   ASM990   time.obj
-TRACE     43   31D6    000E   07/20/25  19:28:50   ASM990   trace.obj
-UNIT      44   31E4    0036   07/20/25  19:28:50   ASM990   unit.obj
-BOOT      45   321A    0119   07/20/25  19:28:50   ASM990   boot.obj
-SFSN      46   3334    0014   07/20/25  19:28:50   ASM990   sfsn.obj
-SWAP      47   3348    0064   07/20/25  19:28:50   ASM990   swap.obj
-RELOPS    48   33AC    003C   07/20/25  19:28:50   ASM990   relops.obj
-EDIT      49   33E8    0AE6   07/20/25  19:28:50   ASM990   edit.obj
-RUN       50   3ECE    0196   07/20/25  19:28:50   ASM990   run.obj
-CVBD      51   4064    020C   07/20/25  19:28:50   ASM990   cvbd.obj
-CVDB      52   4270    01E8   07/20/25  19:28:51   ASM990   cvdb.obj
-CVGC      53   4458    005E   07/20/25  19:28:51   ASM990   cvgc.obj
-EVAL      54   44B6    056E   07/20/25  19:28:51   ASM990   eval.obj
-EXPF      55   4A24    00C8   07/20/25  19:28:51   ASM990   expf.obj
-FIX       56   4AEC    003C   07/20/25  19:28:51   ASM990   fix.obj
-FP        57   4B28    0342   07/20/25  19:28:51   ASM990   fp.obj
-BITF      58   4E6A    0054   07/20/25  19:28:51   ASM990   bitf.obj
-LNK990 2.3.2     ROM                       Sun Jul 20 19:28:52 2025 Page 0002
+START      1   0000    0278   08/10/25  23:07:32   ASM990   start.obj
+MID        2   0278    038A   08/10/25  23:07:32   ASM990   mid.obj
+DSR02      3   0602    0152   08/10/25  23:07:32   ASM990   dsr02.obj
+CENTRON    4   0754    001A   08/10/25  23:07:32   ASM990   centron.obj
+VDPDSR     5   076E    0298   08/10/25  23:07:32   ASM990   vdpdsr.obj
+MONITOR    6   0A06    0BEC   08/10/25  23:07:32   ASM990   monitor.obj
+JMP        7   15F2    001E   08/10/25  23:07:32   ASM990   jump.obj
+CASSETTE   8   1610    02A4   08/10/25  23:07:32   ASM990   cassette.obj
+ATNF       9   18B4    00DE   08/10/25  23:07:32   ASM990   atnf.obj
+VDP       10   1992    03B8   08/10/25  23:07:32   ASM990   vdp.obj
+ERROR     11   1D4A    01D4   08/10/25  23:07:32   ASM990   error.obj
+CALL      12   1F1E    002C   08/10/25  23:07:32   ASM990   call.obj
+CHRF      13   1F4A    003C   08/10/25  23:07:32   ASM990   chrf.obj
+CRUF      14   1F86    0088   08/10/25  23:07:32   ASM990   cruf.obj
+DEF       15   200E    0024   08/10/25  23:07:32   ASM990   def.obj
+DIM       16   2032    00C4   08/10/25  23:07:32   ASM990   dim.obj
+ENTER     17   20F6    0042   08/10/25  23:07:33   ASM990   enter.obj
+ESCAPE    18   2138    000E   08/10/25  23:07:33   ASM990   escape.obj
+FOR       19   2146    019A   08/10/25  23:07:33   ASM990   for.obj
+FORMAT    20   22E0    013C   08/10/25  23:07:33   ASM990   format.obj
+FUNC      21   241C    00C6   08/10/25  23:07:33   ASM990   func.obj
+GOSUB     22   24E2    00CC   08/10/25  23:07:33   ASM990   gosub.obj
+IF        23   25AE    0080   08/10/25  23:07:33   ASM990   if.obj
+INPUT     24   262E    0108   08/10/25  23:07:33   ASM990   input.obj
+IPCOM     25   2736    003C   08/10/25  23:07:33   ASM990   ipcom.obj
+LET       26   2772    0146   08/10/25  23:07:33   ASM990   let.obj
+LOGOPS    27   28B8    0050   08/10/25  23:07:33   ASM990   logops.obj
+MEMF      28   2908    0032   08/10/25  23:07:34   ASM990   memf.obj
+MOVE      29   293A    0064   08/10/25  23:07:34   ASM990   move.obj
+MWDF      30   299E    002E   08/10/25  23:07:34   ASM990   mwdf.obj
+NUMBER    31   29CC    002E   08/10/25  23:07:34   ASM990   number.obj
+ON        32   29FA    0032   08/10/25  23:07:34   ASM990   on.obj
+PRINT     33   2A2C    01D0   08/10/25  23:07:34   ASM990   print.obj
+PURGE     34   2BFC    0054   08/10/25  23:07:34   ASM990   purge.obj
+PUTB      35   2C50    004E   08/10/25  23:07:34   ASM990   putb.obj
+RANDOM    36   2C9E    0008   08/10/25  23:07:34   ASM990   random.obj
+READ      37   2CA6    00B2   08/10/25  23:07:34   ASM990   read.obj
+RENUM     38   2D58    02E0   08/10/25  23:07:34   ASM990   renum.obj
+SGNF      39   3038    0018   08/10/25  23:07:34   ASM990   sgnf.obj
+SIZE      40   3050    00BC   08/10/25  23:07:34   ASM990   size.obj
+TICF      41   310C    0030   08/10/25  23:07:34   ASM990   ticf.obj
+TIME      42   313C    009A   08/10/25  23:07:34   ASM990   time.obj
+TRACE     43   31D6    000E   08/10/25  23:07:34   ASM990   trace.obj
+UNIT      44   31E4    0036   08/10/25  23:07:34   ASM990   unit.obj
+BOOT      45   321A    0119   08/10/25  23:07:34   ASM990   boot.obj
+SFSN      46   3334    0014   08/10/25  23:07:35   ASM990   sfsn.obj
+SWAP      47   3348    0064   08/10/25  23:07:35   ASM990   swap.obj
+RELOPS    48   33AC    003C   08/10/25  23:07:35   ASM990   relops.obj
+EDIT      49   33E8    0AE6   08/10/25  23:07:35   ASM990   edit.obj
+RUN       50   3ECE    0196   08/10/25  23:07:35   ASM990   run.obj
+CVBD      51   4064    020C   08/10/25  23:07:35   ASM990   cvbd.obj
+CVDB      52   4270    01E8   08/10/25  23:07:35   ASM990   cvdb.obj
+CVGC      53   4458    005E   08/10/25  23:07:35   ASM990   cvgc.obj
+EVAL      54   44B6    056E   08/10/25  23:07:35   ASM990   eval.obj
+EXPF      55   4A24    00C8   08/10/25  23:07:35   ASM990   expf.obj
+FIX       56   4AEC    003C   08/10/25  23:07:35   ASM990   fix.obj
+FP        57   4B28    0342   08/10/25  23:07:35   ASM990   fp.obj
+BITF      58   4E6A    0054   08/10/25  23:07:35   ASM990   bitf.obj
+LNK990 2.3.2     ROM                       Sun Aug 10 23:08:03 2025 Page 0002
 
-GETLINE   59   4EBE    015E   07/20/25  19:28:51   ASM990   getline.obj
-GETP2     60   501C    001A   07/20/25  19:28:51   ASM990   getp2.obj
-GETPARM   61   5036    001E   07/20/25  19:28:51   ASM990   getparm.obj
-LOGF      62   5054    00EA   07/20/25  19:28:51   ASM990   logf.obj
-PLOT      63   513E    014E   07/20/25  19:28:51   ASM990   plot.obj
-POLY      64   528C    0068   07/20/25  19:28:51   ASM990   poly.obj
-POWF      65   52F4    0022   07/20/25  19:28:51   ASM990   powf.obj
-RNDF      66   5316    0030   07/20/25  19:28:51   ASM990   rndf.obj
-SINF      67   5346    00A0   07/20/25  19:28:51   ASM990   sinf.obj
-SQRF      68   53E6    0070   07/20/25  19:28:51   ASM990   sqrf.obj
-EXTEND    69   5456    00C4   07/20/25  19:28:52   ASM990   extend.obj
-TEXT      70   551A    05D4   07/20/25  19:28:52   ASM990   text.obj
-LAST      71   5AEE    0602   07/20/25  19:28:52   ASM990   last.obj
+GETLINE   59   4EBE    015E   08/10/25  23:07:35   ASM990   getline.obj
+GETP2     60   501C    001A   08/10/25  23:07:35   ASM990   getp2.obj
+GETPARM   61   5036    001E   08/10/25  23:07:35   ASM990   getparm.obj
+LOGF      62   5054    00EA   08/10/25  23:07:36   ASM990   logf.obj
+PLOT      63   513E    014E   08/10/25  23:07:36   ASM990   plot.obj
+POLY      64   528C    0068   08/10/25  23:07:36   ASM990   poly.obj
+POWF      65   52F4    0022   08/10/25  23:07:36   ASM990   powf.obj
+RNDF      66   5316    0030   08/10/25  23:07:36   ASM990   rndf.obj
+SINF      67   5346    00A0   08/10/25  23:07:36   ASM990   sinf.obj
+SQRF      68   53E6    0070   08/10/25  23:07:36   ASM990   sqrf.obj
+EXTEND    69   5456    00C4   08/10/25  23:07:36   ASM990   extend.obj
+TEXT      70   551A    05D4   08/10/25  23:07:36   ASM990   text.obj
+LAST      71   5AEE    0602   08/10/25  23:07:36   ASM990   last.obj
 
                         D E F I N I T I O N S 
 
@@ -122,7 +122,7 @@ EFLG    001C'    1  ELNM    0018'    1  ELSF    ED6C     1  EMV     3800'   49
 ENTERY  20F6'   17  ENUM    0016'    1  EORBUS  ED06     1  EQUSGN  5623'   70  
 EREGS   EF6C     1  ERR00T  572C'   70  ERR01T  573E'   70  ERR02T  574A'   70  
 ERR03T  575D'   70  ERR04T  5770'   70  ERR05T  5785'   70  ERR06T  5797'   70  
-LNK990 2.3.2     ROM                       Sun Jul 20 19:28:52 2025 Page 0003
+LNK990 2.3.2     ROM                       Sun Aug 10 23:08:03 2025 Page 0003
 
 ERR07T  57A8'   70  ERR08T  57BA'   70  ERR09T  57CF'   70  ERR10T  57E8'   70  
 ERR11T  57F5'   70  ERR12T  5803'   70  ERR13T  5812'   70  ERR14T  5825'   70  
@@ -184,7 +184,7 @@ NVS     EFC2     1  NXLOC   EE96     1  NXTXB   4062'   50  NXTY    2240'   19
 NYLOC   EE97     1  ONY     29FA'   32  ORF     33C8'   48  OUTBUF  EDE4     1  
 OUTDSR  ED9A     1  OUTL1   2736'   25  OUTR1U  30B4'   40  OVINT   ED94     1  
 P$EUS   ECF4     1  P$FNS   EC40     1  P$GSS   EBF0     1  P$IOB   EB04     1  
-LNK990 2.3.2     ROM                       Sun Jul 20 19:28:52 2025 Page 0004
+LNK990 2.3.2     ROM                       Sun Aug 10 23:08:03 2025 Page 0004
 
 P$UFT   EB84     1  PADIT   55C4'   70  PC      EF7C     1  PCHTB   5AEE'   71  
 PCHTE   60EE'   71  PFIX    4B18'   56  PGMFND  5535'   70  PIXOFF  1CA8'   10  

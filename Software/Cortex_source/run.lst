@@ -1,4 +1,4 @@
-ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     RUN                        Sun Aug 10 23:07:35 2025 Page 0001
 RUN COMMAND - CORTEX BASIC REV 1.1
 
               2         IDT  'RUN'
@@ -43,7 +43,7 @@ RUN COMMAND - CORTEX BASIC REV 1.1
      2F80    41  ERROR  EQU  >2F80
      2FA0    42  ERROR2 EQU  ERROR+>20
              43         DXOP OUTINT,13
-ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     RUN                        Sun Aug 10 23:07:35 2025 Page 0002
 RUN COMMAND - CORTEX BASIC REV 1.1
 
              45  *
@@ -70,7 +70,7 @@ RUN COMMAND - CORTEX BASIC REV 1.1
 001E 04E0    58         CLR  @DDM              ;ZERO DDM
 0020 0000 
 0022 045B    59         RT
-ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0003
+ASM990 2.4.6     RUN                        Sun Aug 10 23:07:35 2025 Page 0003
 RUN COMMAND - CORTEX BASIC REV 1.1
 
              61  *
@@ -133,7 +133,7 @@ RUN COMMAND - CORTEX BASIC REV 1.1
 0078 0000 
 007A 1A3A   102         JL   LINE4             ;N
 007C C808   103  LINE0  MOV  R8,@PLC           ;Y - UPDATE PLC
-ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0004
+ASM990 2.4.6     RUN                        Sun Aug 10 23:07:35 2025 Page 0004
 RUN COMMAND - CORTEX BASIC REV 1.1
 
 007E 0070'
@@ -196,7 +196,7 @@ RUN COMMAND - CORTEX BASIC REV 1.1
 00D6 0000 
 00D8 2F4B   133         OUTINT R11             OUT INDENT COUNT
 00DA 06A0   134  OTRC1  BL   @MOVEL            ADD IN REST OF TEXT
-ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0005
+ASM990 2.4.6     RUN                        Sun Aug 10 23:07:35 2025 Page 0005
 RUN COMMAND - CORTEX BASIC REV 1.1
 
 00DC 0000 
@@ -224,7 +224,7 @@ RUN COMMAND - CORTEX BASIC REV 1.1
             153  *
 00F0 0460   154  LINE4  B    @STPY             ;ESCAPE
 00F2 0000 
-ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0006
+ASM990 2.4.6     RUN                        Sun Aug 10 23:07:35 2025 Page 0006
 RUN COMMAND - CORTEX BASIC REV 1.1
 
             156  *
@@ -234,7 +234,7 @@ RUN COMMAND - CORTEX BASIC REV 1.1
 00F6 0000 
 00F8 16CB   160         JNE  LINE2             ;SET - CONTINUE TO EXECUTE
 00FA 10B6   161         JMP  LINE              ;RESET - IGNORE LINE
-ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0007
+ASM990 2.4.6     RUN                        Sun Aug 10 23:07:35 2025 Page 0007
 RUN COMMAND - CORTEX BASIC REV 1.1
 
             163  *
@@ -297,7 +297,7 @@ RUN COMMAND - CORTEX BASIC REV 1.1
 0164 0000   220         DATA >0000                           34
 0166 0000   221         DATA >0000                           35
 0168 0000   222         DATA >0000                           36
-ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0008
+ASM990 2.4.6     RUN                        Sun Aug 10 23:07:35 2025 Page 0008
 RUN COMMAND - CORTEX BASIC REV 1.1
 
 016A 0000   223         DATA >0000                           36
@@ -330,7 +330,7 @@ RUN COMMAND - CORTEX BASIC REV 1.1
 0194 08     250  NXTXB  BYTE NXTB
 0195 07     251  DATXB  BYTE DATB
             252         END
-ASM990 2.4.6     RUN                        Sun Jul 20 19:28:50 2025 Page 0009
+ASM990 2.4.6     RUN                        Sun Aug 10 23:07:35 2025 Page 0009
 RUN COMMAND - CORTEX BASIC REV 1.1
 
 B2E        00D6R  BASY       0126R  BAUD       012ER  BITY       018AR  

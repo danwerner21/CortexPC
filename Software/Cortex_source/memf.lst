@@ -1,4 +1,4 @@
-ASM990 2.4.6     MEMF                       Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     MEMF                       Sun Aug 10 23:07:34 2025 Page 0001
 MEMORY ROUTINES - CORTEX BASIC REV. 1.1
 
               2          IDT 'MEMF'
@@ -19,7 +19,7 @@ MEMORY ROUTINES - CORTEX BASIC REV. 1.1
              17          DXOP EVFIX,11   ;EVALUATE AND FIX
              18          DXOP OUTFP,12   ;OUT FLOATING POINT #
      2F80    19  ERROR   EQU >2F80               ;XOP XX,14  (ERROR CALL)
-ASM990 2.4.6     MEMF                       Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     MEMF                       Sun Aug 10 23:07:34 2025 Page 0002
 MEMORY ROUTINES - CORTEX BASIC REV. 1.1
 
              21  *
@@ -46,7 +46,7 @@ MEMORY ROUTINES - CORTEX BASIC REV. 1.1
              42  *       EVALUATION ERRORS
              43  *       SYNTAX ERROR
              44  *
-ASM990 2.4.6     MEMF                       Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     MEMF                       Sun Aug 10 23:07:34 2025 Page 0003
 MEMORY ROUTINES - CORTEX BASIC REV. 1.1
 
              46          DEF MEMY
@@ -82,7 +82,7 @@ MEMORY ROUTINES - CORTEX BASIC REV. 1.1
 0028 0000 
 002A 0460    70         B @EVSFR$
 002C 0000 
-ASM990 2.4.6     MEMF                       Sun Jul 20 19:28:49 2025 Page 0004
+ASM990 2.4.6     MEMF                       Sun Aug 10 23:07:34 2025 Page 0004
 MEMORY ROUTINES - CORTEX BASIC REV. 1.1
 
              72  * ABSTRACT:
@@ -114,7 +114,7 @@ MEMORY ROUTINES - CORTEX BASIC REV. 1.1
 002E D052    98         MOVB *R2,R1
 0030 10F8    99         JMP  MEMF1
             100          END
-ASM990 2.4.6     MEMF                       Sun Jul 20 19:28:49 2025 Page 0005
+ASM990 2.4.6     MEMF                       Sun Aug 10 23:07:34 2025 Page 0005
 MEMORY ROUTINES - CORTEX BASIC REV. 1.1
 
 ASCF      002ED  B4A       0002R  ERR1      001A'  ERROR     2F80   

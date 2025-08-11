@@ -1,4 +1,4 @@
-ASM990 2.4.6     IF                         Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     IF                         Sun Aug 10 23:07:33 2025 Page 0001
 IF STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT 'IF'
@@ -33,7 +33,7 @@ IF STATEMENT - CORTEX BASIC REV. 1.1
              31  *
              32  *       ILLEGAL DELIMITER, SYNTAX ERROR
              33  *
-ASM990 2.4.6     IF                         Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     IF                         Sun Aug 10 23:07:33 2025 Page 0002
 IF STATEMENT - CORTEX BASIC REV. 1.1
 
 0000 04E0    35  IFY     CLR @ELSF       ;CLEAR ELSE FLAG
@@ -96,7 +96,7 @@ IF STATEMENT - CORTEX BASIC REV. 1.1
 0064 0004 
 0066 D133    83          MOVB *R3+,R4    ;SOURCE NULL?
 0068 16F1    84            JNE IF6       ;N
-ASM990 2.4.6     IF                         Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     IF                         Sun Aug 10 23:07:33 2025 Page 0003
 IF STATEMENT - CORTEX BASIC REV. 1.1
 
              85  *
@@ -113,7 +113,7 @@ IF STATEMENT - CORTEX BASIC REV. 1.1
 007C 0460    95          B @LINE
 007E 0000 
              96         END
-ASM990 2.4.6     IF                         Sun Jul 20 19:28:49 2025 Page 0004
+ASM990 2.4.6     IF                         Sun Aug 10 23:07:33 2025 Page 0004
 IF STATEMENT - CORTEX BASIC REV. 1.1
 
 ELSF      007AR  ERROR     2F80   ERROR2    2FA0   EVERZ     000ER  

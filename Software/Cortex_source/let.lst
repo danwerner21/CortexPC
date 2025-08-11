@@ -1,4 +1,4 @@
-ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     LET                        Sun Aug 10 23:07:33 2025 Page 0001
 LET STATEMENT - CORTEX BASIC REV. 1.1
 
               2          IDT 'LET'
@@ -23,7 +23,7 @@ LET STATEMENT - CORTEX BASIC REV. 1.1
              21          DXOP OUTFP,12   ;OUT FLOATING POINT #
              22          DXOP OUTINT,13  ;OUT INTEGER
      2F80    23  ERROR   EQU >2F80       ;XOP XX,14  (ERROR CALL)
-ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     LET                        Sun Aug 10 23:07:33 2025 Page 0002
 LET STATEMENT - CORTEX BASIC REV. 1.1
 
              25  * ABSTRACT:
@@ -54,7 +54,7 @@ LET STATEMENT - CORTEX BASIC REV. 1.1
              50  *       MISSING ASSIGNMENT OPERATOR
              51  *       EVALUATION ERRORS
              52  *
-ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     LET                        Sun Aug 10 23:07:33 2025 Page 0003
 LET STATEMENT - CORTEX BASIC REV. 1.1
 
              54  * ENTRY POINT:
@@ -109,7 +109,7 @@ LET STATEMENT - CORTEX BASIC REV. 1.1
 0040 1309    94            JEQ LET3A     ;Y
 0042 2FA0    95  ERR36   DATA ERROR+>20  ;MISSING ASSIGNMENT OPERATER
 0044 0024    96            DATA 36
-ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0004
+ASM990 2.4.6     LET                        Sun Aug 10 23:07:33 2025 Page 0004
 LET STATEMENT - CORTEX BASIC REV. 1.1
 
              98  *BYTE ASSIGNMENT
@@ -171,7 +171,7 @@ LET STATEMENT - CORTEX BASIC REV. 1.1
 0092 0084'
 0094 75D7   145          SB *R7,*R7      ;END STRING
 0096 10C6   146          JMP LETR
-ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0005
+ASM990 2.4.6     LET                        Sun Aug 10 23:07:33 2025 Page 0005
 LET STATEMENT - CORTEX BASIC REV. 1.1
 
             148  *ASSIGN,PICK,REPLACE,CONCATENATE
@@ -223,7 +223,7 @@ LET STATEMENT - CORTEX BASIC REV. 1.1
 00DA 5D00 
 00DC 1632   191            JNE LETRR     ;N, RETURN
 00DE 10BB   192          JMP LET3E       ;Y, GET STRING
-ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0006
+ASM990 2.4.6     LET                        Sun Aug 10 23:07:33 2025 Page 0006
 LET STATEMENT - CORTEX BASIC REV. 1.1
 
             194  *ASCII TO DECIMAL
@@ -248,7 +248,7 @@ LET STATEMENT - CORTEX BASIC REV. 1.1
 00FC D480   211  LET6A   MOVB R0,*R2     ;SAVE DELIMITER
 00FE 2C53   212          STORE *R3       ;STORE RESULTS
 0100 1020   213          JMP LETRR       ;RETURN
-ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0007
+ASM990 2.4.6     LET                        Sun Aug 10 23:07:33 2025 Page 0007
 LET STATEMENT - CORTEX BASIC REV. 1.1
 
             215  *INSERT STRING
@@ -307,7 +307,7 @@ LET STATEMENT - CORTEX BASIC REV. 1.1
 0142 0460   267  LETRR   B @NLIN         ;Y
 0144 0026'
             268         END
-ASM990 2.4.6     LET                        Sun Jul 20 19:28:49 2025 Page 0008
+ASM990 2.4.6     LET                        Sun Aug 10 23:07:33 2025 Page 0008
 LET STATEMENT - CORTEX BASIC REV. 1.1
 
 CKEX       0016R  CVDIFZ     00EAR  ERR14      007A'  ERR36      0042'  

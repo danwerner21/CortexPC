@@ -1,0 +1,208 @@
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0001
+
+
+              1  * Breadboard ROM boot menu
+              2  *
+              3  
+1500          4          AORG >1500
+              5  
+1500          6  BMENU
+1500 2FA0     7          XOP @LOGON,14                             ; print boot 
+1502 1544 
+              8  
+1504          9  TAG1B
+1504 2F41    10          XOP R1,13                                 ; read charac
+1506 0281    11          CI R1,'1'*256                             ; EVMBUG opti
+1508 3100 
+150A 1604    12          JNE TAG2F                                 ; no, test BA
+150C 2FA0    13          XOP @>00ad,14                             ; yes, print 
+150E 00AD 
+1510 0460    14          B @>0142                                  ; branch to e
+1512 0142 
+             15  
+1514         16  TAG2F
+1514 0281    17          CI R1,'2'*256                             ; BASIC optio
+1516 3200 
+1518 160B    18          JNE TAG3F                                 ; no, test MD
+151A 0201    19          LI R1,>1600                               ; yes, copy b
+151C 1600 
+151E 0202    20          LI R2,>8000
+1520 8000 
+1522 0203    21          LI R3,>5eba
+1524 5EBA 
+1526         22  TAG9B
+1526 CCB1    23          MOV *R1+,*R2+
+1528 0643    24          DECT R3
+152A 16FD    25          JNE TAG9B
+152C 0460    26          B @>8036                                  ; branch to B
+152E 8036 
+             27  
+1530         28  TAG3F
+1530 0281    29          CI R1,'3'*256                             ; MDEX option
+1532 3300 
+1534 1602    30          JNE TAG4F                                 ; no, loop ro
+1536 0460    31          B @>7800                                  ; branch to M
+1538 7800 
+             32  
+153A         33  TAG4F
+153A 0281    34          CI R1,'4'*256                             ; UNIX option
+153C 3400 
+153E 16E2    35          JNE TAG1B                                 ; no, loop ro
+1540 0460    36          B @>7b00                                  ; branch to U
+1542 7B00 
+             37  
+             38  * logon message
+1544         39  LOGON
+1544 0D0A    40          DATA >0D0A
+1546 54      41          TEXT 'TMS 9995 BREADBOARD SYSTEM'
+1547 4D   
+1548 53   
+1549 20   
+154A 39   
+154B 39   
+154C 39   
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0002
+
+
+154D 35   
+154E 20   
+154F 42   
+1550 52   
+1551 45   
+1552 41   
+1553 44   
+1554 42   
+1555 4F   
+1556 41   
+1557 52   
+1558 44   
+1559 20   
+155A 53   
+155B 59   
+155C 53   
+155D 54   
+155E 45   
+155F 4D   
+1560 0D0A    42          DATA >0D0A
+1562 42      43          TEXT 'BY STUART CONNER'
+1563 59   
+1564 20   
+1565 53   
+1566 54   
+1567 55   
+1568 41   
+1569 52   
+156A 54   
+156B 20   
+156C 43   
+156D 4F   
+156E 4E   
+156F 4E   
+1570 45   
+1571 52   
+1572 0D0A    44          DATA >0D0A
+1574 50      45          TEXT 'PRESS 1 FOR EVMBUG MONITOR'
+1575 52   
+1576 45   
+1577 53   
+1578 53   
+1579 20   
+157A 31   
+157B 20   
+157C 46   
+157D 4F   
+157E 52   
+157F 20   
+1580 45   
+1581 56   
+1582 4D   
+1583 42   
+1584 55   
+1585 47   
+1586 20   
+1587 4D   
+1588 4F   
+1589 4E   
+158A 49   
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0003
+
+
+158B 54   
+158C 4F   
+158D 52   
+158E 0D0A    46          DATA >0D0A
+1590 50      47          TEXT 'PRESS 2 FOR CORTEX BASIC'
+1591 52   
+1592 45   
+1593 53   
+1594 53   
+1595 20   
+1596 32   
+1597 20   
+1598 46   
+1599 4F   
+159A 52   
+159B 20   
+159C 43   
+159D 4F   
+159E 52   
+159F 54   
+15A0 45   
+15A1 58   
+15A2 20   
+15A3 42   
+15A4 41   
+15A5 53   
+15A6 49   
+15A7 43   
+15A8 0D0A    48          DATA >0D0A
+15AA 50      49          TEXT 'PRESS 3 FOR MDEX'
+15AB 52   
+15AC 45   
+15AD 53   
+15AE 53   
+15AF 20   
+15B0 33   
+15B1 20   
+15B2 46   
+15B3 4F   
+15B4 52   
+15B5 20   
+15B6 4D   
+15B7 44   
+15B8 45   
+15B9 58   
+15BA 0D0A    50          DATA >0D0A
+15BC 50      51          TEXT 'PRESS 4 FOR UNIX'
+15BD 52   
+15BE 45   
+15BF 53   
+15C0 53   
+15C1 20   
+15C2 34   
+15C3 20   
+15C4 46   
+15C5 4F   
+15C6 52   
+15C7 20   
+15C8 55   
+15C9 4E   
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0004
+
+
+15CA 49   
+15CB 58   
+15CC 0D0A    52          DATA >0D0A,00
+15CE 0000 
+             53  
+             54          END
+ASM990 2.4.6                                Mon Aug 11 03:19:13 2025 Page 0005
+
+
+BMENU    1500   LOGON    1544   R0       0000   R1       0001   R10      000A   
+R11      000B   R12      000C   R13      000D   R14      000E   R15      000F   
+R2       0002   R3       0003   R4       0004   R5       0005   R6       0006   
+R7       0007   R8       0008   R9       0009   TAG1B    1504   TAG2F    1514   
+TAG3F    1530   TAG4F    153A   TAG9B    1526   
+
+0 Errors in assembly

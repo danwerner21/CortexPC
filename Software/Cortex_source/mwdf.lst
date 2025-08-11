@@ -1,4 +1,4 @@
-ASM990 2.4.6     MWDF                       Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     MWDF                       Sun Aug 10 23:07:34 2025 Page 0001
 MWD & ADR ROUTINES - CORTEX BASIC REV. 1.1
 
               2          IDT  'MWDF'
@@ -21,7 +21,7 @@ MWD & ADR ROUTINES - CORTEX BASIC REV. 1.1
              19          DXOP EVFIX,11   ;EVALUATE AND FIX
              20          DXOP OUTFP,12   ;OUT FLOATING POINT #
      2F80    21  ERROR   EQU >2F80       ;XOP XX,14  (ERROR CALL)
-ASM990 2.4.6     MWDF                       Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     MWDF                       Sun Aug 10 23:07:34 2025 Page 0002
 MWD & ADR ROUTINES - CORTEX BASIC REV. 1.1
 
              23  *       THE MWD COMMAND ALLOWS PBASIC TO ALTER
@@ -76,7 +76,7 @@ MWD & ADR ROUTINES - CORTEX BASIC REV. 1.1
 002A C042    64  ADRF    MOV  R2,R1    ARGUMENT'S ADDRESS IN R2
 002C 10FA    65          JMP  MWDF1
              66          END
-ASM990 2.4.6     MWDF                       Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     MWDF                       Sun Aug 10 23:07:34 2025 Page 0003
 MWD & ADR ROUTINES - CORTEX BASIC REV. 1.1
 
 ADRF      002AD  B4A       0002R  ERR1      0018'  ERROR     2F80   

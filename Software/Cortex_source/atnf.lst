@@ -1,4 +1,4 @@
-ASM990 2.4.6     ATNF                       Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     ATNF                       Sun Aug 10 23:07:32 2025 Page 0001
 ARCTANGENT FUNCTION - CORTEX BASIC REV. 1.1
 
               2         IDT  'ATNF'
@@ -25,7 +25,7 @@ ARCTANGENT FUNCTION - CORTEX BASIC REV. 1.1
              23         DXOP CLEAR,8    ;CLEAR FPAC
              24         DXOP NEGATE,9   ;NEGATE FPAC
              25         DXOP FLOATF,10  ;FLOAT FPAC
-ASM990 2.4.6     ATNF                       Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     ATNF                       Sun Aug 10 23:07:32 2025 Page 0002
 ARCTANGENT FUNCTION - CORTEX BASIC REV. 1.1
 
              27  *
@@ -88,7 +88,7 @@ ARCTANGENT FUNCTION - CORTEX BASIC REV. 1.1
              68  *
 0050 2C60    69  ATNF2  STORE @DS              STORE IN DS
 0052 004E'
-ASM990 2.4.6     ATNF                       Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     ATNF                       Sun Aug 10 23:07:32 2025 Page 0003
 ARCTANGENT FUNCTION - CORTEX BASIC REV. 1.1
 
 0054 06A0    70         BL   @PLYXX            EVALUATE
@@ -139,7 +139,7 @@ ARCTANGENT FUNCTION - CORTEX BASIC REV. 1.1
 00D2 4086   104  ATNC4  DATA >4086,>0A91,>C16C
 00D8 C119   105  ATNC5  DATA >C119,>21FB,>5444
             106         END
-ASM990 2.4.6     ATNF                       Sun Jul 20 19:28:48 2025 Page 0004
+ASM990 2.4.6     ATNF                       Sun Aug 10 23:07:32 2025 Page 0004
 ARCTANGENT FUNCTION - CORTEX BASIC REV. 1.1
 
 ATNC0      008C'  ATNC1      0092'  ATNC2      0098'  ATNC3      00B8'  

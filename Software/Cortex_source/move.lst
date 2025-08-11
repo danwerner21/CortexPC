@@ -1,4 +1,4 @@
-ASM990 2.4.6     MOVE                       Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     MOVE                       Sun Aug 10 23:07:34 2025 Page 0001
 MOVE ROUTINES - CORTEX BASIC REV. 1.1
 
               2          IDT  'MOVE'
@@ -61,7 +61,7 @@ MOVE ROUTINES - CORTEX BASIC REV. 1.1
 003A 0280    54          CI R0,>0A00
 003C 0A00 
 003E 1106    55            JLT GHEX2
-ASM990 2.4.6     MOVE                       Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     MOVE                       Sun Aug 10 23:07:34 2025 Page 0002
 MOVE ROUTINES - CORTEX BASIC REV. 1.1
 
 0040 0280    56          CI R0,>0F00
@@ -85,7 +85,7 @@ MOVE ROUTINES - CORTEX BASIC REV. 1.1
 0060 0643    71          DECT R3         ;Y, COUNT
 0062 10D4    72          JMP BMVE1
              73         END
-ASM990 2.4.6     MOVE                       Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     MOVE                       Sun Aug 10 23:07:34 2025 Page 0003
 MOVE ROUTINES - CORTEX BASIC REV. 1.1
 
 B08      005CR  B3C      0008R  BMVE     0000D  BMVE0    0002'  BMVE1    000C'  

@@ -1,4 +1,4 @@
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0001
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
               2         IDT  'EDIT'
@@ -53,7 +53,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
              51  *
              52  *
              53  *   ( ) = SPECIAL      * = TABLE POSITION FIXED
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0002
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
              55  *                       STATEMENTS
@@ -94,7 +94,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
              90  *  1F GRAPH             3F (;) (PRINT)
              91  *
              92  *   ( ) = SPECIAL      * = TABLE POSITION FIXED
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0003
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0003
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
              94  *
@@ -134,7 +134,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
      0200   128  STX    EQU  >0200             TAPE START OF TEXT CHARACTER
      0300   129  ETX    EQU  >0300             TAPE END OF TEXT CHARACTER
             130         COPY 'IODEFS.INC'
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0004
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0004
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
               2C *
@@ -197,7 +197,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
              59C *      EQU  PRMPOP+7
              60C *EDATA EQU  PRMPOP+8
      0210    61C EPADR  EQU  PRMPOP+16
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0005
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0005
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
              62C *
@@ -257,7 +257,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
             116C *
      F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
             118C *
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0006
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0006
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             132  *
@@ -280,7 +280,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0016 045B   144         RT
             145  *
 0018 2FA0   146  ERR48  DATA ERROR2,48         ;WRONG MODE
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0007
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0007
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             148  * EDIT INPUT STRING
@@ -343,7 +343,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 006E 045A   191         B    *R10              ;EXIT
             192  *
             193  *DECODE COMMAND WORD
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0008
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0008
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             194  *
@@ -369,7 +369,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0090 05C8'
 0092 100A   210         JMP  EDLET             ;LET
 0094 A001   211         A    R1,R0
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0009
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0009
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             213  *SEARCH COMMAND LIST
@@ -432,7 +432,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 00EE 0204   259         LI   R4,PASBX*128      LOAD EXTENDED COMMAND BYTE
 00F0 4600 
 00F2 DE04   260         MOVB R4,*R8+           STORE IT
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0010
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0010
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 00F4 D037   261  ECH$0  MOVB *R7+,R0           GET CHARACTER
@@ -458,7 +458,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 011A 0204   277         LI   R4,PSCBX          ;"; ENTRY
 011C 007E 
 011E 1009   278         JMP  ED10
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0011
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0011
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             280  *COMMAND TYPE DONE
@@ -506,7 +506,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0166 0607   313  ED13   DEC  R7                ;FALL THRU TO ED20
             314  *
 0168 C308   315  ED14   MOV  R8,R12            ;MARK
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0012
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0012
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             317  *PROCESS REST OF LIST
@@ -569,14 +569,14 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 01C6 0460   361         B    @EDFN             ;Y, FUNCTION
 01C8 03A8'
             362  *
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0013
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0013
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 01CA 06A0   363  ED31   BL   @EDGL             ;N, GET 3RD LETTER
 01CC 05C8'
 01CE 1025   364         JMP  EDV2              ;NOT LETTER, 2 LETTER VARIABLE
 01D0 A001   365         A    R1,R0
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0014
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0014
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             367  *LOOK FOR 3 LETTER KEY WORDS
@@ -626,7 +626,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0216 0607   403  EDV1A  DEC  R7                ;BACKUP OVER DELIMITER
             404  *
 0218 C003   405  EDV1B  MOV  R3,R0             ;RESTORE R0
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0015
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0015
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             407  *2 OR 3 CHARACTER VARIABLE
@@ -665,7 +665,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0247 34   
             435  *
 0248 2F8A   436  ERR10  DATA ERROR+10          ;STORAGE OVERFLOW
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0016
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0016
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             438  *DEFINE NEW VARIABLE
@@ -728,7 +728,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 02AC 30     484         BYTE ED47-EDOPTB/2,>3A ":
 02AE 5F     485         BYTE ED54-EDOPTB/2,>21 "!
 02B0 16     486         BYTE ED43-EDOPTB/2,>3D "=
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0017
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0017
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 02B2 27     487         BYTE ED45-EDOPTB/2,>3E ">
@@ -791,7 +791,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
             528  *
             529  *LOOK FOR WORD OPERATER
             530  *
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0018
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0018
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 0316 0607   531  ED49   DEC  R7
@@ -801,7 +801,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 031E 0312'
 0320 30     534         TEXT '07'
 0321 37   
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0019
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0019
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             536  *( OR [ ENTRY
@@ -842,7 +842,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
             564  *
 0358 0588   565  ED52   INC  R8                ;LEAVE CODE
 035A 108B   566  ED52A  JMP  EDOP              ;LOOK FOR OPERATER
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0020
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0020
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             568  *PROCESS REMARKS
@@ -894,7 +894,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 03A4 031E'
 03A6 30     605         TEXT '02'
 03A7 32   
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0021
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0021
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             607  *PROCESS FN-
@@ -957,7 +957,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 040C 06A0   649  EDER8  BL   @EDER             ;ILLEGAL FUNCTION NAME
 040E 0408'
 0410 30     650         TEXT '08'
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0022
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0022
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 0411 38   
@@ -966,7 +966,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0414 040E'
 0416 30     653         TEXT '09'
 0417 39   
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0023
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0023
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             655  *FINISH EDIT PROCESS
@@ -1027,7 +1027,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0464 CDF4   704         MOV  *R4+,*R7+         ;MOVE
 0466 0608   705         DEC  R8                ;DONE?
 0468 16FD   706         JNE  $-4               ;N
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0024
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0024
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             708  *ADJUST GOSUB
@@ -1090,7 +1090,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 04BE A542   753  EMV4H  A    R2,*R5            ;Y, ADJUST PBC
 04C0 1002   754         JMP  EMV4I1
 04C2 A943   755  EMV4I  A    R3,@2(R5)         ;PLC=PLC+PLC ADJUSTOR
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0025
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0025
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 04C4 0002 
@@ -1099,7 +1099,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 04CA 0224   757         AI   R4,18             ;MOVE TO NEXT
 04CC 0012 
 04CE 10EB   758         JMP  EMV4F
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0026
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0026
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             760  *ADJUST DATA POINTERS
@@ -1141,7 +1141,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0506 1AF3   792         JL   EMV4M             ;N
             793  *
 0508 045A   794  EMVR   B    *R10              ;RETURN
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0027
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0027
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             796  *DELETE OR CHANGE LINE
@@ -1181,7 +1181,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 053A 108E   825         JMP  EMV3
             826  *
 053C 2F8A   827  EMVE10 DATA ERROR+10          ;STORAGE OVERFLOW
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0028
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0028
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             829  *ALTER SOURCE CODE
@@ -1244,7 +1244,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
             871  *
 059C C0FD   872  EMVA3  MOV  *R13+,R3          ;GET PLC ADJUSTMENT
 059E 045D   873         B    *R13              ;RETURN
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0029
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0029
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             875  *MOVE
@@ -1273,7 +1273,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 05BA 0644   898         DECT R4                ;N, BACKUP
 05BC 0645   899         DECT R5
 05BE 10FA   900         JMP  MOVE3
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0030
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0030
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             902  *GET LETTER
@@ -1334,7 +1334,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
             950  *
 0612 0460   951  EDGWO5 B    @ED47
 0614 02FE'
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0031
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0031
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             953  *GET CHARACTER
@@ -1356,7 +1356,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 062A 1301   966         JEQ  EDGP1             ;Y
 062C 05CB   967         INCT R11               ;N, RETURN 2(11)
 062E 045B   968  EDGP1  RT
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0032
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0032
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
             970  *
@@ -1419,7 +1419,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0676 A845  1027         DATA >A845             BAUD             19
 0678 A38B  1028         DATA >A38B             ENTER            1A
 067A 7B21  1029         DATA >7B21             PLOT             1B
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0033
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0033
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 067C 83AB  1030         DATA >83AB             UNPLOT           1C
@@ -1481,7 +1481,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
      0082  1086  IFB    EQU  IFX-EDCL+2
      0080  1087  ONB    EQU  ONX-EDCL+2
      0014  1088  PTRB   EQU  PRTX-EDCL+2
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0034
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0034
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
            1090  *
@@ -1544,7 +1544,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0740 0028  1147         DATA >0028             SPUT             28
 0742 0028  1148         DATA >0028             SGET             29
 0744 0028  1149         DATA >0028             BOOT             2A
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0035
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0035
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 0746 0020  1150         DATA >0020             SWAP             2B
@@ -1562,7 +1562,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 075E 0000  1162         DATA >0000                              37
 0760 0000  1163         DATA >0000                              38
            1164  *
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0036
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0036
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
            1166  *
@@ -1622,7 +1622,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
      07B9' 1220  B59    EQU  EDSL+27
      07BB' 1221  B57    EQU  EDSL+29
      07BF' 1222  B46    EQU  EDSL+33
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0037
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0037
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
      07C2' 1224  EDGWOL EQU  $                 WORD OPERATORS
@@ -1673,7 +1673,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 07F8 4F   
 07F9 52   
 07FA 00    1246         BYTE 0,>54,0
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0038
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0038
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
            1248  *
@@ -1726,7 +1726,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
      00AC  1295  LCN4   EQU  EDCS+2
      0010  1296  LNXT   EQU  NXTX-EDCL+2
      0084  1297  LDEF   EQU  DEFX-EDCL+2
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0039
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0039
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
            1299  *
@@ -1789,7 +1789,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0870 0000 
 0872 0228  1346         AI   R8,-6             ;PREPARE FOR NEXT LINE
 0874 FFFA 
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0040
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0040
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 0876 0000  1347         DATA TYPBE$            ;TERMINATE & OUTPUT LINE
@@ -1797,7 +1797,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 087A 10F1  1349         JMP  LST1              ;LOOP TILL DONE
 087C 0460  1350  LST2   B    @CRLF             ;EXIT TO CRLF
 087E 0000 
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0041
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0041
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
            1352  *LIST GOTO'S AND GOSUB'S
@@ -1815,7 +1815,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0892 0802'
 0894 13F5  1363         JEQ  LSTG1             ;Y, ANOTHER GOTO, OR GOSUB
 0896 1050  1364         JMP  LSTLX             ;N, PROCESS
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0042
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0042
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
            1366  *LIST LINE
@@ -1878,7 +1878,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 08EC DDE0  1413         MOVB @B3F,*R7+         ;Y, OUT A '?'
 08EE 0802'
 08F0 1005  1414         JMP  LETB$2            ; OUT SPACE & CONTINUE
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0043
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0043
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 08F2 0280  1415  LETB$1 CI   R0,PSCBX*128      ;(;) COMPRESSED PRINT ?
@@ -1918,7 +1918,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0932 0720  1440         SETO @DCNT             ;RESET COUNTER
 0934 092E'
 0936 C380  1441  LSTL6  MOV  R0,R14            ;SAVE TYPE
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0044
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0044
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 0938 D033  1443  LSTLX  MOVB *R3+,R0           ;GET CODE
@@ -1981,7 +1981,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 09A0 0AB8'
            1486  *
 09A2 C102  1487  LSTVN2 MOV  R2,R4             ;"[ NEEDED?
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0045
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0045
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 09A4 162B  1488         JNE  LSTCR1            ;Y
@@ -1989,7 +1989,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
            1490  *
 09A8 75D7  1491  LSTLE  SB   *R7,*R7           ;PUT NULL ON END
 09AA 045A  1492         B    *R10
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0046
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0046
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 09AC DDE4  1494  LSTCR  MOVB @LCN1(4),*R7+     ;EDLC->3C
@@ -2024,7 +2024,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 09DE 16FE  1519         JNE  $-2
 09E0 0607  1520         DEC  R7                ;BACKUP
 09E2 045A  1521         B    *R10              ;RETURN
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0047
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0047
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
            1523  *
@@ -2070,7 +2070,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0A26 0076 
 0A28 13E3  1557         JEQ  LSTL2P            ;Y
 0A2A 10F1  1558         JMP  LSTSP             ;OUT SPACE
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0048
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0048
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 0A2C 0280  1560  LSTCN  CI   R0,>6D            ;-1 THRU 9?
@@ -2133,7 +2133,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0A8C DDE0  1603         MOVB @B2C,*R7+         ;N, OUT ','
 0A8E 0800'
 0A90 10F5  1604         JMP  LSTFD1            ;LOOP AGAIN
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0049
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0049
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
            1605  *
@@ -2147,7 +2147,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0AA4 07E0' 1612         DATA LSAN,LSLAN
 0AA8 07EB' 1613         DATA LSNT,LSLNT
 0AAC 07F6' 1614         DATA LSLXO
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0050
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0050
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
            1616  *LIST WORD
@@ -2186,7 +2186,7 @@ BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 0AE2 DDC1  1643         MOVB R1,*R7+           ;MOVE OUT
 0AE4 045B  1644  LWRDO2 B    *R11              ;RETURN
            1645         END
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0051
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0051
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 AINC       006CR  B01        0394R  B02        06FF'  B03        080A'  
@@ -2249,7 +2249,7 @@ LCN1       07C1D  LCN2       0644D  LCN3       072CD  LCN4       00ACD
 LDEF       0084D  LETB       08D0'  LETB$1     08F2'  LETB$2     08FC'  
 LETP$1     08E6'  LINE2      03A0R  LNUM       0374R  LNXT       0010D  
 LSAN       07E0'  LSLAN      07E5'  LSLNT      07F0'  LSLOR      07DB'  
-ASM990 2.4.6     EDIT                       Sun Jul 20 19:28:50 2025 Page 0052
+ASM990 2.4.6     EDIT                       Sun Aug 10 23:07:35 2025 Page 0052
 BASIC LINE EDITOR - CORTEX BASIC REV 1.1
 
 LSLXO      07F6'  LSNT       07EB'  LSOR       07D7'  LSST       07CB'  

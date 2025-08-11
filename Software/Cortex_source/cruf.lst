@@ -1,4 +1,4 @@
-ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     CRUF                       Sun Aug 10 23:07:32 2025 Page 0001
 CRU FUNCTIONS - CORTEX BASIC REV. 1.1
 
               2         IDT 'CRUF'
@@ -38,7 +38,7 @@ CRU FUNCTIONS - CORTEX BASIC REV. 1.1
 0002 0000 
 0004 101A    36         JMP  CRUXIT            ;EXIT TO NLIN
      2F80    37  ERROR  EQU >2F80              ;XOP XX,14  (ERROR CALL)
-ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     CRUF                       Sun Aug 10 23:07:32 2025 Page 0002
 CRU FUNCTIONS - CORTEX BASIC REV. 1.1
 
              39  ************************************************************
@@ -96,7 +96,7 @@ CRU FUNCTIONS - CORTEX BASIC REV. 1.1
 0038 0481    82  D$XR1   X    R1               DO CRU INSTRUCTION
 003A 0460    83  CRUXIT  B    @NLIN            RETURN
 003C 0000 
-ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     CRUF                       Sun Aug 10 23:07:32 2025 Page 0003
 CRU FUNCTIONS - CORTEX BASIC REV. 1.1
 
              85  ************************************************************
@@ -159,11 +159,11 @@ CRU FUNCTIONS - CORTEX BASIC REV. 1.1
 007A 16F4   131         JNE  CRFF2             0, RT
 007C 05A0   132         INC  @FPAC2            1
 007E 0062'
-ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0004
+ASM990 2.4.6     CRUF                       Sun Aug 10 23:07:32 2025 Page 0004
 CRU FUNCTIONS - CORTEX BASIC REV. 1.1
 
 0080 10F1   133         JMP  CRFF2
-ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0005
+ASM990 2.4.6     CRUF                       Sun Aug 10 23:07:32 2025 Page 0005
 CRU FUNCTIONS - CORTEX BASIC REV. 1.1
 
             135  ************************************************************
@@ -179,7 +179,7 @@ CRU FUNCTIONS - CORTEX BASIC REV. 1.1
 0084 0038'
 0086 0441   145         B    R1                EXECUTE IT
             146         END
-ASM990 2.4.6     CRUF                       Sun Jul 20 19:28:48 2025 Page 0006
+ASM990 2.4.6     CRUF                       Sun Aug 10 23:07:32 2025 Page 0006
 CRU FUNCTIONS - CORTEX BASIC REV. 1.1
 
 BASY       0000D  BCRU       0076R  CRASH$     0082D  CRBF       0068D  

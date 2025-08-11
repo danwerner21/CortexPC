@@ -1,4 +1,4 @@
-ASM990 2.4.6     CHRF                       Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     CHRF                       Sun Aug 10 23:07:32 2025 Page 0001
 CHARACTER FUNCTIONS - CORTEX BASIC REV. 1.1
 
               2         IDT  'CHRF'
@@ -24,7 +24,7 @@ CHARACTER FUNCTIONS - CORTEX BASIC REV. 1.1
              22  *
              23  *      LEN:-   RETURN THE LENGTH OF THE STRING UPTO THE 1ST
              24  *              NULL BYTE.
-ASM990 2.4.6     CHRF                       Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     CHRF                       Sun Aug 10 23:07:32 2025 Page 0002
 CHARACTER FUNCTIONS - CORTEX BASIC REV. 1.1
 
              26  * CALLING SEQUENCE:
@@ -83,7 +83,7 @@ CHARACTER FUNCTIONS - CORTEX BASIC REV. 1.1
 0038 002E'
 003A 10FB    75         JMP  LENF
              76         END
-ASM990 2.4.6     CHRF                       Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     CHRF                       Sun Aug 10 23:07:32 2025 Page 0003
 CHARACTER FUNCTIONS - CORTEX BASIC REV. 1.1
 
 EVSFR$   0022R  FPAC2    0038R  LENF     0032D  MCHF     0024D  POSF     0000D  

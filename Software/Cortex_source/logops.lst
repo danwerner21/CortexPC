@@ -1,4 +1,4 @@
-ASM990 2.4.6     LOGOPS                     Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     LOGOPS                     Sun Aug 10 23:07:33 2025 Page 0001
 LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
 
               2          IDT  'LOGOPS'
@@ -12,7 +12,7 @@ LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
              10          REF EVOP3A      ;EXIT ENTRY TO EVALUATOR
              11          REF FPAC,FPAC2  ;FLOATING POINT ACCUMULATOR
              12          DXOP CLEAR,8    ;CLEAR FPAC
-ASM990 2.4.6     LOGOPS                     Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     LOGOPS                     Sun Aug 10 23:07:33 2025 Page 0002
 LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
 
              14  *
@@ -35,7 +35,7 @@ LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
              31  *       OUT (R2) = RESULT (1 OR 0)
              32  *       EXIT TO EVOP3A
              33  *
-ASM990 2.4.6     LOGOPS                     Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     LOGOPS                     Sun Aug 10 23:07:33 2025 Page 0003
 LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
 
              35  *
@@ -98,7 +98,7 @@ LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
              83  * ENTRY POINT:
              84  *
              85          DEF LNOTF
-ASM990 2.4.6     LOGOPS                     Sun Jul 20 19:28:49 2025 Page 0004
+ASM990 2.4.6     LOGOPS                     Sun Aug 10 23:07:33 2025 Page 0004
 LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
 
              86  *
@@ -115,7 +115,7 @@ LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
              95  *
      0041'   96  LNOTF   EQU LNOT+1
              97         END
-ASM990 2.4.6     LOGOPS                     Sun Jul 20 19:28:49 2025 Page 0005
+ASM990 2.4.6     LOGOPS                     Sun Aug 10 23:07:33 2025 Page 0005
 LOGICAL OPERATORS - CORTEX BASIC REV. 1.1
 
 EVOP3A    003ER  FIX       0046R  FPAC      003AR  FPAC2     004CR  

@@ -1,4 +1,4 @@
-ASM990 2.4.6     SFSN                       Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     SFSN                       Sun Aug 10 23:07:35 2025 Page 0001
 SEARCH FOR STATEMENT ROUTINE - CORTEX BASIC REV. 1.1
 
               2         IDT  'SFSN'
@@ -35,7 +35,7 @@ SEARCH FOR STATEMENT ROUTINE - CORTEX BASIC REV. 1.1
              33  * EXCEPTIONS AND CONDITIONS:
              34  *
              35  *       ERROR 13 RESULTS IF LINE IS NOT FOUND
-ASM990 2.4.6     SFSN                       Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     SFSN                       Sun Aug 10 23:07:35 2025 Page 0002
 SEARCH FOR STATEMENT ROUTINE - CORTEX BASIC REV. 1.1
 
              37  * ENTRY POINT:
@@ -56,7 +56,7 @@ SEARCH FOR STATEMENT ROUTINE - CORTEX BASIC REV. 1.1
              51  *
 0012 2F8D    52  SFSN3  DATA ERROR+13          ;NO SUCH LINE #
              53         END
-ASM990 2.4.6     SFSN                       Sun Jul 20 19:28:50 2025 Page 0003
+ASM990 2.4.6     SFSN                       Sun Aug 10 23:07:35 2025 Page 0003
 SEARCH FOR STATEMENT ROUTINE - CORTEX BASIC REV. 1.1
 
 ERROR    2F80   R0       0000   R1       0001   R10      000A   R11      000B   

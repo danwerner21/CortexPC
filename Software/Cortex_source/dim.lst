@@ -1,4 +1,4 @@
-ASM990 2.4.6     DIM                        Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     DIM                        Sun Aug 10 23:07:32 2025 Page 0001
 DIM STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT  'DIM'
@@ -20,7 +20,7 @@ DIM STATEMENT - CORTEX BASIC REV. 1.1
      2FA0    18  ERROR2 EQU  ERROR+>20
              19  *
      0004    20  NRV    EQU  4                 ;NUMBER OF RESERVED WORDS
-ASM990 2.4.6     DIM                        Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     DIM                        Sun Aug 10 23:07:32 2025 Page 0002
 DIM STATEMENT - CORTEX BASIC REV. 1.1
 
              22  *
@@ -52,7 +52,7 @@ DIM STATEMENT - CORTEX BASIC REV. 1.1
              48  *       EXPECTING DIMENSIONED VARIABLE
              49  *       INVALID DELIMITER
              50  *
-ASM990 2.4.6     DIM                        Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     DIM                        Sun Aug 10 23:07:32 2025 Page 0003
 DIM STATEMENT - CORTEX BASIC REV. 1.1
 
 0000 04C0    52  DIMY   CLR  R0                ;READY R0
@@ -105,7 +105,7 @@ DIM STATEMENT - CORTEX BASIC REV. 1.1
 0058 1011    89         JMP  DIM5
              90  *
 005A 2FA0    91  DIME37 DATA ERROR2,37
-ASM990 2.4.6     DIM                        Sun Jul 20 19:28:48 2025 Page 0004
+ASM990 2.4.6     DIM                        Sun Aug 10 23:07:32 2025 Page 0004
 DIM STATEMENT - CORTEX BASIC REV. 1.1
 
 005E 0608    93  DIM3   DEC  R8                ;BACKUP TO VARIABLE
@@ -167,7 +167,7 @@ DIM STATEMENT - CORTEX BASIC REV. 1.1
             137  *
 00C2 2F90   138  ERR16  DATA ERROR+16          ;EXPECTING DIMENSIONED VARIABLE
             139         END
-ASM990 2.4.6     DIM                        Sun Jul 20 19:28:48 2025 Page 0005
+ASM990 2.4.6     DIM                        Sun Aug 10 23:07:32 2025 Page 0005
 DIM STATEMENT - CORTEX BASIC REV. 1.1
 
 C6       008CR  DIM1     002C'  DIM2     0030'  DIM3     005E'  DIM4     0066'  

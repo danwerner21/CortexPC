@@ -1,4 +1,4 @@
-ASM990 2.4.6     LOGF                       Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     LOGF                       Sun Aug 10 23:07:36 2025 Page 0001
 LOG FUNCTION - CORTEX BASIC REV. 1.1
 
               2          IDT 'LOGF'
@@ -22,7 +22,7 @@ LOG FUNCTION - CORTEX BASIC REV. 1.1
              20          DXOP FDIV,5     ;DIVIDE FPAC
              21          DXOP NORMAL,7   ;NORMALIZE FPAC
      2F80    22  ERROR   EQU >2F80       ;XOP XX,14  (ERROR CALL)
-ASM990 2.4.6     LOGF                       Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     LOGF                       Sun Aug 10 23:07:36 2025 Page 0002
 LOG FUNCTION - CORTEX BASIC REV. 1.1
 
              24  *
@@ -85,7 +85,7 @@ LOG FUNCTION - CORTEX BASIC REV. 1.1
 0048 1303    71            JEQ LOGF3
 004A 0200    72          LI R0,LOGC1
 004C 00B0'
-ASM990 2.4.6     LOGF                       Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     LOGF                       Sun Aug 10 23:07:36 2025 Page 0003
 LOG FUNCTION - CORTEX BASIC REV. 1.1
 
 004E 0602    73          DEC R2
@@ -148,7 +148,7 @@ LOG FUNCTION - CORTEX BASIC REV. 1.1
 00CA C22D   115          DATA >C22D,>165C,>4BE0
 00D0 0002   116  LOGC3   DATA 2
 00D2 C212   117          DATA >C212,>53EF,>500E
-ASM990 2.4.6     LOGF                       Sun Jul 20 19:28:51 2025 Page 0004
+ASM990 2.4.6     LOGF                       Sun Aug 10 23:07:36 2025 Page 0004
 LOG FUNCTION - CORTEX BASIC REV. 1.1
 
 00D8 425D   118          DATA >425D,>76C2,>314A
@@ -156,7 +156,7 @@ LOG FUNCTION - CORTEX BASIC REV. 1.1
 00E4 40B1   120  LOGC4   DATA >40B1,>7217,>F7D2
 00EA        121          EVEN
             122          END
-ASM990 2.4.6     LOGF                       Sun Jul 20 19:28:51 2025 Page 0005
+ASM990 2.4.6     LOGF                       Sun Aug 10 23:07:36 2025 Page 0005
 LOG FUNCTION - CORTEX BASIC REV. 1.1
 
 B40        0010R  DS         007ER  DS1        007AR  ERR26      0000'  

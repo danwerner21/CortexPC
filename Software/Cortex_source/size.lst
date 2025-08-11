@@ -1,4 +1,4 @@
-ASM990 2.4.6     SIZE                       Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     SIZE                       Sun Aug 10 23:07:34 2025 Page 0001
 SIZE COMMAND - CORTEX BASIC REV. 1.1
 
               2         IDT  'SIZE'
@@ -61,7 +61,7 @@ SIZE COMMAND - CORTEX BASIC REV. 1.1
 002E 6060    43         S    @NVS,R1
 0030 0000 
 0032 A060    44         A    @NVD,R1
-ASM990 2.4.6     SIZE                       Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     SIZE                       Sun Aug 10 23:07:34 2025 Page 0002
 SIZE COMMAND - CORTEX BASIC REV. 1.1
 
 0034 000E'
@@ -121,7 +121,7 @@ SIZE COMMAND - CORTEX BASIC REV. 1.1
 0084 0D      76         BYTE >0D,->0A
 0086 C2C1    77         MOV  R1,R11            RESTORE RETURN ADDRESS
 0088 100B    78         JMP  MOVELN            & OUT INLINE TEXT
-ASM990 2.4.6     SIZE                       Sun Jul 20 19:28:50 2025 Page 0003
+ASM990 2.4.6     SIZE                       Sun Aug 10 23:07:34 2025 Page 0003
 SIZE COMMAND - CORTEX BASIC REV. 1.1
 
              80  *
@@ -174,7 +174,7 @@ SIZE COMMAND - CORTEX BASIC REV. 1.1
 00B8 00A8'
 00BA 10EC   121         JMP  EVENRT            EXIT
             122         END
-ASM990 2.4.6     SIZE                       Sun Jul 20 19:28:50 2025 Page 0004
+ASM990 2.4.6     SIZE                       Sun Aug 10 23:07:34 2025 Page 0004
 SIZE COMMAND - CORTEX BASIC REV. 1.1
 
 BUS        001AR  C4A00      006AR  CRLF       0062R  ERROR      2F80   

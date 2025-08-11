@@ -1,4 +1,4 @@
-ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0001
+ASM990 2.4.6     BOOT                       Sun Aug 10 23:07:34 2025 Page 0001
 BOOT STATEMENT - CORTEX BASIC REV. 1.1
 
               2         IDT  'BOOT'
@@ -35,7 +35,7 @@ BOOT STATEMENT - CORTEX BASIC REV. 1.1
              33  *      ^  = Space Character
              34  *      All other locations are reserved for vector storage.
              35  *
-ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0002
+ASM990 2.4.6     BOOT                       Sun Aug 10 23:07:34 2025 Page 0002
 BOOT STATEMENT - CORTEX BASIC REV. 1.1
 
              37  *
@@ -61,7 +61,7 @@ BOOT STATEMENT - CORTEX BASIC REV. 1.1
 0014         57  LENGTH BSS  2                 Twice number of bytes to xfer
 0016         58  SADDR  BSS  8                 Start address for load
 001E         59  SUM    BSS  2                 Checksum
-ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0003
+ASM990 2.4.6     BOOT                       Sun Aug 10 23:07:34 2025 Page 0003
 BOOT STATEMENT - CORTEX BASIC REV. 1.1
 
 0000         61         RORG 0
@@ -103,7 +103,7 @@ BOOT STATEMENT - CORTEX BASIC REV. 1.1
 0034 D6A8    90         MOVB @2(R8),*R10       Send last byte
 0036 0002 
 0038 0696    91         BL   *R6               Call wait
-ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0004
+ASM990 2.4.6     BOOT                       Sun Aug 10 23:07:34 2025 Page 0004
 BOOT STATEMENT - CORTEX BASIC REV. 1.1
 
              93  *
@@ -153,7 +153,7 @@ BOOT STATEMENT - CORTEX BASIC REV. 1.1
 0080 0607   131         DEC  R7                Done ?
 0082 16FD   132         JNE  LOOP3             No , loop
 0084 0696   133         BL   *R6               Call wait
-ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0005
+ASM990 2.4.6     BOOT                       Sun Aug 10 23:07:34 2025 Page 0005
 BOOT STATEMENT - CORTEX BASIC REV. 1.1
 
             135  *
@@ -196,7 +196,7 @@ BOOT STATEMENT - CORTEX BASIC REV. 1.1
 00BE 0007 
 00C0 0007 
 00C2 0440   161         B    R0                Execute from internal RAM
-ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0006
+ASM990 2.4.6     BOOT                       Sun Aug 10 23:07:34 2025 Page 0006
 BOOT STATEMENT - CORTEX BASIC REV. 1.1
 
             163  *
@@ -217,7 +217,7 @@ BOOT STATEMENT - CORTEX BASIC REV. 1.1
 00DC 00E3'
 00DE 1690   177         JNE  BOOTY             No , re-try
 00E0 045B   178         RT
-ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0007
+ASM990 2.4.6     BOOT                       Sun Aug 10 23:07:34 2025 Page 0007
 BOOT STATEMENT - CORTEX BASIC REV. 1.1
 
             180  *
@@ -280,7 +280,7 @@ BOOT STATEMENT - CORTEX BASIC REV. 1.1
 0110 01     237         BYTE >01                 id byte 3 .. record length
 0111 E7     238         BYTE >E7                 crc , 3 am , byte 2, 7 bytes 
 0112 88     239         BYTE >88               SORD
-ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0008
+ASM990 2.4.6     BOOT                       Sun Aug 10 23:07:34 2025 Page 0008
 BOOT STATEMENT - CORTEX BASIC REV. 1.1
 
             240  *                               entry supplied by code
@@ -291,7 +291,7 @@ BOOT STATEMENT - CORTEX BASIC REV. 1.1
 0117 A1     245         BYTE >A1                 data am data  pattern
 0118 F6     246         BYTE >F6                 3 am , xfer , crc , 22 bytes
             247         END
-ASM990 2.4.6     BOOT                       Sun Jul 20 19:28:50 2025 Page 0009
+ASM990 2.4.6     BOOT                       Sun Aug 10 23:07:34 2025 Page 0009
 BOOT STATEMENT - CORTEX BASIC REV. 1.1
 
 ADD      008C'  BOOTY    0000D  CHKINT   00D2'  CINT     00E7'  DMAC     01C0   

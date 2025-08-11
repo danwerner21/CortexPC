@@ -1,4 +1,4 @@
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0001
 9928 DSR - CORTEX BASIC REV. 1.1
 
               2         IDT  'VDPDSR'
@@ -27,7 +27,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
      0006    25  F$ROLL EQU  6                 INHIBIT SCROLL
              26  *
              27         COPY 'IODEFS.INC'
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0002
 9928 DSR - CORTEX BASIC REV. 1.1
 
               2C *
@@ -90,7 +90,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
              59C *      EQU  PRMPOP+7
              60C *EDATA EQU  PRMPOP+8
      0210    61C EPADR  EQU  PRMPOP+16
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0003
 9928 DSR - CORTEX BASIC REV. 1.1
 
              62C *
@@ -150,7 +150,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
             116C *
      F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
             118C *
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0004
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0004
 9928 DSR - CORTEX BASIC REV. 1.1
 
              29  ************************************************************
@@ -187,7 +187,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
 002E 0A38    54         SLA  R8,3              R8=8*[X CELL# + (32*Y CELL#)]
 0030 0228    55  GM3    AI   R8,PGTBA1+>4000   ADD IN PGT BASE ADDRESS
 0032 4000 
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0005
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0005
 9928 DSR - CORTEX BASIC REV. 1.1
 
              57  ************************************************************
@@ -250,7 +250,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
 007A 10DC   103         JMP  GDONE1            AND RESEND ADDRESS
             104  *
             105  *      CURSOR ON/OFF CONTROL
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0006
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0006
 9928 DSR - CORTEX BASIC REV. 1.1
 
             106  *
@@ -276,7 +276,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
 0094 D808   122         MOVB R8,@YLOC          UPDATE Y
 0096 0002'
 0098 0380   123         RTWP
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0007
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0007
 9928 DSR - CORTEX BASIC REV. 1.1
 
             125  ************************************************************
@@ -339,7 +339,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
             173  ************************************************************
             174  *                                                          *
             175  *              CURSOR DOWN  (LF)                           *
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0008
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0008
 9928 DSR - CORTEX BASIC REV. 1.1
 
             176  *                                                          *
@@ -383,7 +383,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
 0104 04E0   209         CLR  @CCNT             RESET BASIC'S COLUMN COUNTER
 0106 0000 
 0108 1095   210         JMP  GDONE1            RESEND IT TO VDP & CONTINUE
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0009
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0009
 9928 DSR - CORTEX BASIC REV. 1.1
 
             212  ************************************************************
@@ -446,12 +446,12 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
 0156 1F06   258         TB   F$ROLL            Y, SCROLL DISABLED ?
 0158 1603   259         JNE  DOROLL            N, GO DO IT
 015A 0228   260         AI   R8,-SCRSIZ        Y, BACKUP R8
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0010
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0010
 9928 DSR - CORTEX BASIC REV. 1.1
 
 015C FC40 
 015E 10EC   261         JMP  RVCA              AND CONTINUE
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0011
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0011
 9928 DSR - CORTEX BASIC REV. 1.1
 
             263  *
@@ -508,7 +508,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
 01AE 03C0 
 01B0 0694   301         BL   *R4               SEND IT TO VDP
 01B2 10C3   302  FD$JMP JMP  DONYET            & CONTINUE
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0012
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0012
 9928 DSR - CORTEX BASIC REV. 1.1
 
             304  *
@@ -571,7 +571,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
 0216 D800   343         MOVB R0,@VRAM          SEND IT TO VDP
 0218 F120 
 021A 0602   344         DEC  R2                DONE ?
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0013
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0013
 9928 DSR - CORTEX BASIC REV. 1.1
 
 021C 16FA   345         JNE  WRPAT             N, LOOP
@@ -587,7 +587,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
 0226 0720   354  GS     SETO @CURFLG           DISABLE CURSOR
 0228 0222'
 022A 10C3   355         JMP  FD$JMP            AND CONTINUE
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0014
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0014
 9928 DSR - CORTEX BASIC REV. 1.1
 
             357  *
@@ -650,7 +650,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
             405  *  FALL THROUGH TO CURSOR HOME
             406  *
             407  *     CURSOR HOME   (RS)
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0015
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0015
 9928 DSR - CORTEX BASIC REV. 1.1
 
             408  *
@@ -674,7 +674,7 @@ ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0001
 0294 0106'
 0296 10F2   421         JMP  RS1               UPDATE  CURSOR LOCATION
             422         END
-ASM990 2.4.6     VDPDSR                     Sun Jul 20 19:28:48 2025 Page 0016
+ASM990 2.4.6     VDPDSR                     Sun Aug 10 23:07:32 2025 Page 0016
 9928 DSR - CORTEX BASIC REV. 1.1
 
 B20      0270R  B7F      01CER  BELCNT   0246R  BELLON   0006   BITMAP   01FAR  

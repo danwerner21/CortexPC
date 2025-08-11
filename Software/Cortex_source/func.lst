@@ -1,9 +1,9 @@
-ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     FUNC                       Sun Aug 10 23:07:33 2025 Page 0001
 SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 
               2         IDT  'FUNC'
               3         COPY 'IODEFS.INC'
-ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     FUNC                       Sun Aug 10 23:07:33 2025 Page 0002
 SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 
               2C *
@@ -66,7 +66,7 @@ SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
              59C *      EQU  PRMPOP+7
              60C *EDATA EQU  PRMPOP+8
      0210    61C EPADR  EQU  PRMPOP+16
-ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     FUNC                       Sun Aug 10 23:07:33 2025 Page 0003
 SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 
              62C *
@@ -129,7 +129,7 @@ SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
               4         DEF  MODF,SYSF,ABSF,NKYF
               5         DEF  INTF,FRAF
               6         REF  FPAC,FPAC2,TEMP
-ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0004
+ASM990 2.4.6     FUNC                       Sun Aug 10 23:07:33 2025 Page 0004
 SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 
               7         REF  FIX,EVSFR
@@ -149,7 +149,7 @@ SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
              21         DXOP CLEAR,8           ;CLEAR FPAC
              22         DXOP NEGATE,9          ;NEGATE FPAC
              23         DXOP FLOATF,10         ;FLOAT FPAC
-ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0005
+ASM990 2.4.6     FUNC                       Sun Aug 10 23:07:33 2025 Page 0005
 SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 
              25  *
@@ -174,7 +174,7 @@ SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 001E C061    40         MOV  @SYSFLG(1),R1     GET VALUE
 0020 0000 
 0022 100C    41         JMP  INPF1             RETURN TO CALLER
-ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0006
+ASM990 2.4.6     FUNC                       Sun Aug 10 23:07:33 2025 Page 0006
 SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 
              43  *
@@ -237,7 +237,7 @@ SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
              91  *
 007A C040    92  NKYF1  MOV  R0,R1
 007C 10DF    93         JMP  INPF1
-ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0007
+ASM990 2.4.6     FUNC                       Sun Aug 10 23:07:33 2025 Page 0007
 SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 
              94  *
@@ -270,7 +270,7 @@ SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 00A6 2CA0   115         FADD  @TEMP            ;ADD NEGATED INTEGER IN FPAC
 00A8 009C'
 00AA 10EB   116         JMP  FRAF1
-ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0008
+ASM990 2.4.6     FUNC                       Sun Aug 10 23:07:33 2025 Page 0008
 SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 
             118  *
@@ -304,7 +304,7 @@ SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 00C2 A043   145         A    R3,R1             -VE, ADJUST !
 00C4 10BB   146         JMP  INPF1
             147         END
-ASM990 2.4.6     FUNC                       Sun Jul 20 19:28:49 2025 Page 0009
+ASM990 2.4.6     FUNC                       Sun Aug 10 23:07:33 2025 Page 0009
 SYSTEM FUNCTIONS - CORTEX BASIC REV. 1.1
 
 ABSF       004AD  ABSF1      0056'  BELLON     0006   BTENBL     0003   

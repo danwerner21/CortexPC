@@ -1,4 +1,4 @@
-ASM990 2.4.6     CVGC                       Sun Jul 20 19:28:51 2025 Page 0001
+ASM990 2.4.6     CVGC                       Sun Aug 10 23:07:35 2025 Page 0001
 GET CONSTANT ROUTINE - CORTEX BASIC REV. 1.1
 
               2         IDT  'CVGC'
@@ -26,7 +26,7 @@ GET CONSTANT ROUTINE - CORTEX BASIC REV. 1.1
              24  *
              25  *       IN    R8 = POWER OF 16
              26  *       OUT (R0) = FP CONSTANT
-ASM990 2.4.6     CVGC                       Sun Jul 20 19:28:51 2025 Page 0002
+ASM990 2.4.6     CVGC                       Sun Aug 10 23:07:35 2025 Page 0002
 GET CONSTANT ROUTINE - CORTEX BASIC REV. 1.1
 
 0000 0288    28  CVGCN  CI   R8,5
@@ -59,7 +59,7 @@ GET CONSTANT ROUTINE - CORTEX BASIC REV. 1.1
 0052 475F    51         DATA >475F,>5E10,>0000 10^8
 0058 483B    52         DATA >483B,>9ACA,>0000 10^9
              53         END
-ASM990 2.4.6     CVGC                       Sun Jul 20 19:28:51 2025 Page 0003
+ASM990 2.4.6     CVGC                       Sun Aug 10 23:07:35 2025 Page 0003
 GET CONSTANT ROUTINE - CORTEX BASIC REV. 1.1
 
 CVC10    0028D  CVGCN    0000D  CVGCN1   0008D  CVGCN2   0012'  CVTB1    0022'  

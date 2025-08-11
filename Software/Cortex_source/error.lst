@@ -1,4 +1,4 @@
-ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     ERROR                      Sun Aug 10 23:07:32 2025 Page 0001
 ERROR HANDLER - CORTEX BASIC REV 1.1
 
               2         IDT  'ERROR'
@@ -28,7 +28,7 @@ ERROR HANDLER - CORTEX BASIC REV 1.1
              26         DXOP OUTINT,13
              27         DXOP EVFIX,11
              28         COPY 'IODEFS.INC'
-ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     ERROR                      Sun Aug 10 23:07:32 2025 Page 0002
 ERROR HANDLER - CORTEX BASIC REV 1.1
 
               2C *
@@ -91,7 +91,7 @@ ERROR HANDLER - CORTEX BASIC REV 1.1
              59C *      EQU  PRMPOP+7
              60C *EDATA EQU  PRMPOP+8
      0210    61C EPADR  EQU  PRMPOP+16
-ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     ERROR                      Sun Aug 10 23:07:32 2025 Page 0003
 ERROR HANDLER - CORTEX BASIC REV 1.1
 
              62C *
@@ -151,7 +151,7 @@ ERROR HANDLER - CORTEX BASIC REV 1.1
             116C *
      F140   117C FDC    EQU  >F140             TMS9909 FLOPPY DISC CONTROLLER
             118C *
-ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0004
+ASM990 2.4.6     ERROR                      Sun Aug 10 23:07:32 2025 Page 0004
 ERROR HANDLER - CORTEX BASIC REV 1.1
 
              30  *
@@ -202,7 +202,7 @@ ERROR HANDLER - CORTEX BASIC REV 1.1
 005A C2E0    63         MOV  @RTSTOR,R11       GET RETURN ADDRESS
 005C 0002'
 005E 045B    64         B    *R11              RETURN
-ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0005
+ASM990 2.4.6     ERROR                      Sun Aug 10 23:07:32 2025 Page 0005
 ERROR HANDLER - CORTEX BASIC REV 1.1
 
              66  *
@@ -265,7 +265,7 @@ ERROR HANDLER - CORTEX BASIC REV 1.1
 00BA C0A1   106         MOV  @ERRTBL(1),R2     GET ERROR TEXT
 00BC 0170'
 00BE 06A0   107  ERRL2  BL   @MOVE             OUT TEXT
-ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0006
+ASM990 2.4.6     ERROR                      Sun Aug 10 23:07:32 2025 Page 0006
 ERROR HANDLER - CORTEX BASIC REV 1.1
 
 00C0 0142'
@@ -279,7 +279,7 @@ ERROR HANDLER - CORTEX BASIC REV 1.1
 00D0 C120   112         MOV  @SLN,R4           RUN. PICK UP LINE #
 00D2 0000 
 00D4 1015   113         JMP  ERRS1
-ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0007
+ASM990 2.4.6     ERROR                      Sun Aug 10 23:07:32 2025 Page 0007
 ERROR HANDLER - CORTEX BASIC REV 1.1
 
             115  *
@@ -342,7 +342,7 @@ ERROR HANDLER - CORTEX BASIC REV 1.1
 012E 1302   150         JEQ  ERRS2B            0, CRASH
 0130 0460   151         B    @CRLF             <>0, RETURN TO CRLF
 0132 0000 
-ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0008
+ASM990 2.4.6     ERROR                      Sun Aug 10 23:07:32 2025 Page 0008
 ERROR HANDLER - CORTEX BASIC REV 1.1
 
 0134 0000   152  ERRS2B DATA WAIT$             WAIT FOR I/O TO COMPLETE
@@ -372,7 +372,7 @@ ERROR HANDLER - CORTEX BASIC REV 1.1
 0154 D9C9   173         MOVB R9,@-1(R7)        PUT IT BACK
 0156 FFFF 
 0158 10F8   174         JMP  DONIT             EXIT
-ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0009
+ASM990 2.4.6     ERROR                      Sun Aug 10 23:07:32 2025 Page 0009
 ERROR HANDLER - CORTEX BASIC REV 1.1
 
             176  *
@@ -389,7 +389,7 @@ ERROR HANDLER - CORTEX BASIC REV 1.1
 016A 0000 
 016C 0460   184         B    @CRLF             EXIT
 016E 0132'
-ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0010
+ASM990 2.4.6     ERROR                      Sun Aug 10 23:07:32 2025 Page 0010
 ERROR HANDLER - CORTEX BASIC REV 1.1
 
 0170 0000   186  ERRTBL DATA ERR00T
@@ -444,7 +444,7 @@ ERROR HANDLER - CORTEX BASIC REV 1.1
 01D2 0000   235         DATA ERR49T
      0031   236  MAXERR EQU  ($-ERRTBL-2)/2    HIGHEST USED BASIC ERROR
             237         END
-ASM990 2.4.6     ERROR                      Sun Jul 20 19:28:48 2025 Page 0011
+ASM990 2.4.6     ERROR                      Sun Aug 10 23:07:32 2025 Page 0011
 ERROR HANDLER - CORTEX BASIC REV 1.1
 
 B2E        0116R  BELLON     0006   BTENBL     0003   BUSACK     0002   

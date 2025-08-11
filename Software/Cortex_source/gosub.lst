@@ -1,4 +1,4 @@
-ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0001
+ASM990 2.4.6     GOSUB                      Sun Aug 10 23:07:33 2025 Page 0001
 GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
 
               2          IDT  'GOSUB'
@@ -60,7 +60,7 @@ GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
              58  *       STACK UNDERFLOW
              59  *       NO SUCH LINE #
              60  *
-ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0002
+ASM990 2.4.6     GOSUB                      Sun Aug 10 23:07:33 2025 Page 0002
 GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
 
              62  *
@@ -123,7 +123,7 @@ GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
 003C C0C3   111          MOV  R3,R3       N - GOTO?                  JG 12/1/82
 003E 130B   112          JEQ  GOSON1      Y                          JG 12/1/82
             113  *
-ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0003
+ASM990 2.4.6     GOSUB                      Sun Aug 10 23:07:33 2025 Page 0003
 GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
 
             114  * GOSUB - NOTHING FOLLOWING STATEMENT - GET PBC OF NEXT LINE
@@ -166,7 +166,7 @@ GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
 0082 2F8B   141  ERR11   DATA ERROR+11   ;STACK OVERFLOW
 0084 2F8C   142  ERR12   DATA ERROR+12   ;STACK UNDERFLOW
 0086 2FA0   143  GOSYE   DATA ERROR2,37  ILLEGAL DELIMITER
-ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0004
+ASM990 2.4.6     GOSUB                      Sun Aug 10 23:07:33 2025 Page 0004
 GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
 
             145  *
@@ -219,7 +219,7 @@ GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
             184  *
 00B6 0460   185  RTRN3   B    @CRLF       RETURN TO INTERPRETER LOOP 
 00B8 0000 
-ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0005
+ASM990 2.4.6     GOSUB                      Sun Aug 10 23:07:33 2025 Page 0005
 GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
 
             187  *
@@ -253,7 +253,7 @@ GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
 00CA 0000 
             211  *
             212         END
-ASM990 2.4.6     GOSUB                      Sun Jul 20 19:28:49 2025 Page 0006
+ASM990 2.4.6     GOSUB                      Sun Aug 10 23:07:33 2025 Page 0006
 GOSUB/GOTO COMMANDS - CORTEX BASIC REV. 1.1
 
 BUS       0054R  C4        00C4R  CRLF      00B8R  ELNM      0008R  

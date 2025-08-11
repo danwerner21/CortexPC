@@ -1,4 +1,4 @@
-ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0001
+ASM990 2.4.6     FOR                        Sun Aug 10 23:07:33 2025 Page 0001
 FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 
               2         IDT  'FOR'
@@ -31,7 +31,7 @@ FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
              29         DEF  GSIM
              30  *
      0004    31  NRV    EQU  4                 ;NUMBER OF RESERVED WORDS
-ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0002
+ASM990 2.4.6     FOR                        Sun Aug 10 23:07:33 2025 Page 0002
 FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 
              33  *       EXECUTE FOR COMMAND.  WHEN A FOR
@@ -64,7 +64,7 @@ FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
              60  *       EVALUATION ERRORS
              61  *       STORAGE OVERFLOW, ILLEGAL DELIMITER
              62  *       EXPECTING SIMPLE VARIABLE
-ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0003
+ASM990 2.4.6     FOR                        Sun Aug 10 23:07:33 2025 Page 0003
 FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 
 0000 06A0    64  FORY   BL   @GSIM             ;GET SIMPLE VARIABLE
@@ -113,7 +113,7 @@ FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 004C 0034'
 004E 12FC    96         JLE  FOR3              ;N
 0050 045B    97         B    *R11              ;Y
-ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0004
+ASM990 2.4.6     FOR                        Sun Aug 10 23:07:33 2025 Page 0004
 FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 
 0052 CD01    99  FOR4   MOV  R1,*R4+           ;INSERT VAR NAME
@@ -172,7 +172,7 @@ FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
             143  *
 00B2 2845   144         XOR  R5,R1             ;'EXCLUSIVE OR' SIGNS
 00B4 1119   145         JLT  FOR9              ;- INPLIES LOOP NOT COMPLETE
-ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0005
+ASM990 2.4.6     FOR                        Sun Aug 10 23:07:33 2025 Page 0005
 FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 
 00B6 C164   147  FOR7   MOV  @-16(4),R5        ;LOOK FOR NEXT
@@ -215,7 +215,7 @@ FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 00F6 2F9F   173  ERR31  DATA ERROR+31          ;FOR W/O NEXT
             174  *
 00F8 2F94   175  ERR20  DATA ERROR+20          ;EXPECTING SIMPLE VARIABLE
-ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0006
+ASM990 2.4.6     FOR                        Sun Aug 10 23:07:33 2025 Page 0006
 FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 
             177  *       PROCESS THE FOOT OF A FOR/NEXT LOOP.
@@ -240,7 +240,7 @@ FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
             196  *       EVALUATION ERRORS
             197  *       NEXT W/O FOR
             198  *
-ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0007
+ASM990 2.4.6     FOR                        Sun Aug 10 23:07:33 2025 Page 0007
 FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 
 00FA 06A0   200  NXTY   BL   @GSIM             ;GET SIMPLE VARIABLE
@@ -303,7 +303,7 @@ FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 0152 06A0   249         BL   @SUBF             ;R2=R2-R1  (VAR-TO)
 0154 00A8'
 0156 C072   250         MOV  *R2+,R1           ;LOOK AT RESULT, INTEGER?
-ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0008
+ASM990 2.4.6     FOR                        Sun Aug 10 23:07:33 2025 Page 0008
 FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 
 0158 1602   251         JNE  $+6               ;N
@@ -323,7 +323,7 @@ FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 0170 00E2'
 0172 0460   262  NXT3A  B    @NLIN0
 0174 00E6'
-ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0009
+ASM990 2.4.6     FOR                        Sun Aug 10 23:07:33 2025 Page 0009
 FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 
             264  *       GSIM WILL GET NEXT ITEM AND CHECK TO
@@ -358,7 +358,7 @@ FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 0196 FF20 
 0198 045B   289         RT
             290         END
-ASM990 2.4.6     FOR                        Sun Jul 20 19:28:48 2025 Page 0010
+ASM990 2.4.6     FOR                        Sun Aug 10 23:07:33 2025 Page 0010
 FOR/NEXT STATEMENTS - CORTEX BASIC REV. 1.1
 
 ADDF     0142R  B56      0022R  BUS      00D0R  ERR20    00F8'  ERR31    00F6'  
