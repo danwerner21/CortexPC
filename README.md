@@ -1,6 +1,6 @@
 # CortexPC
 
-![Board](images/image1.jpg)
+![CortexPC](images/three.jpg)
 
 This is an ATX format implimentation of the Mini-Cortex system by Paul Ruizendaal and Stuart Conner.  The Mini-Cortex system is a further development of a TMS 9995 breadboard project to produce a system similar to a Powertran Cortex, but using more modern components. The system is based around a TMS 9995 running at 3 MHz, with 32K byte EEPROM, and will use 512K bytes of RAM  accessed through a memory mapper. An on-board serial port and IDE interface exists on the card.  There is also provisions for a TMS9918 clone, a keyboard and some expansion slots -- these are not totally supported by the firmware at this time however.
 
