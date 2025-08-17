@@ -1,4 +1,4 @@
-all:  	rom.bin bootsel.s19 mdexboot.s19 unixboot.S19 monitor.s19
+all:  	bootsel.s19 mdexboot.s19 unixboot.s19 monitor.s19 rom.bin
 
 
 monitor.s19: monitor.asm
@@ -16,14 +16,14 @@ mdexboot.s19: mdexboot.asm
 	lnk990 -a -o mdexboot.out mdexboot.obj
 	srec_cat  mdexboot.out -binary -exclude 0x0000 0x0012 -offset 0x77EE -o mdexboot.s19 -Data_Only
 
-unixboot.S19: unixboot.asm
+unixboot.s19: unixboot.asm
 	asm990  -l unixboot.lst -o unixboot.obj unixboot.asm
 	lnk990 -a -o unixboot.out unixboot.obj
 	srec_cat  unixboot.out -binary -exclude 0x0000 0x0012 -offset 0x7AEE -o unixboot.s19 -Data_Only
 
 
-rom.bin: bootsel.s19 mdexboot.s19 unixboot.S19 monitor.s19
-	srec_cat  monitor.s19 bootsel.s19 mdexboot.s19 unixboot.S19 -o rom.bin -binary
+rom.bin: bootsel.s19 mdexboot.s19 unixboot.s19 monitor.s19
+	srec_cat  monitor.s19 bootsel.s19 mdexboot.s19 unixboot.s19 -o rom.bin -binary
 
 
 pretty:

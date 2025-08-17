@@ -1,4 +1,8 @@
 * Breadboard ROM boot menu
+* Based on Code by Stuart Conner
+*
+* D. Werner 8/16/2025
+*
 *
 
         AORG >1500
@@ -14,41 +18,40 @@ TAG1B
         B @>0142                                  ; branch to evmbug.
 
 TAG2F
-        CI R1,'2'*256                             ; BASIC option selected?
-        JNE TAG3F                                 ; no, test MDEX option
-        LI R1,>1600                               ; yes, copy basic from EPROM to RAM.
-        LI R2,>8000
-        LI R3,>5eba
-TAG9B
-        MOV *R1+,*R2+
-        DECT R3
-        JNE TAG9B
-        B @>8036                                  ; branch to BASIC.
-
-TAG3F
-        CI R1,'3'*256                             ; MDEX option selected?
+        CI R1,'2'*256                             ; MDEX option selected?
         JNE TAG4F                                 ; no, loop round and wait for another character.
         B @>7800                                  ; branch to MDEX boot loader.
 
 TAG4F
-        CI R1,'4'*256                             ; UNIX option selected?
+        CI R1,'3'*256                             ; UNIX option selected?
         JNE TAG1B                                 ; no, loop round and wait for another character.
         B @>7b00                                  ; branch to UNIX boot loader.
 
 * logon message
 LOGON
         DATA >0D0A
-        TEXT 'TMS 9995 BREADBOARD SYSTEM'
         DATA >0D0A
-        TEXT 'BY STUART CONNER'
+        TEXT '  ___         _           ___  ___'
+        DATA >0D0A
+        TEXT ' / __|___ _ _| |_ _____ _| _ \/ __| '
+        DATA >0D0A
+        TEXT '| (__/ _ \ '
+        BYTE >27
+        TEXT '_|  _/ -_) \ /  _/ (__'
+        DATA >0D0A
+        TEXT ' \___\___/_|  \__\___/_\_\_|  \___| '
+        DATA >0D0A
+        DATA >0D0A
+        TEXT 'TMS9995 COMPUTER SYSTEM '
+        DATA >0D0A
+        TEXT 'BIOS V1.0 '
+        DATA >0D0A
         DATA >0D0A
         TEXT 'PRESS 1 FOR EVMBUG MONITOR'
         DATA >0D0A
-        TEXT 'PRESS 2 FOR CORTEX BASIC'
+        TEXT 'PRESS 2 FOR MDEX'
         DATA >0D0A
-        TEXT 'PRESS 3 FOR MDEX'
-        DATA >0D0A
-        TEXT 'PRESS 4 FOR UNIX'
+        TEXT 'PRESS 3 FOR UNIX'
         DATA >0D0A,00
 
         END
