@@ -1,0 +1,28 @@
+; --------------------------------------------------------
+; Tile Studio Definition File
+; TI994A_sprites_16x16.tsd
+;
+; Generate 16x16 sprite raw data for the
+; Texas Instruments TI-99/4A
+;
+; by RETROCLOUDS
+;
+; v0.1   12.07.2009
+; --------------------------------------------------------
+
+
+#file sprites_16x16.raw
+#tileset
+*--------------------------------------------------------------
+* Sprite 16X16 pattern data by Tile Studio <TSVersion>
+* <CurrentDate> <CurrentTime> - <TileSetIdentifier>
+*--------------------------------------------------------------
+* Tiles: <TSTileCount>
+#tstile
+* Tile: <TileNumber>
+#tiledata "\n@SPRITE_16X16@:" "" "" "|" ""
+<(Pixel+1) :"%01x">
+#end tiledata
+#end tstile
+#end tileset
+#end file

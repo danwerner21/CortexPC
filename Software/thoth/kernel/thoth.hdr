@@ -1,0 +1,41 @@
+
+\ manifests
+
+\ return codes
+#ERROR = 0          \ error occurred
+#OK = 1             \ no error occured
+
+\ status manifests
+
+#READY = 1          \ ready
+#SEND_BLKED = 2     \ send-blocked
+#REC_BLKED = 3      \ receive-blocked
+#WTNG_RCVR = 4      \ waiting for receiver
+#WTNG_SENDER = 5    \ waiting for sender
+#EMBRYO = 6         \ embryonic state
+
+\ machine-independent part of the PD
+
+#LINK = 0           \ ready queue link - must be first
+#STATUS = 1         \ status of process
+#PRIORITY = 2       \ priority of process
+#ID = 3             \ process id
+#RECQ_HEAD = 4      \ pointer to head od receive queue
+#RECQ_TAIL = 5      \ pointer to tail od receive queue
+#SENDQ_HEAD = 6     \ pointer to head of send queue
+#SENDQ_TAIL = 7     \ pointer to tail of send queue
+#BLOCK_FWD = LINK   \ forward pointer in blocked queue
+#BLOCK_BACK = 8     \ backward pointer in blocked queue
+#BLOCKED_ON = 9     \ id of process I am blocked on
+#MESSAGE = 10       \ message that is passed
+#FCB_LINK = 11      \ pointer to file control blocks
+
+#RECQ_EMPTY = (RECQ_TAIL - BLOCK_FWD) \ empty rec-queue
+#SENDQ_EMPTY = (SENDQ_TAIL - BLOCK_FWD) \ empty send-queue
+
+\ semaphore layout
+
+#SEM_LINK = 0       \ must be zero
+#SEM_TAIL = 1
+#SEM_VALUE = 2
+

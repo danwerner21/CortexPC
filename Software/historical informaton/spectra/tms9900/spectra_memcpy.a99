@@ -1,0 +1,309 @@
+***************************************************************
+*                           SPECTRA! 
+*              Homebrew Game & Utilities Library 
+*                             for
+*               the Texas Instruments TI-99/4A  
+*                   2009 by Filip Van Vooren
+*
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************
+* This file: spectra_memcpy.a99
+***************************************************************
+* v0.1  -   2009/01/16       Initial version
+***************************************************************
+* X=No input     D=Data variant        R=Register variant
+*
+* MEMORY COPY UTILITIES
+* =====================
+* FILMEM - D - Fill memory range with byte
+* CPYM   - D - Copy memory range
+* CPYMX  - R - Copy memory range
+* G2VDP  - D - Copy GROM memory range to VDP memory
+* G2VDPX - R - Copy GROM memory range to VDP memory
+* G2MEM  - D - Copy GROM memory range to RAM memory
+* G2MEMX - R - Copy GROM memory range to RAM memory
+***************************************************************
+
+
+***************************************************************
+* FILMEM - Fill memory range with byte
+***************************************************************
+*  BL @FILMEM
+*  DATA P0,P1,P2
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = Memory start address
+*  P1 = Memory end address
+*  P2 = Byte to fill
+********@*****@*********************@**************************
+FILMEM  INCT  STACK
+        MOV   R0,*STACK+            ; Push R0
+        MOV   R1,*STACK+            ; Push R1
+        MOV   R2,*STACK             ; Push R2
+        MOV   *R11+,R0              ; Memory start
+        MOV   *R11+,R1              ; Memory end
+        MOV   *R11+,R2              ; Byte to fill
+        SWPB  R2
+FILME1  MOVB  R2,*R0+
+        C     R0,R1
+        JLE   FILME1
+FILME2  JMP   POPRX2                ; Pop registers (R11 set!) and return
+
+
+***************************************************************
+* CPYM - Copy memory range (data variant)
+***************************************************************
+*  BL @CPYM
+*  DATA P0,P1,P2
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = Memory source address
+*  P1 = Memory target address
+*  P2 = Number of bytes to copy
+********@*****@*********************@**************************
+CPYM    INCT  STACK
+        MOV   R0,*STACK+            ; Push R0
+        MOV   R1,*STACK+            ; Push R1
+        MOV   R2,*STACK             ; Push R2
+        MOV   *R11+,R0              ; Memory source address
+        MOV   *R11+,R1              ; Memory target address
+        MOV   *R11+,R2              ; Bytes to copy
+CPYM1   MOVB  *R0+,*R1+
+        DEC   R2
+        JNE   CPYM1
+        JMP   POPRX2                ; Pop registers (R11 set) and return
+
+
+***************************************************************
+* CPYMX - Copy memory range (register variant)
+***************************************************************
+*  BL @CPYMX
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = Memory source address
+*  R1 = Memory target address
+*  R2 = Number of bytes to copy
+********@*****@*********************@**************************
+CPYMX   INCT  STACK
+        MOV   R11,*STACK+
+        MOV   R0,*STACK+            ; Push R0
+        MOV   R1,*STACK+            ; Push R1
+        MOV   R2,*STACK             ; Push R2
+CPYMX1  MOVB  *R0+,*R1+
+        DEC   R2
+        JNE   CPYMX1
+        JMP   POPRG2
+
+
+*//////////////////////////////////////////////////////////////
+*                   GROM LOW LEVEL UTILITIES
+*//////////////////////////////////////////////////////////////
+
+***************************************************************
+* G2VDP - Copy GROM memory range to VDP memory (data variant)
+***************************************************************
+*  BL @G2VDP
+*  DATA P0,P1,P2
+*--------------------------------------------------------------
+*  REMARKS
+*  This subroutine overwrites the current GROM address
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = GROM source address
+*  P1 = VDP target address
+*  P2 = Number of bytes to copy
+********@*****@*********************@**************************
+G2VDP   INCT  STACK
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK        
+        MOV   *R11+,R0              ; GROM source address
+        MOV   *R11+,R1              ; VDP target address
+        MOV   *R11+,R2              ; Bytes to copy
+* Set GROM source address
+G2VDP1  MOVB  R0,@GRMWA
+        SWPB  R0
+        MOVB  R0,@GRMWA             ; Destroys R0. Doesn't matter       
+* Set VDP target address
+        ORI   R1,>4000
+        SWPB  R1
+        MOVB  R1,@VDPA
+        SWPB  R1
+        MOVB  R1,@VDPA              ; Set VDP target address
+        NOP        
+* Copy from GROM to VDP
+G2VDP2  MOVB  @GRMRD,@VDPW          ; Copy byte from GROM to VDP
+        DEC   R2
+        JNE   G2VDP2                ; Loop until all bytes copied
+        B     @POPRX2               ; Exit             
+
+***************************************************************
+* G2VDPX - Copy GROM memory range to VDP memory (register variant)
+***************************************************************
+*  BL @G2VDPX
+*--------------------------------------------------------------
+*  REMARKS
+*  This subroutine overwrites the current GROM address
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = GROM source address
+*  R1 = VDP target address
+*  R2 = Number of bytes to copy
+********@*****@*********************@**************************
+G2VDPX  INCT  STACK
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK  
+        JMP   G2VDP1                ; Rest is the same as data variant
+     
+
+
+***************************************************************
+* G2MEM - Copy GROM memory range to RAM memory (data variant)
+***************************************************************
+*  BL @G2MEM
+*  DATA P0,P1,P2
+*--------------------------------------------------------------
+*  REMARKS
+*  This subroutine overwrites the current GROM address
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = GROM source address
+*  P1 = RAM target address
+*  P2 = Number of bytes to copy
+********@*****@*********************@**************************
+G2MEM   INCT  STACK
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK        
+        MOV   *R11+,R0              ; GROM source address
+        MOV   *R11+,R1              ; VDP target address
+        MOV   *R11+,R2              ; Bytes to copy
+* Set GROM source address
+G2MEM1  MOVB  R0,@GRMWA
+        SWPB  R0
+        MOVB  R0,@GRMWA             ; Destroys R0. Doesn't matter       
+* Copy from GROM to VDP
+G2MEM2  MOVB  @GRMRD,*R1+           ; Copy byte from GROM to RAM
+        DEC   R2
+        JNE   G2MEM2                ; Loop until all bytes copied
+        B     @POPRX2               ; Exit            
+
+
+***************************************************************
+* G2MEMX - Copy GROM memory range to RAM memory (register variant)
+***************************************************************
+*  BL @G2MEMX
+*--------------------------------------------------------------
+*  REMARKS
+*  This subroutine overwrites the current GROM address
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = GROM source address
+*  R1 = RAM target address
+*  R2 = Number of bytes to copy
+********@*****@*********************@**************************
+G2MEMX  INCT  STACK
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK        
+        JMP   G2MEM1                ; Rest is the same as data variant
+
+
+
+
+***************************************************************
+* XCPY - Extended copy
+***************************************************************
+*  BL    @XCPY
+*  DATA  P0,P1,P2
+*  DATA  ....
+*  DATA  0
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = Type of destination memory (ISVDP)
+*  R1 = Destination address
+*
+*  P0 = Command (CPYROM, CPYGRM, FILL)
+*  P1 = Value depends on command type in P0
+*  P2 = Value depends on command type in P0
+*
+*  For CPYROM, CPYGRM
+*       P1 = Source address
+*       P2 = Number of bytes to copy
+*--------------------------------------------------------------
+*  REMARKS
+*  Input list must be terminated with DATA 0
+*--------------------------------------------------------------
+*  OUTPUT
+*  @OUTP0 = Highest target address after processing command list
+*--------------------------------------------------------------
+*  EXAMPLE
+*       LI    R0,ISVDP
+*       LI    R1,>2000              ; Target address in VDP
+*       BL    @XCPY
+*       DATA  CPYROM,LETTRS,8*8     ; Copy letters A-H from ROM
+*       DATA  CPYGRM,STUFF,120      ; Copy some stuff from GROM
+*       DATA  CPYROM,DIGITS,10*8    ; Copy digits 0-9 from ROM
+*       DATA  0                     ; End-of-list
+*       MOV   @OUTP0,R0             ; VDP memory address after block copy
+*--------------------------------------------------------------
+* Equates for commands
+CPYROM  EQU   10                    ; Copy ROM/RAM       
+CPYGRM  EQU   11                    ; Copy GROM/GRAM
+********@*****@*********************@**************************
+XCPY    INCT  STACK
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK+
+        MOV   R3,*STACK+
+        MOV   R4,*STACK+
+        MOV   R5,*STACK+
+        MOV   R6,*STACK+
+        MOV   R7,*STACK+
+        MOV   R0,R3                 ; Work with copy in R3
+        MOV   R1,R4                 ; Work with copy in R4
+*--------------------------------------------------------------
+*  Check on what type of memory to copy
+*--------------------------------------------------------------
+XCPY1   MOV   *R11+,R5              ; Memory source type (ISROM, ISGROM)
+        MOV   *R11+,R6              ; Memory source address
+        MOV   *R11+,R7              ; Number of bytes to copy
+        CI    R3,ISVDP              ; Target in VDP ?
+        JNE   XCPYZ                 ; Not yet supported
+*--------------------------------------------------------------
+*  Copy to VDP
+*--------------------------------------------------------------
+        CI    R5,CPYROM             ; Copy from ROM/RAM ?
+        JNE   XCPYZ                 ; Not yet supported
+        MOV   R11,*STACK            ; Save RET address
+        MOV   R4,R0                 ; Target address in VDP
+        MOV   R6,R1                 ; Memory source address
+        MOV   R7,R2                 ; Number of bytes to copy
+        BL    @VMBW                       
+        MOV   *STACK,R11            ; Restore RET address
+        A     R7,R4                 ; Set VDP address for next run
+*--------------------------------------------------------------
+*   Prepare for next copy
+*--------------------------------------------------------------
+XCPYY   MOV   *R11,*R11             ; Last entry processed ?
+        JNE   XCPY1                 ; No, so loop
+*--------------------------------------------------------------
+*   Finished processing copies
+*--------------------------------------------------------------
+XCPYZ   MOV   R4,@OUTP0             ; Memory address after processing command list
+        DECT  STACK
+        B     @POPRX7               ; Exit     

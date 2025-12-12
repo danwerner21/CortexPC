@@ -65,16 +65,21 @@ It can be problematic formatting a new card using Windows 10 as it does not alwa
 ## Powering up
 The serial port on the TMS9995 board is configured for 9600 Baud, 7 data bits, even parity, one stop bit, no flow control.
 
-The EVMBUG monitor and Cortex BASIC software applications, and the boot loaders for MDEX and Unix, are stored on a single 32K byte EEPROM. The required application is selected from a boot menu. To display the boot menu, connect the board to a configured serial port on a PC, apply power then press any key.
+The EVMBUG monitor and the boot loaders for MDEX and Unix, are stored on a single 32K byte EEPROM. The required application is selected from a boot menu. To display the boot menu, connect the board to a configured serial port on a PC, apply power then press any key.
 
 You should then see:
 ```
-TMS 9995 BREADBOARD SYSTEM
-BY STUART CONNER
+  ___         _           ___  ___
+ / __|___ _ _| |_ _____ _| _ \/ __|
+| (__/ _ \ '_|  _/ -_) \ /  _/ (__
+ \___\___/_|  \__\___/_\_\_|  \___|
+
+TMS9995 COMPUTER SYSTEM
+BIOS V1.0
+
 PRESS 1 FOR EVMBUG MONITOR
-PRESS 2 FOR CORTEX BASIC
-PRESS 3 FOR MDEX
-PRESS 4 FOR UNIX
+PRESS 2 FOR MDEX
+PRESS 3 FOR UNIX
 ```
 To select a software application from the menu, press the corresponding numeric key.
 

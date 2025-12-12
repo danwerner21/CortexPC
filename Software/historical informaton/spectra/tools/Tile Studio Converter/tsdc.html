@@ -1,0 +1,595 @@
+<!--
+* TSDC - Tile Studio Converter v0.1
+* (c)2009 by Retroclouds
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!-->
+
+<html>
+ <head>
+  <title>TSDC - Tile Studio Converter</title> 
+  <style type="text/css">
+       .box_on   { border: solid 1px; max-width:10px; max-height:10px; background-color: #e0e0e0; }
+       .box_off  { border: solid 1px; max-width:10px; max-height:10px; background-color: #ffffff; }
+
+        a:link    { font-weight: normal; color:#0000E0; text-decoration:none }
+        a:visited { font-weight: normal; color:#000080; text-decoration:none }
+        a:hover   { font-weight: normal; color:#E00000; text-decoration:none }
+        a:active  { font-weight: normal; color:#E00000; text-decoration:none }
+        a:focus   { font-weight: bold;   color:#E00000; text-decoration:none }
+
+        td.s { vertical-align: top; }
+
+        .s { font-family: monospace;
+             font-size:   10pt;
+	         font-weight: normal;
+             color:       #000000;
+           }
+
+       .xl { font-family: Arial;
+             font-size:   250%;
+             font-weight: normal;
+             color:       #0080FF;
+           }
+
+       .f { overflow:         hidden;
+            border:           none;
+	        margin:           0px;
+	        padding:          0px;
+	        max-width:        40px;
+	        max-height:       32px;
+	        background-color: #FFE3B5;
+       }
+
+       textarea { font-size:   12px; 
+                  text-align:  left; 
+                  color:       black; 
+                  font-family: monospace; 
+                } 
+
+       body { background-color: #FFFFFF; /* REQUIRED OTHERWISE CSS IS NOT TRIGGERED! */ }
+  </style>
+
+  <script type="text/javascript">
+   c_mag   = [[2,2], [3,3], [6,6], [1,1]];          // Magnify level
+ 
+
+   /////////////////////////////////////////////////////////////////////////////
+   // VISUAL STUFF                                                           #1#
+   /////////////////////////////////////////////////////////////////////////////   
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Create DIV on-the-fly
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   // PARAMETERS:
+   // [R] target       = document/frame to work with
+   // [R] HTMLcontent  = DIV content
+   // [O] key/value    = CSS attribute/value pairs
+   //
+   // RETURNS
+   // object representing div
+   /////////////////////////////////////////////////////////////////////////////
+    function create_div(target, HTMLcontent) {
+      var my_div = document.createElement("div");
+      if (z(my_div)) {
+         my_div.innerHTML = HTMLcontent;
+         for (var l=2; l<create_div.arguments.length; l=l+2) {
+             var my_attr = create_div.arguments[l];
+             var my_val  = create_div.arguments[l+1];
+             var my_eval = 'my_div.style.' +  my_attr + '="' + my_val + '"';
+             eval(my_eval);
+         }
+         target.appendChild(my_div);
+         return my_div;
+      }
+   }
+
+  
+   /////////////////////////////////////////////////////////////////////////////
+   // Put HTML on screen
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   // PARAMETERS:
+   // [R] left_px = left    (in pixels)
+   // [R] top_px  = top     (in pixels)
+   // [R] text    = message
+   //
+   // RETURNS
+   // none
+   /////////////////////////////////////////////////////////////////////////////
+   function put_text(left_px, top_px, text) {
+      var label = document.createElement("div");
+      with (label.style) {
+        position = "absolute";
+	    top      = top_px;
+	    left     = left_px;
+      }
+      label.innerHTML = '<font class="s">' + text + '</font>';
+      g_doc.appendChild(label);
+   }
+
+
+   /////////////////////////////////////////////////////////////////////////////
+   // PIXEL ART                                                              #2#
+   /////////////////////////////////////////////////////////////////////////////   
+   
+   /////////////////////////////////////////////////////////////////////////////
+   // Put pixel dot on screen
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   // PARAMETERS:
+   // [R] left_px  = left  (in pixels)
+   // [R] top_px   = top   (in pixels)
+   // [R] dots_x   = Each dot is built out of X pixels
+   // [R] dots_y   = Each dot is built out of Y pixels
+   // [R] magnify  = Magnification factor
+   // [R] bg       = Background color
+   // [O] ident    = Identifier for referencing dot
+   //
+   // RETURNS
+   // none
+   /////////////////////////////////////////////////////////////////////////////
+   function put_dot(left_px,top_px, dots_x, dots_y, magnify, bg, ident) {
+     var size_x = c_mag[magnify][0] * dots_x;
+     var size_y = c_mag[magnify][1] * dots_y;
+     var dot    = document.createElement("div");
+     with (dot.style) {
+          position        = "absolute";
+          top             = top_px  + "px";
+          left            = left_px + "px";
+          width           = size_x  + "px";
+          height          = size_y  + "px";
+          padding         = 0 + "px";
+          margin          = 0 + "px"; border='0px';
+          backgroundColor = bg;
+     }
+     g_doc.appendChild(dot);
+     if (typeof(ident) != "undefined") dot.id = ident;
+   }
+
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Remove dots (or other elements) from screen
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   // PARAMETERS:
+   // [R] ident    = Identifier referencing dots to remove
+   //
+   // RETURNS
+   // none
+   /////////////////////////////////////////////////////////////////////////////
+   function del_dots(ident) {
+     g_doc = document.getElementsByTagName("body")[0];
+     while (1) {
+        my_elem = document.getElementById(ident);
+        if ((typeof(my_elem) == "object") && (my_elem != null)) {
+           g_doc.removeChild(my_elem);
+        } else
+           return;
+        }
+   }
+
+
+   /////////////////////////////////////////////////////////////////////////////
+   // Put 8x8 pattern on screen
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   // PARAMETERS:
+   // [R] left_px  = left  (in pixels)
+   // [R] top_px   = top   (in pixels)
+   // [R] addr     = Pattern address
+   // [R] mpattern = String containing pattern to display
+   // [R] color    = Color
+   // [R] bg       = Background color
+   // [O] ident    = Identifier for referencing pattern
+   //
+   // RETURNS
+   // none
+   /////////////////////////////////////////////////////////////////////////////
+   function pattern8_XY(left_px, top_px, addr, mpattern, magnify, color, bg, ident) {
+      var row=col=0;
+      var byte     = null;
+      var mpattern = mpattern.toUpperCase();
+      var size_x   = c_mag[magnify][0];
+      var size_y   = c_mag[magnify][1];
+
+      if (bg != null) put_dot(left_px, top_px, 8, 8, magnify, bg, ident);
+
+      for (l=0; l<mpattern.length; l++) {
+	  // Process 1 byte
+  	  var byte=mpattern.charAt(l);
+	  var o=s=0;
+	  // Draw byte
+	  col = l % 2;
+
+	  switch (byte) {
+	    case '1' : o=3; s=1; break;
+	    case '2' : o=2; s=1; break;
+	    case '3' : o=2; s=2; break;
+	    case '4' : o=1; s=1; break;
+	    case '5' : o=1; s=1;
+		           put_dot(left_px + (o * size_x) + (col * (size_x * 4)),
+			       top_px  + (row*size_y), s, 1, magnify, color, ident);
+		           o=3; s=1; break;
+	    case '6' : o=1; s=2; break;
+	    case '7' : o=1; s=3; break;
+	    case '8' : o=0; s=1; break;
+	    case '9' : o=0; s=1;
+		           put_dot(left_px + (o * size_x) + (col * (size_x * 4)),
+			       top_px  + (row*size_y), s, 1, magnify, color, ident);
+		           o=3; s=1; break
+	    case 'A' : o=0; s=1;
+		           put_dot(left_px + (o * size_x) + (col * (size_x * 4)),
+			       top_px  + (row*size_y), s, 1, magnify, color, ident);
+		           o=2; s=1; break;
+	    case 'B' : o=0; s=1;
+		           put_dot(left_px + (o * size_x) + (col * (size_x * 4)),
+			       top_px  + (row*size_y), s, 1, magnify, color, ident);
+		           o=2; s=2; break;
+	    case 'C' : o=0; s=2; break;
+	    case 'D' : o=0; s=2;
+		           put_dot(left_px + (o * size_x) + (col * (size_x * 4)),
+			       top_px  + (row*size_y), s, 1, magnify, color, ident);
+		           o=3; s=1; break;
+	    case 'E' : o=0; s=3; break;
+	    case 'F' : o=0; s=4; break;
+	  }
+
+	  if (s>0) put_dot(left_px + (o * size_x) + (col * (size_x * 4)),
+	                   top_px  + (row*size_y), s, 1, magnify, color, ident);
+	  if (col == 1) row++;
+      }
+   }
+
+   function sprite_XY(left_px, top_px, mpattern1, mpattern2, mpattern3, mpattern4, magnify, color, bg, ident) {
+      var l_offset1 = 15 * (c_mag[magnify][1] / 2);
+      var l_offset2 = 15 * (c_mag[magnify][0] / 2);
+      var l_offset3 = 15 * (c_mag[magnify][0] / 2);
+      var l_offset4 = 15 * (c_mag[magnify][1] / 2);
+
+      // Draw 16x16 sprite
+      pattern8_XY(left_px,      top_px,                    '', mpattern1, magnify, color, bg, ident + "_dots");
+      pattern8_XY(left_px,      top_px + l_offset1,        '', mpattern2, magnify, color, bg, ident + "_dots");
+      pattern8_XY(left_px + l_offset2, top_px,             '', mpattern3, magnify, color, bg, ident + "_dots");
+      pattern8_XY(left_px + l_offset3, top_px + l_offset4, '', mpattern4, magnify, color, bg, ident + "_dots");
+
+      // Create transparent overlay
+      var sprite = document.createElement("div");
+      with (sprite.style) {
+        position        = "absolute";
+        top             = top_px  + "px";
+        left            = left_px + "px";
+        width           = 32      + "px";
+        height          = 32      + "px";
+        zIndex          = 99;
+        MozOpacity      = 0.0;
+      }
+      g_doc.appendChild(sprite);
+      if (typeof(ident) != "undefined") sprite.id = ident;
+      return sprite;
+   }
+   
+   
+   /////////////////////////////////////////////////////////////////////////////
+   // MISC STRUFF                                                            #3#
+   /////////////////////////////////////////////////////////////////////////////   
+   
+   /////////////////////////////////////////////////////////////////////////////
+   // Check if object exists
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   // PARAMETERS:
+   // [R] object      = Object to check
+   //
+   // RETURNS
+   // true/false
+   /////////////////////////////////////////////////////////////////////////////      
+    function z(obj) {
+       return ((typeof(obj) == "object") && (obj != null)) 
+    }
+  </script>
+
+
+
+
+  <script type="text/javascript">
+	
+   var g_doc        = null;
+   var g_pat_data   = '';
+   var g_sprites_on = false;
+   var g_colors     = new Array( '#000000'   /* Transparant    */,
+                                 '#000000'   /* Black          */,
+                                 '#00FF00'   /* Medium Green   */,
+                                 '#ADFF2F'   /* Light Green    */,
+                                 '#000080'   /* Dark Blue      */,
+                                 '#0000FF'   /* Light Blue     */,
+                                 '#800000'   /* Dark Red       */,
+                                 '#00FFFF'   /* Cyan           */,
+                                 '#FF0000'   /* Medium Red     */,
+                                 '#FFA07A'   /* Light Red      */,
+                                 '#FFFF00'   /* Dark Yellow    */,
+                                 '#FAFAD2'   /* Light Yellow   */,
+                                 '#008000'   /* Dark Green     */,
+                                 '#FF00FF'   /* Magenta        */,
+                                 '#808080'   /* Grey           */,
+                                 '#FFFFFF'   /* White          */);
+
+   var g_labels = new Array( 'Transparant',
+                             'Black',
+                             'Medium Green',
+                             'Light Green',
+                             'Dark Blue',
+                             'Light Blue',
+                             'Dark Red',
+                             'Cyan',
+                             'Medium Red',
+                             'Light Red',
+                             'Dark Yellow',
+                             'Light Yellow',
+                             'Dark Green',
+                             'Magenta',
+                             'Grey',
+                             'White' );
+
+
+   /////////////////////////////////////////////////////////////////////////////
+   // MAIN
+   /////////////////////////////////////////////////////////////////////////////
+   function Init() {
+       resetPulldown();
+       g_doc      = document.getElementsByTagName("body")[0];
+       g_pat_data = '';
+       show_pdata(g_pat_data);
+   }
+
+   function createPulldown(layer) {
+       var l_txt = '<select ID="layer_' + layer + '" '
+                 + 'onChange="checkPulldown()">'
+                 + '<option value=0>0 - Transparant'
+                 + '<option value=1>1 - Black'
+                 + '<option value=2>2 - Medium Green'
+                 + '<option value=3>3 - Light Green'
+                 + '<option value=4>4 - Dark Blue'
+                 + '<option value=5>5 - Light Blue'
+                 + '<option value=6>6 - Dark Red'
+                 + '<option value=7>7 - Cyan (aqua blue)'
+                 + '<option value=8 selected>8 - Medium Red'
+                 + '<option value=9>9 - Light Red'
+                 + '<option value=10>A - Dark Yellow'
+                 + '<option value=11>B - Light Yellow'
+                 + '<option value=12>C - Dark Green'
+                 + '<option value=13>D - Magenta (purple)'
+                 + '<option value=14>E - Gray'
+                 + '<option value=15>F - White'
+                 + '</select>'
+        document.write(l_txt);
+    }
+
+    function resetPulldown() {
+       for (l=0;l<5;l++) {
+           var l_obj=document.getElementById('layer_' + l);
+           if (z(l_obj)) l_obj.options.selectedIndex=0;
+       }
+    }
+
+    function checkPulldown() {
+        if (g_sprites_on) { convert(); }
+    }
+
+    function resetInput() {
+       var l_obj = document.getElementById("raw");
+       if (z(l_obj)) { 
+          l_obj.value='';
+          window.location.reload();
+       }
+       show_pdata('');
+    }
+
+    function convert() {
+       g_pat_data  = '';
+       var l_raw   = '';
+       var l_data  = new Array();
+       var l_obj   = document.getElementById("raw");
+       if (z(l_obj)) l_raw=l_obj.value;
+       l_data = l_raw.split(':');
+       switch(l_data[0]) {
+          case "@SPRITE_16X16@" : do_16x16_sprite(l_data[1]);
+                                  break;
+          default               : alert("Invalid raw data. No command recognized.");            
+       }
+    }
+
+    function make_bitmask(p_layer, p_raw) {
+       var l_data = '';
+       for (var l=0; l < p_raw.length; l++) {
+           l_data += (p_raw.charAt(l) == p_layer) ? '1' : '0';
+       }
+       return l_data;
+    }
+   
+
+    function do_16x16_sprite(raw) {
+       var l_layers  = '';
+       var l_tmp     = new Array();
+       var l_bitmask = new Array();
+       var l_16x16   = raw.split('|');
+
+       // Scan for different layers
+       for (l=0;l<raw.length; l++) {           
+           if ((l_layers.indexOf(raw.charAt(l)) == -1) && ('#0123456789'.indexOf(raw.charAt(l)) > 0)) l_layers += raw.charAt(l);
+       }
+       // Loop over detected layers and create pattern for each layer
+       for (var l=0; l<l_layers.length; l++) {
+           var l_sprite  = new Array('', '', '', '');
+           for (var l1=0; l1<l_16x16.length; l1++) {
+               var l_tmp  = make_bitmask(l_layers.charAt(l), l_16x16[l1]);
+               var l_lft  = do_pattern(l_tmp.substr(0,8));
+               var l_rght = do_pattern(l_tmp.substr(8,8));
+
+               if (l1 < 8) {
+                  l_sprite[0] += l_lft;
+                  l_sprite[2] += l_rght;
+               } else {
+                  l_sprite[1] += l_lft;
+                  l_sprite[3] += l_rght;
+               }     
+           }
+           var l_obj   = document.getElementById("layer_" + l);
+           var l_color = '#FF0000'                                // Default color if transparant
+           var l_label = '';
+           if (z(l_obj)) {
+              l_color = l_obj.value > 0 ? g_colors[l_obj.value] : l_color;
+              l_label = g_labels[l_obj.value];
+           }
+
+           sprite_XY(300 + (l * 80), 225, l_sprite[0], l_sprite[1], l_sprite[2], l_sprite[3], 1, l_color, "");
+           put_text(315  + (l * 80), 275, l);        
+           if (l >= 1) {
+              if (l == 1) { 
+                 var l_obj = document.getElementById('sprite_box');
+                 if (z(l_obj)) l_obj.style.visibility = 'visible';
+              }
+              sprite_XY(400,305, l_sprite[0], l_sprite[1], l_sprite[2], l_sprite[3], 2, l_color, "");
+              sprite_XY(600,315, l_sprite[0], l_sprite[1], l_sprite[2], l_sprite[3], 2, l_color, "");
+           }
+           g_pat_data += '        BYTE  ' + make_pdata(l_sprite[0]) + '    ; Layer ' + l + ' (' + l_label + ')';
+           if (l == 0) g_pat_data += ' inversed ';
+           g_pat_data += '\n';
+          
+           g_pat_data += '        BYTE  ' + make_pdata(l_sprite[2]) + '\n';
+           g_pat_data += '        BYTE  ' + make_pdata(l_sprite[1]) + '\n';
+           g_pat_data += '        BYTE  ' + make_pdata(l_sprite[3]) + '\n';
+                     
+      }
+      g_sprites_on = true;      
+      show_pdata(g_pat_data);
+    }
+
+    function do_pattern(p) {                
+      var pc = {  '0000' : '0',
+                  '0001' : '1',
+                  '0010' : '2',
+                  '0011' : '3',
+                  '0100' : '4',
+                  '0101' : '5',
+                  '0110' : '6',
+                  '0111' : '7',
+                  '1000' : '8',
+                  '1001' : '9',
+                  '1010' : 'A',
+                  '1011' : 'B',
+                  '1100' : 'C',
+                  '1101' : 'D',
+                  '1110' : 'E',
+                  '1111' : 'F'   };
+       var l_pattern = '';
+       for (l=0; l<p.length; l=l+4) l_pattern += typeof(pc[p.substr(l,4)]) == 'undefined' 
+                                                 ? ''
+                                                 : pc[p.substr(l,4)];
+       return l_pattern;
+    }
+
+    function make_pdata(p_data) {
+       var l_data = '';
+       for (var l=0; l<p_data.length; l+=2) {
+           if (l>0) l_data += ',';
+           l_data += '>' + p_data.substr(l,2);
+
+       }
+       return l_data;
+    }
+
+    function show_pdata(p_data) {
+       var l_obj = document.getElementById('code_box');
+       if (z(l_obj)) {
+          l_obj.value = p_data;
+       }
+    }
+  </script>
+ </head>
+
+
+  <body onload="Init()">
+     <span class="xl">Tile Studio Converter</span><span class="s">v0.1</span>
+     <span class="s">
+        <br>&nbsp;2009 by retroclouds - <a href="http://www.retroclouds.de">www.retroclouds.de</a>
+     </span>
+
+     <div style="{ position:   absolute;
+                   top:        75px;
+                   left:       10px;
+                   height:     350px;
+                   width:      750px;
+                   padding:    10px;
+                   overflow-x: visible;
+                   border:     solid 1px #000000; 
+                   background-color: #CCCCFF }">
+
+        <spann class="s">Paste generated raw output here</span><br>
+        <textarea ID="raw" cols=90 rows=5 wrap=virtual></textarea>
+ 
+        <div style="{ position:         absolute;
+                      top:              140px;
+		              left:             10px;
+	                  padding:          10px;
+		              margin:           0px; 
+                      background-color: #CCFF99; 
+                      border:           solid 1px #000000; }">
+  
+           Layer 0 <script type="text/javascript">createPulldown(0);</script><br>
+           Layer 1 <script type="text/javascript">createPulldown(1);</script><br>
+           Layer 2 <script type="text/javascript">createPulldown(2);</script><br>
+           Layer 3 <script type="text/javascript">createPulldown(3);</script><br>
+           Layer 4 <script type="text/javascript">createPulldown(4);</script><br>
+           <br><br>
+           <input type="button" onClick="convert()"    value="Convert">
+           <input type="button" onClick="resetInput()" value="Reset">          
+        </div>
+        <div style="{ position:         absolute;
+                      top:              140px;
+		              left:             280px;
+                      width:            450px;
+                      height:           200px;
+	                  padding:          10px;                      
+		              margin:           0px; 
+                      background-color: #CCFF99; 
+                      border:           solid 1px #000000; }">  
+
+            <div ID="sprite_box"
+                 style="{ position:         absolute;
+                          top:              89px;
+		                  left:             290px;
+                          width:            100px;
+                          height:           100px;
+	                      padding:          10px;                      
+		                  margin:           0px; 
+                          background-color: #000001; 
+                          border:           solid 1px #FFFFFF; 
+                          visibility:       hidden;            }">  
+            </div>
+        </div>
+     </div>
+        <div style="{ position:         absolute;
+                      top:              480px;
+	                  left:             10px;
+                      width:            720px;
+                      height:           100%;
+	                  padding:          10px;                      
+		              margin:           0px;
+                      border:           none;">  
+              <textarea ID="code_box" cols=90 rows=10 wrap=virtual></textarea>
+        </div>
+  </body>
+</html>

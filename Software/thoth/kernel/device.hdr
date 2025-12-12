@@ -1,0 +1,54 @@
+
+\ Structure of device tables
+#.PATHNAME       = 0
+#.GET_DATA_RTN   = 1    \ ( fcb )
+#.PUT_DATA_RTN   = 2    \ ( fcb, datum )
+#.GET_BLOCK_RTN  = 3    \ ( fcb ), return 1 for success, 0 otherwise
+#.PUT_BLOCK_RTN  = 4    \ ( fcb ), return 1 for success, 0 otherwise
+#.SEEK_RTN       = 5    \ (fcb, bytepos[, mode] )
+#.DEV_PROCESS_1  = 6    \ first driver process (input)
+#.DEV_PROCESS_2  = 7    \ first driver process (output)
+#.SET_OPTS_RTN   = 8    \ (fcb, opt_str)
+#.REF_COUNT      = 9    \ number of options active
+#.TERMINATE_RTN  = 10   \ ( fcb )
+#.INIT_FCB_RTN   = 11   \ (pathname, ptr, mode )
+
+#.DEV_TAB_WIDTH  = 12
+
+\ Structure of the File Control Block (FCB)
+#.SHARED_PART    = 7    \ elements 0-7 identical to Device Table
+#.ACCESS_MODE    = 8
+#.DESCRIPTOR     = 9
+#.OPTIONS_WORD   = 10
+#.FCB_LINK       = 11   \#PR must align with process descriptor
+#.DEV_TAB_PTR    = 12
+\ the rest of the FCB is machine/device/implementation dependent
+#.MIN_FCB_SIZE   = 12
+\ FCB elements for block devices
+#.CURRENT_DATUM  = 13
+#.DATA_COUNT     = 14
+#.BUFFER_PTR     = 15
+
+\ status bit assignments
+#.WRITTEN_ON     = 1
+#.EOF_STATUS     = 2
+
+\ access type bit assignments
+#.OUTPUT.        = 1
+#.INPUT.         = 2
+#.RAW.           = 4
+
+\ options
+#.ECHO           = 1    \ echo characters to output
+#.CRLF           = 2    \ echo *R*L for *N
+#.PARITY         = 4    \ remove the parity bit
+
+\ device codes
+#TTY_OUT    = 0
+#TTY_IN     = 2
+#TTY0_OUT   = 0
+#TTY0_IN    = 2
+#TTY1_OUT   = 1
+#TTY1_IN    = 3
+#RTC        = 4
+#DISK       = 5

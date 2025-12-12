@@ -1,0 +1,98 @@
+
+\ machine dependent PD offsets
+
+#SAVE_WP = 12        \ save location for wp register
+#SAVE_PC = 13        \ save location for pc
+#SAVE_ST = 14        \ save location for status register
+#STACK_START = 15    \ pointer to start of stack
+
+\ manifests used in conjunction with template
+
+#STACK_PTR = SAVE_WP     \ wp also points to stack
+
+#DEBUG = 1
+
+#START_ADDR = 16
+
+#PD_SIZE = (15 + DEBUG) \ size of PD
+
+\ TI990 opcodes
+
+#.A.         = $a000
+#.AB.        = $b000
+#.ABS.       = $0740
+#.AI.        = $0220
+#.ANDI.      = $0240
+#.B.         = $0440
+#.BL.        = $0680
+#.BLWP.      = $0400
+#.C.         = $8000
+#.CB.        = $9000
+#.CI.        = $0280
+#.CKOF.      = $03c0
+#.CKON.      = $03a0
+#.CLR.       = $04c0
+#.COC.       = $2000
+#.CZC.       = $2400
+#.DEC.       = $0600
+#.DECT.      = $0640
+#.DIV.       = $3c00
+#.DIVS.      = $0180
+#.IDLE.      = $0340
+#.INC.       = $0580
+#.INCT.      = $05c0
+#.INV.       = $0540
+#.JEQ.       = $1300
+#.JGT.       = $1500
+#.JH.        = $1b00
+#.JHE.       = $1400
+#.JL.        = $1a00
+#.JLE.       = $1200
+#.JLT.       = $1100
+#.JMP.       = $1000
+#.JNC.       = $1700
+#.JNE.       = $1600
+#.JNO.       = $1900
+#.JOC.       = $1800
+#.JOP.       = $1c00
+#.LDCR.      = $3000
+#.LDD.       = $07c0
+#.LDS.       = $0780
+#.LI.        = $0200
+#.LIMI.      = $0300
+#.LMF.       = $0320
+#.LREX.      = $03e0
+#.LST.       = $0080
+#.LWP.       = $0090
+#.LWPI.      = $02e0
+#.MOV.       = $c000
+#.MOVB.      = $d000
+#.MPY.       = $3800
+#.MPYS.      = $01e0
+#.NEG.       = $0500
+#.NOP.       = $1000
+#.ORI.       = $0260
+#.RSET.      = $0360
+#.RTWP.      = $0380
+#.S.         = $6000
+#.SB.        = $7000
+#.SBO.       = $1d00
+#.SBZ.       = $1e00
+#.SETO.      = $0700
+#.SLA.       = $0a00
+#.SOC.       = $e000
+#.SOCB.      = $f000
+#.SRA.       = $0800
+#.SRC.       = $0b00
+#.SRL.       = $0900
+#.STCR.      = $3400
+#.STST.      = $02c0
+#.STWP.      = $02a0
+#.SWPB.      = $06c0
+#.SYS.       = $2c60
+#.SZC.       = $4000
+#.SZCB.      = $5000
+#.TB.        = $1f00
+#.X.         = $0480
+#.XOP.       = $2c00
+#.XOR.       = $2800

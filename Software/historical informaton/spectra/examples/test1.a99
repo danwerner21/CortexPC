@@ -1,0 +1,72 @@
+********@*****@*********************@**************************
+        IDT   'TI'
+        TITL  'TEST1'
+        DEF   SFIRST, SLAST, SLOAD
+*       AORG  >6000                 ; Supercart area
+SFIRST  EQU   $
+SLOAD   EQU   $
+TIMER   EQU   >8340                 ; Allocate timer table in scratchpad memory
+***************************************************************
+* Main program
+********@*****@*********************@**************************
+MAIN    LWPI  WSSPC1                ; Load main workspace
+        LIMI  0
+        LI    STACK,STKBUF          ; Setup simulated stack 
+        BL    @FILMEM
+        DATA  >8320,>83FF,>00       ; Clear scratchpad memory (except workspace)
+*--------------------------------------------------------------
+* VDP setup
+*--------------------------------------------------------------
+        LI    R0,VMODE1             ; "graphics mode 1"
+        BL    @LVDPSH               ; Load shadow registers    
+        LI    R0,>0700              ; Background "black"
+        MOV   R0,@VDPR7             ; Put in shadow register 7
+        BL    @VIDOFF               ; Disable screen updates        
+        BL    @WVDPSH               ; Write shadow registers to VDP
+        LI    R0,32
+        BL    @FILSCR               ; Clear screen
+        BL    @VIDON                ; Enable screen updates again
+        BL    @WVDPSH               ; Write shadow registers to VDP
+*--------------------------------------------------------------
+* Setup controller
+*--------------------------------------------------------------
+        CLR   @THIGH                ; Highest slot is 0
+        BL    @MKSLOT
+        DATA  0,60,ZCYCLE
+        MOV   @CHAR,@TPRV0          ; Store in private area slot 0
+        B     @TMGR                 ; Start task scheduler
+
+
+*--------------------------------------------------------------
+* Controller: Cycle screen background
+*--------------------------------------------------------------
+ZCYCLE  INCT  STACK
+        MOV   R11,*STACK+
+        MOV   R0,*STACK+
+        MOV   R1,*STACK             ; Just push/pop some registers for testing
+*--------------------------------------------------------------
+* Fill screen with character
+*--------------------------------------------------------------
+        INC   @TPRV0                ; char = char + 1
+        MOV   @TPRV0,R0
+        CI    R0,143                ; Character with ASC 
+        JLE   ZCYCLF
+        MOV   @CHAR,@TPRV0          ; Reset character in private area slot 0
+ZCYCLF  BL    @FILSCR               ; Fill screen with character
+*--------------------------------------------------------------
+* Cycle screen background
+*--------------------------------------------------------------
+        MOV   @VDPR7,R0
+        BL    @VWTR                 ; Write shadow register       
+        INC   R0                    ; Increase color
+        CI    R0,>070F              ; Last color reached ?
+        JLE   ZCYCLG
+        LI    R0,>0700              ; Reset color
+ZCYCLG  MOV   R0,@VDPR7             ; Sync shadow register                        
+        DECT  @TSLT0                ; interval = interval - 2
+        JNE   ZCYCLH
+        LI    R0,60                 ; Reset interval
+        MOV   R0,@TSLT0             ; Update interval
+ZCYCLH  B     @POPRG1
+CHAR    DATA  32                    ; White space - ASCII 32
+

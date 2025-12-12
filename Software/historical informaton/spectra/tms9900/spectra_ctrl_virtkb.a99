@@ -1,0 +1,202 @@
+***************************************************************
+*                           SPECTRA! 
+*              Homebrew Game & Utilities Library 
+*                             for
+*               the Texas Instruments TI-99/4A  
+*                   2009 by Filip Van Vooren
+*
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************
+* This file: spectra_ctrl_virtkb.a99
+***************************************************************
+* v0.1  -   2009/01/16       Initial version
+***************************************************************
+* X=No input     D=Data variant        R=Register variant
+*
+* UTILITY CONTROLLERS
+* ===================
+* KBSCAN - Controller: Read keyboard and joystick
+***************************************************************
+
+***************************************************************
+* Virtual keyboard status (VIRTKB). Controlled by KBSCAN
+********@*****@*********************@**************************
+* bit  0: Left                      ; 0=no  1=yes
+* bit  1: Right                     ; 0=no  1=yes
+* bit  2: Up                        ; 0=no  1=yes
+* bit  3: Down                      ; 0=no  1=yes
+* bit  4: Space / fire / Q          ; 0=no  1=yes
+* bit  5: ALPHA LOCK down           ; 0=no  1=yes
+* bit  6: Pause                     ; 0=no  1=yes
+* bit  7: -Not used-                ; 0=no  1=yes
+* bit  8: REDO                      ; 0=no  1=yes
+* bit  9: BACK                      ; 0=no  1=yes
+* bit 10: QUIT                      ; 0=no  1=yes
+* bit 11: -Not used-                ; 0=no  1=yes
+* bit 12: -Not used-                ; 0=no  1=yes
+* bit 13: -Not used-                ; 0=no  1=yes
+* bit 14: -Not used-                ; 0=no  1=yes
+* bit 15: -Not used-                ; 0=no  1=yes
+********@*****@*********************@**************************
+KLFT    EQU   >8000                 ; Virtual key left
+KRGT    EQU   >4000                 ; Virtual key right
+KUP     EQU   >2000                 ; Virtual key up
+KDN     EQU   >1000                 ; Virtual key down
+KUPLFT  EQU   >A000                 ; Virtual key up   + left
+KUPRGT  EQU   >6000                 ; Virtual key up   + right
+KDNLFT  EQU   >9000                 ; Virtual key down + left
+KDNRGT  EQU   >5000                 ; Virtual key down + right
+KFIRE   EQU   >800                  ; Virtual key fire
+KALPHA  EQU   >400                  ; Virtual key alpha lock
+KPAUSE  EQU   >200                  ; Virtual key pause
+KREDO   EQU   >80                   ; Virtual key redo
+KBACK   EQU   >40                   ; Virtual key back
+KQUIT   EQU   >20                   ; Virtual key quit
+
+*//////////////////////////////////////////////////////////////
+*                   UTILITY CONTROLLERS
+*//////////////////////////////////////////////////////////////
+
+***************************************************************
+* KBSCAN - Controller: Read keyboard and joystick
+***************************************************************
+*  BL @MKSLOT
+*  DATA P0,P1,KBSCAN
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = Slot number
+*  P1 = Run slot every XX ticks
+*--------------------------------------------------------------
+*  EXAMPLE
+*       BL    @MKSLOT
+*       DATA  0,3,KBSCAN            ; Scan keyboard every 3 ticks
+*--------------------------------------------------------------
+*  REMARKS
+*  Keyboard 8x8 matrix: If 0 then bit is set
+*
+*  COLUMN     0     1  2  3  4  5    6   7
+*         +---------------------------------+------+
+*  ROW 7  |   =     .  ,  M  N  /   JS1 JS2 | Fire |
+*  ROW 6  | SPACE   L  K  J  H  ;   JS1 JS2 | Left |
+*  ROW 5  | ENTER   O  I  U  Y  P   JS1 JS2 | Right|
+*  ROW 4  |         9  8  7  6  0   JS1 JS2 | Down |
+*  ROW 3  | FCTN    2  3  4  5  1   JS1 JS2 | Up   |
+*  ROW 2  | SHIFT   S  D  F  G  A           +------|
+*  ROW 1  | CTRL    W  E  R  T  Q                  |
+*  ROW 0  |         X  C  V  B  Z                  |
+*         +----------------------------------------+
+*  See MG smart programmer 1986 
+*  September/Page 15 and November/Page 6
+*
+*  Also see virtual keyboard status for bits to check
+********@*****@*********************@**************************
+KBSCAN  INCT  STACK
+        MOV   R11,*STACK+    
+        MOV   R0,*STACK+ 
+        MOV   R1,*STACK+ 
+        MOV   R2,*STACK+ 
+        MOV   R12,*STACK
+        CLR   @VIRTKB               ; Reset virtual keyboard
+        CLR   R1                    ; Value in MSB! Start with column 0  
+*--------------------------------------------------------------        
+* Scan keyboard/joystick matrix
+*-------@-----@---------------------@--------------------------
+KBSCA1  LI    R12,>0024             ; Scan whole 8x8 keyboard matrix. R12 Required by LDCR
+        LDCR  R1,3                  ; Set keyboard column with a value from 0-7 (3=3 bits)         
+        LI    R12,>0006             ; Load CRU base for row. R12 required by STCR
+        STCR  R2,8                  ; Bring 8 row bits into MSB of R2
+        SWPB  R1                               
+        MOVB  R2,@RAMBUF(R1)        ; Store BYTE in rambuffer
+        INC   R1
+        SWPB  R1                               
+        CI    R1,>0600              ; Finished ?          
+        JLE   KBSCA1                ; No, scan next column
+*--------------------------------------------------------------
+* Process column 0 (FCTN QUIT)
+*-------@-----@---------------------@--------------------------
+KBSCA2  MOVB  @RAMBUF,R0
+        CZC   @BIT3,R0              ; FCTN key pressed ?
+        JNE   KBSCA5
+        CZC   @BIT7,R0              ; QUIT key pressed ?
+        JNE   KBSCA5
+        BLWP  @0                    ; Reset computer
+*--------------------------------------------------------------
+* Process column 0 (spacebar)
+*-------@-----@---------------------@--------------------------
+KBSCA5  CZC  @BIT6,R0               ; spacebar pressed ?
+        JNE  KBSCA6
+        SOC  @BIT4,@VIRTKB          ; Set space/fire/Q
+*--------------------------------------------------------------
+* Process column 1 (9,S,X)
+*-------@-----@---------------------@--------------------------
+KBSCA6  MOVB  @RAMBUF+1,R0
+        CZC   @BIT4,R0              ; 9 pressed ?
+        JNE   KBSCA7
+        SOC   @BIT9,@VIRTKB         ; set BACK
+KBSCA7  CZC   @BIT2,R0              ; S pressed ?
+        JNE   KBSCA8
+        SOC   @BIT0,@VIRTKB         ; set LEFT
+KBSCA8  CZC   @BIT0,R0              ; X pressed ?
+        JNE   KBSCA9
+        SOC   @BIT3,@VIRTKB         ; set DOWN
+*--------------------------------------------------------------
+* Process column 2 (8,D,E)
+*-------@-----@---------------------@--------------------------
+KBSCA9  MOVB  @RAMBUF+2,R0
+        CZC   @BIT4,R0              ; 8 pressed ?
+        JNE   KBSCAA
+        SOC   @BIT8,@VIRTKB         ; set REDO
+KBSCAA  CZC   @BIT2,R0              ; D pressed ?
+        JNE   KBSCAB
+        SOC   @BIT1,@VIRTKB         ; set RIGHT
+KBSCAB  CZC   @BIT1,R0              ; E pressed ?
+        JNE   KBSCAC
+        SOC   @BIT2,@VIRTKB         ; set UP
+*--------------------------------------------------------------
+* Process column 5 (P,Q)
+*-------@-----@---------------------@--------------------------
+KBSCAC  MOVB  @RAMBUF+5,R0 
+        CZC   @BIT5,R0              ; P pressed ?
+        JNE   KBSCAD
+        SOC   @BIT6,@VIRTKB         ; set PAUSE
+KBSCAD  CZC   @BIT1,R0              ; Q pressed ?
+        JNE   KBSCAE
+        SOC   @BIT4,@VIRTKB         ; Set space/fire/Q      
+*--------------------------------------------------------------
+* Process column 6 (joystick 1)
+*-------@-----@---------------------@--------------------------
+KBSCAE  MOVB  @RAMBUF+6,R0          ; Joystick 1
+        CZC   @BIT7,R0              ; FIRE pressed ?
+        JNE   KBSCAF
+        SOC   @BIT4,@VIRTKB         ; Set space/fire/Q
+KBSCAF  CZC   @BIT6,R0              ; Moved left ?
+        JNE   KBSCAG
+        SOC   @BIT0,@VIRTKB         ; set LEFT
+KBSCAG  CZC   @BIT5,R0              ; Moved right ?
+        JNE   KBSCAH
+        SOC   @BIT1,@VIRTKB         ; set RIGHT
+KBSCAH  CZC   @BIT4,R0              ; Moved down ?
+        JNE   KBSCAI
+        SOC   @BIT3,@VIRTKB         ; set DOWN
+KBSCAI  CZC   @BIT3,R0              ; Moved up ?
+        JNE   KBSCAJ                ; No, exit
+        SOC   @BIT2,@VIRTKB         ; set UP
+*--------------------------------------------------------------
+* Exit
+*-------@-----@---------------------@--------------------------
+KBSCAJ  MOV   *STACK,R12            ; Pop R12
+        DECT  STACK
+        B     @POPRG2

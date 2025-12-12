@@ -1,0 +1,82 @@
+Software originally from:  https://gitlab.com/marinchip/
+
+INTRODUCTION
+
+These are the recreated source files for the MDEX operating system. The drivers
+are surviving from the 1980's and the kernel source was mostly recreated in
+the mid-80's by Peter Buro. The recommenting was completed in 2024.
+
+MARINCHIP DISC EXECUTIVE - MDEX
+
+As John Walker was bootstrapping his software stack, he needed a simple OS.
+This became MDEX. It is similar to early CP/M or RT11 in its structure. In
+order to be forward compatible, the system call interface was chosen to be
+a subset of the NOS/MT operating system that John was already designing.
+This proved very successful: nearly all programs that run under NOS/MT also
+run under MDEX.
+
+The unintended result was that MDEX became more popular than NOS/MT, also
+because it did not need a hard disk (NOS/MT can run from floppies, but is
+comfortable with a hard disk).
+
+Being only 8KB in size with a simple, easy to understand internal structure,
+it is a good match for retro 9900 based projects, as it gives such a project
+an instant software stack to work with. It was the first OS to run on the
+mini-Cortex.
+
+John Walker writes on his website: "MDEX (which was originally called
+Sisyphus Junior) was written with the Univac assembler, downloaded and
+tested on my S-100 prototype machine. Debugging was via the PROM monitor,
+which allowed examining and changing registers and memory without the
+need for a front panel. MDEX, the Assembler, Linker, Editor, and Debugger,
+were all originally written on the Univac assembler in its syntax.
+
+The [Marinchip] assembler, however, used the standard TI syntax for its
+instructions. When I wrote of MDEX being rewritten as 'native', I was referring
+to converting the syntax of the assembly code from that used by the Univac
+cross-assembler to native TI syntax which my assembler used and moving the
+development from the Univac to the 9900 machine itself. By some time in 1979,
+all development had moved to the 9900 and the Univac was no longer used.
+
+I had access to the Univac because I was working for a company that owned it
+and used it moonlighting. I had to move development to the 9900 because I
+couldn't quit my job and lose access to the Univac until I did so.
+
+In parallel with this software development, Fred Camerer, who had joined the
+company as an equal partner, redesigned my two-board S-100 prototype into the
+single-board design which became the M9900 CPU. This was designed by hand and
+drawn as a logic diagram, from which the board was laid out using red and blue
+tape at 4X scale. Part of the final layout was done on my dining room table.
+
+Once we got and debugged the first run of five printed circuit boards, I
+replaced the two board wire wrapped prototype in my IMSAI chassis with the
+first M9900 CPU. It was completely compatible from the software standpoint, but
+also had the ability to use 16-bit memory through the handshake protocol Fred
+Camerer invented, which eventually became part of the S-100 standard
+(IEEE-696-1983). It also brought out the 9900's CRU peripheral interface to
+unused pins on the S-100 bus (of which there were plenty), which allowed access
+to the serial ports on the PROM/RAM and eventual Quad SIO cards."
+
+BUILDING
+
+The MDEX kernel is a single 2400 line assembler file. Its main parts are
+the command loop, the system call library and the console line editor -
+complemented by a few libraries for message formatting, memory management
+and floating point emulation.
+
+It has three device drivers: one for the console terminal, one for the
+printer and one for the disk drives.
+
+The combined kernel is built with the make.sh script in the root directory
+of this repo.
+
+RUNNING
+
+The Cortex emulator can run MDEX. It needs to be provided with two floppy
+disk images, mdex1.dsk and mdex2.dsk respectively. These will be drive
+"1/" and dirve "2/" inside MDEX.
+
+Two images are provided: the MDEX release disk ("1/") and the basic games
+disk ("2/"). Other images of original 640KB MDEX disks (for instance from
+the www.powertrancortex.com website) can be used instead, such as the
+QBasic, Pascal and SPL compiler disks.

@@ -1,0 +1,829 @@
+******************************************** *******************
+*                           SPECTRA! 
+*              Homebrew Game & Utilities Library 
+*                             for
+*               the Texas Instruments TI-99/4A  
+*                   2009 by Filip Van Vooren
+*
+* spectra_epsgmod - EPSGMOD playback code
+***************************************************************
+* v0.1  -   2009/01/16       Initial version
+***************************************************************
+* EPSGMOD playback code for TI-99/4A orginially 
+* by Mike Brent aka Tursi http://harmlesslion.com
+*
+* Adapted by Retroclouds to fit SPECTRA library. 
+*
+* Thanks to Martin at http://mod2psg2.kontechs.com 
+* Released freely and without restriction as per
+* the terms of MOD2PSG.
+****************************************************************
+* X=No input     D=Data variant        R=Register variant
+*
+* SOUND PLAYER UTILITIES
+* ======================
+* EPSGMD - R - Prepare for playing EPGSMOD tune
+* PSGTCK - X - Play tune. Expects to be called as animator slot
+****************************************************************
+
+
+*//////////////////////////////////////////////////////////////
+*                        EQUATES
+*//////////////////////////////////////////////////////////////
+********@*****@*********************@**************************
+VIBTAB  EQU   0                     ; Fake vibrato using pulse vibrato
+
+
+*//////////////////////////////////////////////////////////////
+*              SPECTRA EPSGMOD PLAYER MEMORY LAYOUT
+*//////////////////////////////////////////////////////////////
+********@*****@*********************@**************************
+BACKUP	BSS   4                     ; Total of 128 bytes including PLMASK
+PMOD	DATA  0
+NUMSEQ	BSS   2
+SEQCNT	BSS   2
+SPEED	BSS   2
+SPCNT	BSS   2
+SEQLEN	BSS   2
+NDELAY	BSS   8
+NCHLEN	BSS   8
+NFREQ	BSS   8
+NIDX	BSS   2
+NTMP	BSS   2
+NTMP2	BSS   2
+NCHAN	BSS   2
+CALLBA	DATA  0
+CALLBB	DATA  0
+PSEQ	BSS   2
+PRPT	BSS   2
+PCHSEQ	BSS   8
+PNOTES	BSS   8
+PINST	BSS   8
+PVIB	BSS   8
+PVBASE	BSS   8
+PTMP	BSS   2
+NVOL	BSS   4
+PULVIB	BSS   4
+PULSIZ	BSS   4
+NINLEFT	BSS   4
+NINDELAY BSS  4
+NINSTEP	BSS   4
+NINVOL	BSS   4
+NVCNT	BSS   4
+*--------------------------------------------------------------
+* Four byte array of channel priorities.
+* For today, 0 means don't play and >FF means do
+*--------------------------------------------------------------
+PLMASK	BSS   4
+ 
+
+********@*****@*********************@**************************
+SETNIDXFREQ
+        MOV   @NIDX,R2
+        MOV   R2,R3	                ; NIDX
+        A     R3,R3                 ; NIDX*2
+        MOV   R3,R0
+        AI    R0,NFREQ
+        MOV   *R0,@NTMP
+        MOV   R2,R0
+        AI    R0,PULVIB
+        MOVB  *R0,R1	
+        COC   @BIT0,R1
+        JNE   NOVIB1
+        MOV   R2,R0
+        AI    R0,PULSIZ
+        CLR   R1
+        MOVB  *R0,R1
+        SWPB  R1
+        A     R1,@NTMP
+
+********@*****@*********************@**************************
+NOVIB1  MOV   R3,R0
+        AI    R0,PVIB
+        MOV   *R0,R1
+        JEQ   NV118
+        MOVB  *R1,R0
+        SRA   R0,8
+        A     R0,@NTMP
+
+
+
+***************************************************************
+* Send audio to sound chip
+********@*****@*********************@**************************
+NV118   MOV   R2,R0                 ; Check channel play mask (skip if 0)
+        AI    R0,PLMASK
+        MOVB  *R0,R0
+        JEQ   EQ158
+        MOV   @NTMP,R0
+        ANDI  R0,>000F
+        ORI   R0,>0080
+        SOC   @NCHAN,R0
+        SWPB  R0
+        MOVB  R0,@SOUND
+        MOV   @NTMP,R0
+        SRL   R0,4
+        SWPB  R0
+        MOVB  R0,@SOUND
+EQ158	B     *R11
+
+
+********@*****@*********************@**************************
+READINSTRUMENTATPTMP
+        MOV   @NIDX,R2
+        MOV   R2,R3                 ; NIDX
+        A     R3,R3                 ; NIDX*2
+        MOV   @PTMP,R4              ; Holding pTmp in R4
+        CLR   R0
+        MOVB  *R4+,R0
+        MOV   R2,R1
+        AI    R1,NINSTEP
+        MOVB  R0,*R1
+
+        MOVB  *R4+,R0
+        MOV   R2,R1
+        AI    R1,NINDELAY
+        MOVB  R0,*R1
+
+        MOVB  *R4+,R5
+        MOV   R3,R0
+        AI    R0,PINST
+        MOV   R4,*R0
+
+        MOV   R5,R0
+        ANDI  R0,>C000
+        CI    R0,>8000
+        JEQ   EQ176
+        MOV   R3,R0
+        AI    R0,PVIB
+        CLR   *R0
+        JMP   AL181
+
+********@*****@*********************@**************************
+EQ176   ANDI  R5,>3f00
+        LI    R0,VIBTAB
+        JNE   NE188
+        MOV   R5,R0
+        ANDI  R0,>3000
+        CI    R0,>3000
+        JNE   NE194
+        MOV   R2,R1
+        AI    R1,PULVIB
+        LI    R0,>AA00
+        MOVB  R0,*R1
+        JMP   GOTVIB
+
+********@*****@*********************@**************************
+NE194   CI    R0,>2000
+        JNE   NE206
+        MOV   R2,R1
+        AI    R1,PULVIB
+        LI    R0,>CC00
+        MOVB  R0,*R1
+        JMP   GOTVIB
+
+********@*****@*********************@**************************
+NE206	MOV   R2,R1
+        AI    R1,PULVIB
+        LI    R0,>F000
+        MOVB  R0,*R1
+
+********@*****@*********************@**************************
+GOTVIB  MOV   R2,R0
+        AI    R0,PULSIZ
+
+NE188   MOVB  R5,*R0
+        JMP   AL228
+        SWPB  R5
+        SLA   R5,5
+        AI    R5,VIBTAB
+        MOV   R3,R0
+        AI    R0,PVIB
+        MOV   R5,*R0
+        MOV   R3,R0
+        AI    R0,PVBASE
+        MOV   R5,*R0
+        MOV   R2,R0
+        AI    R0,NVCNT
+        LI    R1,>2000
+        MOVB  R1,*R0
+
+AL228		
+AL181   B     *R11
+
+
+
+***************************************************************
+* EPSGMD - Setup memory for playing EPSGMOD tune
+***************************************************************
+*  LI R0,MYTUNE
+*  BL @EPSGMD
+*--------------------------------------------------------------
+*  REMARKS
+*  Set R0=0 to turn off tune
+*
+*  Callbacks can be embedded in the tune. When
+*  they are found, if an address other than >0000
+*  is loaded at these addresses, they will be called
+*  with the player's workspace and the argument in
+*  R0. You may use any registers, although you must
+*  keep it short (you're being called on th7e interrupt),
+*  don't mess with GPL or ROM settings, and return to
+*  R11. Best advised to set a flag rather than take action.
+*--------------------------------------------------------------
+*  INPUT
+*  R0     = Address of tune to play
+*  CALLBA = Address of callback hook A
+*  CALLBA = Address of callback hook B
+********@*****@*********************@**************************
+EPSGMD  INCT  STACK
+        MOV   R11,*STACK+           ; PUSH RET address
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK
+*--------------------------------------------------------------
+* Turn of sound generators
+*--------------------------------------------------------------
+        LI    R1,>9F00 
+        MOVB  R1,@SOUND
+        LI    R1,>BF00
+        MOVB  R1,@SOUND
+        LI    R1,>DF00
+        MOVB  R1,@SOUND
+        LI    R1,>FF00
+        MOVB  R1,@SOUND
+        MOV   R0,@PMOD              ; Store tune
+        JNE   EPSGM1
+        B     @POPRG2               ; Exit
+*--------------------------------------------------------------
+* Setup memory for playing tune
+*--------------------------------------------------------------
+EPSGM1  MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        MOV   R1,@NUMSEQ
+        MOV   R1,@SEQCNT    
+        AI    R0,256                ; 256 cause of the autoinc above
+        MOVB  *R0,R1
+        SRA   R1,8
+        MOV   R1,@SPEED
+        MOV   R1,@SPCNT
+        INCT  R0
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1    
+        S     R1,@NUMSEQ  
+        SLA   R1,3
+        MOV   R1,@PRPT
+        MOV   R0,@PSEQ
+        A     R0,@PRPT
+        LI    R2,PCHSEQ
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     @PMOD,R1
+        MOV   R1,*R2+
+        MOVB  *R0+,R1       
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     @PMOD,R1
+        MOV   R1,*R2+    
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     @PMOD,R1
+        MOV   R1,*R2+
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     @PMOD,R1
+        MOV   R1,*R2
+        MOV   @PCHSEQ,R0
+        LI    R2,PNOTES
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     @PMOD,R1
+        MOV   R1,*R2+
+        CLR   R1
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOV   R1,@SEQLEN
+        MOV   R0,@PCHSEQ
+        MOV   @PCHSEQ+2,R0
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     @PMOD,R1
+        MOV   R1,*R2+
+        INC   R0
+        MOV   R0,@PCHSEQ+2
+        MOV   @PCHSEQ+4,R0
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     @PMOD,R1
+        MOV   R1,*R2+
+        INC   R0
+        MOV   R0,@PCHSEQ+4
+        MOV   @PCHSEQ+6,R0
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     @PMOD,R1
+        MOV   R1,*R2+
+        INC   R0
+        MOV   R0,@PCHSEQ+6
+        LI    R0,1
+        MOV   R0,@NDELAY
+        MOV   R0,@NDELAY+2
+        MOV   R0,@NDELAY+4
+        MOV   R0,@NDELAY+6
+        CLR   @NVOL
+        CLR   @NVOL+2
+        CLR   @NFREQ
+        CLR   @NFREQ+2
+        CLR   @NFREQ+4
+        CLR   @NFREQ+6
+        LI    R0,>5555
+        MOV   R0,@PULVIB
+        MOV   R0,@PULVIB+2
+        CLR   @PULSIZ
+        CLR   @PULSIZ+2
+        CLR   @PINST
+        CLR   @PINST+2
+        CLR   @PINST+4
+        CLR   @PINST+6
+        CLR   @PVIB
+        CLR   @PVIB+2
+        CLR   @PVIB+4
+        CLR   @PVIB+6
+        CLR   @PVBASE
+        CLR   @PVBASE+2
+        CLR   @PVBASE+4
+        CLR   @PVBASE+6
+        CLR   @NVCNT
+        CLR   @NVCNT+2
+        CLR   @NINLEFT
+        CLR   @NINLEFT+2
+        CLR   @NINDELAY
+        CLR   @NINDELAY+2
+        CLR   @NINSTEP
+        CLR   @NINSTEP+2
+        CLR   @NINVOL
+        CLR   @NINVOL+2   
+        SETO  @PLMASK
+        SETO  @PLMASK+2
+        CLR   @CALLBA
+        CLR   @CALLBB
+        B     @POPRG2               ; Exit
+
+
+
+***************************************************************
+* Play mod tune. Should be called as slot
+********@*****@*********************@**************************
+PSGTCK  MOV   @PMOD,@PMOD
+        JNE   NE530                 ; 
+        RET                         ; Nothing to play. exit
+NE530   LWPI  WSSPC2
+        MOV   @PMOD,R10
+        MOV   @SPCNT,R0
+        AI    R0,>FFF8
+        JNC   OC519                 ; Went negative
+        JEQ   OC519                 ; Went to zero
+        MOV   R0,@SPCNT
+        B     @EACYC
+********@*****@*********************@**************************
+OC519   A     @SPEED,R0
+        MOV   R0,@SPCNT
+        MOV   @SEQLEN,R0
+        JEQ   EQ529
+        DEC   @SEQLEN
+        JEQ   EQ529
+        B     @JM594
+*--------------------------------------------------------------
+* new sequence - reset values (same as above after pTmp=pSeq)
+*--------------------------------------------------------------
+EQ529   DEC   @NUMSEQ
+        JNE   NE543
+        MOV   @SEQCNT,@NUMSEQ
+        MOV   @PRPT,@PSEQ
+        JMP   AL544
+NE543   LI    R0,8
+        A     R0,@PSEQ
+AL544
+RPTSEQ  MOV   @PSEQ,R0
+        LI    R3,PCHSEQ
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     R10,R1
+        MOV   R1,*R3+
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     R10,R1
+        MOV   R1,*R3+        
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     R10,R1
+        MOV   R1,*R3+
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     R10,R1
+        MOV   R1,*R3+
+        MOV   @PCHSEQ,R0
+        LI    R3,PNOTES
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     R10,R1
+        MOV   R1,*R3+
+        CLR   R1
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOV   R1,@SEQLEN
+        JNE   NE604
+        MOV   @SEQCNT,@NUMSEQ
+        MOV   @PRPT,@PSEQ
+        JMP   RPTSEQ
+NE604   MOV   R0,@PCHSEQ
+        MOV   @PCHSEQ+2,R0
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     R10,R1
+        MOV   R1,*R3+
+        INC   R0
+        MOV   R0,@PCHSEQ+2
+        MOV   @PCHSEQ+4,R0
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     R10,R1
+        MOV   R1,*R3+
+        INC   R0
+        MOV   R0,@PCHSEQ+4
+        MOV   @PCHSEQ+6,R0
+        MOVB  *R0+,R1
+        SWPB  R1
+        MOVB  *R0+,R1
+        A     R10,R1
+        MOV   R1,*R3+
+        INC   R0
+        MOV   R0,@PCHSEQ+6
+        LI    R0,1
+        MOV   R0,@NDELAY
+        MOV   R0,@NDELAY+2
+        MOV   R0,@NDELAY+4
+        MOV   R0,@NDELAY+6
+JM594   CLR   @NIDX
+FOR668	MOV   @NIDX,R6
+        CI    R6,4
+        JLT   LT677
+        B     @HE671
+LT677	MOV   R6,R7
+        A     R7,R7
+        MOV   R6,R0
+        SLA   R0,5
+        MOV   R0,@NCHAN
+        MOV   R7,R0
+        AI    R0,NDELAY
+        DEC   *R0
+        JEQ   EQ695
+        B     @EALINE
+
+
+*--------------------------------------------------------------
+* Next byte
+*--------------------------------------------------------------
+EQ695		
+NEXTBYTE
+********@*****@*********************@**************************
+        MOV   R7,R0
+        AI    R0,PCHSEQ
+        MOV   *R0,R1
+        INC   *R0
+        MOV   R1,R0
+        CLR   R1
+        MOVB  *R0,R1
+        MOV   R1,R0
+        ANDI  R0,>E000
+        JEQ   EQ702
+*--------------------------------------------------------------
+* Process note
+*--------------------------------------------------------------
+        MOV   R1,R2
+        SRL   R2,13
+        MOV   R7,R0
+        AI    R0,NDELAY
+        MOV   R2,*R0
+        ANDI  R1,>1F00
+        SWPB  R1
+        MOV   R1,R2
+        A     R1,R1
+        CI    R6,3
+        JEQ   NE721
+        A     R2,R1
+NE721   MOV   R7,R3
+        AI    R3,PNOTES
+        MOV   *R3,R3
+        A     R1,R3
+*--------------------------------------------------------------
+* Instrument and volume
+*--------------------------------------------------------------
+        CLR   R1
+        MOVB  *R3+,R1      
+        MOV   R1,R0
+        ANDI  R0,>F000
+        SWPB  R0
+        A     R10,R0
+        INCT  R0
+        MOV   R7,R2
+        AI    R2,PINST
+        MOV   R0,*R2
+        ANDI  R1,>0F00
+        MOV   R6,R2
+        AI    R2,NVOL
+        MOVB  R1,*R2            
+        MOVB  *R3+,R1
+        ANDI  R1,>0F00
+        SWPB  R1
+        MOV   R7,R2
+        AI    R2,NFREQ
+        MOV   R1,*R2
+        CI    R6,3
+        JEQ   EQ764
+        MOVB  *R3,R1
+        ANDI  R1,>3F00
+        SWPB  R1
+        SLA   R1,4
+        MOV   R7,R0
+        AI    R0,NFREQ
+        SOC   R1,*R0
+EQ764	MOV   R7,R0
+        AI    R0,PINST
+        MOV   *R0,R0
+        MOV   R6,R1
+        AI    R1,NINVOL
+        MOVB  *R0+,*R1
+        MOV   R0,@PTMP
+        BL    @READINSTRUMENTATPTMP
+        LI    R0,>0400
+        MOV   R6,R1
+        AI    R1,NINLEFT
+        MOVB  R0,*R1
+        B     @EALINE
+EQ702   MOV   R1,R0
+        ANDI  R0,>0100
+        JEQ   EQ801
+        CI    R6,3
+        JNE   NE804
+*--------------------------------------------------------------
+* Noise channel
+*--------------------------------------------------------------
+        MOV   R7,R0
+        AI    R0,PCHSEQ
+        MOV   *R0,R3
+        CLR   R2
+        MOVB  *R3+,R2
+        MOV   R3,*R0
+
+        MOV   R1,R0
+        ANDI  R0,>0200
+        JEQ   EQ816
+*--------------------------------------------------------------
+* Noise channel - Speed
+*--------------------------------------------------------------
+        SWPB  R2
+        MOV   R2,@SPEED
+        MOV   R2,@SPCNT
+        B     @CHECKE
+*--------------------------------------------------------------
+* Noise channel - Stereo, ignored & volume
+*--------------------------------------------------------------
+EQ816   MOV   R1,R0
+        ANDI  R0,>0800
+        JEQ   EQ832
+        ANDI  R2,>0F00
+        MOV   R6,R0
+        AI    R0,NVOL
+        MOVB  R2,*R0
+        B     @CHECKE
+EQ832				
+CHECKE  MOV   R1,R0
+        ANDI  R0,>1000
+        JEQ   EQ848
+        MOV   R7,R0
+        AI    R0,PCHSEQ
+        MOV   *R0,R4
+        CLR   R3
+        MOVB  *R4+,R3
+        MOV   R4,*R0
+        MOV   R2,R0
+        ANDI  R0,>0100
+        JEQ   EQ862
+*--------------------------------------------------------------
+* Noise channel - Pulse vibrato mask
+*--------------------------------------------------------------
+        MOV   R6,R0
+        AI    R0,PULVIB
+        MOVB  R3,*R0
+EQ862   MOV   R2,R0
+        ANDI  R0,>0200
+        JEQ   EQ873
+        MOV   @CALLBA,R1
+        JEQ   EQ876
+*--------------------------------------------------------------
+* Callback A
+*--------------------------------------------------------------
+        MOV   R2,@BACKUP
+        MOV   R3,@BACKUP+2
+        MOV   R3,R0
+        BL    *R1
+        MOV   @BACKUP+2,R3
+        MOV   @BACKUP,R2
+EQ876						
+EQ873	MOV   R2,R0
+        ANDI  R0,>0400
+        JEQ   EQ896
+        MOV   @CALLBB,R1
+        JEQ   EQ899
+*--------------------------------------------------------------
+* Callback B
+*--------------------------------------------------------------
+        MOV   R2,@BACKUP
+        MOV   R3,@BACKUP+2
+        MOV   R3,R0
+        BL    *R1
+        MOV   @BACKUP+2,R3
+        MOV   @BACKUP,R2
+EQ899
+EQ896
+EQ848   JMP   EL915
+*--------------------------------------------------------------
+* Tone channel
+*--------------------------------------------------------------
+NE804	MOV   R7,R0
+        AI    R0,PCHSEQ
+        MOV   *R0,R3
+        CLR   R2
+        MOVB  *R3+,R2
+        MOV   R3,*R0
+        MOV   R1,R0
+        ANDI  R0,>0200
+        JEQ   EQ930
+*--------------------------------------------------------------
+* Tone channel - Volume
+*--------------------------------------------------------------
+        ANDI  R2,>0F00
+        MOV   R6,R0
+        AI    R0,NVOL
+        MOVB  R2,*R0
+EQ930   MOV   R1,R0
+        ANDI  R0,>0400
+        JEQ   EQ942
+*--------------------------------------------------------------
+* Tone channel - Pulse vibrato
+*--------------------------------------------------------------
+        ANDI  R2,>0F00
+        MOV   R6,R0
+        AI    R0,PULSIZ
+        MOVB  R2,*R0
+EQ942				
+EL915   B     @NEXTBYTE
+*--------------------------------------------------------------
+* Tone channel - Delay
+*--------------------------------------------------------------
+EQ801   SWPB  R1
+        SRL   R1,1
+        INC   R1
+        MOV   R7,R0
+        AI    R0,NDELAY
+        MOV   R1,*R0
+EALINE  CI    R6,3
+        JEQ   EQ974
+        MOV   R6,R0
+        AI    R0,PULVIB
+        MOVB  *R0,R1
+        SWPB  R1
+        MOVB  *R0,R1
+        SRC   R1,1
+        MOVB  R1,*R0
+        JMP   JM987
+*--------------------------------------------------------------
+* Pulse vibrato - Noise version ?
+*--------------------------------------------------------------
+EQ974	MOV   R6,R2
+        AI    R2,PLMASK
+        MOVB  *R2,R3
+        JEQ   EQ1064
+        MOV   R7,R0
+        AI    R0,NFREQ
+        MOV   *R0,R1
+        ORI   R1,>00E0
+        SWPB  R1
+        CB    R1,R3
+        JEQ   EQ1099
+        MOVB  R1,@SOUND
+        MOVB  R1,*R2
+EQ1099
+EQ1064			
+JM987
+END668  INC   @NIDX
+        B     @FOR668
+HE671	
+EACYC   CLR   @NIDX
+FR1012  MOV   @NIDX,R6
+        CI    R6,4
+        JHE   HE1015
+        MOV   R6,R7
+        A     R7,R7
+        MOV   R6,R0
+        SLA   R0,5
+        MOV   R0,@NCHAN
+*--------------------------------------------------------------
+* Handle instruments
+*--------------------------------------------------------------
+        MOV	  R6,R0
+        AI    R0,NVOL
+        CLR   R1
+        MOVB  *R0,R1
+        MOV   R6,R0
+        AI    R0,NINVOL
+        CLR   R2
+        MOVB  *R0,R2
+        SRL   R2,4
+        AB    R2,R1
+        LI    R3,>0F00
+        SB    R3,R1
+        JOC   OC1041
+        CLR   R1
+OC1041	SB    R1,R3
+        MOV   R6,R0
+        AI    R0,PLMASK
+        MOVB  *R0,R0
+        JEQ   EQ1126        
+        ORI   R3,>9000
+        MOV   @NCHAN,R0
+        SWPB  R0
+        SOCB  R0,R3
+        MOVB  R3,@SOUND
+*--------------------------------------------------------------
+* Update instruments
+*--------------------------------------------------------------
+EQ1126	MOV   R6,R0
+        AI    R0,NINSTEP
+        MOVB  *R0,R1
+        MOV   R6,R0
+        AI    R0,NINVOL
+        AB    R1,*R0
+        CI    R6,3
+        JEQ   EQ1065
+        BL    @SETNIDXFREQ
+        MOV   R7,R0
+        AI    R0,PVIB
+        MOV   *R0,R4
+        JEQ   EQ1073
+        INC   R4
+        MOV   R6,R1
+        AI    R1,NVCNT
+        MOVB  *R1,R2
+        AI    R2,>FF00
+        MOVB  R2,*R1
+        JNE   NE1083
+        MOV   R7,R3
+        AI    R3,PVBASE
+        MOV   *R3,R4
+        LI    R5,>2000
+        MOVB  R5,*R1
+NE1083	MOV   R4,*R0
+EQ1073			
+EQ1065  MOV   R6,R0
+        AI    R0,NINLEFT
+        MOVB  *R0,R1
+        JEQ   NE1103
+        MOV   R6,R2
+        AI    R2,NINDELAY
+        MOVB  *R2,R3
+        AI    R3,>FF00
+        MOVB  R3,*R2
+        JNE   NE1113
+        MOV   R7,R2
+        AI    R2,PINST
+        MOV   *R2,@PTMP
+        MOV   R0,@BACKUP
+        BL    @READINSTRUMENTATPTMP
+        MOV   @BACKUP,R0
+        MOVB  *R0,R1
+        AI    R1,>FF00
+        MOVB  R1,*R0
+NE1113			
+NE1103
+EN1012  INC   @NIDX
+        B     @FR1012	
+HE1015  LWPI  WSSPC1              ; Load main workspace again
+        RET

@@ -1,0 +1,491 @@
+***************************************************************
+*                           SPECTRA! 
+*              Homebrew Game & Utilities Library 
+*                             for
+*               the Texas Instruments TI-99/4A  
+*                   2009 by Filip Van Vooren
+*
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************
+* This file: spectra_sprites.a99
+***************************************************************
+* v0.1  -   2009/01/16       Initial version
+***************************************************************
+* X=No input     D=Data variant        R=Register variant
+*
+* VDP LOW LEVEL UTILITIES
+* =======================
+* FVRAM  - D - Fill VDP memory with byte
+* FVRAMX - R - Fill VDP memory with byte
+* PVRAM  - D - Copy memory range to VDP memory
+* VSBR   - R - VDP single byte read
+* VSBW   - R - VDP single byte write
+* VMBW   - R - VDP multiple byte write
+* VWTR   - R - VDP write to register
+* LVDPSH - R - Load VDP shadow registers
+* WVDPSH - X - Write shadow registers to VDP
+* VDPADR - R - Calculate VDP table address
+* XY2OF  - R - Calculate screen offset for X/Y character position
+* VIDOFF - X - Disable screen display
+* VIDON  - X - Enable screen display
+* INTOFF - X - Disable VDP interrupt
+* INTON  - X - Enable VDP interrupt
+***************************************************************
+
+***************************************************************
+* Shadow addresses for VDP write-only registers
+********@*****@*********************@**************************
+VDPR0   EQU   VDPREG+1              ; Value in Shadow VDP register 0
+VDPR1   EQU   VDPREG+3              ; Value in Shadow VDP register 1
+VDPR2   EQU   VDPREG+5              ; Value in Shadow VDP register 2
+VDPR3   EQU   VDPREG+7              ; Value in Shadow VDP register 3
+VDPR4   EQU   VDPREG+9              ; Value in Shadow VDP register 4
+VDPR5   EQU   VDPREG+11             ; Value in Shadow VDP register 5
+VDPR6   EQU   VDPREG+13             ; Value in Shadow VDP register 6
+VDPR7   EQU   VDPREG+15             ; Value in Shadow VDP register 7
+
+
+***************************************************************
+* ROM: VDP graphics mode 1 (values for shadow registers)
+********@*****@*********************@**************************
+* VDP#0 Control bits
+*       bit 6=0: M3 | Graphics 1 mode
+*       bit 7=0: Disable external VDP input
+* VDP#1 Control bits
+*       bit 0=1: 16K selection
+*       bit 1=1: Enable display
+*       bit 2=1: Enable VDP interrupt
+*       bit 3=0: M1 \ Graphics 1 mode
+*       bit 4=0: M2 /
+*       bit 5=0: reserved
+*       bit 6=1: 16x16 sprites
+*       bit 7=0: Sprite magnification (1x)
+*
+* VDP#2 PNT (Pattern name table)       at >0000  (>00 * >400)
+* VDP#3 PCT (Pattern color table)      at >0380  (>0E * >040)
+* VDP#4 PDT (Pattern descriptor table) at >0800  (>01 * >800)
+* VDP#5 SAT (sprite attribute list)    at >0300  (>06 * >080)
+* VDP#6 SPT (Sprite pattern table)     at >0400  (>80 * >008)
+* VDP#7 Set background color to black
+***************************************************************
+VMODE1  DATA  >0000,>01E2,>0200,>030E,>0401,>0506,>0680,>0700,32
+
+
+***************************************************************
+* ROM: VDP text mode (values for shadow registers)
+********@*****@*********************@**************************
+* VDP#0 Control bits
+*       bit 6=0: M3 | Graphics 1 mode
+*       bit 7=0: Disable external VDP input
+* VDP#1 Control bits
+*       bit 0=1: 16K selection
+*       bit 1=1: Enable display
+*       bit 2=1: Enable VDP interrupt
+*       bit 3=1: M1 \ TEXT MODE
+*       bit 4=0: M2 /
+*       bit 5=0: reserved
+*       bit 6=1: 16x16 sprites
+*       bit 7=0: Sprite magnification (1x)
+*
+* VDP#2 PNT (Pattern name table)       at >0000  (>00 * >400)
+* VDP#3 PCT (Pattern color table)      at >0380  (>0E * >040)
+* VDP#4 PDT (Pattern descriptor table) at >0800  (>01 * >800)
+* VDP#5 SAT (sprite attribute list)    at >0300  (>06 * >080)
+* VDP#6 SPT (Sprite pattern table)     at >0400  (>80 * >008)
+* VDP#7 Set foreground color to white/Background color to black
+***************************************************************
+VMODET  DATA  >0000,>01F2,>0200,>030E,>0401,>0506,>0680,>07F0,40
+
+
+
+
+*//////////////////////////////////////////////////////////////
+*                   VDP LOW LEVEL UTILITIES
+*//////////////////////////////////////////////////////////////
+
+***************************************************************
+* FVRAM - Fill VDP memory with byte (data variant)
+***************************************************************
+*  BL @FVRAM
+*  DATA P0,P1,P2
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = VDP start address
+*  P1 = Byte to fill
+*  P2 = Number of bytes to fill
+********@*****@*********************@**************************
+FVRAM   INCT  STACK
+        MOV   R0,*STACK+            ; Push R0
+        MOV   R1,*STACK+            ; Push R1
+        MOV   R2,*STACK+            ; Push R2
+        MOV   *R11+,R0              ; VDP start address
+        MOV   *R11+,R1              ; Byte to fill
+        MOV   *R11+,R2              ; Repeat count
+        MOV   R11,*STACK
+*--------------------------------------------------------------
+*    Inline VSBW
+*--------------------------------------------------------------
+FVRAM1  SWPB  R1
+        ORI   R0,>4000
+        SWPB  R0
+        MOVB  R0,@VDPA
+        SWPB  R0
+        MOVB  R0,@VDPA
+        NOP
+FVRAM2  MOVB  R1,@VDPW              ; Write byte to VDP
+*--------------------------------------------------------------
+*    List housekeeping
+*--------------------------------------------------------------
+        DEC   R2
+        JNE   FVRAM2
+        MOV   *STACK,R11
+        DECT  STACK
+        B     @POPRX2               ; Pop registers (R11 set) and return
+
+
+***************************************************************
+* FVRAMX - Fill VDP memory with byte (register variant)
+***************************************************************
+*  BL @FVRAMX
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = VDP start address
+*  R1 = Byte to fill
+*  R2 = Number of bytes to fill
+********@*****@*********************@**************************
+FVRAMX  INCT  STACK
+        MOV   R0,*STACK+            ; Push R0
+        MOV   R1,*STACK+            ; Push R1
+        MOV   R2,*STACK+            ; Push R2
+        MOV   R11,*STACK            ; Push R11
+        JMP   FVRAM1                ; Rest is same as FVRAM 
+
+***************************************************************
+* PVRAM - Copy memory range to VDP memory
+***************************************************************
+*  BL @PVRAM
+*  DATA P0,P1,P2
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = VDP start address
+*  P1 = RAM/ROM start address
+*  P2 = Number of bytes to copy
+********@*****@*********************@**************************
+PVRAM   INCT  STACK
+        MOV   R0,*STACK+            ; Push R0
+        MOV   R1,*STACK+            ; Push R1
+        MOV   R2,*STACK             ; Push R2
+        MOV   *R11+,R0              ; VDP target address
+        MOV   *R11+,R1              ; Starting address in RAM
+        MOV   *R11+,R2
+*--------------------------------------------------------------
+*    Inline VMBW
+*--------------------------------------------------------------
+        ORI   R0,>4000
+        SWPB  R0
+        MOVB  R0,@VDPA
+        SWPB  R0
+        MOVB  R0,@VDPA
+        NOP
+PVRAM1  MOVB  *R1+,@VDPW
+        DEC   R2
+        JNE   PVRAM1
+        B     @POPRX2               ; Pop registers (R11 set) and return
+
+***************************************************************
+* VSBR - VDP single byte read
+* Same function as in Editor Assembler module
+***************************************************************
+*  BL @VSBR
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = VDP source address
+*  R1 = RAM target address
+*
+*  OUTPUT
+*  R1 = MSB, the byte read from VDP
+********@*****@*********************@**************************
+VSBR    SWPB  R0
+        MOVB  R0,@VDPA
+        SWPB  R0
+        MOVB  R0,@VDPA
+        NOP
+        MOVB  @VDPR,R1
+        RET
+
+
+***************************************************************
+* VSBW - VDP single byte write
+* Same function as in Editor Assembler module
+***************************************************************
+*  BL @VSBW
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = VDP target address
+*  R1 = MSB, byte to write to VDP
+********@*****@*********************@**************************
+VSBW    INCT  STACK
+        MOV   R0,*STACK
+        ORI   R0,>4000
+        SWPB  R0
+        MOVB  R0,@VDPA
+        SWPB  R0
+        MOVB  R0,@VDPA
+        NOP
+        MOVB  R1,@VDPW
+        B     @POPRX0               ; Pop registers (R11 set) and return
+
+
+***************************************************************
+* VMBR - VDP multiple byte read
+* Same function as in Editor Assembler module
+***************************************************************
+*  BL @VMBR
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = VDP source address
+*  R1 = RAM target address
+*  R2 = Number of bytes to read
+********@*****@*********************@**************************
+VMBR    INCT  STACK
+        MOV   R11,*STACK+
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK
+        SWPB  R0
+        MOVB  R0,@VDPA
+        SWPB  R0
+        MOVB  R0,@VDPA
+        NOP
+VMBR1   MOVB  @VDPR,*R1+
+        DEC   R2
+        JNE   VMBR1
+        B     @POPRG2
+
+***************************************************************
+* VMBW - VDP multiple byte write
+* Same function as in Editor Assembler module
+***************************************************************
+*  BL @VMBW
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = VDP target address
+*  R1 = RAM/ROM source address
+*  R2 = Number of bytes to write
+********@*****@*********************@**************************
+VMBW    INCT  STACK
+        MOV   R11,*STACK+
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK
+        ORI   R0,>4000
+        SWPB  R0
+        MOVB  R0,@VDPA
+        SWPB  R0
+        MOVB  R0,@VDPA
+        NOP
+VMBW1   MOVB  *R1+,@VDPW
+        DEC   R2
+        JNE   VMBW1
+        B     @POPRG2
+
+
+***************************************************************
+* VWTR - VDP write to register
+* Same function as in Editor Assembler module
+***************************************************************
+*  BL @VWTR
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = MSB is the VDP target register
+*       LSB is the value to write
+********@*****@*********************@**************************
+VWTR    INCT  STACK
+        MOV   R11,*STACK+
+        MOV   R0,*STACK
+        ORI   R0,>8000
+        SWPB  R0
+        MOVB  R0,@VDPA
+        SWPB  R0
+        MOVB  R0,@VDPA
+        B     @POPRG0
+
+        
+***************************************************************
+* LVDPSH - Load VDP shadow registers
+***************************************************************
+*  BL @LVDPSH
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = Address of video mode table, e.g. VMODE1
+********@*****@*********************@**************************
+LVDPSH  INCT  STACK
+        MOV   R11,*STACK+
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK
+        LI    R1,VDPREG
+        LI    R2,16
+*--------------------------------------------------------------
+* Load shadow registers. Inline CPYMX for speed
+*--------------------------------------------------------------
+LVDPS1  MOVB  *R0+,*R1+
+        DEC   R2
+        JNE   LVDPS1
+        MOV   *R0,@VDPCOL           ; Set columns in row
+        MOV   @VDPS,@VDPSTA         ; Set shadow status register
+        B     @POPRG2
+
+
+***************************************************************
+* WVDPSH - Write shadow registers to VDP
+***************************************************************
+*  BL @WVDPSH
+*--------------------------------------------------------------
+*  INPUT
+*  NONE
+********@*****@*********************@**************************
+WVDPSH  INCT  STACK
+        MOV   R11,*STACK+
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK
+        LI    R1,VDPREG
+        LI    R2,8
+WVDPS1  MOV   *R1,R0                ; Write shadow register to VDP
+        ORI   R0,>8000
+        SWPB  R0
+        MOVB  R0,@VDPA
+        SWPB  R0
+        MOVB  R0,@VDPA
+        INCT  R1
+        DEC   R2
+        JNE   WVDPS1                ; Loop over next register
+        B     @POPRG2
+
+
+
+***************************************************************
+* VDPADR - Calculate VDP table address
+***************************************************************
+*  BL @VDPADR
+*  DATA  P0
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = Constant representing table to look for
+*--------------------------------------------------------------
+*  OUTPUT
+*  @OUTP0 = VDP address of table
+*--------------------------------------------------------------
+*  REMARKS
+*  Valid input values for P0:
+*     GETPNT (Pattern name table)
+*     GETPCT (Pattern color table)
+*     GETPDT (Pattern descriptor table)
+*     GETSAT (Sprite attribute list)
+*     GETSPT (Sprite pattern table)
+*--------------------------------------------------------------
+*  EXAMPLE
+*       BL    @VDPADR               ; On return @OUTP0 has address
+*       DATA  GETPDT                ; Get address of pattern descriptor table
+********@*****@*********************@**************************
+VDPADR  INCT  STACK
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK+
+        MOV   R3,*STACK+
+        MOV   *R11+,R3              ; Avoid warning 'R0 is symbolic addressing'
+        MOV   R11,*STACK        
+        MOVB  @VDPREG+1(R3),R1      ; Get base value in shadow register
+        SRL   R1,8                  ; Right justify
+        MPY   @VADTAB(R3),R1        ; Multiply factor with base value. Result is in R2        
+        MOV   R2,@OUTP0             ; Store table address in @OUTP0
+        MOV   *STACK,R11
+        DECT  STACK
+        B     @POPRX3               ; Exit
+VADTAB  DATA  >0000,>0000,>0400,>0040,>0800,>0080,>0008
+GETPNT  EQU   4                     ; Offset in shadow VDP#2 & VADTAB (Pattern name table)
+GETPCT  EQU   6                     ; Offset in shadow VDP#3 & VADTAB (Pattern color table)
+GETPDT  EQU   8                     ; Offset in shadow VDP#4 & VADTAB (Pattern descriptor table)
+GETSAT  EQU   10                    ; Offset in shadow VDP#5 & VADTAB (Sprite attribute list)
+GETSPT  EQU   12                    ; Offset in shadow VDP#6 & VADTAB (Sprite pattern table)
+
+
+***************************************************************
+* XY2OF - Calculate screen offset of X/Y character position
+***************************************************************
+*  BL @XY2OF
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = X column  0-31
+*  R1 = Y row     0-23
+*  
+*  or alternative
+*
+*  R0 = MSB (X column  0-31)
+*       LSB (Y row     0-23)
+*--------------------------------------------------------------
+*  OUTPUT
+*  @OUTP0 = Calculated screen offset
+*--------------------------------------------------------------
+*  REMARKS
+*  Offset = (ROWS * @VDPCOL + COL)
+*  Note you must add PNT base address yourself
+********@*****@*********************@**************************
+XY2OF   INCT  STACK
+        MOV   R11,*STACK+
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK+
+        MOV   R3,*STACK
+        CI    R0,31
+        JLE   XY2OF1                ; Calculate with R0=X and R1=Y
+*--------------------------------------------------------------
+*  Calculate with R0 having both X & Y
+*--------------------------------------------------------------
+        MOV   R0,R1
+        SWPB  R0
+        SZC   @BITMSB,R0            ; Clear MSB
+        SZC   @BITMSB,R1            ; Clear MSB
+*--------------------------------------------------------------
+* Calculate offset
+*--------------------------------------------------------------
+XY2OF1  MOV   @VDPCOL,R2            ; Get columns in a row
+        MPY   R1,R2
+        A     R0,R3
+        MOV   R3,@OUTP0             ; Store result in OUTP0
+        B     @POPRG3               ; Exit
+
+
+***************************************************************
+* VIDOFF - Disable screen display
+* VIDON  - Enable screen display
+* INTOFF - Disable VDP interrupt
+* INTON  - Enable VDP interrupt
+***************************************************************
+*  BL ....
+*--------------------------------------------------------------
+*  INPUT
+*  NONE
+********@*****@*********************@**************************
+VIDOFF  SZCB  @BIT1,@VDPR1          ; bit 1=0 (Disable screen display)
+        RET
+VIDON   SOCB  @BIT1,@VDPR1          ; bit 1=1 (Enable screen display) 
+        RET
+INTOFF  SZCB  @BIT1,@VDPR1          ; bit 2=0 (Disable VDP interrupt)
+        RET
+INTON   SOCB  @BIT1,@VDPR1          ; bit 2=1 (Enable VDP interrupt) 
+        RET

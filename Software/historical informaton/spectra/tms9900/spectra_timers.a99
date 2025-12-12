@@ -1,0 +1,197 @@
+***************************************************************
+*                           SPECTRA! 
+*              Homebrew Game & Utilities Library 
+*                             for
+*               the Texas Instruments TI-99/4A  
+*                   2009 by Filip Van Vooren
+*
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************
+* This file: spectra_timers.a99
+***************************************************************
+* v0.1  -   2009/01/16       Initial version
+***************************************************************
+* X=No input     D=Data variant        R=Register variant
+*
+* TIMER LOW LEVEL UTILITIES
+* =========================
+* MKSLOT - D - Allocate timer slot
+* TMGR   - X - Start Timer/Task scheduler
+***************************************************************
+
+
+***************************************************************
+* Memory structure for timers
+********@*****@*********************@**************************
+* SLOT MEMORY STRUCTURE (TIMER)
+* TIMER+0  0000  Target tick count
+* TIMER+2  0000  Address of routine to call
+* TIMER+4  0000  Tick counter
+* TIMER+6  0000  2 bytes available for private use
+********@*****@*********************@**************************
+TSLT0   EQU   TIMER                 ; Timer slot 0  
+TSLT1   EQU   TIMER+8               ; Timer slot 1
+TSLT2   EQU   TIMER+16              ; Timer slot 2
+TSLT3   EQU   TIMER+24              ; Timer slot 3
+TSLT4   EQU   TIMER+32              ; Timer slot 4
+TSLT5   EQU   TIMER+40              ; Timer slot 5
+TSLT6   EQU   TIMER+48              ; Timer slot 6
+TSLT7   EQU   TIMER+56              ; Timer slot 7
+TSLT8   EQU   TIMER+64              ; Timer slot 8
+TSLT9   EQU   TIMER+72              ; Timer slot 9
+TSLT10  EQU   TIMER+80              ; Timer slot 10
+TSLT11  EQU   TIMER+88              ; Timer slot 11
+TSLT12  EQU   TIMER+96              ; Timer slot 12
+TSLT13  EQU   TIMER+104             ; Timer slot 13
+TSLT14  EQU   TIMER+112             ; Timer slot 14
+TSLT15  EQU   TIMER+120             ; Timer slot 15
+TSLT16  EQU   TIMER+128             ; Timer slot 16
+TSLT17  EQU   TIMER+136             ; Timer slot 17
+TSLT18  EQU   TIMER+142             ; Timer slot 18
+TSLT19  EQU   TIMER+150             ; Timer slot 19
+TSUB0   EQU   TIMER+2               ; Subroutine for slot 0
+TSUB1   EQU   TIMER+10              ; Subroutine for slot 1
+TSUB2   EQU   TIMER+18              ; Subroutine for slot 2
+TSUB3   EQU   TIMER+26              ; Subroutine for slot 3
+TSUB4   EQU   TIMER+34              ; Subroutine for slot 4
+TSUB5   EQU   TIMER+42              ; Subroutine for slot 5
+TSUB6   EQU   TIMER+50              ; Subroutine for slot 6
+TSUB7   EQU   TIMER+58              ; Subroutine for slot 7
+TSUB8   EQU   TIMER+66              ; Subroutine for slot 8
+TSUB9   EQU   TIMER+74              ; Subroutine for slot 9
+TSUB10  EQU   TIMER+82              ; Subroutine for slot 10
+TSUB11  EQU   TIMER+90              ; Subroutine for slot 11
+TSUB12  EQU   TIMER+98              ; Subroutine for slot 12
+TSUB13  EQU   TIMER+106             ; Subroutine for slot 13
+TSUB14  EQU   TIMER+114             ; Subroutine for slot 14
+TSUB15  EQU   TIMER+122             ; Subroutine for slot 15
+TSUB16  EQU   TIMER+130             ; Subroutine for slot 16
+TSUB17  EQU   TIMER+138             ; Subroutine for slot 17
+TSUB18  EQU   TIMER+144             ; Subroutine for slot 18
+TSUB19  EQU   TIMER+152             ; Subroutine for slot 19
+TPRV0   EQU   TIMER+6               ; Private variable slot 0
+TPRV1   EQU   TIMER+14              ; Private variable slot 1
+TPRV2   EQU   TIMER+22              ; Private variable slot 2
+TPRV3   EQU   TIMER+30              ; Private variable slot 3
+TPRV4   EQU   TIMER+38              ; Private variable slot 4
+TPRV5   EQU   TIMER+46              ; Private variable slot 5
+TPRV6   EQU   TIMER+54              ; Private variable slot 6
+TPRV7   EQU   TIMER+62              ; Private variable slot 7
+TPRV8   EQU   TIMER+70              ; Private variable slot 8
+TPRV9   EQU   TIMER+78              ; Private variable slot 9
+TPRV10  EQU   TIMER+86              ; Private variable slot 10
+TPRV11  EQU   TIMER+94              ; Private variable slot 11
+TPRV12  EQU   TIMER+102             ; Private variable slot 12
+TPRV13  EQU   TIMER+110             ; Private variable slot 13
+TPRV14  EQU   TIMER+118             ; Private variable slot 14
+TPRV15  EQU   TIMER+126             ; Private variable slot 15
+TPRV16  EQU   TIMER+134             ; Private variable slot 16
+TPRV17  EQU   TIMER+140             ; Private variable slot 17
+TPRV18  EQU   TIMER+148             ; Private variable slot 18
+TPRV19  EQU   TIMER+156             ; Private variable slot 19
+
+
+
+*//////////////////////////////////////////////////////////////
+*                 TIMER LOW LEVEL UTILITIES
+*//////////////////////////////////////////////////////////////
+
+***************************************************************
+* MKSLOT - Allocate timer slot
+***************************************************************
+*  BL @MKSLOT
+*  DATA  P0,P1,P2
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = Slot number 0-19
+*  P1 = Run slot every XX ticks
+*  P2 = Subroutine to call via BL @xxx if slot is fired
+*--------------------------------------------------------------
+*  REMARKS
+*  Set P1 to 0 for disabling/skipping slot
+********@*****@*********************@**************************
+MKSLOT  INCT  STACK
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK
+        MOV   *R11+,R0              ; Move slot number to R0
+        LI    R1,8                  ; Length of slot in timer structure
+        MPY   R0,R1                 ; Calculate offset. Result is in R2!
+        MOV   *R11+,@TIMER+0(R2)    ; Move ticks       -> timer structure
+        MOV   *R11+,@TIMER+2(R2)    ; Move routine     -> timer structure
+        CLR   @TIMER+4(R2)          ; Timer structure. Reset tick counter
+        CLR   @TIMER+6(R2)          ; Timer structure. Initialise for private use       
+MKSLO1  B     @POPRX2               ; Pop registers (R11 set) and return
+
+
+
+
+***************************************************************
+* TMGR - X - Start Timer/Task scheduler
+***************************************************************
+*  B @TMGR
+*--------------------------------------------------------------
+*  REMARKS
+*  Timer/Task scheduler. Normally called once on program startup.
+*  Don't forget to set THIGH to highest slot in use
+*--------------------------------------------------------------
+*  EXAMPLE
+*       MOV   @PLS8,@THIGH          ; Highest slot in use is 8
+*       B     @TMGR                 ; Start task scheduler
+********@*****@*********************@**************************
+TMGR    LIMI  0                     ; No interrupt processing
+*--------------------------------------------------------------
+* Wait for VDP interrupt flag to be set
+*--------------------------------------------------------------
+TMGR1   MOV   @VDPS,R0              ; Get VDP status register
+        COC   @BIT0,R0              ; Interupt flag set ?
+        JNE   TMGR1                 ; No, so loop
+*--------------------------------------------------------------
+* Do some internal housekeeping
+*--------------------------------------------------------------
+        MOV   R0,@VDPSTA            ; Save copy in shadow VDP status register
+        MOV   @TCOUNT,R0
+        CI    R0,60                 ; 1 second reached ?
+        JLT   TMGR2                 ; No, continue
+        CLR   @TCOUNT               ; Yes, now reset tick counter
+TMGR2   INC   @TCOUNT               ; Increment tick counter
+*--------------------------------------------------------------
+* Loop over slots
+*--------------------------------------------------------------
+        CLR   R1                    ; Start with slot 0
+        CLR   R2                    ; Offset in timer structure for slot 0
+TMGR3   C     @TIMER(R2),@NULL      ; Is slot empty?
+        JEQ   TMGR4                 ; Yes, so get next slot
+*--------------------------------------------------------------
+*  Do slot housekeeping tasks
+*--------------------------------------------------------------
+        INC   @TIMER+4(R2)          ; Update tick count in slot
+        C     @TIMER(R2),@TIMER+4(R2) ; Execute slot?
+        JNE   TMGR4                ; No, get next slot
+*--------------------------------------------------------------
+*  Run task in slot
+*--------------------------------------------------------------
+        MOV   @TIMER+2(R2),R0       ; Get routine
+        BL    *R0                   ; Call routine
+        CLR   @TIMER+4(R2)          ; Reset tick count in slot
+*--------------------------------------------------------------
+*  Prepare for next slot
+*--------------------------------------------------------------
+TMGR4   INC   R1                    ; Next slot
+        C     R1,@THIGH             ; Last slot done ?
+        JGT   TMGR1                 ; yes, Wait for next VDP interrupt
+        AI    R2,8                  ; Offset for next slot
+        JMP   TMGR3                 ; no, process next slot

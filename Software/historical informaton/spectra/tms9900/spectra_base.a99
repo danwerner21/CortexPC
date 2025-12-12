@@ -1,0 +1,246 @@
+***************************************************************
+*                           SPECTRA! 
+*              Homebrew Game & Utilities Library 
+*                             for
+*               the Texas Instruments TI-99/4A  
+*                   2009 by Filip Van Vooren
+*
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************
+* This file: spectra_base.a99
+***************************************************************
+* v0.1  -   2009/01/16       Initial version
+***************************************************************
+* X=No input     D=Data variant        R=Register variant
+* 
+* BASE UTILITIES
+* ==============
+* POPRG. - X - Pop registers & return to caller 
+* POPRX. - X - Pop registers & return to caller
+***************************************************************
+* ATTENTION!
+* You have to set the below equates in your main program
+* after allocating the required memory.
+*
+* TIMER   EQU   ???            ; Timer table
+* RAMBUF  EQU   ???            ; RAM buffer for temporary storage
+* RAMSAT  EQU   ???            ; Shadow SAT in RAM.
+****************************************************************
+
+
+
+*//////////////////////////////////////////////////////////////
+*               SPECTRA SCRATCH-PAD MEMORY USAGE 
+*//////////////////////////////////////////////////////////////
+SCRPAD  EQU   >8300                 ;   256 bytes scratch-pad
+SPCMEM  EQU   SCRPAD
+SBLOC1  EQU   SPCMEM                ;   \ Length   32  bytes
+SBLOC2  EQU   SPCMEM+>20            ;   | Length   32  bytes
+SBLOC3  EQU   SPCMEM+>40            ;   | Length  128  bytes     -> FREE FOR OWN USE
+SBLOC4  EQU   SPCMEM+>C0            ;   | Length   32  bytes  \  -> SBLOC4 can extend
+SBLOC5  EQU   SPCMEM+>D0            ;   / Length   32  bytes  /     to 64 bytes
+*//////////////////////////////////////////////////////////////
+*                           BLOCK 1
+*//////////////////////////////////////////////////////////////
+WSSPC1  EQU   SPCMEM                ;   32: SPECTRA workspace 1
+*//////////////////////////////////////////////////////////////
+*                           BLOCK 2
+*//////////////////////////////////////////////////////////////
+VIRTKB  EQU   SBLOC2                ;    2: Virtual keyboard
+VDPREG  EQU   SBLOC2+2              ;   16: VDP shadow registers
+VDPSTA  EQU   SBLOC2+18             ;    2: VDP shadow status register
+VDPCOL  EQU   SBLOC2+20             ;    2: VDP screen columns
+TCOUNT  EQU   SBLOC2+22             ;    2: Timer Tick counter
+THIGH   EQU   SBLOC2+24             ;    2: Timer highest slot in use
+OUTP0   EQU   SBLOC2+26             ;    2: Return parameter 0
+FUTU1   EQU   SBLOC2+28             ;    2: RESERVED FOR FUTURE USE
+FUTU2   EQU   SBLOC2+30             ;    2: RESERVED FOR FUTURE USE
+*//////////////////////////////////////////////////////////////
+*                           BLOCK 3
+*//////////////////////////////////////////////////////////////
+FREE    EQU   SBLOC3                ;  128: Free for own use
+*//////////////////////////////////////////////////////////////
+*                         BLOCK 4 - 5
+*//////////////////////////////////////////////////////////////
+STKBUF  EQU   SBLOC4                ;   32: Stack (extends to 64!)
+WSSPC2  EQU   SBLOC5                ;   32: SPECTRA workspace 2
+
+
+
+
+*//////////////////////////////////////////////////////////////
+*                        EQUATES
+*//////////////////////////////////////////////////////////////
+********@*****@*********************@**************************
+R0      EQU   0
+R1      EQU   1
+R2      EQU   2
+R3      EQU   3
+R4      EQU   4
+R5      EQU   5
+R6      EQU   6
+R7      EQU   7
+R8      EQU   8
+R9      EQU   9
+R10     EQU   10
+R11     EQU   11
+R12     EQU   12
+R13     EQU   13
+R14     EQU   14
+R15     EQU   15
+********@*****@*********************@**************************
+ISROM   EQU   0                     ; Memory Address is in ROM/RAM
+ISGROM  EQU   1                     ; Memory Address is in GROM
+ISVDP   EQU   2                     ; Memory Address is in VDP
+ISRAM   EQU   3                     ; Memory Address is in RAM
+STACK   EQU   R8                    ; R8 is stack pointer! BE PREPARED!   
+SWAP    EQU   1                     ; MIRRV: Swap 4x4 patterns 0123 to 2301
+NOSWAP  EQU   0                     ; MIRRV: Don't swap 4x4 patterns
+********@*****@*********************@**************************
+SOUND   EQU   >8400	                ; Sound generator address
+VDPR    EQU   >8800                 ; VDP read data window address
+VDPW    EQU   >8C00                 ; VDP write data window address
+VDPS    EQU   >8802                 ; VDP status register
+VDPA    EQU   >8C02                 ; VDP address register
+GRMWA   EQU   >9C02                 ; GROM set write address
+GRMRA   EQU   >9802                 ; GROM set read address
+GRMRD   EQU   >9800                 ; GROM read byte
+GRMWD   EQU   >9C00                 ; GROM write byte
+
+
+
+
+
+*//////////////////////////////////////////////////////////////
+*                        SPECTRA ROM
+*//////////////////////////////////////////////////////////////
+
+***************************************************************
+* ROM: Constants
+********@*****@*********************@**************************
+BIT0    DATA  >8000                 ; Binary 1000000000000000
+BIT1    DATA  >4000                 ; Binary 0100000000000000
+BIT2    DATA  >2000                 ; Binary 0010000000000000
+BIT3    DATA  >1000                 ; Binary 0001000000000000
+BIT4    DATA  >800                  ; Binary 0000100000000000
+BIT5    DATA  >400                  ; Binary 0000010000000000
+BIT6    DATA  >200                  ; Binary 0000001000000000
+BIT7    DATA  >100                  ; Binary 0000000100000000
+BIT8    DATA  >80                   ; Binary 0000000010000000
+BIT9    DATA  >40                   ; Binary 0000000001000000
+BIT10   DATA  >20                   ; Binary 0000000000100000
+BIT11   DATA  >10                   ; Binary 0000000000010000
+BIT12   DATA  >8                    ; Binary 0000000000001000
+BIT13   DATA  >4                    ; Binary 0000000000000100
+BIT14   DATA  >2                    ; Binary 0000000000000010
+BIT15   DATA  >1                    ; Binary 0000000000000001
+BITMSB  DATA  >FF00                 ; Binary 1111111100000000
+BITLSB  DATA  >00FF                 ; Binary 0000000011111111
+NULL    DATA  0                     ; Easy compare / assign 
+PLS1    DATA  1                     ; Easy compare / assign 
+PLS2    DATA  2                     ; Easy compare / assign 
+PLS3    DATA  3                     ; Easy compare / assign 
+PLS4    DATA  4                     ; Easy compare / assign 
+PLS5    DATA  5                     ; Easy compare / assign 
+PLS6    DATA  6                     ; Easy compare / assign 
+PLS7    DATA  7                     ; Easy compare / assign 
+PLS8    DATA  8                     ; Easy compare / assign 
+PLS9    DATA  9                     ; Easy compare / assign    
+PLS10   DATA  10                    ; Easy compare / assign
+MIN1    DATA  -1                    ; Easy compare / assign 
+MIN2    DATA  -2                    ; Easy compare / assign 
+MIN3    DATA  -3                    ; Easy compare / assign
+MIN4    DATA  -4                    ; Easy compare / assign
+MIN5    DATA  -5                    ; Easy compare / assign
+MIN6    DATA  -6                    ; Easy compare / assign
+MIN7    DATA  -7                    ; Easy compare / assign
+MIN8    DATA  -8                    ; Easy compare / assign
+MIN9    DATA  -9                    ; Easy compare / assign
+MIN10   DATA  -10                   ; Easy compare / assign
+
+
+
+
+
+
+
+
+
+*//////////////////////////////////////////////////////////////
+*                   RAM LOW LEVEL UTILITIES
+*//////////////////////////////////////////////////////////////
+
+***************************************************************
+* POPRG. - Pop registers & return to caller 
+***************************************************************
+*  B  @POPRG.
+*--------------------------------------------------------------
+*  REMARKS
+*  R11 must be at stack bottom
+********@*****@*********************@**************************
+POPRG9  MOV   *STACK,R9
+        DECT  STACK
+POPRG8  MOV   *STACK,R8
+        DECT  STACK
+POPRG7  MOV   *STACK,R7
+        DECT  STACK
+POPRG6  MOV   *STACK,R6
+        DECT  STACK
+POPRG5  MOV   *STACK,R5
+        DECT  STACK
+POPRG4  MOV   *STACK,R4
+        DECT  STACK
+POPRG3  MOV   *STACK,R3
+        DECT  STACK
+POPRG2  MOV   *STACK,R2
+        DECT  STACK
+POPRG1  MOV   *STACK,R1
+        DECT  STACK
+POPRG0  MOV   *STACK,R0
+        DECT  STACK
+POPRET  MOV   *STACK,R11
+        DECT  STACK                        
+        RET        
+
+***************************************************************
+* POPRX. - Pop registers & return to caller 
+***************************************************************
+*  B  @POPRX.
+*--------------------------------------------------------------
+*  INPUT
+*  R11= RET address
+********@*****@*********************@**************************
+POPRX9  MOV   *STACK,R9
+        DECT  STACK
+POPRX8  MOV   *STACK,R8
+        DECT  STACK
+POPRX7  MOV   *STACK,R7
+        DECT  STACK
+POPRX6  MOV   *STACK,R6
+        DECT  STACK
+POPRX5  MOV   *STACK,R5
+        DECT  STACK
+POPRX4  MOV   *STACK,R4
+        DECT  STACK
+POPRX3  MOV   *STACK,R3
+        DECT  STACK
+POPRX2  MOV   *STACK,R2
+        DECT  STACK
+POPRX1  MOV   *STACK,R1
+        DECT  STACK
+POPRX0  MOV   *STACK,R0
+        DECT  STACK                     
+        RET      

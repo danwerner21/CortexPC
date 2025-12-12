@@ -1,0 +1,271 @@
+***************************************************************
+*                           SPECTRA! 
+*              Homebrew Game & Utilities Library 
+*                             for
+*               the Texas Instruments TI-99/4A  
+*                   2009 by Filip Van Vooren
+*
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************
+* This file: spectra_sprites.a99
+***************************************************************
+* v0.1  -   2009/01/16       Initial version
+***************************************************************
+* X=No input     D=Data variant        R=Register variant
+*
+*
+* VDP SPRITE UTILITIES
+* ====================
+* S8X8   - X - Set sprite size 8x8
+* S16X16 - X - Set sprite size 16x16
+* SMAG1X - X - Set sprite magnification 1x
+* SMAG2X - X - Set sprite magnification 2x
+* PUTSAT - R - Write shadow SAT to VDP SAT
+* SPRORD - R - Initialize default sprite order 0..31
+* SPRITE - D - Put sprite on screen
+***************************************************************
+
+
+***************************************************************
+* Memory structure for shadow SAT  (RAMSAT)
+********@*****@*********************@**************************
+SPR1    EQU   RAMSAT                ; Sprite 1
+SPR2    EQU   RAMSAT+4              ; Sprite 2
+SPR3    EQU   RAMSAT+8              ; Sprite 3
+SPR4    EQU   RAMSAT+12             ; Sprite 4
+SPR5    EQU   RAMSAT+16             ; Sprite 5
+SPR6    EQU   RAMSAT+20             ; Sprite 6
+SPR7    EQU   RAMSAT+24             ; Sprite 7
+SPR8    EQU   RAMSAT+28             ; Sprite 8
+SPR9    EQU   RAMSAT+32             ; Sprite 9
+SPR10   EQU   RAMSAT+36             ; Sprite 10
+SPR11   EQU   RAMSAT+40             ; Sprite 11
+SPR12   EQU   RAMSAT+44             ; Sprite 12
+SPR13   EQU   RAMSAT+48             ; Sprite 13
+SPR14   EQU   RAMSAT+52             ; Sprite 14
+SPR15   EQU   RAMSAT+56             ; Sprite 15
+SPR16   EQU   RAMSAT+60             ; Sprite 16
+SPR17   EQU   RAMSAT+64             ; Sprite 17
+SPR18   EQU   RAMSAT+68             ; Sprite 18
+SPR19   EQU   RAMSAT+72             ; Sprite 19
+SPR20   EQU   RAMSAT+76             ; Sprite 20
+SPR21   EQU   RAMSAT+80             ; Sprite 21
+SPR22   EQU   RAMSAT+84             ; Sprite 22
+SPR23   EQU   RAMSAT+88             ; Sprite 23
+SPR24   EQU   RAMSAT+92             ; Sprite 24
+SPR25   EQU   RAMSAT+96             ; Sprite 25
+SPR26   EQU   RAMSAT+100            ; Sprite 26
+SPR27   EQU   RAMSAT+104            ; Sprite 27
+SPR28   EQU   RAMSAT+108            ; Sprite 28
+SPR29   EQU   RAMSAT+112            ; Sprite 29
+SPR30   EQU   RAMSAT+116            ; Sprite 30
+SPR31   EQU   RAMSAT+120            ; Sprite 31
+SPR32   EQU   RAMSAT+124            ; Sprite 32
+
+
+*//////////////////////////////////////////////////////////////
+*                   VDP SPRITE UTILITIES
+*//////////////////////////////////////////////////////////////
+
+***************************************************************
+* S8X8   - Set sprite size 8x8 bits
+* S16X16 - Set sprite size 16x16 bits
+* SMAG1X - Set sprite magnification 1x
+* SMAG2X - Set sprite magnification 2x
+***************************************************************
+*  BL @....
+*--------------------------------------------------------------
+*  INPUT
+*  NONE
+********@*****@*********************@**************************
+S8X8    SZCB  @PLS2+1,@VDPR1        ; bit 6=0 (Sprite size 8x8)
+        RET
+S16X16  SOCB  @PLS2+1,@VDPR1        ; bit 6=1 (Sprite size 16x16)
+        RET
+SMAG1X  SZCB  @BIT7,@VDPR1          ; bit 7=0 (Sprite magnification 1x)
+        RET
+SMAG2X  SOCB  @BIT7,@VDPR1          ; bit 7=1 (Sprite magnification 2x)
+        RET
+
+
+***************************************************************
+* PUTSAT - Write shadow SAT to VDP SAT
+***************************************************************
+*  BL @PUTSAT
+*--------------------------------------------------------------
+*  INPUT
+*  R0=VDP target address or >FFFF if address must be derived
+*  R1=Address of shadow SAT in RAM/ROM
+*  R2=Address of sprite order table in RAM/ROM or >FFFF
+*     for default 0..31 order
+*--------------------------------------------------------------
+*  OUTPUT
+*  NONE
+*--------------------------------------------------------------
+*  REMARKS
+*  Has inline VMBW for speed
+*--------------------------------------------------------------
+*  EXAMPLE
+*  NONE
+********@*****@*********************@**************************
+PUTSAT  INCT  STACK
+        MOV   R11,*STACK+
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK
+*--------------------------------------------------------------
+*  Get SAT address
+*--------------------------------------------------------------
+        CI    R0,>FFFF
+        JNE   PUTSA1
+        BL    @VDPADR               ; Get VDP SAT address to @OUTP0
+        DATA  GETSAT
+        MOV   @OUTP0,R0
+*--------------------------------------------------------------
+*  Setup VDP write address
+*--------------------------------------------------------------
+PUTSA1  ORI   R0,>4000              ; Start of inline VMBW
+        SWPB  R0
+        MOVB  R0,@VDPA
+        SWPB  R0
+        MOVB  R0,@VDPA
+*--------------------------------------------------------------
+*  Check if sprite order table
+*--------------------------------------------------------------
+        CI    R2,>FFFF
+        JEQ   PUTSA4                ; Do default sprite order
+*--------------------------------------------------------------
+*  Dump shadow SAT to VDP SAT using sprite order table
+*--------------------------------------------------------------
+PUTSA2  INCT  STACK
+        MOV   R3,*STACK
+        LI    R3,32
+PUTSA3  CLR   R0
+        MOVB  *R2+,R0               ; Get sprite order entry
+        SRL   R0,6                  ; R0=R0*4 (shift right 8 and then shift left 2)
+        A     R1,R0                 ; Add table base to R0
+        MOVB  *R0+,@VDPW            ; Write SAT entry byte 0 to VDP         
+        NOP
+        MOVB  *R0+,@VDPW            ; Write SAT entry byte 1 to VDP  
+        NOP
+        MOVB  *R0+,@VDPW            ; Write SAT entry byte 2 to VDP  
+        NOP
+        MOVB  *R0,@VDPW             ; Write SAT entry byte 3 to VDP          
+        DEC   R3
+        JNE   PUTSA3
+        B     @POPRG3               ; Exit     
+*--------------------------------------------------------------
+*  Dump shadow SAT to VDP SAT using default 0..31 sprite order
+*--------------------------------------------------------------
+PUTSA4  LI    R2,128                ; SAT length = 128 bytes
+PUTSA5  MOVB  *R1+,@VDPW            
+        DEC   R2
+        JNE   PUTSA5                ; End of inline VMBW
+        B     @POPRG2               ; Exit
+
+
+
+***************************************************************
+* SPRORD - Initialize default sprite order 0..31
+***************************************************************
+*  BL @SPRORD
+*--------------------------------------------------------------
+*  INPUT
+*  R0=Address of sprite order table in RAM
+*--------------------------------------------------------------
+*  OUTPUT
+*  NONE
+*--------------------------------------------------------------
+*  REMARKS
+*  NONE
+*--------------------------------------------------------------
+*  EXAMPLE
+*  NONE
+********@*****@*********************@**************************
+SPRORD  INCT  STACK
+        MOV   R11,*STACK+
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK
+        LI    R1,>0001              ; First 2 entries
+        LI    R2,16
+SPROR1  MOV   R1,*R0+               ; Write 2 entries to sprite order table
+        AI    R1,>0202              ; Value for next 2 entries
+        DEC   R2
+        JNE   SPROR1
+        B     @POPRG2               ; Exit
+
+
+
+***************************************************************
+* SPRITE - Put object sprite on screen                
+***************************************************************
+*  BL @SPRITE
+*--------------------------------------------------------------
+*  INPUT
+*  R1 = Pointer to sprite table entry
+*--------------------------------------------------------------
+*  FORMAT sprite table entry
+*  DATA P0,P1,P2,P3,P4
+*
+*  P0 = VDP target address for entry in SAT
+*  P1 = MSB is Y position of sprite
+*       LSB is X position of sprite
+*  P2 = MSB is sprite character code
+*       LSB is sprite color
+*  P3 = ROM/RAM source address of sprite pattern data
+*  P4 = Additional subroutine to call via BL @xxxx
+*--------------------------------------------------------------
+*  REMARKS
+*  Set P3 to 0 if no pattern must be loaded
+*  Set P4 to 0 if no additional subroutines must be called
+*--------------------------------------------------------------
+*  EXAMPLE
+*       LI    R1,ABC
+*       BL    @SPRITE
+*       ....
+*  ABC  DATA  VDPSAT+40,>A280,>A40F,SCORP1,MYSUB
+********@*****@*********************@**************************
+SPRITE  INCT  STACK
+        MOV   R11,*STACK+           ; PUSH RET address
+        MOV   R1,*STACK+            
+        MOV   R0,*STACK+ 
+        MOV   R2,*STACK+            
+        MOV   R3,*STACK+            
+        MOV   R4,*STACK             
+        MOV   R1,R3                 ; Pointer to sprite data is in register 1 of caller
+SPRIT2  MOV   *R3,R0                ; BYTE 00-01 = VDP target address for SAT data
+        INCT  R3                    ;
+        MOV   R3,R1                 ; BYTE 02-03 = RAM address where SAT data is stored
+        LI    R2,4                  ; 1 sprite=4 bytes
+        BL    @VMBW
+* Calculate VDP pattern table target address
+        MOV   @2(R3),R2
+        SRL   R2,8                  ; Only interested in high byte
+        AI    R2,->80               ; Subtract >80   (pattern >80 is at start of pattern table)
+        SLA   R2,3                  ; Multiply by 8
+        AI    R2,VDPSPT             ; Calculate target address in VDP pattern table
+* Set VDP target address and source address
+        MOV   @4(R3),R1             ; RAM source address
+        JEQ   SPRIT3                ; No pattern data to load
+        MOV   R2,R0                 ; VDP target address
+        LI    R2,32                 ; 32 bytes = 4x4 sprite
+        BL    @VMBW
+* Set controller
+SPRIT3  MOV   @6(R3),R4             ; Do we have a sprite controller routine ?
+        JEQ   SPRIT4                ; No, exit
+        BL    *R4                   ; Yes, setup controller
+SPRIT4  B     @POPRG4

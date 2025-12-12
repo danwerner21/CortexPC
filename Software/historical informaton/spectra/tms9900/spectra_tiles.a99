@@ -1,0 +1,316 @@
+***************************************************************
+*                           SPECTRA! 
+*              Homebrew Game & Utilities Library 
+*                             for
+*               the Texas Instruments TI-99/4A  
+*                   2009 by Filip Van Vooren
+*
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*
+***************************************************************
+* This file: spectra_tiles.a99
+***************************************************************
+* v0.1  -   2009/01/16       Initial version
+***************************************************************
+* X=No input     D=Data variant        R=Register variant
+*
+* VDP TILE/PATTERN UTILITIES
+* ==========================
+* TIFONT - X - Load title screen font from GROM0 into VDP
+* FIBOX  - D - Fill box with character
+* FIBOXX - R - Fill box with character
+* FILSCR - R - Fill screen with character
+* PUTTX  - D - Put length-byte prefixed string on screen
+* MIRRV  - D - Mirror patterns in membuf around vertical axis
+***************************************************************
+
+
+
+*//////////////////////////////////////////////////////////////
+*                  VDP TILE/PATTERN UTILITIES
+*//////////////////////////////////////////////////////////////
+
+***************************************************************
+* TIFONT - Load TI-99/4A title screen font from GROM0 into VDP
+** ADD POSSIBILITY TO SPECIFY TITLE SCREEN FONT, NORMAL FONT
+** OR TEXT-MODE FONT OR SPECIFY ADDRESS WHERE FONT IS STORED
+** RENAME TO LDFONT 
+***************************************************************
+*  BL @TIFONT
+*--------------------------------------------------------------
+*  INPUT
+*  NONE
+********@*****@*********************@**************************
+TIFONT  INCT  STACK
+        MOV   R11,*STACK+           ; PUSH RET address
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK
+        BL    @VDPADR               ; Get address of Pattern Descriptor Table (PDT)
+        DATA  GETPDT
+        MOV   @OUTP0,R1
+        AI    R1,32*8               ; Offset for starting with ASCII 32        
+        BL    @G2MEM
+        DATA  >004C,OUTP0,2         ; Read GROM address >0048 (pointer to 1st built-in font)
+        MOV   @OUTP0,R0
+        LI    R2,>200               ; Copy font patterns
+        BL    @G2VDPX               ; Copy >200 bytes from GROM TO VDP       
+        B     @POPRG2               ; Exit
+
+
+
+***************************************************************
+* FIBOX - Fill box with character (data variant)
+* ADD POSSIBILITY TO SPECIFY BOUNDARY-CHECK AND TARGET
+* VDP-ADDRESS
+***************************************************************
+*  BL @FIBOX
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = Upper left corner X1
+*  P1 = Upper left corner Y1
+*  P2 = Width
+*  P3 = Height
+*  P4 = Character to fill
+********@*****@*********************@**************************
+FIBOX   INCT  STACK
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK+
+        MOV   R3,*STACK+
+        MOV   R4,*STACK+
+        MOV   *R11+,R0              ; P0
+        MOV   *R11+,R1              ; P1
+        MOV   *R11+,R2              ; P2
+        MOV   *R11+,R3              ; P3
+        MOV   *R11+,R4              ; P4
+        MOV   R11,*STACK        
+FIBOX1  BL    @XY2OF                ; R0=X R1=Y
+*--------------------------------------------------------------
+*  Boundary check
+*--------------------------------------------------------------
+        A     R0,R2                 ; P2 (width) + P0
+        C     R2,@VDPCOL            ; P2 + P0 <= 32 ?
+        JLE   FIBOX2                ; Yes, continue
+        MOV   @VDPCOL,R2            ; P2 (width) = 32 - P0
+FIBOX2  S     R0,R2                 ; 
+*--------------------------------------------------------------
+*  Calculate PNT base address
+*--------------------------------------------------------------
+FIBOX3  MOV   @OUTP0,R0             ; Store output from 'BL @XY2OF' in R0
+        BL    @VDPADR               ; Get address of Pattern Name Table (PNT)
+        DATA  GETPNT                ; @OUTP0 has table address                                    
+        A     @OUTP0,R0
+        MOV   R4,R1                 ; Character to fill
+        INC   R3         
+*--------------------------------------------------------------
+*  Start filling box
+*--------------------------------------------------------------
+FIBOX4  BL    @FVRAMX               ; Fill with caracter. R2 has width already
+        A     @VDPCOL,R0            ; Next row
+        DEC   R3                    ;
+        JNE   FIBOX4                ; Repeat until last row
+        MOV   *STACK,R11
+        DECT  STACK
+        B     @POPRX4               ; Exit
+
+
+***************************************************************
+* FIBOXX - Fill box with character (register variant)
+***************************************************************
+*  BL @FIBOXX
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = Upper left corner X1
+*  R1 = Upper left corner Y1
+*  R2 = Width
+*  R3 = Height
+*  R4 = Character to fill
+********@*****@*********************@**************************
+FIBOXX  INCT  STACK
+        MOV   R0,*STACK+            ; Push R0
+        MOV   R1,*STACK+            ; Push R1
+        MOV   R2,*STACK+            ; Push R2
+        MOV   R3,*STACK+            ; Push R3
+        MOV   R4,*STACK+            ; Push R4
+        MOV   R11,*STACK            ; Push R11
+        JMP   FIBOX1                ; Rest is same as FIBOX
+
+
+***************************************************************
+* FILSCR - Fill screen with character
+* ADD POSSIBILITY TO SUPPLY TARGET VDP ADDRESS !!!!!
+***************************************************************
+*  BL @FILSCR
+*--------------------------------------------------------------
+*  INPUT
+*  R0 = Character to fill
+********@*****@*********************@**************************
+FILSCR  INCT  STACK
+        MOV   R11,*STACK+
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK
+        LI    R1,24
+        MPY   @VDPCOL,R1            ; COLS * ROWS. Result is in R2       
+        MOV   R0,R1                 ; Fill character        
+        BL    @VDPADR               ; Get address of Pattern Name Table (PNT)
+        DATA  GETPNT 
+        MOV   @OUTP0,R0
+*--------------------------------------------------------------
+*    Inline VSBW
+*--------------------------------------------------------------
+        SWPB  R1
+        ORI   R0,>4000
+        SWPB  R0
+        MOVB  R0,@VDPA
+        SWPB  R0
+        MOVB  R0,@VDPA
+        NOP
+FILSCS  MOVB  R1,@VDPW              ; Write byte to VDP
+*--------------------------------------------------------------
+*    Loop housekeeping
+*--------------------------------------------------------------
+        DEC   R2
+        JNE   FILSCS
+        B     @POPRG2               ; Exit
+
+
+
+
+
+***************************************************************
+* Put length-byte prefixed string on screen
+* USE 0-TERMINATED STRING INSTEAD OF LENGTH-BASED STRING !!!!
+* ADD POSSIBILITY TO SPECIFY VDP TARGET ADDRESS !!!!
+***************************************************************
+*  BL @PUTTX
+*  DATA  P0,P1,P2
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = X column (0-31)
+*  P1 = Y column (0-23)
+*  P2 = Pointer to string
+*
+*  or alternative
+*
+*  P0 = MSB (X column  0-31)
+*       LSB (Y column  0-23)
+*  P1 = Pointer to string
+*--------------------------------------------------------------
+*  REMARKS
+*  First byte of string must contain length
+*--------------------------------------------------------------
+*  EXAMPLE
+*       BL    @PUTTX
+*       DATA  12,0,TX6
+*       ...
+*       BL    @PUTTX
+*       DATA  >0C00,TX6
+********@*****@*********************@**************************
+PUTTX   INCT  STACK
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK+ 
+        MOV   R3,*STACK+
+        MOV   *R11+,R0              ; X position
+        C     R0,@VDPCOL
+        JLE   PUTTX1
+        JMP   PUTTX2
+PUTTX1  MOV   *R11+,R1              ; Y position
+PUTTX2  MOV   *R11+,R3              ; Text to display
+        MOV   R11,*STACK
+        MOVB  *R3+,R2               ; First byte is length
+        SRL   R2,8                  ; Right justify
+        BL    @XY2OF                ; Set Offset in @OUTP0
+        MOV   @OUTP0,R0             ; VDP Target address
+*--------------------------------------------------------------
+*    Inline VMBW
+*--------------------------------------------------------------
+        ORI   R0,>4000
+        SWPB  R0
+        MOVB  R0,@VDPA
+        SWPB  R0
+        MOVB  R0,@VDPA
+        NOP
+PUTTX3  MOVB  *R3+,@VDPW
+*--------------------------------------------------------------
+*    Loop housekeeping
+*--------------------------------------------------------------
+        DEC   R2
+        JNE   PUTTX3
+        MOV   *STACK,R11
+        DECT  STACK
+        B     @POPRX3               ; Pop registers (R11 set) and return
+
+
+***************************************************************
+* MIRRV - Mirror patterns in membuf around vertical axis
+***************************************************************
+*  BL @MIRRV
+*  DATA P0,P1,P2
+*--------------------------------------------------------------
+*  INPUT
+*  P0 = Pointer to pattern data in RAM
+*  P1 = Number of bytes to mirror
+*  P2 = Swap patterns 0123 to 2301 (for 4x4 sprites) if SWAP
+********@*****@*********************@**************************
+MIRRV   INCT  STACK
+        MOV   R0,*STACK+
+        MOV   R1,*STACK+
+        MOV   R2,*STACK+
+        MOV   R3,*STACK+
+        MOV   R4,*STACK+
+        MOV   R5,*STACK+
+        MOV   R6,*STACK+
+        MOV   R7,*STACK+            
+        MOV   *R11+,R1              ; Pointer
+        MOV   *R11+,R2              ; Bytes
+        MOV   *R11+,R0              ; Swap
+        MOV   R11,*STACK        
+        CLR   R7                    ; Reset byte counter
+MIRRV1  CI    R0,SWAP
+        JNE   MIRRV3
+        CI    R7,32
+        JNE   MIRRV2
+        CLR   R7                    ; Reset byte counter
+        JMP   MIRRV3
+MIRRV2  CI    R7,16
+        JHE   MIRRV3
+        MOVB  *R1,R5                ; Duplicate byte
+        MOV   R1,R6                 ; Copy pointer address
+        AI    R6,16                 ; Added 16 to pointer address
+        MOVB  *R6,*R1               ; Swap byte
+        MOVB  R5,*R6                ; Swap byte
+MIRRV3  LI    R3,>80                ; Counter and work register 3 (Bit 8 set)
+        MOVB  *R1,R4                ; Copy byte to work register 4
+* Next bit
+MIRRV4  SRL   R3,1                  ; Shift right logical 1 bit
+        JOC   MIRRV5
+        SLA   R4,1                  ; Shift left arithmetic 1 bit
+        JNC   MIRRV4
+        ORI   R3,>8000              ; Set bit 16
+        JMP   MIRRV4
+* Next byte
+MIRRV5  SLA   R4,1                  ; Process last bit before proceeding with next byte
+        JNC   MIRRV6
+        ORI   R3,>8000
+MIRRV6  MOVB  R3,*R1+               ; Store MSB of R3 in memory pointed to by R1 and increase pointer
+        INC   R7
+        DEC   R2
+        JGT   MIRRV1                ; Process next byte
+        MOV   *STACK,R11
+        DECT  STACK
+        B     @POPRX7               ; Pop registers (R11 set) and return

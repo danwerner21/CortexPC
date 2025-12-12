@@ -1,0 +1,896 @@
+
+# The following IL codes are removed by the Modify routines
+
+#IL_RQD
+#IL_COMMA
+
+# The following IL codes are pre-handled in regular code,
+# in Logical_expr_gen and Arith_expr_gen:
+
+#IL_NOT   
+#IL_QUERY 
+#IL_COLON 
+#IL_LOGOR 
+#IL_LOGAND
+
+# Generic subroutines
+
+Il_RQD = {
+    always: {
+        code(_IDLE_, 0, 0);
+    }
+}
+
+DO_SWP = {
+    always: {
+        copy(temp1, left);
+        copy(left, right);
+        copy(right, temp1);
+    }
+}
+
+# First are the regular assigment operators. If the operator
+# is top-level and the result is not required, the destination
+# is set to be equal to the left parameter.
+
+IL_ASSIGN = {
+    dest,is_right: {
+        code(_MOV_, right, left);
+    }
+    dest,is_left: {
+        code(_MOV_, right, left);
+    }
+    always: {
+        code(_MOV_, right, left);
+        code(_MOV_, dest, left);
+    }
+}
+
+IL_RASGN = {
+    dest,is_left &
+    right,is_const_0: {
+        code(_CLR_, left, 0);
+    }
+    dest,is_left &
+    right,is_neg_1: {
+        code(_SETO_, left, 0);
+    }
+    right,is_const_0: {
+        code(_CLR_, left, 0);
+        code(_CLR_, dest, 0);
+    }
+    right,is_neg_1: {
+        code(_SETO_, left, 0);
+        code(_SETO_, dest, 0);
+    }
+    dest,is_right: {
+        code(_MOV_, left, right);
+    }
+    dest,is_left: {
+        code(_MOV_, left, right);
+    }
+    always: {
+        code(_MOV_, left, right);
+        code(_MOV_, dest, right);
+    }
+}
+
+IL_ASBYTE = {
+    left,in_reg: {
+        code(_SWPB_, left, 0);
+        code(_MOVB_, right, left);
+        code(_SWPB_, left, 0);
+    }
+    dest,is_right: {
+        code(_MOVB_, right, left);
+    }
+# dest must be reg
+    always: {
+        code(_MOVB_, right, left);
+        code(_CLR_, dest, 0);
+        code(_MOVB_, dest, left);
+        code(_SWPB_, dest, 0);
+    }
+}
+
+IL_RASBYTE = {
+    right,in_reg: {
+        code(_SWPB_, right, 0);
+        code(_MOVB_, left, right);
+        code(_SWPB_, right, 0);
+    }
+    dest,is_left: {
+        code(_MOVB_, left, right);    
+    }
+# dest must be reg
+    always: {
+        code(_MOVB_, left, right);
+        code(_CLR_, dest, 0);
+        code(_MOVB_, dest, right);
+        code(_SWPB_, dest, 0);
+    }
+}
+
+# Below are the + and - operators. Note that a
+# constant arg (if any) is always on the right.
+
+IL_ADD = {
+    dest,is_left &
+    right,is_const_1: {
+        code(_INC_, dest, 0);
+    }
+    dest,is_left &
+    right,is_const_2: {
+        code(_INCT_, dest, 0);
+    }
+    dest,in_reg &
+    dest,is_left &
+    right,is_constant: {
+        code(_AI_, dest, right);
+    }
+    dest,in_reg &
+    right,is_const_1: {
+        code(_MOV_, dest, left);
+        code(_INC_, dest, 0);
+    }
+    dest,in_reg &
+    right,is_const_2: {
+        code(_MOV_, dest, left);
+        code(_INCT_, dest, 0);
+    }
+    dest,in_reg &
+    right,is_constant: {
+        code(_MOV_, dest, left);
+        code(_AI_, dest, right);
+    }    
+    dest,is_right: {
+        code(_A_, dest, left);
+    }
+    dest,is_left: {
+        code(_A_, dest, right);
+    }
+    always: {
+        code(_MOV_, dest, left);
+        code(_A_, dest, right);
+    }
+}
+
+IL_RASADD = {
+    dest,is_left: {
+        call(IL_ADD, 0, 0);
+    }
+    left,in_reg: {
+        copy(temp1, dest);
+        copy(dest, left);
+        call(IL_ADD, 0, 0);
+        code(_MOV_, temp1, left);
+    }
+    always: {
+        call(IL_ADD, 0, 0);
+        code(_MOV_, left, dest);
+    }
+}
+
+IL_ASADD = {
+    always: {
+        call(DO_SWP, 0, 0);
+        call(IL_RASADD, 0, 0);
+    }
+}
+
+# Helper routine for IL_SUB
+
+DO_NEG = {
+    always: {
+        copy(stk1, const_val_right);
+        neg(stk1);
+        constant(temp1, stk1);
+    }
+}
+
+IL_SUB = {
+    dest,is_left &
+    right,is_const_1: {
+        code(_DEC_, dest, 0);
+    }
+    dest,is_left &
+    right,is_const_2: {
+        code(_DECT_, dest, 0);
+    }
+    dest,in_reg &
+    dest,is_left &
+    right,is_constant: {
+        call(DO_NEG, 0, 0);
+        code(_AI_, dest, temp1);
+    }
+    dest,in_reg &
+    right,is_const_1: {
+        code(_MOV_, dest, left);
+        code(_DEC_, dest, 0);
+    }
+    dest,in_reg &
+    right,is_const_2: {
+        code(_MOV_, dest, left);
+        code(_DECT_, dest, 0);
+    }
+    dest,in_reg &
+    right,is_constant: {
+        call(DO_NEG, 0, 0);
+        code(_MOV_, dest, left);
+        code(_AI_, dest, temp1);
+    }  
+    dest,is_left: {
+        code(_S_, dest, right);
+    }
+    always: {
+        code(_MOV_, dest, left);
+        code(_S_, dest, right);
+    }
+}
+
+# Options for IL_RSUB seem limited
+
+IL_RSUB = {
+    dest,is_right: {
+        code(_S_, dest, left);
+    }
+    always: {
+        code(_MOV_, dest, right);
+        code(_S_, dest, left);    
+    }
+}
+
+IL_RASSUB = {
+    dest,is_left: {
+        call(IL_SUB, 0, 0);
+    }
+    left,in_reg: {
+        copy(temp1, dest);
+        copy(dest, left);
+        call(IL_SUB, 0, 0);
+        code(_MOV_, temp1, left);
+    }
+    always: {
+        call(IL_SUB, 0, 0);
+        code(_MOV_, left, dest);
+    }
+}
+
+IL_ASSUB = {
+    always: {
+        call(DO_SWP, 0, 0);
+        call(IL_RASSUB, 0, 0);
+    }
+}
+
+# Below are the *, / and % operators, which implemented
+# by the MPYS and DIVS instructions (for signed) or MPY
+# and DIV (for unsigned). In any case, the register pair
+# is always R0,R1 as required by MPYS/DIVS.
+
+DO_MUL = {
+    temp1,is_left &
+    temp2,is_in_dest: {
+        code(_MPY_, temp1, right);
+    }
+    temp1,is_left: {
+        code(_MPY_, temp1, right);
+        code(_MOV_, dest, temp2);
+    }
+    temp2,is_in_dest: {
+        code(_MOV_, temp1, left);
+        code(_MPY_, temp1, right);
+    }
+    always: {
+        code(_MOV_, temp1, left);
+        code(_MPY_, temp1, right);
+        code(_MOV_, dest, temp2);
+    }
+}
+
+IL_MUL = {
+    always: {
+        set(0, stk1, 0);
+        register(temp1, stk1);
+        set(1, stk1, 0);
+        register(temp2, stk1);
+        call(DO_MUL, 0, 0);
+    }
+}
+
+IL_RASMUL = {
+    dest,is_left: {
+        call(IL_MUL, 0, 0);
+    }
+    left,in_reg: {
+        copy(temp3, dest);
+        copy(dest, left);
+        call(IL_MUL, 0, 0);
+        code(_MOV_, temp3, left);
+    }
+    always: {
+        call(IL_MUL, 0, 0);
+        code(_MOV_, left, dest);
+    }
+}
+
+IL_ASMUL = {
+    always: {
+        call(DO_SWP, 0, 0);
+        call(IL_RASMUL, 0, 0);
+    }
+}
+
+DO_DIV = {
+    temp2,is_left &
+    temp1,is_in_dest: {
+        code(_DIV_, temp1, right);
+    }
+    temp2,is_left: {
+        code(_DIV_, temp1, right);
+        code(_MOV_, dest, temp1);
+    }
+    temp1,is_in_dest: {
+        code(_MOV_, temp2, left);
+        code(_DIV_, temp1, right);
+    }
+    always: {
+        code(_MOV_, temp2, left);
+        code(_DIV_, temp1, right);
+        code(_MOV_, dest, temp1);
+    }
+}
+
+IL_DIV = {
+    always: {
+        set(0, stk1, 0);
+        register(temp1, stk1);
+        set(1, stk1, 0);
+        register(temp2, stk1);
+        code(_CLR_, temp1, 0);
+        call(DO_DIV, 0, 0);
+    }
+}
+
+IL_RASDIV = {
+    dest,is_left: {
+        call(IL_DIV, 0, 0);
+    }
+    left,in_reg: {
+        copy(temp3, dest);
+        copy(dest, left);
+        call(IL_DIV, 0, 0);
+        code(_MOV_, temp3, left);
+    }
+    always: {
+        call(IL_ADD, 0, 0);
+        code(_MOV_, left, dest);
+    }
+}
+
+IL_ASDIV = {
+    always: {
+        call(DO_SWP, 0, 0);
+        call(IL_RASDIV, 0, 0);
+    }
+}
+
+DO_MOD = {
+    temp2,is_left &
+    temp2,is_in_dest: {
+        code(_DIV_, temp1, right);
+    }
+    temp2,is_left: {
+        code(_DIV_, temp1, right);
+        code(_MOV_, dest, temp2);
+    }
+    temp2,is_in_dest: {
+        code(_MOV_, temp2, left);
+        code(_DIV_, temp1, right);
+    }
+    always: {
+        code(_MOV_, temp2, left);
+        code(_DIV_, temp1, right);
+        code(_MOV_, dest, temp2);
+    }
+}
+
+IL_MOD = {
+    always: {
+        set(0, stk1, 0);
+        register(temp1, stk1);
+        set(1, stk1, 0);
+        register(temp2, stk1);
+        code(_CLR_, temp1, 0);
+        call(DO_MOD, 0, 0);
+    }
+}
+
+IL_RASMOD = {
+    dest,is_left: {
+        call(IL_MOD, 0, 0);
+    }
+    left,in_reg: {
+        copy(temp3, dest);
+        copy(dest, left);
+        call(IL_MOD, 0, 0);
+        code(_MOV_, temp3, left);
+    }
+    always: {
+        call(IL_MOD, 0, 0);
+        code(_MOV_, left, dest);
+    }
+}
+
+IL_ASMOD = {
+    always: {
+        call(DO_SWP, 0, 0);
+        call(IL_RASMOD, 0, 0);
+    }
+}
+
+# The below two are removed by the register generator, as they
+# do not appear to be useful on the TI-990.
+
+#IL_RDIV
+#IL_RMOD
+
+# Next are the binary bit operators |, & and ^. Note that the
+# TI-990 does not have a general AND operation, only SZC.
+
+IL_BITOR  = {
+    dest,in_reg &
+    dest,is_left &
+    right,is_constant: {
+        code(_ORI_, dest, right);
+    }
+    dest,in_reg &
+    right,is_constant: {
+        code(_MOV_, dest, left);
+        code(_ORI_, dest, right);
+    }    
+    dest,is_right: {
+        code(_SOC_, dest, left);
+    }
+    dest,is_left: {
+        code(_SOC_, dest, right);
+    }
+    always: {
+        code(_MOV_, dest, left);
+        code(_SOC_, dest, right);
+    }
+}
+
+IL_RASOR = {
+    dest,is_left: {
+        call(IL_BITOR, 0, 0);
+    }
+    left,in_reg: {
+        copy(temp1, dest);
+        copy(dest, left);
+        call(IL_BITOR, 0, 0);
+        code(_MOV_, temp1, left);
+    }
+    always: {
+        call(IL_BITOR, 0, 0);
+        code(_MOV_, left, dest);
+    }
+}
+
+IL_ASOR = {
+    always: {
+        call(DO_SWP, 0, 0);
+        call(IL_RASOR, 0, 0);
+    }
+}
+
+IL_BITAND = {
+    dest,in_reg &
+    dest,is_left &
+    right,is_constant: {
+        code(_ANDI_, dest, right);
+    }
+    dest,in_reg &
+    right,is_constant: {
+        code(_MOV_, dest, left);
+        code(_ANDI_, dest, right);
+    }
+    dest,is_left: {
+        code(_MOV_, r12, right);
+        code(_INV_, r12, 0);
+        code(_SZC_, dest, r12);        
+    }
+    always: {
+        code(_MOV_, r12, right);
+        code(_INV_, r12, 0);
+        code(_MOV_, dest, left);
+        code(_SZC_, dest, r12);        
+    }
+}
+
+IL_RASAND = {
+    dest,is_left: {
+        call(IL_BITAND, 0, 0);
+    }
+    left,in_reg: {
+        copy(temp1, dest);
+        copy(dest, left);
+        call(IL_BITAND, 0, 0);
+        code(_MOV_, temp1, left);
+    }
+    dest,in_reg &
+    right,is_constant: {
+        code(_MOV_, r12, left);
+        code(_ANDI_, r12, right);
+        code(_MOV_, left, r12);
+        code(_MOV_, dest, r12);
+    }
+    always: {
+        call(IL_BITAND, 0, 0);
+        code(_MOV_, left, dest);
+    }
+}
+
+IL_ASAND = {
+    always: {
+        call(DO_SWP, 0, 0);
+        call(IL_RASAND, 0, 0);
+    }
+}
+
+# This IL opcode is inserted by Modify when the right
+# operand has a ~ as its top node, which is then removed
+# and the operation changed to IL_BITANDN.
+
+IL_BITANDN = {
+    always: {
+        code(_MOV_, dest, left);
+        code(_SZC_, dest, right);        
+    }
+}
+
+IL_BITXOR = {
+    dest,in_reg &
+    dest,is_right: {
+        code(_XOR_, dest, left);
+    }
+    dest,in_reg &
+    dest,is_left: {
+        code(_XOR_, dest, right);
+    }
+    always: {
+        code(_MOV_, dest, left);
+        code(_XOR_, dest, right);
+    }
+}
+
+IL_RASXOR = {
+    dest,is_left: {
+        call(IL_BITXOR, 0, 0);
+    }
+    left,in_reg: {
+        copy(temp1, dest);
+        copy(dest, left);
+        call(IL_BITXOR, 0, 0);
+        code(_MOV_, temp1, left);
+    }
+    always: {
+        call(IL_BITXOR, 0, 0);
+        code(_MOV_, left, dest);
+    }
+}
+
+IL_ASXOR = {
+    always: {
+        call(DO_SWP, 0, 0);
+        call(IL_RASXOR, 0, 0);
+    }
+}
+
+# The >> and << shift operators are below.
+
+DO_SHIFT = {
+    dest,is_left & right,is_constant: {
+        code_var(stk1, right, dest);
+    }
+    dest,is_left & temp1,is_right: {
+        code_var(stk1, temp1, dest);
+    }
+    right,is_constant: {
+        code(_MOV_, dest, left);
+        code_var(stk1, right, dest);
+    }
+    dest,is_left: {
+        code(_MOV_, temp1, right);
+        code_var(stk1, temp1, dest);
+    }
+    temp1,is_right: {
+        code(_MOV_, dest, left);
+        code_var(stk1, temp1, dest);
+    }
+    always: {
+        code(_MOV_, temp1, right);
+        code(_MOV_, dest, left);
+        code_var(stk1, temp1, dest);        
+    }
+}
+IL_SHR = {
+    always: {
+        set(0, stk1, 0);
+        register(temp1, stk1); # temp1 = R0
+        set(_SRA_, stk1, 0);
+        call(DO_SHIFT, 0, 0);
+    }
+}
+IL_SHL    = {
+    always: {
+        set(0, stk1, 0);
+        register(temp1,stk1); # temp1 = R0
+        set(_SLA_, stk1, 0);
+        call(DO_SHIFT, 0, 0);
+    }
+}
+
+# These two are removed by the register allocator,
+# because all cases can be handled well by the above.
+
+#IL_RSHR
+#IL_RSHL
+
+IL_RASSHR = {
+    dest,is_left & left,in_reg: {
+        call(IL_SHR, 0, 0);
+    }
+    left,in_reg: {
+        copy(temp2, dest);
+        copy(dest, left);
+        call(IL_SHR, 0, 0);
+        code(_MOV_, temp2, left);
+    }
+    dest,is_left: {
+        code(_MOV_, r12, left);
+        copy(temp2, left);
+        copy(left, r12);
+        copy(dest, r12);
+        call(IL_SHR, 0, 0);
+        code(_MOV_, temp2, r12);
+    }
+    always: {
+        code(_MOV_, r12, left);
+        copy(temp2, left);
+        copy(temp3, dest);
+        copy(left, r12);
+        copy(dest, r12);
+        call(IL_SHR, 0, 0);
+        code(_MOV_, temp2, r12);
+        code(_MOV_, temp3, r12);
+    }
+}
+
+IL_ASSHR = {
+    always: {
+        call(DO_SWP, 0, 0);
+        call(IL_RASSHR, 0, 0);
+    }
+}
+
+IL_RASSHL = {
+    dest,is_left & left,in_reg: {
+        code(_MOV_, r12, r12);
+        call(IL_SHL, 0, 0);
+    }
+    left,in_reg: {
+        copy(temp2, dest);
+        copy(dest, left);
+        call(IL_SHL, 0, 0);
+        code(_MOV_, temp2, left);
+    }
+    dest,is_left: {
+        code(_MOV_, r12, left);
+        copy(temp2, left);
+        copy(left, r12);
+        copy(dest, r12);
+        call(IL_SHL, 0, 0);
+        code(_MOV_, temp2, r12);
+    }
+    always: {
+        code(_MOV_, r12, left);
+        copy(temp2, left);
+        copy(temp3, dest);
+        copy(left, r12);
+        copy(dest, r12);
+        call(IL_SHL, 0, 0);
+        code(_MOV_, temp2, r12);
+        code(_MOV_, temp3, r12);
+    }
+}
+
+IL_ASSHL = {
+    always: {
+        call(DO_SWP, 0, 0);
+        call(IL_RASSHL, 0, 0);
+    }
+}
+
+# The following are the pre- and post- versions
+# of the ++ and -- operators. If the operator is top-level
+# and the result is not required, the destination is set
+# to be equal to the left parameter.
+
+IL_PREINC  = {
+    dest,is_left: {
+        code(_INC_, left, 0);
+    }
+    always: {
+        code(_INC_, left, 0);
+        code(_MOV_, dest, left);
+    }
+}
+
+IL_PREDEC  = {
+    dest,is_left: {
+        code(_DEC_, left, 0);
+    }
+    always: {
+        code(_DEC_, left, 0);
+        code(_MOV_, dest, left);
+    }
+}
+IL_POSTINC = {
+    dest,is_left: {
+        code(_INC_, left, 0);
+    }
+    always: {
+       code(_MOV_, dest, left);
+       code(_INC_, left, 0);
+    }
+}
+
+IL_POSTDEC = {
+    dest,is_left: {
+        code(_DEC_, left, 0);
+    }
+    always: {
+       code(_MOV_, dest, left);
+       code(_DEC_, left, 0);
+    }
+}
+
+# Below are the unary ~ and - operators. If the datum
+# is also the destination, do the operation in place.
+
+IL_BITNOT  = {
+    dest,is_left: {
+        code(_INV_, dest, 0);
+    }
+    always: {
+        code(_MOV_, dest, left);
+        code(_INV_, dest, 0);
+    }
+}
+
+IL_NEG = {
+    dest,is_left: {
+        code(_NEG_, dest, 0);
+    }
+    always: {
+        code(_MOV_, dest, left);
+        code(_NEG_, dest, 0);
+    }
+}
+
+# Below are the operators that deal with array indexing
+# and pointer handling: [], {}, unary * and unary &.
+# IL_WFETCH is a no-op, because the destination is set to
+# register-indirect and the fetch is handled by the addressing
+# mode. For IL_BFETCH a byte=>word conversion is necessary.
+
+IL_WIDX    = {
+    scratch,is_left: {
+        code(_A_, scratch, right);
+        code(_SLA_, const_1, scratch);    
+    }
+    scratch,is_right: {
+        code(_A_, scratch, left);
+        code(_SLA_, const_1, scratch);    
+    }
+    always: {
+        code(_MOV_, scratch, left);
+        code(_A_, scratch, right);
+        code(_SLA_, const_1, scratch);
+    }
+}
+IL_RWIDX = { always: { } } # same as IL_WIDX
+
+IL_WFETCH = {
+    always: { }
+}
+
+IL_BIDX    = {
+    scratch,is_right: {
+        code(_SLA_, const_1, scratch);    
+        code(_A_, scratch, left);
+    }
+    always: {
+        code(_MOV_, scratch, right);
+        code(_SLA_, const_1, scratch);
+        code(_A_, scratch, left);
+    }
+}
+
+IL_RBIDX    = {
+    scratch,is_left: {
+        code(_SLA_, const_1, scratch);    
+        code(_A_, scratch, right);
+    }
+    always: {
+        code(_MOV_, scratch, left);
+        code(_SLA_, const_1, scratch);
+        code(_A_, scratch, right);
+    }
+}
+
+IL_BFETCH = {
+    always: {
+        code(_MOVB_, dest, left);
+        code(_SRA_, const_8, dest);
+    }
+}
+
+IL_LVAL = {
+    scratch,is_left: {
+        code(_SLA_, const_1, scratch);
+    }
+    always: {
+        code(_MOV_, scratch, left);
+        code(_SLA_, const_1, scratch);
+    }
+}
+
+IL_RVAL = {
+    left,is_extrn: { #external variable
+        code(_LI_, dest, left);
+        code(_SRA_, const_1, dest);
+    }
+    left,in_reg: { #calculated or argument (possibly from ? list)
+        code(_STWP_, dest, 0);
+        constant(temp1, val_left);
+        code(_AI_, dest, temp1);
+        code(_SRA_, const_1, dest);        
+    }
+    always: { #must be regular auto variable
+        code(_MOV_, dest, r11);
+        code(_AI_, dest, left);
+        code(_SRA_, const_1, dest);
+    }
+}
+
+# Last are the IL codes that are associated with
+# function calls. IL_NULL is, as the name suggests,
+# a null operation, as is IL_MARK.
+
+IL_NULL = { always: { } }
+IL_MARK = { always: { } }
+
+IL_FCTN_CALL = {
+    r12,is_in_dest: { # means that result is voided
+        code(_BLWP_, r11, 0);
+    }
+    always: {
+        code(_BLWP_, r11, 0);
+        code(_MOV_, dest, return_val_locn);
+    }
+}
+
+IL_NFCTN_CALL = {
+    always: {
+        call(IL_FCTN_CALL, 0, 0);
+    }
+}
+
+IL_ADDR = {
+    always: {
+        code(_MOV_, r12, right);
+        code(_SLA_, const_1, r12);
+    }
+}

@@ -55,4 +55,3 @@ char **argv;
 	}
 	exit(0);
 }
-

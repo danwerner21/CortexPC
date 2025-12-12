@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# echo $1
+../Lex/Lex $1 >lexil
+cat lexil | ../Parse/Parse
+cat externals | ../Data/Data >data.out
+../Clean/Clean
+cp cleanil functions
+# ../Parse/pil
+../Code/Code >eh.out
+cat data.out >>eh.out
+rm lexil strings cleanil functions manifests externals data.out
+#../uld/uld
+
